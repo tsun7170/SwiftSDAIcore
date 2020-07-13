@@ -1,5 +1,5 @@
 //
-//  SwiftSDAIcore.swift
+//  P21Decode.swift
 //  SwiftSDAIcorePackage
 //
 //  Created by Yoshida on 2020/05/31.
@@ -8,5 +8,7 @@
 
 import Foundation
 
-public typealias NameSpace = String
+public enum P21Decode: NameSpace {
+	
+}
 
