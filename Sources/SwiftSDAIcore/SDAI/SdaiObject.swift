@@ -170,7 +170,9 @@ public enum SDAI: NameSpace {
 	public class ComplexEntity {
 		typealias EntityName = SDAIDictionarySchema.ExpressId
 //		var partialEntities: Dictionary<PartialEntity.Type,(instance:PartialEntity,reference:EntityReference?)> = [:]
-		func partialEntityInstance<PE:PartialEntity>(_ peType:PE.type) -> PE? {
+		func partialEntityInstance<PE:PartialEntity>(_ peType:PE.type) -> PE? {			
+		}
+		func entityReference<ER:EntityReference>(_ erType:ER.type) -> ER? {
 			
 		}
 	}
