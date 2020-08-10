@@ -22,6 +22,10 @@ public protocol SDAILogicalType: SDAISimpleType {
 	
 }
 
+public protocol SDAIGenericType {
+	
+}
+
 public protocol SDAIAggregationType: Sequence {
 	associatedtype Element
 	var asArray: Array<Element> {get}
@@ -75,6 +79,7 @@ public protocol SDAISelectType {
 	
 }
 
+//MARK: - SDAI namespace
 public enum SDAI: NameSpace {
 	public typealias RawValue = NameSpace
 	
@@ -99,6 +104,15 @@ public enum SDAI: NameSpace {
 	public typealias ENUMERATION = Int
 	public typealias SELECT = String
 	
+	public struct AGGREGATE<Element,S:LazySequenceProtocol>: SDAIAggregationType {
+		private var content: S
+		public init(from base: S) {
+			self.content = base
+		}
+		public func QUERY<FS:LazySequenceProtocol>(logical_expression: (Element) -> LOGICAL ) -> AGGREGATE<Element,FS> {
+			return AGGREGATE(from: content.filter{ logical_expression($0) == TRUE })
+		}
+	}
 	
 	public struct ARRAY<Element>: SDAIAggregationType {
 		public var bound1: Int
