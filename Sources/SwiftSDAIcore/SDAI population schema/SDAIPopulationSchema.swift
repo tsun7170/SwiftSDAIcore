@@ -8,6 +8,7 @@
 
 import Foundation
 
-public enum SDAIPopulationSchema: NameSpace {
+public enum SDAIPopulationSchema {
+	
 
 }

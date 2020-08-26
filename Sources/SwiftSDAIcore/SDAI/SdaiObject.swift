@@ -30,14 +30,14 @@ public protocol SDAIAggregationType: Sequence {
 	associatedtype Element
 	var asArray: Array<Element> {get}
 	
-	typealias EntityReferenceObserver = @escaping (_ removing: SDAI.EntityReference?, _ adding: SDAI.EntityReference?) -> Void
-	var observer: EntityReferenceObserver? { get set }
+	typealias EntityReferenceObserver = (_ removing: SDAI.EntityReference?, _ adding: SDAI.EntityReference?) -> Void
+//	var observer: EntityReferenceObserver? { get set }
 	var _observer: EntityReferenceObserver? { get set }
-	mutating func resetObserver()
+//	mutating func resetObserver()
 
 }
-extension SDAIAggregationType where Element: SDAI.EntityReference {
-	var observer: EntityReferenceObserver? {
+public extension SDAIAggregationType where Element: SDAI.EntityReference {
+	public var observer: EntityReferenceObserver? {
 		get { _observer }
 		set {
 			if let oldObserver = observer, newValue == nil {	// removing observer
@@ -55,7 +55,8 @@ extension SDAIAggregationType where Element: SDAI.EntityReference {
 			}
 		} // setter
 	}
-	mutating func resetObserver() {
+	
+	public mutating func resetObserver() {
 		_observer = nil
 	}
 	
@@ -64,26 +65,26 @@ extension SDAIAggregationType where Element: SDAI.EntityReference {
 
 
 public protocol SDAIBagType: SDAIAggregationType {
-	func add(member: Element?)
-	func remove(member: Element?)
+	mutating func add(member: Element?)
+	mutating func remove(member: Element?)
 }
 
 public protocol SDAINamedType {
 	
 }
 
-public protocol SDAIEnumerationType {
+public protocol SDAIEnumerationType: Hashable {
 	
 }
-public protocol SDAISelectType {
+public protocol SDAISelectType: Hashable {
 	
 }
 
 //MARK: - SDAI namespace
-public enum SDAI: NameSpace {
-	public typealias RawValue = NameSpace
+public enum SDAI {
 	
-	
+	public typealias EntityName = SDAIDictionarySchema.ExpressId
+
 	public typealias BOOLEAN = Bool
 	public typealias LOGICAL = Bool?
 	public static let TRUE:BOOLEAN = true
@@ -102,19 +103,29 @@ public enum SDAI: NameSpace {
 	}
 	
 	public typealias ENUMERATION = Int
-	public typealias SELECT = String
+//	public typealias SELECT = String
 	
-	public struct AGGREGATE<Element,S:LazySequenceProtocol>: SDAIAggregationType {
+	public struct AGGREGATE<Element,S:LazySequenceProtocol>: SDAIAggregationType 
+	where S.Element==Element {
+		public func makeIterator() -> S.Iterator { return content.makeIterator() }
+		public var asArray: Array<Element> { return Array(content) }
+		public var _observer: EntityReferenceObserver?
+		
+		
 		private var content: S
 		public init(from base: S) {
 			self.content = base
 		}
-		public func QUERY<FS:LazySequenceProtocol>(logical_expression: (Element) -> LOGICAL ) -> AGGREGATE<Element,FS> {
-			return AGGREGATE(from: content.filter{ logical_expression($0) == TRUE })
+		public func QUERY(logical_expression:@escaping (Element) -> LOGICAL ) -> AGGREGATE<Element,LazyFilterSequence<S.Elements>> {
+			return AGGREGATE<Element,LazyFilterSequence<S.Elements>>(from: content.filter{ logical_expression($0) == TRUE })
 		}
 	}
 	
 	public struct ARRAY<Element>: SDAIAggregationType {
+		public func makeIterator() -> Array<Element>.Iterator { return content.makeIterator() }
+		public var asArray: Array<Element> { return content }
+		public var _observer: EntityReferenceObserver?
+		
 		public var bound1: Int
 		public var bound2: Int
 		private var content: Array<Element> = []
@@ -127,8 +138,12 @@ public enum SDAI: NameSpace {
 	
 	
 	public struct LIST<Element>: SDAIAggregationType {
-		private var content: [Element] = []
-		public init(from swiftArray: [Element]) {
+		public func makeIterator() -> Array<Element>.Iterator { return content.makeIterator() }
+		public var asArray: Array<Element> { return content }
+		public var _observer: EntityReferenceObserver?
+		
+		private var content: Array<Element> = []
+		public init(from swiftArray: Array<Element>) {
 			content = swiftArray
 		}
 		
@@ -140,8 +155,12 @@ public enum SDAI: NameSpace {
 	
 	
 	public struct BAG<Element:Hashable>: SDAIBagType {
-		private var content: [Element] = []
-		public init(from swiftArray: [Element]) {
+		public func makeIterator() -> Array<Element>.Iterator { return content.makeIterator() }
+		public var asArray: Array<Element> { return content }
+		public var _observer: EntityReferenceObserver?
+
+		private var content: Array<Element> = []
+		public init(from swiftArray: Array<Element>) {
 			content = swiftArray
 		}
 
@@ -149,10 +168,26 @@ public enum SDAI: NameSpace {
 			return BAG(from: content.filter{ logical_expression($0) == TRUE })
 		}
 		
+		public mutating func add(member: Element?) {
+			guard let member = member else {return}
+			content.append(member)
+		}
+		
+		public mutating func remove(member: Element?) {
+			guard let member = member else {return}
+			if let index = content.lastIndex(of: member) {
+				content.remove(at: index)
+			}
+		}
+		
 	}
 	
 	
 	public struct SET<Element:Hashable>: SDAIBagType {
+		public func makeIterator() -> Set<Element>.Iterator { return content.makeIterator() }
+		public var asArray: Array<Element> { return Array(content) }
+		public var _observer: EntityReferenceObserver?
+		
 		private var content: Set<Element> = []
 		public init(from swiftSet: Set<Element>) {
 			content = swiftSet
@@ -161,6 +196,17 @@ public enum SDAI: NameSpace {
 		public func QUERY(logical_expression: (Element) -> LOGICAL ) -> SET<Element> {
 			return SET(from: content.filter{ logical_expression($0) == TRUE })
 		}
+
+		public mutating func add(member: Element?) {
+			guard let member = member else {return}
+			content.insert(member)
+		}
+		
+		public mutating func remove(member: Element?) {
+			guard let member = member else {return}
+			content.remove(member)
+		}
+		
 	}
 	
 	
@@ -170,39 +216,68 @@ public enum SDAI: NameSpace {
 		
 	}
 	
-//	public class DirectAccessObject: SdaiObject {
-//		
-//	}
-//	public class DirectAccessObjectSDAI: DirectAccessObject {
-//		
-//	}
 
-	public class PartialEntity {
-//		var complexEntity: ComplexEntity
+	//MARK: - PartialEntity
+	open class PartialEntity: NSObject {
+		public static var entityName: EntityName { abstruct() }
 	}
 	
-	public class ComplexEntity {
-		typealias EntityName = SDAIDictionarySchema.ExpressId
-//		var partialEntities: Dictionary<EntityName,(instance:PartialEntity,reference:EntityReference?)> = [:]
-		func partialEntityInstance<PENT:PartialEntity>(_ peType:PENT.type) -> PENT? {			
-		}
-		func resolvePartialEntityInstance(from:[EntityName]) -> PartialEntity? {
+	
+	//MARK: - ComplexEntity
+	open class ComplexEntity: NSObject {
+		private var partialEntities: Dictionary<EntityName,(instance:PartialEntity,reference:EntityReference?)> = [:]
+
+		public init(entities:[PartialEntity]) {
+			super.init()
 			
+			for pe in entities {
+				partialEntities[type(of: pe).entityName] = (instance:pe, reference:nil)	
+			}
 		}
-		func entityReference<EREF:EntityReference>(_ erType:EREF.type) -> EREF? {
-			
+		
+		public func partialEntityInstance<PENT:PartialEntity>(_ peType:PENT.Type) -> PENT? {
+			if let (pe,_) = partialEntities[peType.entityName] {
+				return pe as? PENT
+			}
+			return nil
 		}
+		
+		public func resolvePartialEntityInstance(from namelist:[EntityName]) -> PartialEntity? {
+			for entityName in namelist {
+				if let (pe,_) = partialEntities[entityName] {
+					return pe
+				}
+			}
+			return nil
+		}
+		
+		public func entityReference<EREF:EntityReference>(_ erType:EREF.Type) -> EREF? {
+			if let (pe,eref) = partialEntities[erType.partialEntityType.entityName] {
+				if eref != nil { return eref as? EREF }
+				
+				if let eref = EREF(self) {
+					partialEntities[erType.partialEntityType.entityName] = (pe,eref)
+					return eref
+				}
+			}
+			return nil
+		}
+		
 	}
 	
-	public class EntityReference {
-		static let partialEntityType: PartialEntity.Type
+	//MARK: - EntityReference
+	open class EntityReference: NSObject {
+		public static var partialEntityType: PartialEntity.Type { abstruct() }
+					
+		public let complexEntity: ComplexEntity
 		
-		var complexEntity: ComplexEntity
-//		var partialEntity: PartialEntity
-//		var SUPER: Array<EntityReference>
+		public required init?(_ complexEntity: ComplexEntity) {
+			self.complexEntity = complexEntity
+			super.init()
+		}
 		
-		static func cast<T:EntityReference>( from: T ) -> Self {
-			
+		public static func cast<EREF:EntityReference>( from source: EREF ) -> Self? {
+			return source.complexEntity.entityReference(self)
 		}
 	}
 	

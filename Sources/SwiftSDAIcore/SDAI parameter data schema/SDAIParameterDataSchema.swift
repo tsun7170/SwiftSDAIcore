@@ -8,7 +8,8 @@
 
 import Foundation
 
-public enum SDAIParameterDataSchema: NameSpace {
+public enum SDAIParameterDataSchema {
+	
 
 	public class ApplicationInstance {
 		

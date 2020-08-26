@@ -8,7 +8,8 @@
 
 import Foundation
 
-public enum P21Decode: NameSpace {
+public enum P21Decode {
+	
 	
 }
 

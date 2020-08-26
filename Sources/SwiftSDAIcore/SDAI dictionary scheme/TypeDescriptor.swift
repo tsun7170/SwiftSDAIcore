@@ -11,9 +11,9 @@ import Foundation
 extension SDAIDictionarySchema {
 	
 	
-	public class TypeDescriptor: hashable {
+	public class TypeDescriptor: NSObject {
 
-		enum PrimitiveType:Int {
+		public enum PrimitiveType:Int {
 			case 
 					sdaiINTEGER     = 0x0001,
 					sdaiREAL        = 0x0002,
@@ -44,21 +44,21 @@ extension SDAIDictionarySchema {
 	}
 
 	
-	public enum BaseType:SDAI.SELECT, SDAISelectType {
+	public enum BaseType: SDAISelectType {
 		case simpleType(SimpleType)
 		case aggregationType(AggregationType)
 		case namedType(NamedType)
 	}
 
 	
-	public enum UnderlyingType: SDAI.SELECT, SDAISelectType {
+	public enum UnderlyingType: SDAISelectType {
 		case simpleType(SimpleType)
 		case aggregationType(AggregationType)
 		case definedType(DefinedType)
 		case constructedType(ConstructedType)
 	}
 	
-	public enum ConstructedType:SDAI.SELECT, SDAISelectType {
+	public enum ConstructedType: SDAISelectType {
 		case enumerationType(EnumerationType)
 		case selectType(SelectType)
 	}
@@ -70,30 +70,30 @@ extension SDAIDictionarySchema {
 
 	
 	public class EnumerationType: TypeDescriptor {
-		public var elements: SDAI.LIST<ExpressId>
+//		public var elements: SDAI.LIST<ExpressId>
 	}
 	
 	public class SelectType: TypeDescriptor {
-		public var selections: SDAI.SET<NamedType>
+//		public var selections: SDAI.SET<NamedType>
 	}
 
 	
 	public class AggregationType: TypeDescriptor {
-		public var elementType: BaseType
+//		public var elementType: BaseType
 	}
 	
 
 	public class NamedType: TypeDescriptor {
-		
-		public var name: ExpressId
-		public var whereRules: SDAI.LIST<WhereRule> = []
-		public var parentSchema: SchemaDefinition
-		
-
+//		
+//		public var name: ExpressId
+//		public var whereRules: SDAI.LIST<WhereRule> = []
+//		public var parentSchema: SchemaDefinition
+//		
+//
 	}
 	
 	public class DefinedType : NamedType {
-		public var domain: UnderlyingType
+//		public var domain: UnderlyingType
 	}
 
 	

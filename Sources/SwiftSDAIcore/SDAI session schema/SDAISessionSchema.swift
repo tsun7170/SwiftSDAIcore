@@ -8,6 +8,7 @@
 
 import Foundation
 
-public enum SDAISessionSchema: NameSpace {
+public enum SDAISessionSchema {
+	
 
 }

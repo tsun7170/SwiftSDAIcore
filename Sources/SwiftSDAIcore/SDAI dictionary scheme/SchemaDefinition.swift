@@ -12,26 +12,26 @@ extension SDAIDictionarySchema {
 	
 	public class SchemaDefinition {
 		
-		public var name: ExpressId
-		public let identification: InfoObjectId = "{ iso standard 10303 part(22) version(0) object(1) SDAI-dictionary-schema(1) }"
-		
-		
-		
-		public func add(entity: EntityDefinition ) {
-			
-		}
-		
-		public func add(clone: EntityDefinition) {
-			
-		}
-		
-		public func add(schema: ExternalSchema ) {
-			
-		}
-		
-		public func add(type: DefinedType ) {
-			
-		}
+//		public var name: ExpressId
+//		public let identification: InfoObjectId = "{ iso standard 10303 part(22) version(0) object(1) SDAI-dictionary-schema(1) }"
+//		
+//		
+//		
+//		public func add(entity: EntityDefinition ) {
+//			
+//		}
+//		
+//		public func add(clone: EntityDefinition) {
+//			
+//		}
+//		
+//		public func add(schema: ExternalSchema ) {
+//			
+//		}
+//		
+//		public func add(type: DefinedType ) {
+//			
+//		}
 		
 		
 		
