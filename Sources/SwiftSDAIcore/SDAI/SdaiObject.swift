@@ -9,57 +9,15 @@
 import Foundation
 
 
-public protocol SDAISimpleType {
-}
-public protocol SDAINumberType: SDAISimpleType {
-	
-}
-public protocol SDAIRealType: SDAINumberType {
-	
-}
-
-public protocol SDAILogicalType: SDAISimpleType {
-	
-}
-
 public protocol SDAIGenericType {
+	associatedtype SwiftType
 	
+	var asSwiftType: SwiftType {get}
+	init(_ swiftValue: SwiftType)
 }
 
-public protocol SDAIAggregationType: Sequence {
-	associatedtype Element
-	var asArray: Array<Element> {get}
-	
-	typealias EntityReferenceObserver = (_ removing: SDAI.EntityReference?, _ adding: SDAI.EntityReference?) -> Void
-//	var observer: EntityReferenceObserver? { get set }
-	var _observer: EntityReferenceObserver? { get set }
-//	mutating func resetObserver()
-
-}
-public extension SDAIAggregationType where Element: SDAI.EntityReference {
-	public var observer: EntityReferenceObserver? {
-		get { _observer }
-		set {
-			if let oldObserver = observer, newValue == nil {	// removing observer
-				for entity in self {
-					oldObserver( entity, nil )
-				}
-			}
-			else if let newObserver = newValue, observer == nil { // setting observer
-				for entity in self {
-					newObserver( nil, entity )
-				}
-			}
-			else {	// replacing observer
-				fatalError("can not replace observer")
-			}
-		} // setter
-	}
-	
-	public mutating func resetObserver() {
-		_observer = nil
-	}
-	
+public protocol SDAISimpleType: SDAIGenericType 
+{
 }
 
 
@@ -85,70 +43,65 @@ public enum SDAI {
 	
 	public typealias EntityName = SDAIDictionarySchema.ExpressId
 
-	public typealias BOOLEAN = Bool
-	public typealias LOGICAL = Bool?
-	public static let TRUE:BOOLEAN = true
-	public static let FALSE:BOOLEAN = false
+	public static let TRUE:LOGICAL = true
+	public static let FALSE:LOGICAL = false
 	public static let UNKNOWN:LOGICAL = nil
 	
-	public typealias REAL = Double
-	public typealias INTEGER = Int
-	public typealias STRING = String
 	
-	public struct BINARY {
-		private var content: String = ""
-//		public init(_ str: String = "", max: Int = 0 ) {
-//			content = str.prefix(max)
-//		}
-	}
+	
+		
+	
 	
 	public typealias ENUMERATION = Int
-//	public typealias SELECT = String
 	
-	public struct AGGREGATE<Element,S:LazySequenceProtocol>: SDAIAggregationType 
-	where S.Element==Element {
-		public func makeIterator() -> S.Iterator { return content.makeIterator() }
-		public var asArray: Array<Element> { return Array(content) }
+	
+	
+	public struct ARRAY<ELEMENT>: SDAIAggregationType {
+		public typealias Element = ELEMENT?
+		
+		public var hiBound: SDAI.INTEGER? { return SDAI.INTEGER(bound2) }
+		public var hiIndex: SDAI.INTEGER { return self.hiIndex }
+		public var loBound: SDAI.INTEGER { return SDAI.INTEGER(bound1) }
+		public var loIndex: SDAI.INTEGER { return self.loBound }
+		
+		public func makeIterator() -> Array<ELEMENT?>.Iterator { return content.makeIterator() }
+		public var asSwiftType: Array<ELEMENT?> { return content }
 		public var _observer: EntityReferenceObserver?
 		
-		
-		private var content: S
-		public init(from base: S) {
-			self.content = base
-		}
-		public func QUERY(logical_expression:@escaping (Element) -> LOGICAL ) -> AGGREGATE<Element,LazyFilterSequence<S.Elements>> {
-			return AGGREGATE<Element,LazyFilterSequence<S.Elements>>(from: content.filter{ logical_expression($0) == TRUE })
-		}
-	}
-	
-	public struct ARRAY<Element>: SDAIAggregationType {
-		public func makeIterator() -> Array<Element>.Iterator { return content.makeIterator() }
-		public var asArray: Array<Element> { return content }
-		public var _observer: EntityReferenceObserver?
-		
-		public var bound1: Int
-		public var bound2: Int
-		private var content: Array<Element> = []
+		private var bound1: Int
+		private var bound2: Int
+		private var content: Array<ELEMENT?>
 		public init(bound1: Int, bound2:Int) {
 			self.bound1 = bound1
 			self.bound2 = bound2
-			content.reserveCapacity(bound2 - bound1 + 1)
+			content = Array(repeating: nil, count: bound2 - bound1 + 1)
+		}
+		public init(_ swiftValue: Array<ELEMENT?>) {
+			content = swiftValue
 		}
 	}
 	
 	
 	public struct LIST<Element>: SDAIAggregationType {
+		public var hiBound: SDAI.INTEGER?
+		
+		public var hiIndex: SDAI.INTEGER
+		
+		public var loBound: SDAI.INTEGER
+		
+		public var loIndex: SDAI.INTEGER
+		
 		public func makeIterator() -> Array<Element>.Iterator { return content.makeIterator() }
-		public var asArray: Array<Element> { return content }
+		public var asSwiftType: Array<Element> { return content }
 		public var _observer: EntityReferenceObserver?
 		
 		private var content: Array<Element> = []
-		public init(from swiftArray: Array<Element>) {
-			content = swiftArray
+		public init(_ swiftValue: Array<Element>) {
+			content = swiftValue
 		}
 		
 		public func QUERY(logical_expression: (Element) -> LOGICAL ) -> LIST<Element> {
-			return LIST(from: content.filter{ logical_expression($0) == TRUE })
+			return LIST(from: content.filter{ logical_expression($0).isTRUE })
 		}
 		
 	}
@@ -156,7 +109,7 @@ public enum SDAI {
 	
 	public struct BAG<Element:Hashable>: SDAIBagType {
 		public func makeIterator() -> Array<Element>.Iterator { return content.makeIterator() }
-		public var asArray: Array<Element> { return content }
+		public var asSwiftType: Array<Element> { return content }
 		public var _observer: EntityReferenceObserver?
 
 		private var content: Array<Element> = []
@@ -165,7 +118,7 @@ public enum SDAI {
 		}
 
 		public func QUERY(logical_expression: (Element) -> LOGICAL ) -> BAG<Element> {
-			return BAG(from: content.filter{ logical_expression($0) == TRUE })
+			return BAG(from: content.filter{ logical_expression($0).isTRUE })
 		}
 		
 		public mutating func add(member: Element?) {
@@ -185,7 +138,7 @@ public enum SDAI {
 	
 	public struct SET<Element:Hashable>: SDAIBagType {
 		public func makeIterator() -> Set<Element>.Iterator { return content.makeIterator() }
-		public var asArray: Array<Element> { return Array(content) }
+		public var asSwiftType: Array<Element> { return Array(content) }
 		public var _observer: EntityReferenceObserver?
 		
 		private var content: Set<Element> = []
@@ -194,7 +147,7 @@ public enum SDAI {
 		}
 		
 		public func QUERY(logical_expression: (Element) -> LOGICAL ) -> SET<Element> {
-			return SET(from: content.filter{ logical_expression($0) == TRUE })
+			return SET(from: content.filter{ logical_expression($0).isTRUE })
 		}
 
 		public mutating func add(member: Element?) {
