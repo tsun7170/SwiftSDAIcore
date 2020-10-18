@@ -94,12 +94,6 @@ public enum SDAIDictionarySchema {
 	}
 	
 	
-	public enum ExplicitOrDerived: SDAISelectType {
-		
-		case explicitAttribute(ExplicitAttribute)
-		case derivedAttribute(DerivedAttribute)
-	}
-	
 	public class ExternalSchema {
 //		public var name: ExpressId
 //		public var nativeSchema: SchemaDefinition
@@ -112,7 +106,8 @@ public enum SDAIDictionarySchema {
 //		public unowned var parentEntity: EntityDefinition
 	}
 	
-	public enum TypeOrRule:SDAISelectType {
+	public enum TypeOrRule//:SDAISelectType 
+	{
 //		case namedType(NamedType)
 //		case globalRule(GlobalRule)
 	}

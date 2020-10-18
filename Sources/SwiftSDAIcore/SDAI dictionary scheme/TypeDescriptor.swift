@@ -11,7 +11,7 @@ import Foundation
 extension SDAIDictionarySchema {
 	
 	
-	public class TypeDescriptor: NSObject {
+	public class TypeDescriptor: SDAI.Object {
 
 		public enum PrimitiveType:Int {
 			case 
@@ -37,28 +37,31 @@ extension SDAIDictionarySchema {
 					UNKNOWN_TYPE
 		}
 		
-		public init(name: ExpressId, fundamentalType: PrimitiveType, parentSchema:SchemaDefinition, description: String) {
-			
-		}
+//		public init(name: ExpressId, fundamentalType: PrimitiveType, parentSchema:SchemaDefinition, description: String) {
+//			
+//		}
 
 	}
 
 	
-	public enum BaseType: SDAISelectType {
+	public enum BaseType//: SDAISelectType 
+	{
 		case simpleType(SimpleType)
 		case aggregationType(AggregationType)
 		case namedType(NamedType)
 	}
 
 	
-	public enum UnderlyingType: SDAISelectType {
+	public enum UnderlyingType//: SDAISelectType 
+	{
 		case simpleType(SimpleType)
 		case aggregationType(AggregationType)
 		case definedType(DefinedType)
 		case constructedType(ConstructedType)
 	}
 	
-	public enum ConstructedType: SDAISelectType {
+	public enum ConstructedType//: SDAISelectType 
+	{
 		case enumerationType(EnumerationType)
 		case selectType(SelectType)
 	}
@@ -85,7 +88,7 @@ extension SDAIDictionarySchema {
 
 	public class NamedType: TypeDescriptor {
 //		
-//		public var name: ExpressId
+		public var name: ExpressId { abstruct() }
 //		public var whereRules: SDAI.LIST<WhereRule> = []
 //		public var parentSchema: SchemaDefinition
 //		

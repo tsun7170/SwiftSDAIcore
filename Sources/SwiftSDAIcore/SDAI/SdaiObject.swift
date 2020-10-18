@@ -8,33 +8,44 @@
 
 import Foundation
 
-
-public protocol SDAIGenericType {
-	associatedtype SwiftType
-	
-	var asSwiftType: SwiftType {get}
-	init(_ swiftValue: SwiftType)
-}
-
-public protocol SDAISimpleType: SDAIGenericType 
+public protocol SDAIValue: Hashable
 {
+	func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool
+	func isValueEqualOptionally<T: SDAIValue>(to rhs: T?) -> Bool?
+}
+public extension SDAIValue
+{
+	func isValueEqualOptionally<T: SDAIValue>(to rhs: T?) -> Bool? {
+		guard let rhs = rhs else { return nil }
+		return self.isValueEqual(to: rhs)
+	}
+}
+
+public protocol SDAIGenericType: Hashable 
+{
+	associatedtype Value: SDAIValue
+	
+	var typeMembers: Set<SDAI.STRING> {get}
+	var value: Value {get}
 }
 
 
-
-public protocol SDAIBagType: SDAIAggregationType {
-	mutating func add(member: Element?)
-	mutating func remove(member: Element?)
-}
 
 public protocol SDAINamedType {
 	
 }
 
-public protocol SDAIEnumerationType: Hashable {
+
+
+
+
+public protocol SDAIConstructedType: SDAIUnderlyingType 
+{}
+
+public protocol SDAIEnumerationType: SDAIConstructedType {
 	
 }
-public protocol SDAISelectType: Hashable {
+public protocol SDAISelectType: SDAIConstructedType {
 	
 }
 
@@ -56,148 +67,79 @@ public enum SDAI {
 	
 	
 	
-	public struct ARRAY<ELEMENT>: SDAIAggregationType {
-		public typealias Element = ELEMENT?
-		
-		public var hiBound: SDAI.INTEGER? { return SDAI.INTEGER(bound2) }
-		public var hiIndex: SDAI.INTEGER { return self.hiIndex }
-		public var loBound: SDAI.INTEGER { return SDAI.INTEGER(bound1) }
-		public var loIndex: SDAI.INTEGER { return self.loBound }
-		
-		public func makeIterator() -> Array<ELEMENT?>.Iterator { return content.makeIterator() }
-		public var asSwiftType: Array<ELEMENT?> { return content }
-		public var _observer: EntityReferenceObserver?
-		
-		private var bound1: Int
-		private var bound2: Int
-		private var content: Array<ELEMENT?>
-		public init(bound1: Int, bound2:Int) {
-			self.bound1 = bound1
-			self.bound2 = bound2
-			content = Array(repeating: nil, count: bound2 - bound1 + 1)
-		}
-		public init(_ swiftValue: Array<ELEMENT?>) {
-			content = swiftValue
-		}
-	}
 	
 	
-	public struct LIST<Element>: SDAIAggregationType {
-		public var hiBound: SDAI.INTEGER?
-		
-		public var hiIndex: SDAI.INTEGER
-		
-		public var loBound: SDAI.INTEGER
-		
-		public var loIndex: SDAI.INTEGER
-		
-		public func makeIterator() -> Array<Element>.Iterator { return content.makeIterator() }
-		public var asSwiftType: Array<Element> { return content }
-		public var _observer: EntityReferenceObserver?
-		
-		private var content: Array<Element> = []
-		public init(_ swiftValue: Array<Element>) {
-			content = swiftValue
-		}
-		
-		public func QUERY(logical_expression: (Element) -> LOGICAL ) -> LIST<Element> {
-			return LIST(from: content.filter{ logical_expression($0).isTRUE })
-		}
-		
-	}
 	
 	
-	public struct BAG<Element:Hashable>: SDAIBagType {
-		public func makeIterator() -> Array<Element>.Iterator { return content.makeIterator() }
-		public var asSwiftType: Array<Element> { return content }
-		public var _observer: EntityReferenceObserver?
+	
+	
+	
+	
+	
+	
+	
 
-		private var content: Array<Element> = []
-		public init(from swiftArray: Array<Element>) {
-			content = swiftArray
-		}
-
-		public func QUERY(logical_expression: (Element) -> LOGICAL ) -> BAG<Element> {
-			return BAG(from: content.filter{ logical_expression($0).isTRUE })
+//MARK: - SDAI.Object	
+	open class Object: Hashable {
+		public static func == (lhs: SDAI.Object, rhs: SDAI.Object) -> Bool {
+			return lhs === rhs
 		}
 		
-		public mutating func add(member: Element?) {
-			guard let member = member else {return}
-			content.append(member)
-		}
-		
-		public mutating func remove(member: Element?) {
-			guard let member = member else {return}
-			if let index = content.lastIndex(of: member) {
-				content.remove(at: index)
+		public func hash(into hasher: inout Hasher) {
+			withUnsafePointer(to: self) { (p) -> Void in
+				hasher.combine(p.hashValue)
 			}
 		}
-		
 	}
-	
-	
-	public struct SET<Element:Hashable>: SDAIBagType {
-		public func makeIterator() -> Set<Element>.Iterator { return content.makeIterator() }
-		public var asSwiftType: Array<Element> { return Array(content) }
-		public var _observer: EntityReferenceObserver?
 		
-		private var content: Set<Element> = []
-		public init(from swiftSet: Set<Element>) {
-			content = swiftSet
-		}
-		
-		public func QUERY(logical_expression: (Element) -> LOGICAL ) -> SET<Element> {
-			return SET(from: content.filter{ logical_expression($0).isTRUE })
-		}
-
-		public mutating func add(member: Element?) {
-			guard let member = member else {return}
-			content.insert(member)
-		}
-		
-		public mutating func remove(member: Element?) {
-			guard let member = member else {return}
-			content.remove(member)
-		}
-		
-	}
-	
-	
-	/// root class for SDAI entities.
-	/// used as the implementation of entity_instance in SDAI parameter data schema
-	public class SdaiObject: NSObject {
-		
-	}
-	
 
 	//MARK: - PartialEntity
-	open class PartialEntity: NSObject {
-		public static var entityName: EntityName { abstruct() }
+	open class PartialEntity: SDAI.Object {
+		public typealias TypeIdentity = EntityName
+		public class var typeIdentity: TypeIdentity { abstruct() }
+		public class var entityName: EntityName { abstruct() }
+		public class var qualifiedEntityName: EntityName { abstruct() }
+		public var entityName: EntityName { abstruct() }
+		public var qualifiedEntityName: EntityName { abstruct() }
+		public var complexEntities: Set<ComplexEntity> { abstruct() }
+		
+		open func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<ComplexEntity>) {
+			hasher.combine(Self.typeIdentity)
+		}
+
+		open func isValueEqual(to rhs: PartialEntity, visited comppairs: inout Set<ComplexPair>) -> Bool {
+			return type(of: rhs) == Self.self
+		}
+
+		open func isValueEqualOptionally(to rhs: PartialEntity, visited comppairs: inout Set<ComplexPair>) -> Bool? {
+			return type(of: rhs) == Self.self
+		}
+		
 	}
 	
 	
 	//MARK: - ComplexEntity
-	open class ComplexEntity: NSObject {
-		private var partialEntities: Dictionary<EntityName,(instance:PartialEntity,reference:EntityReference?)> = [:]
+	open class ComplexEntity: SDAI.Object {
+		private var partialEntities: Dictionary<PartialEntity.TypeIdentity,(instance:PartialEntity,reference:EntityReference?)> = [:]
 
 		public init(entities:[PartialEntity]) {
 			super.init()
 			
 			for pe in entities {
-				partialEntities[type(of: pe).entityName] = (instance:pe, reference:nil)	
+				partialEntities[type(of: pe).typeIdentity] = (instance:pe, reference:nil)	
 			}
 		}
 		
 		public func partialEntityInstance<PENT:PartialEntity>(_ peType:PENT.Type) -> PENT? {
-			if let (pe,_) = partialEntities[peType.entityName] {
+			if let (pe,_) = partialEntities[peType.typeIdentity] {
 				return pe as? PENT
 			}
 			return nil
 		}
 		
-		public func resolvePartialEntityInstance(from namelist:[EntityName]) -> PartialEntity? {
-			for entityName in namelist {
-				if let (pe,_) = partialEntities[entityName] {
+		public func resolvePartialEntityInstance(from namelist:[PartialEntity.TypeIdentity]) -> PartialEntity? {
+			for typeIdentity in namelist {
+				if let (pe,_) = partialEntities[typeIdentity] {
 					return pe
 				}
 			}
@@ -205,24 +147,123 @@ public enum SDAI {
 		}
 		
 		public func entityReference<EREF:EntityReference>(_ erType:EREF.Type) -> EREF? {
-			if let (pe,eref) = partialEntities[erType.partialEntityType.entityName] {
+			if let (pe,eref) = partialEntities[erType.partialEntityType.typeIdentity] {
 				if eref != nil { return eref as? EREF }
 				
 				if let eref = EREF(self) {
-					partialEntities[erType.partialEntityType.entityName] = (pe,eref)
+					partialEntities[erType.partialEntityType.typeIdentity] = (pe,eref)
 					return eref
 				}
 			}
 			return nil
 		}
 		
+		public var roles: Set<STRING> { abstruct() }
+		public func usedIn(role: String) -> [EntityReference] { abstruct() }
+		
+		
+		// EntityReference SDAIGenericType support
+		var typeMembers: Set<SDAI.STRING> { 
+			Set( partialEntities.values.map{ (pe) -> STRING in STRING(pe.instance.qualifiedEntityName) } ) 
+		}
+		
+		public typealias Value = _ComplexEntityValue
+		var value: Value { abstruct() }
+
+		func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<ComplexEntity>) {
+			guard !complexEntities.contains(self) else { return }
+			complexEntities.insert(self)
+			for (pe,_) in partialEntities.values {
+				pe.hashAsValue(into: &hasher, visited: &complexEntities)
+			}
+		}
+
+		func isValueEqual(to rhs: ComplexEntity, visited comppairs: inout Set<ComplexPair>) -> Bool {
+			if self === rhs { return true }
+			let lr = ComplexPair(l: self, r: rhs)
+			if comppairs.contains( lr ) { return true }
+			if self.partialEntities.count != rhs.partialEntities.count { return false }
+			
+			comppairs.insert(lr)
+			for (typeIdentity, (lpe,_)) in self.partialEntities {
+				guard let (rpe,_) = rhs.partialEntities[typeIdentity] else { return false }
+				if lpe === rpe { continue }
+				if !lpe.isValueEqual(to: rpe, visited: &comppairs) { return false }
+			}
+			return true
+		}
+		
+		func isValueEqualOptionally(to rhs: ComplexEntity?, visited comppairs: inout Set<ComplexPair>) -> Bool? {
+			guard let rhs = rhs else{ return nil }
+			if self === rhs { return true }
+			let lr = ComplexPair(l: self, r: rhs)
+			if comppairs.contains( lr ) { return true }
+			if self.partialEntities.count != rhs.partialEntities.count { return false }
+			
+			comppairs.insert(lr)
+			var isequal: Bool? = true
+			for (typeIdentity, (lpe,_)) in self.partialEntities {
+				guard let (rpe,_) = rhs.partialEntities[typeIdentity] else { return false }
+				if lpe === rpe { continue }
+				if let result = lpe.isValueEqualOptionally(to: rpe, visited: &comppairs), !result { return false }
+				else { isequal = nil }
+			}
+			return isequal
+		}
+	}
+	
+	//MARK: -
+	public struct ComplexPair: Hashable {
+		var l: ComplexEntity
+		var r: ComplexEntity
+	}
+	
+	public struct _ComplexEntityValue: SDAIValue
+	{
+		
+		private let complexEntity: ComplexEntity
+		
+		// Equatable \Hashable\SDAIValue
+		public static func == (lhs: _ComplexEntityValue, rhs: _ComplexEntityValue) -> Bool {
+			return lhs.isValueEqual(to: rhs)
+		}
+		
+		// Hashable \SDAIValue
+		public func hash(into hasher: inout Hasher) {
+			var visited: Set<ComplexEntity> = []
+			complexEntity.hashAsValue(into: &hasher, visited: &visited)
+		}
+		
+		// SDAIValue
+		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool {
+			guard let rhs = rhs as? Self else { return false }
+			var visited: Set<ComplexPair> = []
+			return self.complexEntity.isValueEqual(to: rhs.complexEntity, visited: &visited)
+		}
+		
+		public func isValueEqualOptionally<T: SDAIValue>(to rhs: T?) -> Bool? {
+			if rhs == nil { return nil }
+			guard let rhs = rhs as? Self else { return false }
+			var visited: Set<ComplexPair> = []
+			return self.complexEntity.isValueEqualOptionally(to: rhs.complexEntity, visited: &visited)			
+		}
+
 	}
 	
 	//MARK: - EntityReference
-	open class EntityReference: NSObject {
+	open class EntityReference: SDAI.Object, SDAIGenericType {		
+		public let complexEntity: ComplexEntity
+		
+		// SDAIGenericType
+		public typealias Value = ComplexEntity.Value
+		
+		public var typeMembers: Set<STRING> { complexEntity.typeMembers }
+		public var value: ComplexEntity.Value { complexEntity.value }
+
+
+		// EntityReference specific
 		public static var partialEntityType: PartialEntity.Type { abstruct() }
 					
-		public let complexEntity: ComplexEntity
 		
 		public required init?(_ complexEntity: ComplexEntity) {
 			self.complexEntity = complexEntity
@@ -235,4 +276,6 @@ public enum SDAI {
 	}
 	
 }
+
+
 

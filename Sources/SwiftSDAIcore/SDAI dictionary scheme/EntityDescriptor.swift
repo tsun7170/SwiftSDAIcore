@@ -17,7 +17,7 @@ extension SDAIDictionarySchema {
 //		public var complex: SDAI.BOOLEAN
 //		public var instantiable: SDAI.BOOLEAN
 //		public var independent: SDAI.BOOLEAN
-//		public var attributes: SDAI.SET<Attribute>
+		public var attributes: Set<Attribute> { abstruct() }
 //		public var uniquenessRules: SDAI.SET<UniquenessRule>
 //		public var globalRules: SDAI.SET<GlobalRule>
 //
