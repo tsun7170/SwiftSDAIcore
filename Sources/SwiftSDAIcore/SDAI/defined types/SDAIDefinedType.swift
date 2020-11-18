@@ -47,8 +47,8 @@ public extension SDAIUnderlyingType
 public protocol SDAIDefinedType: SDAINamedType, SDAIUnderlyingType
 {
 	associatedtype Supertype: SDAIUnderlyingType 
-	where Supertype.FundamentalType == FundamentalType,
-				Supertype.SwiftType == SwiftType
+	where FundamentalType == Supertype.FundamentalType,
+				SwiftType == Supertype.SwiftType
 	
 	var rep: Supertype {get set}
 }

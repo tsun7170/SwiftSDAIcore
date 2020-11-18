@@ -10,6 +10,6 @@ import Foundation
 
 //public typealias NameSpace = String
 
-func abstruct( file: StaticString = #file, line: UInt = #line) -> Never {
+public func abstruct( file: StaticString = #file, line: UInt = #line) -> Never {
 	fatalError("abstruct called",file:file,line:line)
 }

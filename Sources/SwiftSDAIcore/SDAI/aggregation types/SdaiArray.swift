@@ -74,29 +74,32 @@ extension SDAI {
 }
 
 //MARK: -
-public protocol InitializableByOptionalArray
+public protocol InitializableByOptionalEntityArray
 {
-	associatedtype ELEMENT: SDAIGenericType
+	associatedtype ELEMENT: SDAI.EntityReference//SDAIGenericType
 	
-	init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<ELEMENT?>]) 
+	init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference?>]) 
 
 	init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
-	where T.ELEMENT == ELEMENT
+	where T.ELEMENT: SDAI.EntityReference, 
+				T.Element == Optional<T.ELEMENT>
 
 	init<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T) 
-	where T.ELEMENT == ELEMENT
+	where T.ELEMENT: SDAI.EntityReference, 
+				T.Element == Optional<T.ELEMENT>
 }
-public extension InitializableByOptionalArray
+public extension InitializableByOptionalEntityArray
 {
 	init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
-	where T.ELEMENT == ELEMENT
+	where T.ELEMENT: SDAI.EntityReference, 
+				T.Element == Optional<T.ELEMENT>
 	{
 		guard let arraytype = arraytype else { return nil }
 		self.init(arraytype)
 	}
 }
 
-public protocol InitializableByOptionalSubtypeArray
+public protocol InitializableByOptionalDefinedtypeArray
 {
 	associatedtype ELEMENT: SDAIUnderlyingType
 	
@@ -104,15 +107,15 @@ public protocol InitializableByOptionalSubtypeArray
 	where E.FundamentalType == ELEMENT.FundamentalType
 
 	init?<T: SDAI__ARRAY_OPTIONAL__type>(_ subtype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType
+	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.Element == Optional<T.ELEMENT>
 
 	init<T: SDAI__ARRAY_OPTIONAL__type>(_ subtype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType
+	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.Element == Optional<T.ELEMENT>
 }
-public extension InitializableByOptionalSubtypeArray
+public extension InitializableByOptionalDefinedtypeArray
 {
 	init?<T: SDAI__ARRAY_OPTIONAL__type>(_ subtype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType
+	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.Element == Optional<T.ELEMENT>
 	{
 		guard let subtype = subtype else { return nil }
 		self.init(subtype)
@@ -129,29 +132,32 @@ public protocol InitializableByOptionalSwiftArrayLiteral
 
 
 //MARK: -
-public protocol InitializableByArray
+public protocol InitializableByEntityArray
 {
-	associatedtype ELEMENT: SDAIGenericType
+	associatedtype ELEMENT: SDAI.EntityReference//SDAIGenericType
 	
-	init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) 
+	init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) 
 
 	init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
-	where T.ELEMENT == ELEMENT, T.ELEMENT == T.Element
+	where T.ELEMENT: SDAI.EntityReference, 
+				T.Element == T.ELEMENT
 
 	init<T: SDAI__ARRAY__type>(_ arraytype: T) 
-	where T.ELEMENT == ELEMENT, T.ELEMENT == T.Element
+	where T.ELEMENT: SDAI.EntityReference, 
+				T.Element == T.ELEMENT
 }
-public extension InitializableByArray
+public extension InitializableByEntityArray
 {
 	init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
-	where T.ELEMENT == ELEMENT, T.ELEMENT == T.Element
+	where T.ELEMENT: SDAI.EntityReference, 
+				T.Element == T.ELEMENT
 	{
 		guard let arraytype = arraytype else { return nil }
 		self.init(arraytype)
 	}
 }
 
-public protocol InitializableBySubtypeArray
+public protocol InitializableByDefinedtypeArray
 {
 	associatedtype ELEMENT: SDAIUnderlyingType
 	
@@ -164,7 +170,7 @@ public protocol InitializableBySubtypeArray
 	init<T: SDAI__ARRAY__type>(_ subtype: T) 
 	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
 }
-public extension InitializableBySubtypeArray
+public extension InitializableByDefinedtypeArray
 {
 	init?<T: SDAI__ARRAY__type>(_ subtype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
@@ -184,14 +190,21 @@ public protocol InitializableBySwiftArrayLiteral
 
 
 //MARK: - ARRAY_OPTIONAL type
-public protocol SDAI__ARRAY_OPTIONAL__type: SDAIAggregationType, InitializableByArray
+public protocol SDAIArrayOptionalType: SDAIAggregationType//, InitializableByArray
 {
 	init(from swiftValue: SwiftType, loBound: Int, hiBound: Int) 
 }
 
+public protocol SDAI__ARRAY_OPTIONAL__type: SDAIArrayOptionalType
+{
+	init(loBound: Int, hiBound: Int) 
+}
+
 //MARK: -
 extension SDAI {
-	public struct ARRAY_OPTIONAL<ELEMENT:SDAIGenericType>: SDAI__ARRAY_OPTIONAL__type, InitializableByOptionalArray 
+	public typealias ARRAY_OPTIONAL_UNIQUE<ELEMENT> = ARRAY_OPTIONAL<ELEMENT> where ELEMENT: SDAIGenericType
+	
+	public struct ARRAY_OPTIONAL<ELEMENT:SDAIGenericType>: SDAI__ARRAY_OPTIONAL__type//, InitializableByOptionalArray 
 	{
 		public typealias SwiftType = Array<ELEMENT?>
 		public typealias FundamentalType = Self
@@ -220,6 +233,12 @@ extension SDAI {
 		public var value: _ArrayValue<ELEMENT> {
 			return _ArrayValue(from: self)
 		}
+		public init?<S>(possiblyFrom select: S) where S : SDAISelectType {
+			if let base = select.arrayOptionalValue(elementType: ELEMENT.self) {
+				self.init(base)
+			}
+			else { return nil }
+		}
 		
 		// SDAIUnderlyingType \SDAIAggregationType\SDAI__ARRAY_OPTIONAL__type
 		public static var typeName: String { return "ARRAY" }
@@ -227,9 +246,7 @@ extension SDAI {
 		public var asFundamentalType: FundamentalType { return self }
 		
 		public init(_ fundamental: FundamentalType) {
-			rep = fundamental.rep
-			bound1 = fundamental.bound1
-			bound2 = fundamental.bound2
+			self.init(from: fundamental.asSwiftType, loBound: fundamental.loIndex, hiBound: fundamental.hiIndex)
 		}
 		
 		// Sequence \SDAIAggregationType\SDAI__ARRAY_OPTIONAL__type
@@ -243,9 +260,14 @@ extension SDAI {
 		public var size: Int { return bound2 - bound1 + 1 }
 		public var _observer: EntityReferenceObserver?
 		
-		public subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
-			guard let index = index?.asSwiftType, index >= loIndex, index <= hiIndex else { return nil }
+		public subscript(index: Int?) -> ELEMENT? {
+			guard let index = index, index >= loIndex, index <= hiIndex else { return nil }
 			return rep[index - loIndex]
+		}
+		
+		public func CONTAINS(_ elem: ELEMENT?) -> SDAI.LOGICAL {
+			guard let elem = elem else { return UNKNOWN }
+			return LOGICAL(rep.contains(elem))
 		}
 		
 		public func QUERY(logical_expression: (ELEMENT) -> LOGICAL ) -> ARRAY_OPTIONAL<ELEMENT> {
@@ -257,54 +279,66 @@ extension SDAI {
 			return ARRAY_OPTIONAL(from: filtered, loBound: self.loIndex ,hiBound: self.hiIndex)
 		}
 		
-		// InitializableByArray \SDAI__ARRAY_OPTIONAL__type
-		public init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) {
-			self.init(bound1:bound1, bound2:bound2, elements){ $0 }
-		} 
-		
-		public init<T: SDAI__ARRAY__type>(_ arraytype: T) 
-		where T.ELEMENT == ELEMENT, T.ELEMENT == T.Element
-		{
-			self.init(bound1:arraytype.loIndex, bound2:arraytype.hiIndex, [arraytype]) { $0 }
-		}
-				
 		// SDAI__ARRAY_OPTIONAL__type
 		public init(from swiftValue: SwiftType, loBound: Int, hiBound: Int) {
-			rep = swiftValue
-			bound1 = loBound
-			bound2 = hiBound
-		} 
-		
-		// InitializableByOptionalArray
-		public init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<ELEMENT?>]) {
-			self.init(bound1:bound1, bound2:bound2, elements){ $0 }
+			self.bound1 = loBound
+			self.bound2 = hiBound
+			self.rep = swiftValue
+			assert(rep.count == self.size)
 		} 
 
-		public init<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T) 
-		where T.ELEMENT == ELEMENT
-		{
-			self.init(bound1:arraytype.loIndex, bound2:arraytype.hiIndex, [arraytype]) { $0 as? ELEMENT }
-		}
 		
 		// ARRAY_OPTIONAL specific
+		public init(loBound: Int, hiBound: Int) {
+			self.init(from: SwiftType(repeating: nil, count: hiBound - loBound + 1), loBound: loBound, hiBound: hiBound)
+		}
+		
 		private init<S:Sequence>(bound1: Int, bound2: Int, _ elements: [S], conv: (S.Element) -> ELEMENT? )
 		{
-			self.bound1 = bound1
-			self.bound2 = bound2
-			self.rep = []
-			rep.reserveCapacity(bound2 - bound1 + 1)
+//			self.bound1 = bound1
+//			self.bound2 = bound2
+//			self.rep = []
+			var swiftValue = SwiftType()
+			swiftValue.reserveCapacity(bound2 - bound1 + 1)
 			for aie in elements {
 				for elem in aie {
-					rep.append(conv(elem))
+					swiftValue.append(conv(elem))
 				}
 			}
-			assert(rep.count == self.size)
+			self.init(from: swiftValue, loBound: bound1, hiBound: bound2)
+//			assert(rep.count == self.size)
 		}
 		
 	}
 }
 
-extension SDAI.ARRAY_OPTIONAL: InitializableByOptionalSubtypeArray, InitializableBySubtypeArray
+extension SDAI.ARRAY_OPTIONAL: InitializableByOptionalEntityArray, InitializableByEntityArray
+where ELEMENT: SDAI.EntityReference
+{
+	// InitializableByOptionalArray
+	public init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference?>]) {
+		self.init(bound1:bound1, bound2:bound2, elements){ $0?.complexEntity.entityReference(ELEMENT.self) }
+	} 
+
+	public init<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T) 
+	where T.ELEMENT: SDAI.EntityReference, T.Element == Optional<T.ELEMENT>
+	{
+		self.init(bound1:arraytype.loIndex, bound2:arraytype.hiIndex, [arraytype]) { $0?.complexEntity.entityReference(ELEMENT.self) }
+	}
+	
+	// InitializableByArray
+	public init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) {
+		self.init(bound1:bound1, bound2:bound2, elements){ $0.complexEntity.entityReference(ELEMENT.self)! }
+	} 
+	
+	public init<T: SDAI__ARRAY__type>(_ arraytype: T) 
+	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
+	{
+		self.init(bound1:arraytype.loIndex, bound2:arraytype.hiIndex, [arraytype]) { $0.complexEntity.entityReference(ELEMENT.self)! }
+	}			
+}
+
+extension SDAI.ARRAY_OPTIONAL: InitializableByOptionalDefinedtypeArray, InitializableByDefinedtypeArray
 where ELEMENT: SDAIUnderlyingType
 {
 	// InitializableByOptionalSubtypeArray
@@ -315,9 +349,9 @@ where ELEMENT: SDAIUnderlyingType
 	 }		
 	 
 	 public init<T: SDAI__ARRAY_OPTIONAL__type>(_ subtype: T) 
-	 where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType
+	 where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.Element == Optional<T.ELEMENT>
 	 {
-		 self.init(bound1:subtype.loIndex, bound2:subtype.hiIndex, [subtype]) { ELEMENT($0 as? T.ELEMENT) }
+		 self.init(bound1:subtype.loIndex, bound2:subtype.hiIndex, [subtype]) { ELEMENT($0) }
 	 }
 	
 	// InitializableBySubtypeArray
@@ -328,7 +362,7 @@ where ELEMENT: SDAIUnderlyingType
 	}		
 	
 	public init<T: SDAI__ARRAY__type>(_ subtype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
+	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.Element == T.ELEMENT
 	{
 		self.init(bound1:subtype.loIndex, bound2:subtype.hiIndex, [subtype]) { ELEMENT($0) }
 	}
@@ -353,66 +387,84 @@ where ELEMENT: SDAISimpleType
 
 
 //MARK: -
-public protocol SDAI__ARRAY_OPTIONAL__subtype: SDAI__ARRAY_OPTIONAL__type, SDAIDefinedType, InitializableByOptionalSubtypeArray
-where Supertype: SDAI__ARRAY_OPTIONAL__type & InitializableByOptionalSubtypeArray,
-			Supertype.ELEMENT == ELEMENT,
-			Supertype.FundamentalType == SDAI.ARRAY_OPTIONAL<ELEMENT>,
-			Supertype.SwiftType == SDAI.ARRAY_OPTIONAL<ELEMENT>.SwiftType
+public protocol SDAI__ARRAY_OPTIONAL__subtype: SDAI__ARRAY_OPTIONAL__type, SDAIDefinedType//, InitializableByOptionalSubtypeArray
+where Supertype == SDAI.ARRAY_OPTIONAL<ELEMENT>//: SDAI__ARRAY_OPTIONAL__type & InitializableByOptionalSubtypeArray,
+//			Supertype.ELEMENT == ELEMENT,
+//			Supertype.FundamentalType == SDAI.ARRAY_OPTIONAL<ELEMENT>,
+//			Supertype.SwiftType == SDAI.ARRAY_OPTIONAL<ELEMENT>.SwiftType
 {}
 public extension SDAI__ARRAY_OPTIONAL__subtype
 {
-	// Sequence \SDAIAggregationType\SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY_OPTIONAL__subtype
-	func makeIterator() -> Supertype.Iterator { return rep.makeIterator() }
+//	// Sequence \SDAIAggregationType\SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY_OPTIONAL__subtype
+//	func makeIterator() -> Supertype.Iterator { return rep.makeIterator() }
+//
+//	// SDAIAggregationType \SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY_OPTIONAL__subtype
+//	var hiBound: Int? { return rep.hiBound }
+//	var hiIndex: Int { return rep.hiIndex }
+//	var loBound: Int { return rep.loBound }
+//	var loIndex: Int { return rep.loIndex }
+//	var size: Int { return rep.size }
+//	var _observer: EntityReferenceObserver? {
+//		get { return rep._observer }
+//		set { rep._observer = newValue }
+//	}
+//
+//	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
+//		return rep[index]
+//	}
+//
+//	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> Supertype.RESULT_AGGREGATE {
+//		return rep.QUERY(logical_expression: logical_expression)
+//	}
+//
 
-	// SDAIAggregationType \SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY_OPTIONAL__subtype
-	var hiBound: Int? { return rep.hiBound }
-	var hiIndex: Int { return rep.hiIndex }
-	var loBound: Int { return rep.loBound }
-	var loIndex: Int { return rep.loIndex }
-	var size: Int { return rep.size }
-	var _observer: EntityReferenceObserver? {
-		get { return rep._observer }
-		set { rep._observer = newValue }
+	// SDAIGenericType
+	init?<S: SDAISelectType>(possiblyFrom select: S) {
+		guard let supertype = Supertype(possiblyFrom: select) else { return nil }
+		self.init(supertype)
 	}
-
-	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
-		return rep[index]
-	}
-
-	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> Supertype.RESULT_AGGREGATE {
-		return rep.QUERY(logical_expression: logical_expression)
-	}
-
-	// InitializableByArray \SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY_OPTIONAL__subtype
-	init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) {
-		self.init( Supertype(bound1: bound1, bound2: bound2, elements) )
-	}
-
-	init<T: SDAI__ARRAY__type>(_ arraytype: T) 
-	where T.ELEMENT == ELEMENT, T.ELEMENT == T.Element 
-	{
-		self.init( Supertype(arraytype) )
-	}
-
+	
 	// SDAI__ARRAY_OPTIONAL__type \SDAI__ARRAY_OPTIONAL__subtype
 	init(from swiftValue: SwiftType, loBound: Int, hiBound: Int) {
 		self.init( Supertype(from: swiftValue, loBound: loBound, hiBound: hiBound) )
 	} 
+	init(loBound: Int, hiBound: Int) {
+		self.init( Supertype(loBound: loBound, hiBound: hiBound) )
+	} 
+}
 
+public extension SDAI__ARRAY_OPTIONAL__subtype
+where Supertype: InitializableByEntityArray
+{
+	// InitializableByArray \SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY_OPTIONAL__subtype
+	init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) {
+		self.init( Supertype(bound1: bound1, bound2: bound2, elements) )
+	}
+
+	init<T: SDAI__ARRAY__type>(_ arraytype: T) 
+	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
+	{
+		self.init( Supertype(arraytype) )
+	}	
+}
+
+public extension SDAI__ARRAY_OPTIONAL__subtype
+where Supertype: InitializableByOptionalEntityArray
+{
 	// InitializableByOptionalArray \SDAI__ARRAY_OPTIONAL__subtype
-	init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<ELEMENT?>]) {
+	init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference?>]) {
 		self.init( Supertype(bound1: bound1, bound2: bound2, elements) )
 	}
 
 	init<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T) 
-	where T.ELEMENT == ELEMENT
+	where T.ELEMENT: SDAI.EntityReference, T.Element == Optional<T.ELEMENT>
 	{
 		self.init( Supertype(arraytype) )
 	}
 }
 
 public extension SDAI__ARRAY_OPTIONAL__subtype
-where Supertype: InitializableBySubtypeArray
+where Supertype: InitializableByDefinedtypeArray
 {
 	// InitializableBySubtypeArray
 	init<E: SDAIUnderlyingType>(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<E>]) 
@@ -422,14 +474,14 @@ where Supertype: InitializableBySubtypeArray
 	}
 
 	init<T:SDAI__ARRAY__type>(_ subtype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType
+	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
 	{
 		self.init( Supertype(subtype).asFundamentalType )
 	}
 }
 
 public extension SDAI__ARRAY_OPTIONAL__subtype
-where Supertype: InitializableByOptionalSubtypeArray
+where Supertype: InitializableByOptionalDefinedtypeArray
 {
 	// InitializableByOptionalSubtypeArray
 	init<E: SDAIUnderlyingType>(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<E?>]) 
@@ -439,20 +491,10 @@ where Supertype: InitializableByOptionalSubtypeArray
 	}
 
 	init<T:SDAI__ARRAY_OPTIONAL__type>(_ subtype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType
+	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.Element == Optional<T.ELEMENT>
 	{
 		self.init( Supertype(subtype).asFundamentalType )
 	}	
-}
-
-public extension SDAI__ARRAY_OPTIONAL__subtype
-where Supertype: InitializableByOptionalSwiftArrayLiteral
-{
-	init<E>(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<E?>]) 
-	where E == ELEMENT.SwiftType
-	{
-		self.init( Supertype(bound1:bound1, bound2:bound2, elements) )
-	}
 }
 
 public extension SDAI__ARRAY_OPTIONAL__subtype
@@ -465,12 +507,27 @@ where Supertype: InitializableBySwiftArrayLiteral
 	}
 }
 
+public extension SDAI__ARRAY_OPTIONAL__subtype
+where Supertype: InitializableByOptionalSwiftArrayLiteral
+{
+	init<E>(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<E?>]) 
+	where E == ELEMENT.SwiftType
+	{
+		self.init( Supertype(bound1:bound1, bound2:bound2, elements) )
+	}
+}
+
 
 //MARK: - ARRAY type
-public protocol SDAI__ARRAY__type: SDAI__ARRAY_OPTIONAL__type
+public protocol SDAIArrayType: SDAIArrayOptionalType
+{}
+
+public protocol SDAI__ARRAY__type: SDAIArrayType
 {}
 
 extension SDAI {
+	public typealias ARRAY_UNIQUE<ELEMENT> = ARRAY<ELEMENT> where ELEMENT: SDAIGenericType
+
 	public struct ARRAY<ELEMENT:SDAIGenericType>: SDAI__ARRAY__type, SDAIValue
 	{
 		public typealias SwiftType = Array<ELEMENT>
@@ -494,19 +551,25 @@ extension SDAI {
 		}
 
 		// SDAIGenericType \SDAIUnderlyingType\SDAIAggregationType\SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY__type
-		public static var typeName: String { return "ARRAY" }
-		public var asSwiftType: SwiftType { return rep }
-		public var asFundamentalType: FundamentalType { return self }
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]
 		}
 		public var value: _ArrayValue<ELEMENT> {
 			return _ArrayValue(from: self)
 		}
+		public init?<S>(possiblyFrom select: S) where S : SDAISelectType {
+			if let base = select.arrayValue(elementType: ELEMENT.self) {
+				self.init(base)
+			}
+			else { return nil }
+		}
+
+		// SDAIUnderlyingType \SDAIAggregationType\SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY__type
+		public static var typeName: String { return "ARRAY" }
+		public var asSwiftType: SwiftType { return rep }
+		public var asFundamentalType: FundamentalType { return self }
 		public init(_ fundamental: FundamentalType) {
-			rep = fundamental.rep
-			bound1 = fundamental.bound1
-			bound2 = fundamental.bound2
+			self.init(from: fundamental.asSwiftType, loBound: fundamental.loIndex, hiBound: fundamental.hiIndex)
 		}
 		
 		// Sequence \SDAIAggregationType\SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY__type
@@ -520,9 +583,14 @@ extension SDAI {
 		public var size: Int { return bound2 - bound1 + 1 }
 		public var _observer: EntityReferenceObserver?
 		
-		public subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
-			guard let index = index?.asSwiftType, index >= loIndex, index <= hiIndex else { return nil }
+		public subscript(index: Int?) -> ELEMENT? {
+			guard let index = index, index >= loIndex, index <= hiIndex else { return nil }
 			return rep[index - loIndex]
+		}
+		
+		public func CONTAINS(_ elem: ELEMENT?) -> SDAI.LOGICAL {
+			guard let elem = elem else { return UNKNOWN }
+			return LOGICAL(rep.contains(elem))
 		}
 		
 		public func QUERY(logical_expression: (ELEMENT) -> LOGICAL ) -> ARRAY_OPTIONAL<ELEMENT> {
@@ -533,37 +601,29 @@ extension SDAI {
 			return ARRAY_OPTIONAL(from: filtered, loBound: self.loIndex ,hiBound: self.hiIndex)
 		}
 
-		// InitializableByArray \SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY__type
-		public init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) {
-			self.init(bound1:bound1, bound2:bound2, elements){ $0 }
-		} 
-
-		public init<T: SDAI__ARRAY__type>(_ arraytype: T) 
-	 	where T.ELEMENT == ELEMENT, T.ELEMENT == T.Element
-		{
-			self.init(bound1:arraytype.loIndex, bound2:arraytype.hiIndex, [arraytype]) { $0 }
-		}	
-		
 		// SDAI__ARRAY_OPTIONAL__type \SDAI__ARRAY__type
 		public init(from swiftValue: SwiftType, loBound: Int, hiBound: Int) {
-			rep = swiftValue
 			bound1 = loBound
 			bound2 = hiBound
+			rep = swiftValue
+			assert(rep.count == self.size)
 		} 
 
 		// ARRAY specific
 		private init<S:Sequence>(bound1: Int, bound2: Int, _ elements: [S], conv: (S.Element) -> ELEMENT )
 		{
-			self.bound1 = bound1
-			self.bound2 = bound2
-			self.rep = []
-			rep.reserveCapacity(bound2 - bound1 + 1)
+//			self.bound1 = bound1
+//			self.bound2 = bound2
+//			self.rep = []
+			var swiftValue = SwiftType()
+			swiftValue.reserveCapacity(bound2 - bound1 + 1)
 			for aie in elements {
 				for elem in aie {
-					rep.append(conv(elem))
+					swiftValue.append(conv(elem))
 				}
 			}
-			assert(rep.count == self.size)
+			self.init(from: swiftValue, loBound: bound1, hiBound: bound2)
+//			assert(rep.count == self.size)
 		}
 		
 		// SDAIValue
@@ -575,7 +635,22 @@ extension SDAI {
 	}
 }
 
-extension SDAI.ARRAY: InitializableBySubtypeArray 
+extension SDAI.ARRAY: InitializableByEntityArray
+where ELEMENT: SDAI.EntityReference
+{
+	// InitializableByArray \SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY__type
+	public init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) {
+		self.init(bound1:bound1, bound2:bound2, elements){ $0.complexEntity.entityReference(ELEMENT.self)! }
+	} 
+
+	public init<T: SDAI__ARRAY__type>(_ arraytype: T) 
+	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
+	{
+		self.init(bound1:arraytype.loIndex, bound2:arraytype.hiIndex, [arraytype]) { $0.complexEntity.entityReference(ELEMENT.self)! }
+	}		
+}
+
+extension SDAI.ARRAY: InitializableByDefinedtypeArray 
 where ELEMENT: SDAIUnderlyingType
 {
 	// InitializableBySubtypeArray \SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY__type
@@ -605,54 +680,49 @@ where ELEMENT: SDAISimpleType
 
 //MARK: -
 public protocol SDAI__ARRAY__subtype: SDAI__ARRAY__type, SDAIDefinedType
-where Supertype: SDAI__ARRAY__type,
-			Supertype.ELEMENT == ELEMENT,
-			Supertype.FundamentalType == SDAI.ARRAY<ELEMENT>,
-			Supertype.SwiftType == SDAI.ARRAY<ELEMENT>.SwiftType
+where Supertype == SDAI.ARRAY<ELEMENT>//: SDAI__ARRAY__type,
+//			Supertype.ELEMENT == ELEMENT,
+//			Supertype.FundamentalType == SDAI.ARRAY<ELEMENT>,
+//			Supertype.SwiftType == SDAI.ARRAY<ELEMENT>.SwiftType
 {}
+//public extension SDAI__ARRAY__subtype
+//{
+//	// SDAI__ARRAY__type \SDAI__ARRAY__subtype
+//	init?<T:SDAI__ARRAY__type>(_ subtype: T?) {
+//		guard let subtype = subtype else { return nil}
+//		self.init(subtype)
+//	}
+//}
 public extension SDAI__ARRAY__subtype
 {
-	// SDAI__ARRAY__type \SDAI__ARRAY__subtype
-	init?<T:SDAI__ARRAY__type>(_ subtype: T?) {
-		guard let subtype = subtype else { return nil}
-		self.init(subtype)
-	}
-}
-public extension SDAI__ARRAY__subtype
-{
-	// Sequence \SDAIAggregationType\SDAI__ARRAY__type\SDAI__ARRAY__subtype
-	func makeIterator() -> Supertype.Iterator { return rep.makeIterator() }
+//	// Sequence \SDAIAggregationType\SDAI__ARRAY__type\SDAI__ARRAY__subtype
+//	func makeIterator() -> Supertype.Iterator { return rep.makeIterator() }
+//
+//	// SDAIAggregationType \SDAI__ARRAY__type\SDAI__ARRAY__subtype
+//	var hiBound: Int? { return rep.hiBound }
+//	var hiIndex: Int { return rep.hiIndex }
+//	var loBound: Int { return rep.loBound }
+//	var loIndex: Int { return rep.loIndex }
+//	var size: Int { return rep.size }
+//	var _observer: EntityReferenceObserver? {
+//		get { return rep._observer }
+//		set { rep._observer = newValue }
+//	}
+//
+//	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
+//		return rep[index]
+//	}
+//	
+//	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> Supertype.RESULT_AGGREGATE {
+//		return rep.QUERY(logical_expression: logical_expression)
+//	}
 
-	// SDAIAggregationType \SDAI__ARRAY__type\SDAI__ARRAY__subtype
-	var hiBound: Int? { return rep.hiBound }
-	var hiIndex: Int { return rep.hiIndex }
-	var loBound: Int { return rep.loBound }
-	var loIndex: Int { return rep.loIndex }
-	var size: Int { return rep.size }
-	var _observer: EntityReferenceObserver? {
-		get { return rep._observer }
-		set { rep._observer = newValue }
-	}
-
-	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
-		return rep[index]
+	// SDAIGenericType
+	init?<S: SDAISelectType>(possiblyFrom select: S) {
+		guard let supertype = Supertype(possiblyFrom: select) else { return nil }
+		self.init(supertype)
 	}
 	
-	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> Supertype.RESULT_AGGREGATE {
-		return rep.QUERY(logical_expression: logical_expression)
-	}
-
-	// InitializableByArray \SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY__type\SDAI__ARRAY__subtype
-	init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) {
-		self.init( Supertype(bound1: bound1, bound2: bound2, elements) )
-	}
-
-	init<T: SDAI__ARRAY__type>(_ arraytype: T) 
-	where T.ELEMENT == ELEMENT, T.ELEMENT == T.Element 
-	{
-		self.init( Supertype(arraytype) )
-	}
-
 	// SDAI__ARRAY_OPTIONAL__type \SDAI__ARRAY__type\SDAI__ARRAY__subtype
 	init(from swiftValue: SwiftType, loBound: Int, hiBound: Int) {
 		self.init( Supertype(from: swiftValue, loBound: loBound, hiBound: hiBound) )
@@ -660,7 +730,22 @@ public extension SDAI__ARRAY__subtype
 }
 
 public extension SDAI__ARRAY__subtype
-where Supertype: InitializableBySubtypeArray
+where Supertype: InitializableByEntityArray
+{
+	// InitializableByArray \SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY__type\SDAI__ARRAY__subtype
+	init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) {
+		self.init( Supertype(bound1: bound1, bound2: bound2, elements) )
+	}
+
+	init<T: SDAI__ARRAY__type>(_ arraytype: T) 
+	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
+	{
+		self.init( Supertype(arraytype) )
+	}
+}
+
+public extension SDAI__ARRAY__subtype
+where Supertype: InitializableByDefinedtypeArray
 {
 	// InitializableBySubtypeArray
 	init<E: SDAIUnderlyingType>(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<E>]) 
