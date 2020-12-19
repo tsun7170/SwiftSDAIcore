@@ -8,9 +8,9 @@
 import Foundation
 
 //MARK: - Underlying Type
-public protocol SDAIUnderlyingType: SDAIGenericType
+public protocol SDAIUnderlyingSelectType: SDAIGenericType
 {
-	associatedtype FundamentalType: SDAIUnderlyingType
+	associatedtype FundamentalType: SDAIUnderlyingSelectType
 	associatedtype SwiftType
 	
 	static var typeName: String {get}
@@ -18,39 +18,54 @@ public protocol SDAIUnderlyingType: SDAIGenericType
 	var asFundamentalType: FundamentalType {get}
 	var asSwiftType: SwiftType {get}
 	
-	init?(_ fundamental: FundamentalType?)
-	init(_ fundamental: FundamentalType)
-	init?<T: SDAIUnderlyingType>(_ sibling: T?) where T.FundamentalType == FundamentalType
-	init<T: SDAIUnderlyingType>(_ sibling: T) where T.FundamentalType == FundamentalType
+	init?(fundamental: FundamentalType?)
+	init(fundamental: FundamentalType)
+}
+
+public extension SDAIUnderlyingSelectType
+{
+	init?(fundamental: FundamentalType?) {
+		guard let fundamental = fundamental else { return nil }
+		self.init(fundamental: fundamental)
+	}	
+}
+
+public protocol SDAIUnderlyingType: SDAIUnderlyingSelectType 
+{
+//	init?(_ fundamental: FundamentalType?)
+//	init(_ fundamental: FundamentalType)
+	init?<T: SDAIUnderlyingSelectType>(_ sibling: T?) where T.FundamentalType == FundamentalType
+	init<T: SDAIUnderlyingSelectType>(_ sibling: T) where T.FundamentalType == FundamentalType
 	
 }
+
 public extension SDAIUnderlyingType 
 {
-	init?(_ fundamental: FundamentalType?) {
-		guard let fundamental = fundamental else { return nil }
-		self.init(fundamental)
-	}
+//	init?(_ fundamental: FundamentalType?) {
+//		guard let fundamental = fundamental else { return nil }
+//		self.init(fundamental)
+//	}
 	
-	init?<T: SDAIUnderlyingType>(_ sibling: T?) where T.FundamentalType == FundamentalType {
+	init?<T: SDAIUnderlyingSelectType>(_ sibling: T?) where T.FundamentalType == FundamentalType {
 		guard let sibling = sibling else { return nil }
 		self.init(sibling)
 	}
 	
-	init<T: SDAIUnderlyingType>(_ sibling: T) where T.FundamentalType == FundamentalType {
-		self.init(sibling.asFundamentalType)	
+	init<T: SDAIUnderlyingSelectType>(_ sibling: T) where T.FundamentalType == FundamentalType {
+		self.init(fundamental: sibling.asFundamentalType)	
 	}
-
 }
 
 
 //MARK: - Defined Type
-public protocol SDAIDefinedType: SDAINamedType, SDAIUnderlyingType
+public protocol SDAIDefinedType: SDAINamedType, SDAIUnderlyingSelectType
 {
-	associatedtype Supertype: SDAIUnderlyingType 
-	where FundamentalType == Supertype.FundamentalType,
-				SwiftType == Supertype.SwiftType
+	associatedtype Supertype: SDAIUnderlyingSelectType 
+	where Supertype.FundamentalType: SDAIUnderlyingSelectType,
+				FundamentalType == Supertype.FundamentalType,
+				SwiftType == FundamentalType.SwiftType
 	
-	var rep: Supertype {get set}
+	var rep: Supertype {get set}	
 }
 public extension SDAIDefinedType
 { 

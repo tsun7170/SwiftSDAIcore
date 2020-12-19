@@ -12,7 +12,7 @@ import Foundation
 public protocol SDAISetType: SDAIBagType
 {}
 
-public protocol SDAI__SET__type: SDAISetType
+public protocol SDAI__SET__type: SDAISetType, InitializableBySelecttypeSet
 {}
 
 extension SDAI {
@@ -45,8 +45,8 @@ extension SDAI {
 		public var value: _BagValue<ELEMENT> {
 			return _BagValue(from: self)
 		}
-		public init?<S>(possiblyFrom select: S) where S : SDAISelectType {
-			if let base = select.setValue(elementType: ELEMENT.self) {
+		public init?<S>(possiblyFrom select: S?) where S : SDAISelectType {
+			if let base = select?.setValue(elementType: ELEMENT.self) {
 				self.init(base)
 			}
 			else { return nil }
@@ -56,8 +56,8 @@ extension SDAI {
 		public static var typeName: String { return "SET" }
 		public var asSwiftType: SwiftType { return rep }
 		public var asFundamentalType: FundamentalType { return self }
-		public init(_ fundamental: FundamentalType) {
-			self.init(from: fundamental.asSwiftType, loBound: fundamental.loBound, hiBound: fundamental.hiBound)
+		public init(fundamental: FundamentalType) {
+			self.init(from: fundamental.asSwiftType, bound1: fundamental.loBound, bound2: fundamental.hiBound)
 		}
 	
 		// Sequence \SDAIAggregationType\SDAI__BAG__type\SDAI__SET__type
@@ -83,29 +83,34 @@ extension SDAI {
 		}
 		
 		public func QUERY(logical_expression: (ELEMENT) -> LOGICAL ) -> SET<ELEMENT> {
-			return SET(from: rep.filter{ logical_expression($0).isTRUE }, hiBound: self.hiBound)
+			return SET(from: rep.filter{ logical_expression($0).isTRUE }, bound1:self.loBound, bound2: self.hiBound)
 		}
 		
-//		// InitializableBySet \SDAI__BAG__type\SDAI__SET__type
-//		public init<T: SDAI__SET__type>(_ setype: T) 
-//		where T.ELEMENT == ELEMENT, T.ELEMENT == T.Element
-//		{
-//			self.init(bound1:setype.loBound, bound2:setype.hiBound, [setype]) { $0 }
-//		}
-
+		// InitializableBySelecttypeSet
+		public init<E: SDAISelectType>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>]) {
+			self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT(possiblyFrom: $0)! }
+		} 
+		
+		public init<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T) 
+		where T.ELEMENT: SDAISelectType, T.ELEMENT == T.Element
+		{
+			self.init(bound1:bound1, bound2:bound2, [settype]){ ELEMENT(possiblyFrom: $0)! }
+		}		
+		
 		// SDAI__BAG__type\SDAI__SET__type
-//		public init(bound1: Int, bound2: Int?, _ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) {
-//			self.init(bound1:bound1, bound2:bound2, elements){ $0 }
-//		}
-
-		public init(from swiftValue: SwiftType, loBound: Int = 0, hiBound: Int? = nil) {
-			self.bound1 = loBound
-			self.bound2 = hiBound
+		public init(from swiftValue: SwiftType, bound1: Int = 0, bound2: Int? = nil) {
+			self.bound1 = bound1
+			self.bound2 = bound2
 			self.rep = swiftValue
 		}
 		
-		public init(loBound: Int = 0, hiBound: Int? = nil, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
-			self.init(from: SwiftType(), loBound: loBound, hiBound: hiBound)
+		public init(bound1: Int = 0, bound2: Int? = nil, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
+			self.init(from: SwiftType(), bound1: bound1, bound2: bound2)
+		}
+
+		public mutating func set(bound1: Int, bound2: Int?) {
+			self.bound1 = bound1
+			self.bound2 = bound2
 		}
 
 		public mutating func add(member: ELEMENT?) {
@@ -121,9 +126,6 @@ extension SDAI {
 		// SET specific
 		private init<S:Sequence>(bound1: Int, bound2: Int?, _ elements: [S], conv: (S.Element) -> ELEMENT )
 		{
-//			self.bound1 = bound1
-//			self.bound2 = bound2
-//			self.rep = []
 			var swiftValue = SwiftType()
 			if let hi = bound2 {
 				swiftValue.reserveCapacity(hi)
@@ -133,7 +135,7 @@ extension SDAI {
 					swiftValue.insert(conv(elem))
 				}
 			}
-			self.init(from: swiftValue, loBound: bound1, hiBound: bound2)
+			self.init(from: swiftValue, bound1: bound1, bound2: bound2)
 		}
 		
 		// SDAIValue
@@ -149,152 +151,131 @@ extension SDAI {
 extension SDAI.SET: InitializableByEntitySet
 where ELEMENT: SDAI.EntityReference
 {
-	public init<T: SDAI__SET__type>(_ setype: T) 
+	public init<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ setype: T) 
 	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
 	{
-		self.init(bound1: setype.loBound, bound2: setype.hiBound, [setype]) { $0.complexEntity.entityReference(ELEMENT.self)! }		
+		self.init(bound1: bound1, bound2: bound2, [setype]) { $0.complexEntity.entityReference(ELEMENT.self)! }		
 	}
 	
 	public init(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) {
-		self.init(bound1: bound1, bound2: bound2, elements) { $0.complexEntity.entityReference(ELEMENT.self)! }
+		self.init(bound1: bound1, bound2: bound2, elements) { ($0?.complexEntity.entityReference(ELEMENT.self))! }
 	}
 }
 
-extension SDAI.SET: InitializableByDefinedtypeSet//, InitializableByDefinedtypeListLiteral
+extension SDAI.SET: InitializableByDefinedtypeSet
 where ELEMENT: SDAIUnderlyingType
 {
 	// InitializableBySubtypeSet \SDAI__BAG__type\SDAI__SET__type
-	public init<T: SDAI__SET__type>(_ subtype: T) 
+	public init<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T) 
 	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
 	{
-		self.init(bound1:subtype.loBound, bound2:subtype.hiBound, [subtype]) { ELEMENT($0) }
+		self.init(bound1:bound1, bound2:bound2, [settype]) { ELEMENT($0) }
 	}
 	
 	// InitializableBySubtypeListLiteral
 	public init<E:SDAIUnderlyingType>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>]) 
 	where E.FundamentalType == ELEMENT.FundamentalType
 	{
-		self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT($0.asFundamentalType) }
+		self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT(fundamental: $0!.asFundamentalType) }
 	}		
 }
 
-extension SDAI.SET: InitializableBySwiftListLiteral where ELEMENT: SDAISimpleType
+
+extension SDAI.SET
+where ELEMENT: SDAISelectType
+{
+	init<E: SDAI.EntityReference>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>])
+	{
+		self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT(possiblyFrom: $0)! }
+	}
+	init<E: SDAIUnderlyingType>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>])
+	{
+		self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT(possiblyFrom: $0)! }
+	}
+	init<E: SDAISelectType>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>])
+	{
+		self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT(possiblyFrom: $0)! }
+	}
+	
+	init?<T: SDAI__SET__type>(_ settype: T?) 
+	where T.ELEMENT == T.Element, T.ELEMENT: SDAI.EntityReference
+	{
+		guard let settype = settype else { return nil }
+		self.init(settype)
+	}
+	init?<T: SDAI__SET__type>(_ settype: T?) 
+	where T.ELEMENT == T.Element, T.ELEMENT: SDAIUnderlyingType
+	{
+		guard let settype = settype else { return nil }
+		self.init(settype)
+	}
+	init?<T: SDAI__SET__type>(_ settype: T?) 
+	where T.ELEMENT == T.Element, T.ELEMENT: SDAISelectType
+	{
+		guard let settype = settype else { return nil }
+		self.init(settype)
+	}
+
+	init<T: SDAI__SET__type>(_ settype: T) 
+	where T.ELEMENT == T.Element, T.ELEMENT: SDAI.EntityReference
+	{
+		self.init(bound1:settype.loBound, bound2:settype.hiBound, [settype]){ ELEMENT(possiblyFrom: $0)! }
+	}
+	init<T: SDAI__SET__type>(_ settype: T) 
+	where T.ELEMENT == T.Element, T.ELEMENT: SDAIUnderlyingType
+	{
+		self.init(bound1:settype.loBound, bound2:settype.hiBound, [settype]){ ELEMENT(possiblyFrom: $0)! }
+	}
+	init<T: SDAI__SET__type>(_ settype: T) 
+	where T.ELEMENT == T.Element, T.ELEMENT: SDAISelectType
+	{
+		self.init(bound1:settype.loBound, bound2:settype.hiBound, [settype]){ ELEMENT(possiblyFrom: $0)! }
+	}
+	
+	init?<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T?) 
+	where T.ELEMENT == T.Element, T.ELEMENT: SDAI.EntityReference
+	{
+		guard let settype = settype else { return nil }
+		self.init(bound1: bound1, bound2: bound2, settype)
+	}
+	init?<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T?) 
+	where T.ELEMENT == T.Element, T.ELEMENT: SDAIUnderlyingType
+	{
+		guard let settype = settype else { return nil }
+		self.init(bound1: bound1, bound2: bound2, settype)
+	}
+	init?<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T?) 
+	where T.ELEMENT == T.Element, T.ELEMENT: SDAISelectType
+	{
+		guard let settype = settype else { return nil }
+		self.init(bound1: bound1, bound2: bound2, settype)
+	}
+
+	init<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T) 
+	where T.ELEMENT == T.Element, T.ELEMENT: SDAI.EntityReference
+	{
+		self.init(bound1:bound1, bound2:bound2, [settype]){ ELEMENT(possiblyFrom: $0)! }
+	}
+	init<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T) 
+	where T.ELEMENT == T.Element, T.ELEMENT: SDAIUnderlyingType
+	{
+		self.init(bound1:bound1, bound2:bound2, [settype]){ ELEMENT(possiblyFrom: $0)! }
+	}
+	init<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T) 
+	where T.ELEMENT == T.Element, T.ELEMENT: SDAISelectType
+	{
+		self.init(bound1:bound1, bound2:bound2, [settype]){ ELEMENT(possiblyFrom: $0)! }
+	}
+}
+
+
+extension SDAI.SET: InitializableBySwiftListLiteral 
+where ELEMENT: SDAISimpleType
 {
 	public init<E>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>]) 
 	where E == ELEMENT.SwiftType
 	{
-		self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT($0) }
-	}
-}
-
-//MARK: -
-public protocol SDAI__SET__subtype: SDAI__SET__type, SDAIDefinedType
-where Supertype == SDAI.SET<ELEMENT>//: SDAI__SET__type,
-//			Supertype.ELEMENT == ELEMENT,
-//			Supertype.FundamentalType == SDAI.SET<ELEMENT>,
-//			Supertype.SwiftType == SDAI.SET<ELEMENT>.SwiftType
-{}
-public extension SDAI__SET__subtype
-{
-//	// Sequence \SDAIAggregationType\SDAI__BAG__type\SDAI__SET__type\SDAI__SET__subtype
-//	func makeIterator() -> Supertype.Iterator { return rep.makeIterator() }
-//
-//	// SDAIAggregationType \SDAI__BAG__type\SDAI__SET__type\SDAI__SET__subtype
-//	var hiBound: Int? { return rep.hiBound }
-//	var hiIndex: Int { return rep.hiIndex }
-//	var loBound: Int { return rep.loBound }
-//	var loIndex: Int { return rep.loIndex }
-//	var size: Int { return rep.size }
-//	var _observer: EntityReferenceObserver? {
-//		get { return rep._observer }
-//		set { rep._observer = newValue }
-//	}
-//
-//	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
-//		return rep[index]
-//	}
-//	
-//	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> Supertype.RESULT_AGGREGATE {
-//		return rep.QUERY(logical_expression: logical_expression)
-//	}
-
-//	// InitializableBySet \SDAI__BAG__type\SDAI__SET__type\SDAI__SET__subtype
-//	init<T: SDAI__SET__type>(_ settype: T) 
-//	where T.ELEMENT == ELEMENT, T.ELEMENT == T.Element
-//	{
-//		self.init( Supertype(settype) )
-//	}
-
-	// SDAI__BAG__type \SDAI__SET__type\SDAI__SET__subtype
-//	init(bound1: Int, bound2: Int?, _ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) 
-//	{
-//		self.init( Supertype(bound1: bound1, bound2: bound2, elements) )
-//	}
-	
-	// SDAIGenericType
-	init?<S: SDAISelectType>(possiblyFrom select: S) {
-		guard let supertype = Supertype(possiblyFrom: select) else { return nil }
-		self.init(supertype)
-	}
-	
-	init(from swiftValue: SwiftType, loBound: Int = 0, hiBound: Int? = nil) {
-		self.init( Supertype(from: swiftValue, loBound: loBound, hiBound: hiBound) )
-	} 
-
-	init(loBound: Int = 0, hiBound: Int? = nil, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
-		self.init( Supertype(loBound: loBound, hiBound: hiBound, emptyLiteral) )
-	} 
-}
-
-public extension SDAI__SET__subtype
-where Supertype: InitializableByEntitySet
-{
-	init<T: SDAI__SET__type>(_ settype: T) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
-	{
-		self.init( Supertype(settype) )
-	}	
-	
-	init(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) {
-		self.init( Supertype(bound1: bound1, bound2: bound2, elements) )
-	}
-}
-
-public extension SDAI__SET__subtype
-where Supertype: InitializableByDefinedtypeSet
-{
-	// InitializableBySubtypeSet
-	init<T:SDAI__SET__type>(_ subtype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-	{
-		self.init( Supertype(subtype).asFundamentalType )
-	}
-
-	init<E:SDAIUnderlyingType>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-	where E.FundamentalType == ELEMENT.FundamentalType
-	{
-		self.init( Supertype(bound1: bound1, bound2: bound2, elements) )
-	}
-}
-
-//public extension SDAI__SET__subtype
-//where Supertype: InitializableByDefinedtypeListLiteral
-//{
-//	// InitializableBySubtypeListLiteral
-//	init<E:SDAIUnderlyingType>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	where E.FundamentalType == ELEMENT.FundamentalType
-//	{
-//		self.init( Supertype(bound1: bound1, bound2: bound2, elements) )
-//	}
-//}
-
-public extension SDAI__SET__subtype
-where Supertype: InitializableBySwiftListLiteral
-{
-	init<E>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-	where E == ELEMENT.SwiftType
-	{
-		self.init( Supertype(bound1:bound1, bound2:bound2, elements) )
+		self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT($0!) }
 	}
 }
 

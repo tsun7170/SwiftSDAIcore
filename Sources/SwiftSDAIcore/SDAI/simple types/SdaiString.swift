@@ -17,7 +17,6 @@ where StringLiteralType == String
 	subscript(range: ClosedRange<Int>?) -> SDAI.STRING? {get}
 	func ISLIKE<T:SDAIStringType>(PATTERN substring: T? ) -> SDAI.LOGICAL	// Express 'LIKE' operator translation
 	func ISLIKE(PATTERN substring: String? ) -> SDAI.LOGICAL	// Express 'LIKE' operator translation
-//	func ISLIKE(PATTERN substring: SwiftType? ) -> SDAI.LOGICAL	// Express 'LIKE' operator translation
 	var asSwiftString: String {get}
 }
 public extension SDAIStringType
@@ -29,22 +28,6 @@ public extension SDAIStringType
 	func ISLIKE<T:SDAIStringType>(PATTERN substring: T? ) -> SDAI.LOGICAL{
 		return self.ISLIKE(PATTERN: substring?.asSwiftString)
 	}
-//	func ISLIKE(PATTERN substring: String? ) -> SDAI.LOGICAL{
-//		guard let substring = substring else { return nil }
-//		return self.ISLIKE(PATTERN: SwiftType(substring))
-//	}
-
-//	init?<T:SDAIStringType>(_ subtype: T?) {
-//		guard let subtype = subtype else { return nil }
-//		self.init(subtype)
-//	}
-//	init<T:SDAIStringType>(_ subtype:T) {
-//		self.init(subtype.asSwiftType)
-//	}
-//	init(_ string: String) {
-//		self.init(stringLiteral: string)
-//	}
-//	var asSwiftString: String { return String(self.asSwiftType) }
 }
 
 public protocol SDAI__STRING__type: SDAIStringType where SwiftType == String
@@ -88,16 +71,16 @@ extension SDAI {
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]
 		}
-		public init?<S: SDAISelectType>(possiblyFrom select: S) {
-			guard let stringValue = select.stringValue else { return nil }
+		public init?<S: SDAISelectType>(possiblyFrom select: S?) {
+			guard let stringValue = select?.stringValue else { return nil }
 			self.init(stringValue)
 		}
 
-//		// SDAIUnderlyingType\SDAISimpleType\SDAI__STRING__type
+		// SDAIUnderlyingType\SDAISimpleType\SDAI__STRING__type
 		public static let typeName: String = "STRING"
 		public var asFundamentalType: FundamentalType { return self }
 		public var asSwiftType: SwiftType { return rep }
-		public init(_ fundamental: FundamentalType) {
+		public init(fundamental: FundamentalType) {
 			self.init(fundamental.rep)
 		}
 
@@ -105,11 +88,6 @@ extension SDAI {
 		public init(_ swiftValue: SwiftType) {
 			rep = swiftValue
 		}
-		
-//		// ExpressibleByStringLiteral \SDAI__STRING__type
-//		public init(stringLiteral value: String) {
-//			self.init( SwiftType(value) )
-//		}
 
 		// SDAI__STRING__type
 		public var length: Int { return rep.count }
@@ -140,32 +118,3 @@ extension SDAI {
 	}
 }
 
-
-public protocol SDAI__STRING__subtype: SDAI__STRING__type, SDAIDefinedType
-where Supertype: SDAI__STRING__type,
-			Supertype.FundamentalType == SDAI.STRING
-{}
-public extension SDAI__STRING__subtype
-{
-	// SDAIGenericType
-	init?<S: SDAISelectType>(possiblyFrom select: S) {
-		guard let supertype = Supertype(possiblyFrom: select) else { return nil }
-		self.init(supertype)
-	}
-	
-	// SDAISimpleType \SDAI__STRING__type\SDAI__STRING__subtype
-	init(_ swiftValue: Supertype.SwiftType) {
-		self.init(Supertype(swiftValue))
-	}
-	
-//	// ExpressibleByStringLiteral \SDAI__STRING__type\SDAI__STRING__subtype
-//	init(stringLiteral value: Supertype.StringLiteralType) {
-//		self.init(Supertype(stringLiteral: value))
-//	}
-
-	// SDAI__STRING__type \SDAI__STRING__subtype
-	var length: Int { return rep.length }
-	subscript(index: Int?) -> SDAI.STRING? { return rep[index] }
-	subscript(range: ClosedRange<Int>?) -> SDAI.STRING? { return rep[range] }
-	func ISLIKE(PATTERN substring: SwiftType? ) -> SDAI.LOGICAL { rep.ISLIKE(PATTERN: substring) }
-}

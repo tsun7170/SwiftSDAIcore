@@ -273,12 +273,12 @@ public func >=   <U: SDAIStringType>(lhs: String?, rhs: U?) -> SDAI.LOGICAL { ab
 public func <=   <U: SDAIStringType>(lhs: String?, rhs: U?) -> SDAI.LOGICAL { abstruct() }
 
 //MARK: - Enumeration item comparisons
-public func .==. <T: SDAIEnumerationType>(lhs: T?, rhs: T?) -> SDAI.LOGICAL { abstruct() }
-public func .!=. <T: SDAIEnumerationType>(lhs: T?, rhs: T?) -> SDAI.LOGICAL { abstruct() }
-public func >    <T: SDAIEnumerationType>(lhs: T?, rhs: T?) -> SDAI.LOGICAL { abstruct() }
-public func <    <T: SDAIEnumerationType>(lhs: T?, rhs: T?) -> SDAI.LOGICAL { abstruct() }
-public func >=   <T: SDAIEnumerationType>(lhs: T?, rhs: T?) -> SDAI.LOGICAL { abstruct() }
-public func <=   <T: SDAIEnumerationType>(lhs: T?, rhs: T?) -> SDAI.LOGICAL { abstruct() }
+public func .==. <T: SDAIEnumerationType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL where T.FundamentalType == U.FundamentalType { abstruct() }
+public func .!=. <T: SDAIEnumerationType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL where T.FundamentalType == U.FundamentalType { abstruct() }
+public func >    <T: SDAIEnumerationType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL where T.FundamentalType == U.FundamentalType { abstruct() }
+public func <    <T: SDAIEnumerationType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL where T.FundamentalType == U.FundamentalType { abstruct() }
+public func >=   <T: SDAIEnumerationType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL where T.FundamentalType == U.FundamentalType { abstruct() }
+public func <=   <T: SDAIEnumerationType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL where T.FundamentalType == U.FundamentalType { abstruct() }
 
 //MARK: - Aggregate value comparisons
 public func .==. <T: SDAIArrayOptionalType, U: SDAIArrayOptionalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { abstruct() }
@@ -425,13 +425,37 @@ public func + <U: SDAIStringType>(lhs: String?, rhs: U?) -> SDAI.STRING? { abstr
 
 //MARK: - Aggregate operators
 //MARK: - Intersection operator
-public func * <T: SDAI__BAG__type, U: SDAI__BAG__type>(lhs: T?, rhs: U?) -> SDAI.BAG<T.ELEMENT>? where T.ELEMENT == U.ELEMENT { abstruct() }
-public func * <T: SDAI__BAG__type, U: SDAI__SET__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT == U.ELEMENT { abstruct() }
-public func * <T: SDAI__SET__type, U: SDAI__SET__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT == U.ELEMENT { abstruct() }
-public func * <T: SDAI__SET__type, U: SDAI__BAG__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT == U.ELEMENT { abstruct() }
+public func * <T: SDAI__BAG__type, U: SDAI__BAG__type>(lhs: T?, rhs: U?) -> SDAI.BAG<T.ELEMENT>? where T.ELEMENT:SDAIUnderlyingType, U.ELEMENT:SDAIUnderlyingType, T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { abstruct() }
+public func * <T: SDAI__BAG__type, U: SDAI__SET__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAIUnderlyingType, U.ELEMENT:SDAIUnderlyingType, T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { abstruct() }
+public func * <T: SDAI__SET__type, U: SDAI__SET__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAIUnderlyingType, U.ELEMENT:SDAIUnderlyingType, T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { abstruct() }
+public func * <T: SDAI__SET__type, U: SDAI__BAG__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAIUnderlyingType, U.ELEMENT:SDAIUnderlyingType, T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { abstruct() }
 
-public func * <T: SDAI__SET__type, U: SDAI__AIE__type>(lhs: T?, rhs: [U]) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT == U.ELEMENT { abstruct() }
-public func * <T: SDAI__AIE__type, U: SDAI__SET__type>(lhs: [T], rhs: U?) -> SDAI.SET<U.ELEMENT>? where T.ELEMENT == U.ELEMENT { abstruct() }
+public func * <T: SDAI__SET__type, U: SDAI__AIE__type>(lhs: T?, rhs: [U]) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAIUnderlyingType,U.ELEMENT:SDAIUnderlyingType, T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { abstruct() }
+public func * <T: SDAI__AIE__type, U: SDAI__SET__type>(lhs: [T], rhs: U?) -> SDAI.SET<U.ELEMENT>? where T.ELEMENT:SDAIUnderlyingType,U.ELEMENT:SDAIUnderlyingType, T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { abstruct() }
+
+public func * <T: SDAI__BAG__type, U: SDAI__BAG__type>(lhs: T?, rhs: U?) -> SDAI.BAG<T.ELEMENT>? where T.ELEMENT:SDAI.EntityReference, U.ELEMENT:SDAI.EntityReference { abstruct() }
+public func * <T: SDAI__BAG__type, U: SDAI__SET__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAI.EntityReference, U.ELEMENT:SDAI.EntityReference { abstruct() }
+public func * <T: SDAI__SET__type, U: SDAI__SET__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAI.EntityReference, U.ELEMENT:SDAI.EntityReference { abstruct() }
+public func * <T: SDAI__SET__type, U: SDAI__BAG__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAI.EntityReference, U.ELEMENT:SDAI.EntityReference { abstruct() }
+
+public func * <T: SDAI__SET__type, U: SDAI__AIE__type>(lhs: T?, rhs: [U]) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAI.EntityReference,U.ELEMENT:SDAI.EntityReference { abstruct() }
+public func * <T: SDAI__AIE__type, U: SDAI__SET__type>(lhs: [T], rhs: U?) -> SDAI.SET<U.ELEMENT>? where T.ELEMENT:SDAI.EntityReference,U.ELEMENT:SDAI.EntityReference { abstruct() }
+
+public func * <T: SDAI__BAG__type, U: SDAI__BAG__type>(lhs: T?, rhs: U?) -> SDAI.BAG<T.ELEMENT>? where T.ELEMENT:SDAISelectType, U.ELEMENT:SDAIGenericType { abstruct() }
+public func * <T: SDAI__BAG__type, U: SDAI__SET__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAISelectType, U.ELEMENT:SDAIGenericType { abstruct() }
+public func * <T: SDAI__SET__type, U: SDAI__SET__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAISelectType, U.ELEMENT:SDAIGenericType { abstruct() }
+public func * <T: SDAI__SET__type, U: SDAI__BAG__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAISelectType, U.ELEMENT:SDAIGenericType { abstruct() }
+
+public func * <T: SDAI__SET__type, U: SDAI__AIE__type>(lhs: T?, rhs: [U]) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAISelectType, U.ELEMENT:SDAIGenericType { abstruct() }
+public func * <T: SDAI__AIE__type, U: SDAI__SET__type>(lhs: [T], rhs: U?) -> SDAI.SET<U.ELEMENT>? where T.ELEMENT:SDAISelectType, U.ELEMENT:SDAIGenericType { abstruct() }
+
+public func * <T: SDAI__BAG__type, U: SDAI__BAG__type>(lhs: T?, rhs: U?) -> SDAI.BAG<T.ELEMENT>? where T.ELEMENT:SDAIGenericType, U.ELEMENT:SDAISelectType { abstruct() }
+public func * <T: SDAI__BAG__type, U: SDAI__SET__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAIGenericType, U.ELEMENT:SDAISelectType { abstruct() }
+public func * <T: SDAI__SET__type, U: SDAI__SET__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAIGenericType, U.ELEMENT:SDAISelectType { abstruct() }
+public func * <T: SDAI__SET__type, U: SDAI__BAG__type>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAIGenericType, U.ELEMENT:SDAISelectType { abstruct() }
+
+public func * <T: SDAI__SET__type, U: SDAI__AIE__type>(lhs: T?, rhs: [U]) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT:SDAIGenericType, U.ELEMENT:SDAISelectType { abstruct() }
+public func * <T: SDAI__AIE__type, U: SDAI__SET__type>(lhs: [T], rhs: U?) -> SDAI.SET<U.ELEMENT>? where T.ELEMENT:SDAIGenericType, U.ELEMENT:SDAISelectType { abstruct() }
 
 public func * <T: SDAI__SET__type, U: SDAI__AIE__type>(lhs: T?, rhs: [U]) -> SDAI.SET<T.ELEMENT>? where T.ELEMENT: SDAIStringType, U.ELEMENT == String { abstruct() }
 public func * <T: SDAI__AIE__type, U: SDAI__SET__type>(lhs: [T], rhs: U?) -> SDAI.SET<U.ELEMENT>? where T.ELEMENT == String, U.ELEMENT: SDAIStringType { abstruct() }

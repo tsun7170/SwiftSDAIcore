@@ -88,25 +88,31 @@ extension SDAI {
 		return INTEGER(V?.loIndex)
 	}
 
-	public static func NVL<GEN1: SDAIGenericType>(V: GEN1?, SUBSTITUTE: GEN1?) -> GEN1 {
+	public static func NVL<GEN1: SDAIGenericType>(V: GEN1?, SUBSTITUTE: GEN1?) -> GEN1? {
 		return V ?? SUBSTITUTE!
 	}
-	public static func NVL<GEN1: SDAIUnderlyingType>(V: GEN1?, SUBSTITUTE: GEN1.FundamentalType?) -> GEN1 {
+	public static func NVL<GEN1: SDAIUnderlyingType>(V: GEN1?, SUBSTITUTE: GEN1.FundamentalType?) -> GEN1? {
+		return V ?? GEN1(fundamental: SUBSTITUTE!)
+	}
+	public static func NVL<GEN1: SDAISimpleType>(V: GEN1?, SUBSTITUTE: GEN1.SwiftType?) -> GEN1? {
 		return V ?? GEN1(SUBSTITUTE!)
 	}
-	public static func NVL<GEN1: SDAISimpleType>(V: GEN1?, SUBSTITUTE: GEN1.SwiftType?) -> GEN1 {
-		return V ?? GEN1(SUBSTITUTE!)
-	}
-	public static func NVL<GEN1: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: SDAI.EntityReference?) -> GEN1 {
+	public static func NVL<GEN1: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: SDAI.EntityReference?) -> GEN1? {
 		return V ?? GEN1.cast(from:SUBSTITUTE)!
 	}
-	public static func NVL<GEN1: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: SDAI.ComplexEntity?) -> GEN1 {
+	public static func NVL<GEN1: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: SDAI.ComplexEntity?) -> GEN1? {
 		return V ?? GEN1(complex: SUBSTITUTE)!
 	}
-	public static func NVL<GEN1: SDAISelectType>(V: GEN1?, SUBSTITUTE: SDAI.ComplexEntity?) -> GEN1 {
+	public static func NVL<GEN1: SDAISelectType>(V: GEN1?, SUBSTITUTE: SDAI.ComplexEntity?) -> GEN1? {
 		return V ?? GEN1(possiblyFrom: SUBSTITUTE)!
 	}
-	public static func NVL<GEN1: SDAISelectType, GEN2: SDAIGenericType>(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1 {
+	public static func NVL<GEN1: SDAISelectType, GEN2: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1? {
+		return V ?? GEN1(possiblyFrom: SUBSTITUTE)!
+	}
+	public static func NVL<GEN1: SDAISelectType, GEN2: SDAIUnderlyingType>(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1? {
+		return V ?? GEN1(possiblyFrom: SUBSTITUTE)!
+	}
+	public static func NVL<GEN1: SDAISelectType, GEN2: SDAISelectType>(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1? {
 		return V ?? GEN1(possiblyFrom: SUBSTITUTE)!
 	}
 	
@@ -115,7 +121,7 @@ extension SDAI {
 		return LOGICAL( i % 2 == 1 )
 	}
 	
-	public static func ROLESOF(_ V: EntityReference?) -> SET<STRING> {
+	public static func ROLESOF(_ V: EntityReference?) -> SET<STRING>? {
 		guard let complex = V?.complexEntity else { return SET<STRING>(from: []) }
 		return SET<STRING>(from: complex.roles)
 	}
@@ -133,9 +139,9 @@ extension SDAI {
 		return INTEGER(  V.reduce(0, {$0 + $1.count})  )
 	}
 	
-	public static func SIZEOF<Select: SDAISelectType>(_ V: Select?) -> INTEGER? {
-		return INTEGER( V?.sizeOfAggregation )
-	}
+//	public static func SIZEOF<Select: SDAISelectType>(_ V: Select?) -> INTEGER? {
+//		return INTEGER( V?.sizeOfAggregation )
+//	}
 	
 
 	public static func SQRT<Number: SDAI__NUMBER__type>(_ V: Number?) -> REAL? {
@@ -148,23 +154,24 @@ extension SDAI {
 		return REAL( tan(r) )
 	}
 	
-	public static func TYPEOF<Generic: SDAIGenericType>(_ V: Generic?) -> SET<STRING> {
+	public static func TYPEOF<Generic: SDAIGenericType>(_ V: Generic?) -> SET<STRING>? {
 		guard let v = V else { return SET<STRING>(from: []) }
 		return SET<STRING>(from: v.typeMembers )
 	}
-	public static func TYPEOF<Generic: SDAIGenericType>(_ V: Generic? , IS typename: STRING) -> LOGICAL {
+	public static func TYPEOF<Generic: SDAIGenericType, T: SDAIGenericType>(_ V: Generic? , IS typename: T.Type) -> LOGICAL {
 		guard let v = V else { return SDAI.UNKNOWN }
-		return LOGICAL( v.typeMembers.contains(typename) )
+//		return LOGICAL( v.typeMembers.contains(typename) )
+		abstruct()
 	}
 	
 
-	public static func USEDIN(T: EntityReference?, R: STRING?) -> BAG<EntityReference> {
-		guard let complex = T?.complexEntity, let role = R else { return BAG(from: []) }
-		return BAG(from: complex.usedIn(role: role.asSwiftString))
-	}
-	public static func USEDIN(T: EntityReference?, R: String) -> BAG<EntityReference> {
+	public static func USEDIN(T: EntityReference?) -> BAG<EntityReference>? {
 		guard let complex = T?.complexEntity else { return BAG(from: []) }
-		return BAG(from: complex.usedIn(role: R))
+		return BAG(from: complex.usedIn())
+	}
+	public static func USEDIN<ENT:EntityReference>(T: EntityReference?, ENTITY:ENT.Type, ATTR:String) -> BAG<ENT>? {
+		guard let complex = T?.complexEntity else { return BAG(from: []) }
+		return BAG(from: complex.usedIn(entity: ENTITY, attr: ATTR))
 	}
 	
 	public static func VALUE(_ V: STRING?) -> NUMBER? {
@@ -173,7 +180,8 @@ extension SDAI {
 	}
 	
 	public static func VALUE_IN<Aggregate: SDAIAggregationType, GEN1: SDAIGenericType>(C: Aggregate?, V: GEN1?) -> LOGICAL 
-	where Aggregate.Element == GEN1? {
+	where Aggregate.Element == GEN1?, Aggregate.ELEMENT: SDAIGenericType 
+	{
 		guard let C = C, let V = V else { return LOGICAL(nil) }
 		var isin = false
 		for element in C {
@@ -197,13 +205,15 @@ extension SDAI {
 	}
 	
 	public static func VALUE_UNIQUE<Aggregate: SDAIAggregationType>(_ V: Aggregate?) -> LOGICAL 
-	where Aggregate.Element == Aggregate.ELEMENT? {
+	where Aggregate.Element == Aggregate.ELEMENT?, Aggregate.ELEMENT: SDAIGenericType 
+	{
 		guard let V = V, !V.contains(nil) else { return LOGICAL(nil) }
 		let unique = Set( V.map{ $0!.value } )
 		return LOGICAL(unique.count == V.size)
 	}
 	public static func VALUE_UNIQUE<Aggregate: SDAIAggregationType>(_ V: Aggregate?) -> LOGICAL 
-	where Aggregate.Element == Aggregate.ELEMENT {
+	where Aggregate.Element == Aggregate.ELEMENT, Aggregate.ELEMENT: SDAIGenericType 
+	{
 		guard let V = V else { return LOGICAL(nil) }
 		let unique = Set( V.map{ $0.value } )
 		return LOGICAL(unique.count == V.size)

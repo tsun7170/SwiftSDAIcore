@@ -8,39 +8,41 @@
 
 import Foundation
 
-public protocol SDAIValue: Hashable
-{
-	func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool
-	func isValueEqualOptionally<T: SDAIValue>(to rhs: T?) -> Bool?
-}
-public extension SDAIValue
-{
-	func isValueEqualOptionally<T: SDAIValue>(to rhs: T?) -> Bool? {
-		guard let rhs = rhs else { return nil }
-		return self.isValueEqual(to: rhs)
-	}
-}
-
 
 public protocol SDAIGenericType: Hashable 
 {
 	associatedtype Value: SDAIValue
+//	associatedtype FundamentalType: SDAIGenericType
 	
 	var typeMembers: Set<SDAI.STRING> {get}
 	var value: Value {get}
-	init?<S: SDAISelectType>(possiblyFrom select: S)
+//	var asFundamentalType: FundamentalType {get}
+	
+	init?<S: SDAISelectType>(possiblyFrom select: S?)
 }
+//extension SDAIGenericType where FundamentalType == Self
+//{
+//	public var asFundamentalType: FundamentalType {
+//		return self
+//	}
+//}
 
 
 public protocol SDAINamedType 
 {}
 
-
+public protocol SDAISwiftType
+{}
+extension String: SDAISwiftType {}
+extension Int: SDAISwiftType {}
+extension Double: SDAISwiftType {}
+extension Bool: SDAISwiftType {}
 
 
 //MARK: - SDAI namespace
 public enum SDAI {
-	
+	public typealias GENERIC = Any
+	public typealias GENERIC_ENTITY = EntityReference
 
 	public static let TRUE:LOGICAL = true
 	public static let FALSE:LOGICAL = false
@@ -49,11 +51,10 @@ public enum SDAI {
 	public static let CONST_E:REAL = REAL(exp(1.0))
 	public static let PI:REAL = REAL(Double.pi)
 	
-	//MARK: - support functions
-	public static func UNWRAP<T>(_ val:T?) -> T { return val! }
-	public static func UNWRAP<T>(_ val:T) -> T { return val }
+	
 
-//MARK: - SDAI.Object	
+
+	//MARK: - SDAI.Object	
 	open class Object: Hashable {
 		public static func == (lhs: SDAI.Object, rhs: SDAI.Object) -> Bool {
 			return lhs === rhs

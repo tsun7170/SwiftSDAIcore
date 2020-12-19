@@ -7,35 +7,13 @@
 
 import Foundation
 
-//MARK: - empty aggregation literal
-extension SDAI {
-	public struct EmptyAggregateLiteral {}
-	public static let EMPLY_AGGREGATE = EmptyAggregateLiteral()
-}
-
-//MARK: - Aggregation Initializer Element type
-public protocol SDAI__AIE__type {
-	associatedtype ELEMENT
-	var count: Int {get}
-}
-extension SDAI.AggregationInitializerElement: SDAI__AIE__type 
-{
-	public typealias ELEMENT = Element
-}
-
-public extension SDAI {
-	typealias AggregationInitializerElement<T> = Repeated<T>
-	static func AIE<T>(_ element: T, repeat n: Int = 1) -> AggregationInitializerElement<T> {
-		return repeatElement(element, count: n)
-	}
-}
 
 
 //MARK: - Aggregation type
 public protocol SDAIAggregationType: SDAIUnderlyingType, Sequence
 where SwiftType: Collection
 {	
-	associatedtype ELEMENT: SDAIGenericType
+	associatedtype ELEMENT//: SDAIGenericType
 	
 	var hiBound: Int? {get}
 	var hiIndex: Int {get}
@@ -54,14 +32,17 @@ where SwiftType: Collection
 	typealias EntityReferenceObserver = (_ removing: SDAI.EntityReference?, _ adding: SDAI.EntityReference?) -> Void
 	var _observer: EntityReferenceObserver? { get set }
 }
-public extension SDAIAggregationType
+public extension SDAIAggregationType where ELEMENT: SDAIGenericType
 {
 	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
 		return self[index?.asSwiftType]
 	}
 
 }
-public extension SDAIAggregationType where Element: SDAI.EntityReference 
+
+public extension SDAIAggregationType 
+where Element: SDAI.EntityReference, 
+			ELEMENT == Element 
 {
 	var observer: EntityReferenceObserver? {
 		get { 
@@ -91,15 +72,14 @@ public extension SDAIAggregationType where Element: SDAI.EntityReference
 }
 
 
-public extension SDAIAggregationType where Element: SDAIUnderlyingType, Element.FundamentalType: SDAISelectType 
+public extension SDAIAggregationType 
+where Element: SDAISelectType, 
+//			Element.FundamentalType: SDAISelectType, 
+			ELEMENT == Element 
 {
 	var observer: EntityReferenceObserver? {
 		get { 
 			return _observer
-//			switch(_observer) {
-//			case entityObserver(let entityObserver): return entityObserver
-//			default: return nil
-//			} 			
 		}
 		set {
 			_observer = newValue
@@ -127,7 +107,8 @@ public extension SDAIAggregationType where Element: SDAIUnderlyingType, Element.
 public extension SDAIDefinedType 
 where Self: SDAIAggregationType, 
 			Supertype: SDAIAggregationType, 
-			Supertype.ELEMENT == ELEMENT
+			Supertype.ELEMENT == ELEMENT,
+			ELEMENT: SDAIGenericType
 {
 	// Sequence \SDAIAggregationType
 	func makeIterator() -> Supertype.Iterator { return rep.makeIterator() }
@@ -150,18 +131,22 @@ where Self: SDAIAggregationType,
 
 }
 
+
 //MARK: - swift Array type extension
-public extension Array where Element: SDAI__AIE__type//, Element.ELEMENT: SDAI.EntityReference
+public extension Array where Element: SDAI__AIE__type
 {
 	typealias ELEMENT = Element.ELEMENT
 	func CONTAINS(_ elem: ELEMENT?) -> SDAI.LOGICAL {
 		abstruct()
 	}
+}
 
-//	typealias RESULT_AGGREGATE = SDAI.LIST<ELEMENT>
-//	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> RESULT_AGGREGATE {
-//		abstruct()
-//	}
+public extension Array where Element: SDAI__AIE__type, Element.ELEMENT: SDAIGenericType
+{
+	typealias RESULT_AGGREGATE = SDAI.LIST<ELEMENT>
+	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> RESULT_AGGREGATE {
+		abstruct()
+	}
 }
 
 //public extension Array where Element: SDAI__AIE__type, Element.ELEMENT: SDAIUnderlyingType

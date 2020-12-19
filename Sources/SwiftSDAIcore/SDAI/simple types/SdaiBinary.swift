@@ -7,7 +7,7 @@
 
 import Foundation
 
-
+//MARK: - BINARY type
 public protocol SDAIBinaryType: SDAISimpleType, ExpressibleByStringLiteral
 where StringLiteralType == String
 {
@@ -23,6 +23,7 @@ public extension SDAIBinaryType
 		return self[index?.asSwiftType]
 	}
 }
+
 
 public protocol SDAI__BINARY__type: SDAIBinaryType
 where SwiftType == Array<Int8>
@@ -50,6 +51,7 @@ public extension SDAI__BINARY__type
 	}
 }
 
+
 extension SDAI {
 	public struct BINARY: SDAI__BINARY__type, SDAIValue 
 	{
@@ -61,8 +63,8 @@ extension SDAI {
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(stringLiteral: Self.typeName)]
 		}
-		public init?<S>(possiblyFrom select: S) where S : SDAISelectType {
-			guard let binaryValue = select.binaryValue else { return nil }
+		public init?<S>(possiblyFrom select: S?) where S : SDAISelectType {
+			guard let binaryValue = select?.binaryValue else { return nil }
 			self.init(binaryValue)
 		}
 		
@@ -70,7 +72,7 @@ extension SDAI {
 		public static let typeName: String = "BINARY"
 		public var asSwiftType: SwiftType { return rep }
 		public var asFundamentalType: FundamentalType { return self }
-		public init(_ fundamental: FundamentalType) {
+		public init(fundamental: FundamentalType) {
 			self.init(fundamental.rep)
 		}
 
@@ -124,31 +126,3 @@ extension SDAI {
 	}
 }
 
-
-public protocol SDAI__BINARY__subtype: SDAI__BINARY__type, SDAIDefinedType
-where Supertype: SDAI__BINARY__type,
-			Supertype.FundamentalType == SDAI.BINARY
-{}
-public extension SDAI__BINARY__subtype
-{
-	// SDAIGenericType
-	init?<S: SDAISelectType>(possiblyFrom select: S) {
-		guard let supertype = Supertype(possiblyFrom: select) else { return nil }
-		self.init(supertype)
-	}
-	
-	// SDAISimpleType \SDAI__BINARY__type\SDAI__BINARY__subtype
-	init(_ swiftValue: Supertype.SwiftType) {
-		self.init(Supertype(swiftValue))
-	}
-	
-	// ExpressibleByStringLiteral \SDAI__BINARY__type\SDAI__BINARY__subtype
-	init(stringLiteral value: Supertype.StringLiteralType) {
-		self.init(Supertype(stringLiteral: value))
-	}
-
-	// SDAI__BINARY__type
-	var blength: Int { return rep.blength }
-	subscript(index: Int?) -> SDAI.BINARY? { return rep[index] }
-	subscript(range: ClosedRange<Int>?) -> SDAI.BINARY? { return rep[range] }
-}
