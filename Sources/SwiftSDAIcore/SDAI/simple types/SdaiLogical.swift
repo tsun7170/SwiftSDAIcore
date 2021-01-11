@@ -25,7 +25,10 @@ public extension SDAILogicalType
 	var isnotTRUE: Bool { return !self.isTRUE }
 }
 
-public protocol SDAI__LOGICAL__type: SDAILogicalType, ExpressibleByNilLiteral where SwiftType == Bool?
+public protocol SDAI__LOGICAL__type: SDAILogicalType, ExpressibleByNilLiteral 
+where FundamentalType == SDAI.LOGICAL,
+			Value == FundamentalType.Value,
+			SwiftType == FundamentalType.SwiftType
 {
 	init(_ bool: Bool?)
 	init<T:SDAILogicalType>(_ subtype: T?)
@@ -62,6 +65,7 @@ extension SDAI {
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]
 		}
+		public var value: FundamentalType { return self.asFundamentalType }
 		public init?<S>(possiblyFrom select: S?) where S : SDAISelectType {
 			guard let logicalValue = select?.logicalValue else { return nil }
 			self.init(logicalValue)

@@ -12,6 +12,9 @@ public protocol SDAIRealType: SDAINumberType
 {}
 
 public protocol SDAI__REAL__type: SDAIRealType, SDAIDoubleRepresentedNumberType, ExpressibleByFloatLiteral
+where FundamentalType == SDAI.REAL,
+			Value == FundamentalType.Value
+//			SwiftType == FundamentalType.SwiftType
 {
 	init?(_ double: Double?)
 	init(_ double: Double)
@@ -20,7 +23,7 @@ public protocol SDAI__REAL__type: SDAIRealType, SDAIDoubleRepresentedNumberType,
 }
 public extension SDAI__REAL__type
 {
-	var asSwiftDouble: Double { return self.asSwiftType }
+//	var asSwiftDouble: Double { return self.asSwiftType }
 
 	init?(_ double: Double?) {
 		guard let double = double else { return nil }
@@ -52,6 +55,7 @@ extension SDAI {
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]
 		}
+		public var value: FundamentalType { return self.asFundamentalType }
 		public init?<S>(possiblyFrom select: S?) where S : SDAISelectType {
 			guard let realValue = select?.realValue else { return nil }
 			self.init(realValue)

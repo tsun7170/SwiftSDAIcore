@@ -8,32 +8,32 @@
 import Foundation
 
 extension SDAI {
-	public static func ABS<Number: SDAI__NUMBER__type>(_ V: Number?) -> Number? {
+	public static func ABS<Number: SDAINumberType>(_ V: Number?) -> Number? {
 		guard let v = V?.asSwiftType else { return nil }
 		return Number( abs(v) )  
 	}
 	
-	public static func ACOS<Number: SDAI__NUMBER__type>(_ V: Number?) -> REAL? {
+	public static func ACOS<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
 		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( acos(r) )
 	}
 	
-	public static func ASIN<Number: SDAI__NUMBER__type>(_ V: Number?) -> REAL? {
+	public static func ASIN<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
 		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( asin(r) )
 	}
 	
-	public static func ATAN<Number1: SDAI__NUMBER__type, Number2: SDAI__NUMBER__type>
+	public static func ATAN<Number1: SwiftDoubleConvertible, Number2: SwiftDoubleConvertible>
 	(V1: Number1?, V2: Number2?) -> REAL? {
 		guard let r1 = V1?.asSwiftDouble, let r2 = V2?.asSwiftDouble else { return nil }
 		return REAL( atan2(r1, r2) )
 	}
 	
-	public static func BLENGTH<Binary: SDAI__BINARY__type>(_ V:Binary?) -> INTEGER? {
+	public static func BLENGTH<Binary: SDAIBinaryType>(_ V:Binary?) -> INTEGER? {
 		return INTEGER( V?.blength )
 	}
 	
-	public static func COS<Number: SDAI__NUMBER__type>(_ V: Number?) -> REAL? {
+	public static func COS<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
 		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( cos(r) )
 	}
@@ -42,12 +42,12 @@ extension SDAI {
 		return BOOLEAN( V != nil )
 	}
 	
-	public static func EXP<Number: SDAI__NUMBER__type>(_ V: Number?) -> REAL? {
+	public static func EXP<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
 		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( exp(r) )
 	}
 
-	public static func FORMAT<Number: SDAI__NUMBER__type, Str: SDAI__STRING__type>(N: Number?, F: Str?) -> STRING? {
+	public static func FORMAT<Number: SDAINumberType, Str: SDAIStringType>(N: Number?, F: Str?) -> STRING? {
 		guard let v = N?.asSwiftType else { return nil }
 		//TODO: - to respect format command
 		return STRING( String(describing: v) )			
@@ -61,7 +61,7 @@ extension SDAI {
 		return INTEGER(V?.hiIndex)
 	}
 	
-	public static func LENGTH<Str: SDAI__STRING__type>(_ V: Str?) -> INTEGER? {
+	public static func LENGTH<Str: SDAIStringType>(_ V: Str?) -> INTEGER? {
 		return INTEGER(V?.length)
 	}
 	
@@ -69,17 +69,17 @@ extension SDAI {
 		return INTEGER(V?.loBound)
 	}
 	
-	public static func LOG<Number: SDAI__NUMBER__type>(_ V: Number?) -> REAL? {
+	public static func LOG<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
 		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( log(r) )
 	}
 	
-	public static func LOG2<Number: SDAI__NUMBER__type>(_ V: Number?) -> REAL? {
+	public static func LOG2<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
 		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( log(r)/log(2) )
 	}
 	
-	public static func LOG10<Number: SDAI__NUMBER__type>(_ V: Number?) -> REAL? {
+	public static func LOG10<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
 		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( log10(r) )
 	}
@@ -88,9 +88,9 @@ extension SDAI {
 		return INTEGER(V?.loIndex)
 	}
 
-	public static func NVL<GEN1: SDAIGenericType>(V: GEN1?, SUBSTITUTE: GEN1?) -> GEN1? {
-		return V ?? SUBSTITUTE!
-	}
+//	public static func NVL<GEN1: SDAIGenericType>(V: GEN1?, SUBSTITUTE: GEN1?) -> GEN1? {
+//		return V ?? SUBSTITUTE!
+//	}
 	public static func NVL<GEN1: SDAIUnderlyingType>(V: GEN1?, SUBSTITUTE: GEN1.FundamentalType?) -> GEN1? {
 		return V ?? GEN1(fundamental: SUBSTITUTE!)
 	}
@@ -116,17 +116,17 @@ extension SDAI {
 		return V ?? GEN1(possiblyFrom: SUBSTITUTE)!
 	}
 	
-	public static func ODD<Integer: SDAI__INTEGER__type>(_ V: Integer?) -> LOGICAL {
-		guard let i = V?.asSwiftType else { return LOGICAL(nil) }
+	public static func ODD<Integer: SwiftIntConvertible>(_ V: Integer?) -> LOGICAL {
+		guard let i = V?.asSwiftInt else { return LOGICAL(nil) }
 		return LOGICAL( i % 2 == 1 )
 	}
 	
 	public static func ROLESOF(_ V: EntityReference?) -> SET<STRING>? {
-		guard let complex = V?.complexEntity else { return SET<STRING>(from: []) }
+		guard let complex = V?.complexEntity else { return SET<STRING>() }
 		return SET<STRING>(from: complex.roles)
 	}
 	
-	public static func SIN<Number: SDAI__NUMBER__type>(_ V: Number?) -> REAL? {
+	public static func SIN<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
 		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( sin(r) )
 	}
@@ -144,37 +144,48 @@ extension SDAI {
 //	}
 	
 
-	public static func SQRT<Number: SDAI__NUMBER__type>(_ V: Number?) -> REAL? {
+	public static func SQRT<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
 		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( sqrt(r) )
 	}
 	
-	public static func TAN<Number: SDAI__NUMBER__type>(_ V: Number?) -> REAL? {
+	public static func TAN<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
 		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( tan(r) )
 	}
 	
 	public static func TYPEOF<Generic: SDAIGenericType>(_ V: Generic?) -> SET<STRING>? {
-		guard let v = V else { return SET<STRING>(from: []) }
+		guard let v = V else { return SET<STRING>() }
 		return SET<STRING>(from: v.typeMembers )
 	}
 	public static func TYPEOF<Generic: SDAIGenericType, T: SDAIGenericType>(_ V: Generic? , IS typename: T.Type) -> LOGICAL {
-		guard let v = V else { return SDAI.UNKNOWN }
+//		guard let v = V else { return SDAI.UNKNOWN }
 //		return LOGICAL( v.typeMembers.contains(typename) )
 		abstruct()
 	}
 	
 
 	public static func USEDIN(T: EntityReference?) -> BAG<EntityReference>? {
-		guard let complex = T?.complexEntity else { return BAG(from: []) }
+		guard let complex = T?.complexEntity else { return BAG() }
 		return BAG(from: complex.usedIn())
 	}
+	public static func USEDIN<SEL:SDAISelectType>(T: SEL?) -> BAG<EntityReference>? {
+//		guard let complex = T?.complexEntity else { return BAG() }
+//		return BAG(from: complex.usedIn())
+		abstruct()
+	}
 	public static func USEDIN<ENT:EntityReference>(T: EntityReference?, ENTITY:ENT.Type, ATTR:String) -> BAG<ENT>? {
-		guard let complex = T?.complexEntity else { return BAG(from: []) }
+		guard let complex = T?.complexEntity else { return BAG() }
 		return BAG(from: complex.usedIn(entity: ENTITY, attr: ATTR))
 	}
+	public static func USEDIN<SEL:SDAISelectType,ENT:EntityReference>(T: SEL?, ENTITY:ENT.Type, ATTR:String) -> BAG<ENT>? {
+//		guard let complex = T?.complexEntity else { return BAG() }
+//		return BAG(from: complex.usedIn(entity: ENTITY, attr: ATTR))
+		abstruct()
+	}
 	
-	public static func VALUE(_ V: STRING?) -> NUMBER? {
+	
+	public static func VALUE<Str: SDAIStringType>(_ V: Str?) -> NUMBER? {
 		guard let V = V, let double = Double(V.asSwiftString) else { return nil }
 		return NUMBER(double)
 	}

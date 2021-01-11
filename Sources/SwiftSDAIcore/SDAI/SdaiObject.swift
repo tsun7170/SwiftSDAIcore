@@ -9,27 +9,33 @@
 import Foundation
 
 
-public protocol SDAIGenericType: Hashable 
+public protocol SDAIGenericType: Hashable, InitializableBySelecttype 
 {
 	associatedtype Value: SDAIValue
-//	associatedtype FundamentalType: SDAIGenericType
-	
 	var typeMembers: Set<SDAI.STRING> {get}
 	var value: Value {get}
-//	var asFundamentalType: FundamentalType {get}
-	
-	init?<S: SDAISelectType>(possiblyFrom select: S?)
 }
-//extension SDAIGenericType where FundamentalType == Self
-//{
-//	public var asFundamentalType: FundamentalType {
-//		return self
-//	}
-//}
+public extension SDAIDefinedType
+where Supertype: SDAIGenericType, Value == Supertype.Value
+{
+	var typeMembers: Set<SDAI.STRING> {
+		var members = rep.typeMembers
+		members.insert(SDAI.STRING(Self.typeName))
+		return members
+	}
+	
+	var value: Value {rep.value}	
+}
+
+
+
 
 
 public protocol SDAINamedType 
 {}
+
+
+
 
 public protocol SDAISwiftType
 {}
@@ -39,11 +45,30 @@ extension Double: SDAISwiftType {}
 extension Bool: SDAISwiftType {}
 
 
+
+public protocol SDAISwiftTypeRepresented
+{
+	associatedtype SwiftType
+	var asSwiftType: SwiftType {get}	
+}
+public extension SDAIDefinedType 
+where Supertype: SDAISwiftTypeRepresented, Self: SDAISwiftTypeRepresented, SwiftType == Supertype.SwiftType
+{
+	var asSwiftType: SwiftType { return rep.asSwiftType }
+}
+
+
+
+
+
+
 //MARK: - SDAI namespace
 public enum SDAI {
 	public typealias GENERIC = Any
 	public typealias GENERIC_ENTITY = EntityReference
 
+//	public static let INDETERMINATE: Any? = nil
+	
 	public static let TRUE:LOGICAL = true
 	public static let FALSE:LOGICAL = false
 	public static let UNKNOWN:LOGICAL = nil

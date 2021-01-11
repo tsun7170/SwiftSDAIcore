@@ -9,18 +9,18 @@ import Foundation
 
 
 
-public protocol SDAIConstructedType: SDAIUnderlyingSelectType 
-where Value == FundamentalType,
-			SwiftType == FundamentalType
+public protocol SDAIConstructedType: SDAISelectCompatibleUnderlyingTypeBase 
+//where Value == FundamentalType,
+//			SwiftType == FundamentalType
 {}
-public extension SDAIConstructedType
-{
-	// SDAIGenericType \SDAIUnderlyingType\SDAIConstructedType\SDAIEnumerationType
-	var value: Value { self.asFundamentalType }
-	
-	// SDAIUnderlyingType \SDAIConstructedType\SDAIEnumerationType
-	var asSwiftType: SwiftType { self.asFundamentalType }
-}
+//public extension SDAIConstructedType
+//{
+//	// SDAIGenericType \SDAIUnderlyingType\SDAIConstructedType\SDAIEnumerationType
+//	var value: Value { self.asFundamentalType }
+//	
+//	// SDAIUnderlyingType \SDAIConstructedType\SDAIEnumerationType
+//	var asSwiftType: SwiftType { self.asFundamentalType }
+//}
 
 
 

@@ -9,77 +9,81 @@ import Foundation
 
 //MARK: - ARRAY subtype
 public protocol SDAI__ARRAY__subtype: SDAI__ARRAY__type, SDAIDefinedType
-where Supertype: SDAI__ARRAY__type, 
-			Supertype.FundamentalType == SDAI.ARRAY<ELEMENT>, 
-			ELEMENT: SDAIGenericType
+where Supertype: SDAI__ARRAY__type
 {}
 public extension SDAI__ARRAY__subtype
 {
-	// SDAIGenericType
+	// InitializableBySelecttype
 	init?<S: SDAISelectType>(possiblyFrom select: S?) {
 		guard let fundamental = FundamentalType(possiblyFrom: select) else { return nil }
 		self.init(fundamental: fundamental)
 	}
 	
-	// SDAI__ARRAY_OPTIONAL__type \SDAI__ARRAY__type\SDAI__ARRAY__subtype
-	init(from swiftValue: SwiftType, bound1: Int, bound2: Int) {
-//		abstruct()
-		self.init( FundamentalType(from: swiftValue, bound1: bound1, bound2: bound2) )
+	// InitializableBySwifttypeAsArray
+	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2) {
+		self.init(fundamental: FundamentalType(from: swiftValue, bound1: bound1, bound2: bound2) )
 	} 
 }
 
+
+//MARK: - for select type element
 public extension SDAI__ARRAY__subtype
-where Supertype.FundamentalType: InitializableByEntityArray, ELEMENT: SDAI.EntityReference
+where ELEMENT: InitializableBySelecttype
 {
-	// InitializableByArray \SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY__type\SDAI__ARRAY__subtype
-	init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) {
-		self.init( FundamentalType(bound1: bound1, bound2: bound2, elements) )
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 
+	{
+		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
 	}
 
-	init<T: SDAI__ARRAY__type>(_ arraytype: T) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
+	init?<T:SDAI__ARRAY__type>(_ arraytype: T?) 
+	where T.ELEMENT: SDAISelectType
 	{
-		self.init( FundamentalType(arraytype) )
+		self.init(fundamental: FundamentalType(arraytype) )
 	}
 }
 
+
+
+//MARK: - for entity type element
 public extension SDAI__ARRAY__subtype
-where Supertype.FundamentalType: InitializableByDefinedtypeArray, ELEMENT: SDAIUnderlyingType
+where ELEMENT: InitializableByEntity
 {
-	init<E: SDAIUnderlyingType>(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-	where E.FundamentalType == ELEMENT.FundamentalType
-	{
-		self.init( FundamentalType(bound1: bound1, bound2: bound2, elements) )
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) {
+		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
 	}
 
-	init<T:SDAI__ARRAY__type>(_ arraytype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
+	init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
+	where T.ELEMENT: SDAI.EntityReference
 	{
-		self.init( FundamentalType(arraytype) )
+		self.init(fundamental: FundamentalType(arraytype) )
 	}
 }
 
+
+//MARK: - for defined type element
 public extension SDAI__ARRAY__subtype
-where Supertype.FundamentalType: InitializableBySelecttypeArray
+where ELEMENT: InitializableByDefinedtype
 {
-	init<E: SDAISelectType>(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<E>]) 
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIUnderlyingType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 
 	{
-		self.init( FundamentalType(bound1: bound1, bound2: bound2, elements) )
+		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
 	}
 
-	init<T:SDAI__ARRAY__type>(_ arraytype: T) 
-	where T.ELEMENT: SDAISelectType, T.ELEMENT == T.Element
+	init?<T:SDAI__ARRAY__type>(_ arraytype: T?) 
+	where T.ELEMENT: SDAIUnderlyingType
 	{
-		self.init( FundamentalType(arraytype) )
+		self.init(fundamental: FundamentalType(arraytype) )
 	}
 }
 
+
+//MARK: - for swift type array literal
 public extension SDAI__ARRAY__subtype
-where Supertype: InitializableByOptionalSwiftArrayLiteral, ELEMENT: SDAISimpleType
+where ELEMENT: InitializableBySwifttype
 {
-	init<E>(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<E>]) 
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 
 	where E == ELEMENT.SwiftType
 	{
-		self.init( FundamentalType(bound1:bound1, bound2:bound2, elements) )
+		self.init(fundamental: FundamentalType(bound1:bound1, bound2:bound2, elements) )
 	}
 }

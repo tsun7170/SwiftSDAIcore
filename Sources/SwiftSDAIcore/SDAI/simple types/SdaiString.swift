@@ -30,7 +30,10 @@ public extension SDAIStringType
 	}
 }
 
-public protocol SDAI__STRING__type: SDAIStringType where SwiftType == String
+public protocol SDAI__STRING__type: SDAIStringType 
+where FundamentalType == SDAI.STRING,
+			Value == FundamentalType.Value,
+			SwiftType == FundamentalType.SwiftType
 {
 	init?(_ string:String?)
 	init(_ string:String)
@@ -71,6 +74,7 @@ extension SDAI {
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]
 		}
+		public var value: FundamentalType { return self.asFundamentalType }
 		public init?<S: SDAISelectType>(possiblyFrom select: S?) {
 			guard let stringValue = select?.stringValue else { return nil }
 			self.init(stringValue)

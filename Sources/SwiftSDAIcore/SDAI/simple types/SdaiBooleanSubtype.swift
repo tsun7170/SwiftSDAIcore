@@ -9,8 +9,8 @@ import Foundation
 
 //MARK: - BOOLEAN subtype
 public protocol SDAI__BOOLEAN__subtype: SDAI__BOOLEAN__type, SDAIDefinedType
-where Supertype: SDAI__BOOLEAN__type,
-			Supertype.FundamentalType == SDAI.BOOLEAN
+where Supertype: SDAI__BOOLEAN__type
+//			Supertype.FundamentalType == SDAI.BOOLEAN
 {}
 public extension SDAI__BOOLEAN__subtype
 {
@@ -22,6 +22,6 @@ public extension SDAI__BOOLEAN__subtype
 	
 	// SDAISimpleType \SDAI__LOGICAL__type\SDAI__BOOLEAN__type\SDAI__BOOLEAN__subtype
 	init(_ swiftValue: SwiftType) {
-		self.init(FundamentalType(swiftValue))
+		self.init(fundamental: FundamentalType(swiftValue))
 	}
 }

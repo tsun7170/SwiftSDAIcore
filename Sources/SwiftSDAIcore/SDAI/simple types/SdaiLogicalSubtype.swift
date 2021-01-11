@@ -9,8 +9,8 @@ import Foundation
 
 //MARK: - LOGICAL subtype
 public protocol SDAI__LOGICAL__subtype: SDAI__LOGICAL__type, SDAIDefinedType
-where Supertype: SDAI__LOGICAL__type,
-			Supertype.FundamentalType == SDAI.LOGICAL
+where Supertype: SDAI__LOGICAL__type
+//			Supertype.FundamentalType == SDAI.LOGICAL
 {}
 public extension SDAI__LOGICAL__subtype
 {

@@ -9,8 +9,8 @@ import Foundation
 
 //MARK: - STRING subtype
 public protocol SDAI__STRING__subtype: SDAI__STRING__type, SDAIDefinedType
-where Supertype: SDAI__STRING__type,
-			Supertype.FundamentalType == SDAI.STRING
+where Supertype: SDAI__STRING__type
+//			Supertype.FundamentalType == SDAI.STRING
 {}
 public extension SDAI__STRING__subtype
 {

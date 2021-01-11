@@ -10,8 +10,8 @@ import Foundation
 
 //MARK: - REAL subtype
 public protocol SDAI__REAL__subtype: SDAI__REAL__type, SDAIDefinedType
-where Supertype: SDAI__REAL__type,
-			Supertype.FundamentalType == SDAI.REAL
+where Supertype: SDAI__REAL__type
+//			Supertype.FundamentalType == SDAI.REAL
 {}
 public extension SDAI__REAL__subtype
 {

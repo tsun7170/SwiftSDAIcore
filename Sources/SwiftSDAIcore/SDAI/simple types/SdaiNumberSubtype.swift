@@ -9,8 +9,8 @@ import Foundation
 
 //MARK: - NUMBER subtype
 public protocol SDAI__NUMBER__subtype: SDAI__NUMBER__type, SDAIDefinedType
-where Supertype: SDAI__NUMBER__type,
-			Supertype.FundamentalType == SDAI.NUMBER
+where Supertype: SDAI__NUMBER__type
+//			Supertype.FundamentalType == SDAI.NUMBER
 {}
 public extension SDAI__NUMBER__subtype
 {

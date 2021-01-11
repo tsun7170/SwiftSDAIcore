@@ -13,7 +13,9 @@ public protocol SDAIBooleanType: SDAILogicalType
 {}
 
 public protocol SDAI__BOOLEAN__type: SDAIBooleanType 
-where SwiftType == Bool
+where FundamentalType == SDAI.BOOLEAN,
+			Value == FundamentalType.Value,
+			SwiftType == FundamentalType.SwiftType
 {
 	init?(_ bool: Bool?)
 	init(_ bool: Bool)
@@ -61,6 +63,7 @@ extension SDAI {
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]
 		}
+		public var value: FundamentalType { return self.asFundamentalType }
 		public init?<S>(possiblyFrom select: S?) where S : SDAISelectType {
 			guard let booleanValue = select?.booleanValue else { return nil }
 			self.init(booleanValue)

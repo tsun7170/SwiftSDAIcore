@@ -26,7 +26,9 @@ public extension SDAIBinaryType
 
 
 public protocol SDAI__BINARY__type: SDAIBinaryType
-where SwiftType == Array<Int8>
+where FundamentalType == SDAI.BINARY,
+			Value == FundamentalType.Value,
+			SwiftType == FundamentalType.SwiftType
 {
 	init?(_ string: String?)
 	init(_ string: String)
@@ -63,6 +65,7 @@ extension SDAI {
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(stringLiteral: Self.typeName)]
 		}
+		public var value: FundamentalType { return self.asFundamentalType }
 		public init?<S>(possiblyFrom select: S?) where S : SDAISelectType {
 			guard let binaryValue = select?.binaryValue else { return nil }
 			self.init(binaryValue)

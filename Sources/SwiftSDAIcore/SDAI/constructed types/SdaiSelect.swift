@@ -8,29 +8,32 @@
 import Foundation
 
 //MARK: - SELECT TYPE base
-public protocol SDAISelectType: SDAIConstructedType where FundamentalType: SDAISelectType
+public protocol SDAISelectType: SDAIConstructedType, InitializableByDefinedtype, InitializableByEntity, SDAIObservableAggregateElement 
+where Value == FundamentalType,
+	FundamentalType: SDAISelectType
+//			SwiftType == FundamentalType
 {
 //	init?<G: SDAIGenericType>(possiblyFrom generic: G?)
-	init?(possiblyFrom complex: SDAI.ComplexEntity?)
+//	init?(possiblyFrom complex: SDAI.ComplexEntity?)
 	
-	init?(possiblyFrom entityRef: SDAI.EntityReference?)
-	init?<T: SDAIUnderlyingType>(possiblyFrom underlyingType: T?)
-	init?<S: SDAISelectType>(possiblyFrom select: S?)
+//	init?(possiblyFrom entityRef: SDAI.EntityReference?)
+//	init?<T: SDAIUnderlyingType>(possiblyFrom underlyingType: T?)
+//	init?<S: SDAISelectType>(possiblyFrom select: S?)
 	
 //	init?<G: SDAIGenericType>(_ generic: G?)
 //	init<G: SDAIGenericType>(_ generic: G)
 	
-	init?(_ entityRef: SDAI.EntityReference?)
-	init(_ entityRef: SDAI.EntityReference)
-
-	init?<T: SDAIUnderlyingType>(_ underlyingType: T?)
-	init<T: SDAIUnderlyingType>(_ underlyingType: T)
-
-	init?<S: SDAISelectType>(_ select: S?)
-	init<S: SDAISelectType>(_ select: S)
+//	init?(_ entityRef: SDAI.EntityReference?)
+//	init(_ entityRef: SDAI.EntityReference)
+//
+//	init?<T: SDAIUnderlyingType>(_ underlyingType: T?)
+//	init<T: SDAIUnderlyingType>(_ underlyingType: T)
+//
+//	init?<S: SDAISelectType>(_ select: S?)
+//	init<S: SDAISelectType>(_ select: S)
 
 	
-	var entityReference: SDAI.EntityReference? {get}
+//	var entityReference: SDAI.EntityReference? {get}
 	var stringValue: SDAI.STRING? {get}
 	var binaryValue: SDAI.BINARY? {get}
 	var logicalValue: SDAI.LOGICAL? {get}
@@ -51,32 +54,39 @@ public protocol SDAISelectType: SDAIConstructedType where FundamentalType: SDAIS
 
 public extension SDAISelectType
 {
+	// SDAIGenericType
+	var value: Value { self.asFundamentalType }
+	
+//	// SDAIUnderlyingType
+//	var asSwiftType: SwiftType { self.asFundamentalType }
+
 	init?<G: SDAI.EntityReference>(_ generic: G?){
 		guard let generic = generic else { return nil }
 		self.init(possiblyFrom: generic)
 	}
-	init<G: SDAI.EntityReference>(_ generic: G){
-		self.init(possiblyFrom: generic)!
-	}
+//	init<G: SDAI.EntityReference>(_ generic: G){
+//		self.init(possiblyFrom: generic)!
+//	}
 
-	init?<G: SDAIUnderlyingType>(_ generic: G?){
-		guard let generic = generic else { return nil }
-		self.init(possiblyFrom: generic)
-	}
-	init<G: SDAIUnderlyingType>(_ generic: G){
-		self.init(possiblyFrom: generic)!
-	}
+//	init?<G: SDAIUnderlyingType>(_ generic: G?){
+//		guard let generic = generic else { return nil }
+//		self.init(possiblyFrom: generic)
+//	}
+//	init<G: SDAIUnderlyingType>(_ generic: G){
+//		self.init(possiblyFrom: generic)!
+//	}
 
-	init?<G: SDAISelectType>(_ generic: G?){
-		guard let generic = generic else { return nil }
-		self.init(possiblyFrom: generic)
-	}
-	init<G: SDAISelectType>(_ generic: G){
-		self.init(possiblyFrom: generic)!
-	}
+//	init?<G: SDAISelectType>(_ generic: G?){
+//		guard let generic = generic else { return nil }
+//		self.init(possiblyFrom: generic)
+//	}
+//	init<G: SDAISelectType>(_ generic: G){
+//		self.init(possiblyFrom: generic)!
+//	}
 
-
+	// SDAIObservableAggregateElement
 	var entityReference: SDAI.EntityReference? {nil}
+	
 	var stringValue: SDAI.STRING? {nil}
 	var binaryValue: SDAI.BINARY? {nil}
 	var logicalValue: SDAI.LOGICAL? {nil}
@@ -93,7 +103,7 @@ public extension SDAISelectType
 //	var sizeOfAggregation: Int? {nil}
 }
 
-public extension SDAIDefinedType where Supertype: SDAISelectType
+public extension SDAIDefinedType where Supertype: SDAISelectType, Self: SDAISelectType
 {
 	var entityReference: SDAI.EntityReference? {
 		return rep.entityReference

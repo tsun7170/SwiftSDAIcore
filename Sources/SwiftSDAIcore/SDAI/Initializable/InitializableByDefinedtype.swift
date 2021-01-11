@@ -7,187 +7,126 @@
 
 import Foundation
 
+//MARK: - from defined type scalar
 public protocol InitializableByDefinedtype
 {
 	init?<T: SDAIUnderlyingType>(possiblyFrom underlyingType: T?)
-
+}
+public extension InitializableByDefinedtype
+{
+	init?<T: SDAIUnderlyingType>(_ underlyingType: T?) {
+		self.init(possiblyFrom: underlyingType)
+	}	
 }
 
 
+//MARK: - from defined type list literal (with optional bounds)
+public protocol InitializableByDefinedtypeListLiteral
+{
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIUnderlyingType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
+}
+public extension InitializableByDefinedtypeListLiteral
+{
+	init?<E: SDAIUnderlyingType>(_ elements: [SDAI.AggregationInitializerElement<E>]) {
+		self.init(bound1: 0, bound2: nil as Int?, elements)
+	}
+}
+
+//MARK: - from defined type array literal (with required bounds)
+public protocol InitializableByDefinedtypeArrayLiteral
+{
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIUnderlyingType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 	
+}
+
+
+
+//MARK: - from defined type list
 public protocol InitializableByDefinedtypeList
 {
-	associatedtype ELEMENT: SDAIUnderlyingType
-
-	init<E: SDAIUnderlyingType>(bound1: Int, bound2: Int?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-	where E.FundamentalType == ELEMENT.FundamentalType
-	
-	init?<T: SDAI__LIST__type>(_ listtype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-
-	init<T: SDAI__LIST__type>(_ listtype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element	
-	
-	init?<T: SDAI__LIST__type>(bound1: Int, bound2: Int?, _ listtype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-
-	init<T: SDAI__LIST__type>(bound1: Int, bound2: Int?, _ listtype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element	
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
+	where T.ELEMENT: SDAIUnderlyingType
 }
+
 public extension InitializableByDefinedtypeList
 {
 	init?<T: SDAI__LIST__type>(_ listtype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
+	where T.ELEMENT: SDAIUnderlyingType
 	{
-		guard let listtype = listtype else { return nil}
-		self.init(listtype)		
-	}
-
-	init<T: SDAI__LIST__type>(_ listtype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element	
-	{
+		guard let listtype = listtype else {  return nil }
 		self.init(bound1: listtype.loBound, bound2: listtype.hiBound, listtype)
 	}
-	
-	init?<T: SDAI__LIST__type>(bound1: Int, bound2: Int?, _ listtype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-	{
-		guard let listtype = listtype else { return nil}
-		self.init(bound1: bound1, bound2: bound2, listtype)
-	}
 }
 
 
-
+//MARK: - from defined type bag
 public protocol InitializableByDefinedtypeBag
 {
-	associatedtype ELEMENT: SDAIUnderlyingType
-
-	init<E: SDAIUnderlyingType>(bound1: Int, bound2: Int?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-	where E.FundamentalType == ELEMENT.FundamentalType
-
-	init?<T: SDAI__BAG__type>(_ bagtype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-	
-	init<T: SDAI__BAG__type>(_ bagtype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-
-	init?<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-	
-	init<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
+	where T.ELEMENT: SDAIUnderlyingType
 }
+
 public extension InitializableByDefinedtypeBag
 {
 	init?<T: SDAI__BAG__type>(_ bagtype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
+	where T.ELEMENT: SDAIUnderlyingType
 	{
 		guard let bagtype = bagtype else { return nil }
-		self.init(bagtype)
-	}
-	
-	init<T: SDAI__BAG__type>(_ bagtype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-	{
 		self.init(bound1: bagtype.loBound, bound2: bagtype.hiBound, bagtype)
-	}
-
-	init?<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-	{
-		guard let bagtype = bagtype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, bagtype)
 	}
 }
 
 
-
+//MARK: - from defined type set
 public protocol InitializableByDefinedtypeSet
 {
-	associatedtype ELEMENT: SDAIUnderlyingType
-
-	init<E: SDAIUnderlyingType>(bound1: Int, bound2: Int?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-	where E.FundamentalType == ELEMENT.FundamentalType
-
-	init?<T: SDAI__SET__type>(_ settype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-	
-	init<T: SDAI__SET__type>(_ settype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-
-	init?<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-	
-	init<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?) 
+	where T.ELEMENT: SDAIUnderlyingType
 }
 public extension InitializableByDefinedtypeSet
 {
 	init?<T: SDAI__SET__type>(_ settype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
+	where T.ELEMENT: SDAIUnderlyingType
 	{
-		guard let settype = settype else { return nil}
-		self.init(settype)		
-	}
-	
-	init<T: SDAI__SET__type>(_ settype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-	{
+		guard let settype = settype else { return nil }
 		self.init(bound1: settype.loBound, bound2: settype.hiBound, settype)
 	}
-
-	init?<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-	{
-		guard let settype = settype else { return nil}
-		self.init(bound1: bound1, bound2: bound2, settype)
-	}
 }
 
-
-public protocol InitializableByOptionalDefinedtypeArray
+//MARK: - from defined type array optional
+public protocol InitializableByDefinedtypeArrayOptional
 {
-	associatedtype ELEMENT: SDAIUnderlyingType
-	
-	init<E: SDAIUnderlyingType>(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-	where E.FundamentalType == ELEMENT.FundamentalType
-
 	init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.Element == Optional<T.ELEMENT>
-
-	init<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.Element == Optional<T.ELEMENT>
+	where T.ELEMENT: SDAIUnderlyingType
 }
-public extension InitializableByOptionalDefinedtypeArray
+public extension InitializableByDefinedtypeArrayOptional
 {
-	init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.Element == Optional<T.ELEMENT>
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY_OPTIONAL__type>(bound1: I1, bound2: I2, _ arraytype: T?) 
+	where T.ELEMENT: SDAIUnderlyingType
 	{
-		guard let arraytype = arraytype else { return nil }
+		guard let arraytype = arraytype, 
+					bound1.asSwiftInt == arraytype.loIndex, 
+					bound2.asSwiftInt == arraytype.hiIndex 
+		else { return nil }
 		self.init(arraytype)
 	}
 }
 
 
+//MARK: - from defined type array
 public protocol InitializableByDefinedtypeArray
 {
-	associatedtype ELEMENT: SDAIUnderlyingType
-	
-	init<E: SDAIUnderlyingType>(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-	where E.FundamentalType == ELEMENT.FundamentalType
-
 	init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-
-	init<T: SDAI__ARRAY__type>(_ arraytype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
+	where T.ELEMENT: SDAIUnderlyingType
 }
 public extension InitializableByDefinedtypeArray
 {
-	init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY__type>(bound1: I1, bound2: I2, _ arraytype: T?) 
+	where T.ELEMENT: SDAIUnderlyingType
 	{
-		guard let arraytype = arraytype else { return nil}
+		guard let arraytype = arraytype, 
+					bound1.asSwiftInt == arraytype.loIndex, 
+					bound2.asSwiftInt == arraytype.hiIndex 
+		else { return nil }
 		self.init(arraytype)
 	}
 }

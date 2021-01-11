@@ -7,200 +7,131 @@
 
 import Foundation
 
+//MARK: - from entity type scalar
 public protocol InitializableByEntity
 {
 	init?(possiblyFrom complex: SDAI.ComplexEntity?)
-
-	init?(possiblyFrom entityRef: SDAI.EntityReference?)
+}
+public extension InitializableByEntity
+{
+	init?(possiblyFrom entityRef: SDAI.EntityReference?) {
+		self.init(possiblyFrom: entityRef?.complexEntity)
+	}
+}
+public extension InitializableByEntity
+where Self: SDAI.EntityReference
+{
+	init?(possiblyFrom complex: SDAI.ComplexEntity?) {
+		self.init(complex: complex)
+	}
 
 }
 
 
+//MARK: - from entity type list literal (with optional bounds)
+public protocol InitializableByEntityListLiteral
+{
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) 
+}
+public extension InitializableByEntityListLiteral
+{
+	init?(_ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) {
+		self.init(bound1: 0, bound2: nil as Int?, elements)
+	}
+}
 
-//MARK: - Initializers from List types
+//MARK: - from entity type array literal (with required bounds)
+public protocol InitializableByEntityArrayLiteral
+{
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) 
+}
+
+
+
+//MARK: - from entity type list
 public protocol InitializableByEntityList
 {
-//	associatedtype ELEMENT: SDAI.EntityReference
-	
-	init(bound1: Int, bound2: Int?, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) 
-
-	init?<T: SDAI__LIST__type>(_ listtype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, 
-				T.Element == T.ELEMENT
-
-	init<T: SDAI__LIST__type>(_ listtype: T) 
-	where T.ELEMENT: SDAI.EntityReference, 
-				T.Element == T.ELEMENT
-
-	init?<T: SDAI__LIST__type>(bound1: Int, bound2: Int?, _ listtype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, 
-				T.Element == T.ELEMENT
-
-	init<T: SDAI__LIST__type>(bound1: Int, bound2: Int?, _ listtype: T) 
-	where T.ELEMENT: SDAI.EntityReference, 
-				T.Element == T.ELEMENT
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
+	where T.ELEMENT: SDAI.EntityReference
 }
 public extension InitializableByEntityList
 {
 	init?<T: SDAI__LIST__type>(_ listtype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, 
-				T.Element == T.ELEMENT
+	where T.ELEMENT: SDAI.EntityReference
 	{
 		guard let listtype = listtype else { return nil }
-		self.init(listtype)		
-	}
-
-	init<T: SDAI__LIST__type>(_ listtype: T) 
-	where T.ELEMENT: SDAI.EntityReference, 
-				T.Element == T.ELEMENT
-	{
 		self.init(bound1: listtype.loBound, bound2: listtype.hiBound, listtype)
-	}
-
-	init?<T: SDAI__LIST__type>(bound1: Int, bound2: Int?, _ listtype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, 
-				T.Element == T.ELEMENT
-	{
-		guard let listtype = listtype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, listtype)
 	}
 }
 
-//MARK: - Initializers from Bag types
+//MARK: - from entity type bag
 public protocol InitializableByEntityBag
 {
-//	associatedtype ELEMENT: SDAI.EntityReference
-
-	init(bound1: Int, bound2: Int?, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) 
-
-	init?<T: SDAI__BAG__type>(_ bagtype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
-
-	init<T: SDAI__BAG__type>(_ bagtype: T) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
-
-	init?<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
-
-	init<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
+	where T.ELEMENT: SDAI.EntityReference
 }
 public extension InitializableByEntityBag
 {
-	
 	init?<T: SDAI__BAG__type>(_ bagtype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
+	where T.ELEMENT: SDAI.EntityReference
 	{
 		guard let bagtype = bagtype else { return nil }
-		self.init(bagtype)
-	}
-
-	init<T: SDAI__BAG__type>(_ bagtype: T) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
-	{
 		self.init(bound1: bagtype.loBound, bound2: bagtype.hiBound, bagtype)
-	}
-
-	init?<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
-	{
-		guard let bagtype = bagtype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, bagtype)
 	}
 }
 
-//MARK: - Initializers from Set types
+//MARK: - from entity type set
 public protocol InitializableByEntitySet
 {
-//	associatedtype ELEMENT: SDAI.EntityReference
-
-	init(bound1: Int, bound2: Int?, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) 
-
-	init?<T: SDAI__SET__type>(_ settype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
-
-	init<T: SDAI__SET__type>(_ settype: T) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
-
-	init?<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
-
-	init<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?) 
+	where T.ELEMENT: SDAI.EntityReference
 }
 public extension InitializableByEntitySet
 {
 	init?<T: SDAI__SET__type>(_ settype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
+	where T.ELEMENT: SDAI.EntityReference//, T.Element == T.ELEMENT
 	{
 		guard let settype = settype else { return nil }
-		self.init(settype)
-	}
-
-	init<T: SDAI__SET__type>(_ settype: T) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
-	{
 		self.init(bound1: settype.loBound, bound2: settype.hiBound, settype)
 	}
-
-	init?<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
-	{
-		guard let settype = settype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, settype)
-	}
 }
 
 
-//MARK: - Initializers from Optional Arrays
-public protocol InitializableByOptionalEntityArray
+//MARK: - from entity type array optional
+public protocol InitializableByEntityArrayOptional
 {
-//	associatedtype ELEMENT: SDAI.EntityReference
-	
-	init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) 
-
 	init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, 
-				T.Element == Optional<T.ELEMENT>
-
-	init<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T) 
-	where T.ELEMENT: SDAI.EntityReference, 
-				T.Element == Optional<T.ELEMENT>
+	where T.ELEMENT: SDAI.EntityReference
 }
-public extension InitializableByOptionalEntityArray
+public extension InitializableByEntityArrayOptional
 {
-	init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, 
-				T.Element == Optional<T.ELEMENT>
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY_OPTIONAL__type>(bound1: I1, bound2: I2, _ arraytype: T?) 
+	where T.ELEMENT: SDAI.EntityReference
 	{
-		guard let arraytype = arraytype else { return nil }
+		guard let arraytype = arraytype, 
+					bound1.asSwiftInt == arraytype.loIndex, 
+					bound2.asSwiftInt == arraytype.hiIndex 
+		else { return nil }
 		self.init(arraytype)
 	}
 }
 
 
-//MARK: - Initializers from Arrays
+//MARK: - from entity type array
 public protocol InitializableByEntityArray
 {
-//	associatedtype ELEMENT: SDAI.EntityReference
-	
-	init(bound1: Int, bound2: Int, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) 
-
 	init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, 
-				T.Element == T.ELEMENT
-
-	init<T: SDAI__ARRAY__type>(_ arraytype: T) 
-	where T.ELEMENT: SDAI.EntityReference, 
-				T.Element == T.ELEMENT
+	where T.ELEMENT: SDAI.EntityReference
 }
 public extension InitializableByEntityArray
 {
-	init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAI.EntityReference, 
-				T.Element == T.ELEMENT
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY__type>(bound1: I1, bound2: I2, _ arraytype: T?) 
+	where T.ELEMENT: SDAI.EntityReference
 	{
-		guard let arraytype = arraytype else { return nil }
+		guard let arraytype = arraytype, 
+					bound1.asSwiftInt == arraytype.loIndex, 
+					bound2.asSwiftInt == arraytype.hiIndex 
+		else { return nil }
 		self.init(arraytype)
 	}
 }

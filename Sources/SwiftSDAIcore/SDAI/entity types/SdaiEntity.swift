@@ -137,7 +137,8 @@ extension SDAI {
 	
 	
 	//MARK: - EntityReference
-	open class EntityReference: SDAI.Object, SDAIGenericType {		
+	open class EntityReference: SDAI.Object, SDAIGenericType, InitializableByEntity, SDAIObservableAggregateElement 
+	{		
 		public let complexEntity: ComplexEntity
 		
 		// SDAIGenericType
@@ -147,6 +148,13 @@ extension SDAI {
 		public var typeMembers: Set<STRING> { complexEntity.typeMembers }
 		public var value: ComplexEntity.Value { complexEntity.value }
 		
+//		// InitializableByEntity
+//		public required convenience init?(possiblyFrom complex: SDAI.ComplexEntity?) {
+//			self.init(complex: complex)
+//		}
+		
+		// SDAIObservableAggregateElement
+		public var entityReference: SDAI.EntityReference? { return self }
 		
 		// EntityReference specific
 		public static var partialEntityType: PartialEntity.Type { abstruct() }

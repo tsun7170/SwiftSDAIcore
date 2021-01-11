@@ -9,8 +9,8 @@ import Foundation
 
 //MARK: - BINARY subtype
 public protocol SDAI__BINARY__subtype: SDAI__BINARY__type, SDAIDefinedType
-where Supertype: SDAI__BINARY__type,
-			Supertype.FundamentalType == SDAI.BINARY
+where Supertype: SDAI__BINARY__type
+//			FundamentalType == SDAI.BINARY
 {}
 public extension SDAI__BINARY__subtype
 {

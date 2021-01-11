@@ -9,67 +9,56 @@ import Foundation
 
 
 
-//MARK: - BAG type
-public protocol SDAIBagType: SDAIAggregationType
+//MARK: - bag type
+public protocol SDAIBagType: SDAIAggregationType, SDAIUnderlyingType, SDAISwiftTypeRepresented,
+														 InitializableByEmptyListLiteral, InitializableBySwifttypeAsList, InitializableBySelecttypeAsList
+where ELEMENT: SDAIGenericType
 {
-	init(from swiftValue: SwiftType, bound1: Int, bound2: Int?) 
-	init(bound1: Int, bound2: Int?, _ emptyLiteral: SDAI.EmptyAggregateLiteral) 
-	init<S: SDAISelectType>(_ select: S?)
-	init<S: SDAISelectType>(bound1: Int, bound2: Int?, _ select: S?)
-	mutating func set(bound1: Int, bound2: Int?)
-	
 	mutating func add(member: ELEMENT?)
 	mutating func remove(member: ELEMENT?)
 }
-public extension SDAIBagType
-{
-	init<S: SDAISelectType>(_ select: S?) {
-		(self.init(possiblyFrom: select))!
-	}
-	init<S: SDAISelectType>(bound1: Int, bound2: Int?, _ select: S?) {
-		self.init(select)
-		self.set(bound1: bound1, bound2: bound2)
-	}
-}
 
-public protocol SDAI__BAG__type: SDAIBagType, InitializableBySelecttypeBag, InitializableBySelecttypeSet
+
+
+//MARK: - BAG type
+public protocol SDAI__BAG__type: SDAIBagType
+where Element == ELEMENT,
+			FundamentalType == SDAI.BAG<ELEMENT>,
+			Value == FundamentalType.Value,
+			SwiftType == FundamentalType.SwiftType
 {}
 
+
 extension SDAI {
-	public struct BAG<ELEMENT:SDAIGenericType>: SDAI__BAG__type, SDAIValue
+	public struct BAG<ELEMENT:SDAIGenericType>: SDAI__BAG__type
 	{
 		public typealias SwiftType = Array<ELEMENT>
 		public typealias FundamentalType = Self
+		
 		fileprivate var rep: SwiftType
 		private var bound1: Int
 		private var bound2: Int?
 
-		// Equatable \Hashable\SDAIGenericType\SDAIUnderlyingType \SDAIAggregationType\SDAI__BAG__type
+		// Equatable \Hashable\SDAIGenericType
 		public static func == (lhs: SDAI.BAG<ELEMENT>, rhs: SDAI.BAG<ELEMENT>) -> Bool {
 			return lhs.rep == rhs.rep &&
 				lhs.bound1 == rhs.bound1 &&
 				lhs.bound2 == rhs.bound2
 		}
 		
-		// Hashable \SDAIGenericType\SDAIUnderlyingType \SDAIAggregationType\SDAI__BAG__type
+		// Hashable \SDAIGenericType
 		public func hash(into hasher: inout Hasher) {
 			hasher.combine(rep)
 			hasher.combine(bound1)
 			hasher.combine(bound2)
 		}
 
-		// SDAIGenericType \SDAIUnderlyingType\SDAIAggregationType\SDAI__BAG__type
+		// SDAIGenericType
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]
 		}
 		public var value: _BagValue<ELEMENT> {
 			return _BagValue(from: self)
-		}
-		public init?<S>(possiblyFrom select: S?) where S : SDAISelectType {
-			if let base = select?.bagValue(elementType: ELEMENT.self) {
-				self.init(base)
-			}
-			else { return nil }
 		}
 		
 		// SDAIUnderlyingType \SDAIAggregationType\SDAI__BAG__type
@@ -96,7 +85,7 @@ extension SDAI {
 			return rep[index - loIndex]
 		}
 		
-		public func CONTAINS(_ elem: ELEMENT?) -> SDAI.LOGICAL {
+		public func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL {
 			guard let elem = elem else { return UNKNOWN }
 			return LOGICAL(rep.contains(elem))
 		}
@@ -105,42 +94,7 @@ extension SDAI {
 			return BAG(from: rep.filter{ logical_expression($0).isTRUE }, bound1:self.loBound, bound2: self.hiBound)
 		}
 		
-		// InitializableBySelecttypeBag, InitializableBySelecttypeSet
-		public init<E: SDAISelectType>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-			self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT(possiblyFrom: $0)! }
-		} 
-		
-		public init<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T) 
-		where T.ELEMENT: SDAISelectType, T.ELEMENT == T.Element
-		{
-			self.init(bound1:bound1, bound2:bound2, [bagtype]){ ELEMENT(possiblyFrom: $0)! }
-		}
-		
-		public init<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T) 
-		where T.ELEMENT: SDAISelectType, T.ELEMENT == T.Element
-		{
-			self.init(bound1:bound1, bound2:bound2, [settype]){ ELEMENT(possiblyFrom: $0)! }
-		}
-		
-		
 		// SDAIBagType
-		public init(from swiftValue: SwiftType, bound1: Int = 0, bound2: Int? = nil) 
-		{
-			self.bound1 = bound1
-			self.bound2 = bound2
-			self.rep = swiftValue
-		}
-		
-		public init(bound1: Int = 0, bound2: Int? = nil, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) 
-		{
-			self.init(from: SwiftType(), bound1: bound1, bound2: bound2)
-		}
-		
-		public mutating func set(bound1: Int, bound2: Int?) {
-			self.bound1 = bound1
-			self.bound2 = bound2
-		}
-
 		public mutating func add(member: ELEMENT?) {
 			guard let member = member else {return}
 			rep.append(member)
@@ -154,241 +108,131 @@ extension SDAI {
 		}
 		
 		// BAG specific
-		private init<S:Sequence>(bound1: Int, bound2: Int?, _ elements: [S], conv: (S.Element) -> ELEMENT )
+		private init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(bound1: I1, bound2: I2?, _ elements: [S], conv: (S.Element) -> ELEMENT? )
 		{
 			var swiftValue = SwiftType()
 			if let hi = bound2 {
-				swiftValue.reserveCapacity(hi)
+				swiftValue.reserveCapacity(hi.asSwiftInt)
 			}
 			for aie in elements {
 				for elem in aie {
-					swiftValue.append(conv(elem))
+					guard let converted = conv(elem) else { return nil }
+					swiftValue.append( converted )
 				}
 			}
 			self.init(from: swiftValue, bound1: bound1, bound2: bound2)
 		}
 		
-		// SDAIValue
-		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
-		{
-			if let rhs = rhs as? Self { return self == rhs }
-			return false
+		// InitializableBySelecttype
+		public init?<S: SDAISelectType>(possiblyFrom select: S?) {
+			guard let fundamental = select?.bagValue(elementType: ELEMENT.self) else { return nil }
+			self.init(fundamental: fundamental)
 		}
-		
+
+		// InitializableByEmptyListLiteral
+		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
+			self.init(from: SwiftType(), bound1: bound1, bound2: bound2)
+		}
+
+		// InitializableBySwifttypeAsList
+		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2?) {
+			self.bound1 = bound1.asSwiftInt
+			self.bound2 = bound2?.asSwiftInt
+			self.rep = swiftValue
+		}
+
+		// InitializableBySelecttypeAsList
+		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S: SDAISelectType>(bound1: I1, bound2: I2?, _ select: S?) {
+			guard let fundamental = Self.init(possiblyFrom: select) else { return nil }
+			self.init(from: fundamental.asSwiftType, bound1:bound1, bound2:bound2)
+		}
+
 	}
 }
 
-extension SDAI.BAG: InitializableByEntitySet, InitializableByEntityBag 
-where ELEMENT: SDAI.EntityReference
+
+extension SDAI.BAG: SDAIObservableAggregate
+where ELEMENT: SDAIObservableAggregateElement
+{}
+
+extension SDAI.BAG: InitializableBySelecttypeListLiteral, InitializableBySelecttypeBag, InitializableBySelecttypeSet
+where ELEMENT: InitializableBySelecttype
 {
-	public init<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
+	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1 = 0 as! I1, bound2: I2? = nil, _ elements: [SDAI.AggregationInitializerElement<E>]) {
+		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(possiblyFrom: $0) }
+	} 
+	
+	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
+	where T.ELEMENT: SDAISelectType
 	{
-		self.init(bound1: bound1, bound2: bound2, [settype]) { $0.complexEntity.entityReference(ELEMENT.self)! }		
+		guard let bagtype = bagtype else { return nil }
+		self.init(bound1: bound1, bound2: bound2, [bagtype]){ ELEMENT(possiblyFrom: $0) }
 	}
 	
-	public init<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T) 
-	where T.ELEMENT: SDAI.EntityReference, T.Element == T.ELEMENT
+	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?) 
+	where T.ELEMENT: SDAISelectType
 	{
-		self.init(bound1: bound1, bound2: bound2, [bagtype]) { $0.complexEntity.entityReference(ELEMENT.self)! }		
+		guard let settype = settype else { return nil }
+		self.init(bound1: bound1, bound2: bound2, [settype]){ ELEMENT(possiblyFrom: $0) }
+	}
+	
+}
+
+
+extension SDAI.BAG: InitializableByEntityListLiteral, InitializableByEntityBag, InitializableByEntitySet  
+where ELEMENT: InitializableByEntity
+{
+	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) {
+		self.init(bound1: bound1, bound2: bound2, elements) { ELEMENT(possiblyFrom: $0) }
+	}
+	
+	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
+	where T.ELEMENT: SDAI.EntityReference
+	{
+		guard let bagtype = bagtype else { return nil }
+		self.init(bound1: bound1, bound2: bound2, [bagtype]) { ELEMENT(possiblyFrom: $0) }		
 	}
 
-	public init(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) {
-		self.init(bound1: bound1, bound2: bound2, elements) { ($0?.complexEntity.entityReference(ELEMENT.self))! }
+	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?) 
+	where T.ELEMENT: SDAI.EntityReference
+	{
+		guard let settype = settype else { return nil }
+		self.init(bound1: bound1, bound2: bound2, [settype]) { ELEMENT(possiblyFrom: $0) }		
 	}
 }
 
-extension SDAI.BAG: InitializableByDefinedtypeSet, InitializableByDefinedtypeBag
-where ELEMENT: SDAIUnderlyingType
+
+extension SDAI.BAG: InitializableByDefinedtypeListLiteral, InitializableByDefinedtypeBag, InitializableByDefinedtypeSet 
+where ELEMENT: InitializableByDefinedtype
 {
-	// InitializableBySubtypeSet
-	public init<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
+	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E:SDAIUnderlyingType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
 	{
-		self.init(bound1:bound1, bound2:bound2, [settype]) { ELEMENT($0) }
-	}
-	
-	// InitializableBySubtypeBag
-	public init<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T) 
-	where T.ELEMENT: SDAIUnderlyingType, T.ELEMENT.FundamentalType == ELEMENT.FundamentalType, T.ELEMENT == T.Element
-	{
-		self.init(bound1:bound1, bound2:bound2, [bagtype]) { ELEMENT($0) }
-	}
-	
-	
-	// InitializableBySubtypeListLiteral
-	public init<E:SDAIUnderlyingType>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-	where E.FundamentalType == ELEMENT.FundamentalType
-	{
-		self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT(fundamental: $0!.asFundamentalType) }
+		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(possiblyFrom: $0) }
 	}		
-}
-
-extension SDAI.BAG
-where ELEMENT: SDAISelectType
-{
-	init<E: SDAI.EntityReference>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>])
+	
+	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
+	where T.ELEMENT: SDAIUnderlyingType
 	{
-		self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT(possiblyFrom: $0)! }
-	}
-	init<E: SDAIUnderlyingType>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>])
-	{
-		self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT(possiblyFrom: $0)! }
-	}
-	init<E: SDAISelectType>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>])
-	{
-		self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT(possiblyFrom: $0)! }
+		guard let bagtype = bagtype else { return nil }
+		self.init(bound1: bound1, bound2: bound2, [bagtype]) { ELEMENT(possiblyFrom: $0) }
 	}
 	
-	init?<T: SDAI__BAG__type>(_ bagtype: T?) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAI.EntityReference
-	{
-		guard let bagtype = bagtype else { return nil }
-		self.init(bagtype)
-	}
-	init?<T: SDAI__BAG__type>(_ bagtype: T?) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAIUnderlyingType
-	{
-		guard let bagtype = bagtype else { return nil }
-		self.init(bagtype)
-	}
-	init?<T: SDAI__BAG__type>(_ bagtype: T?) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAISelectType
-	{
-		guard let bagtype = bagtype else { return nil }
-		self.init(bagtype)
-	}
-
-	init<T: SDAI__BAG__type>(_ bagtype: T) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAI.EntityReference
-	{
-		self.init(bound1:bagtype.loBound, bound2:bagtype.hiBound, [bagtype]){ ELEMENT(possiblyFrom: $0)! }
-	}
-	init<T: SDAI__BAG__type>(_ bagtype: T) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAIUnderlyingType
-	{
-		self.init(bound1:bagtype.loBound, bound2:bagtype.hiBound, [bagtype]){ ELEMENT(possiblyFrom: $0)! }
-	}
-	init<T: SDAI__BAG__type>(_ bagtype: T) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAISelectType
-	{
-		self.init(bound1:bagtype.loBound, bound2:bagtype.hiBound, [bagtype]){ ELEMENT(possiblyFrom: $0)! }
-	}
-	
-	init?<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T?) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAI.EntityReference
-	{
-		guard let bagtype = bagtype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, bagtype)
-	}
-	init?<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T?) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAIUnderlyingType
-	{
-		guard let bagtype = bagtype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, bagtype)
-	}
-	init?<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T?) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAISelectType
-	{
-		guard let bagtype = bagtype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, bagtype)
-	}
-
-	init<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAI.EntityReference
-	{
-		self.init(bound1:bound1, bound2:bound2, [bagtype]){ ELEMENT(possiblyFrom: $0)! }
-	}
-	init<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAIUnderlyingType
-	{
-		self.init(bound1:bound1, bound2:bound2, [bagtype]){ ELEMENT(possiblyFrom: $0)! }
-	}
-	init<T: SDAI__BAG__type>(bound1: Int, bound2: Int?, _ bagtype: T) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAISelectType
-	{
-		self.init(bound1:bound1, bound2:bound2, [bagtype]){ ELEMENT(possiblyFrom: $0)! }
-	}
-	
-	init?<T: SDAI__SET__type>(_ settype: T?) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAI.EntityReference
+	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?) 
+	where T.ELEMENT: SDAIUnderlyingType
 	{
 		guard let settype = settype else { return nil }
-		self.init(settype)
-	}
-	init?<T: SDAI__SET__type>(_ settype: T?) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAIUnderlyingType
-	{
-		guard let settype = settype else { return nil }
-		self.init(settype)
-	}
-	init?<T: SDAI__SET__type>(_ settype: T?) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAISelectType
-	{
-		guard let settype = settype else { return nil }
-		self.init(settype)
-	}
-
-	init<T: SDAI__SET__type>(_ settype: T) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAI.EntityReference
-	{
-		self.init(bound1:settype.loBound, bound2:settype.hiBound, [settype]){ ELEMENT(possiblyFrom: $0)! }
-	}
-	init<T: SDAI__SET__type>(_ settype: T) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAIUnderlyingType
-	{
-		self.init(bound1:settype.loBound, bound2:settype.hiBound, [settype]){ ELEMENT(possiblyFrom: $0)! }
-	}
-	init<T: SDAI__SET__type>(_ settype: T) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAISelectType
-	{
-		self.init(bound1:settype.loBound, bound2:settype.hiBound, [settype]){ ELEMENT(possiblyFrom: $0)! }
-	}
-	
-	init?<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T?) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAI.EntityReference
-	{
-		guard let settype = settype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, settype)
-	}
-	init?<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T?) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAIUnderlyingType
-	{
-		guard let settype = settype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, settype)
-	}
-	init?<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T?) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAISelectType
-	{
-		guard let settype = settype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, settype)
-	}
-
-	init<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAI.EntityReference
-	{
-		self.init(bound1:bound1, bound2:bound2, [settype]){ ELEMENT(possiblyFrom: $0)! }
-	}
-	init<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAIUnderlyingType
-	{
-		self.init(bound1:bound1, bound2:bound2, [settype]){ ELEMENT(possiblyFrom: $0)! }
-	}
-	init<T: SDAI__SET__type>(bound1: Int, bound2: Int?, _ settype: T) 
-	where T.ELEMENT == T.Element, T.ELEMENT: SDAISelectType
-	{
-		self.init(bound1:bound1, bound2:bound2, [settype]){ ELEMENT(possiblyFrom: $0)! }
-	}
+		self.init(bound1: bound1, bound2: bound2, [settype]) { ELEMENT(possiblyFrom: $0) }
+	}	
 }
 
 
 extension SDAI.BAG: InitializableBySwiftListLiteral 
-where ELEMENT: SDAISimpleType
+where ELEMENT: InitializableBySwifttype
 {
-	public init<E>(bound1: Int = 0, bound2: Int? = nil, _ elements: [SDAI.AggregationInitializerElement<E>]) 
+	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
 	where E == ELEMENT.SwiftType
 	{
-		self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT($0!) }
+		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT($0) }
 	}
 }
 
