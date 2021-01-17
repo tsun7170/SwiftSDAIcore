@@ -41,7 +41,7 @@ extension SDAI {
 	
 	
 	//MARK: - ComplexEntity
-	open class ComplexEntity: SDAI.Object {
+	open class ComplexEntity: SDAI.Object, SDAIGenericType {
 		private var partialEntities: Dictionary<PartialEntity.TypeIdentity,(instance:PartialEntity,reference:EntityReference?)> = [:]
 		
 		public init(entities:[PartialEntity]) {
@@ -85,14 +85,20 @@ extension SDAI {
 		public func usedIn() -> [EntityReference] { abstruct() }
 
 		
-		// EntityReference SDAIGenericType support
-		var typeMembers: Set<SDAI.STRING> { 
+		// SDAIGenericType
+		public var typeMembers: Set<SDAI.STRING> { 
 			Set( partialEntities.values.map{ (pe) -> STRING in STRING(stringLiteral: pe.instance.qualifiedEntityName) } ) 
 		}
 		
 		public typealias Value = _ComplexEntityValue
-		var value: Value { abstruct() }
+		public var value: Value { abstruct() }
 		
+		public required convenience init?<S: SDAISelectType>(possiblyFrom select: S?) {
+			guard let entityRef = select?.entityReference else { return nil }
+//			self.init(complex: entityRef.complexEntity)
+			abstruct()
+		}
+
 		func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<ComplexEntity>) {
 			guard !complexEntities.contains(self) else { return }
 			complexEntities.insert(self)
