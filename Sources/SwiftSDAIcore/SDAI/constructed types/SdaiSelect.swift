@@ -11,7 +11,6 @@ import Foundation
 public protocol SDAISelectType: SDAIConstructedType, InitializableByDefinedtype, InitializableByEntity, SDAIObservableAggregateElement 
 where Value == FundamentalType,
 	FundamentalType: SDAISelectType
-//			SwiftType == FundamentalType
 {
 //	init?<G: SDAIGenericType>(possiblyFrom generic: G?)
 //	init?(possiblyFrom complex: SDAI.ComplexEntity?)

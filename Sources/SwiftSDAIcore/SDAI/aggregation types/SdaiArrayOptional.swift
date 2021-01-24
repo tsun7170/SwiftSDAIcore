@@ -169,7 +169,7 @@ where ELEMENT: InitializableBySelecttype
 extension SDAI.ARRAY_OPTIONAL: InitializableByEntityArrayLiteral, InitializableByEntityArrayOptional, InitializableByEntityArray
 where ELEMENT: InitializableByEntity
 {
-	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) {
+	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAI.EntityReference>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) {
 		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(possiblyFrom: $0) }
 	} 
 

@@ -7,11 +7,20 @@
 
 import Foundation
 
-public protocol SdaiNumberRepType : SignedNumeric, Comparable
+public protocol SdaiNumberRepType : SignedNumeric, Strideable
 {}
 extension Double: SdaiNumberRepType {}
 extension Int: SdaiNumberRepType {}
 
+public protocol SDAIDoubleRepresented
+{
+	var asSwiftDouble: Double {get}
+}
+
+public protocol SDAIIntRepresented
+{
+	var asSwiftInt: Int {get}
+}
 
 //MARK: - Double convertible
 public protocol SwiftDoubleConvertible
@@ -19,7 +28,7 @@ public protocol SwiftDoubleConvertible
 	var asSwiftDouble: Double {get}
 }
 
-extension Double: SwiftDoubleConvertible
+extension Double: SwiftDoubleConvertible, SDAIDoubleRepresented
 {
 	public var asSwiftDouble: Double { return self }
 }
@@ -48,7 +57,7 @@ public protocol SwiftIntConvertible
 	var asSwiftInt: Int {get}
 }
 
-extension Int: SwiftIntConvertible
+extension Int: SwiftIntConvertible, SDAIIntRepresented
 {
 	public var asSwiftInt: Int { return self }
 }
@@ -67,11 +76,11 @@ where SwiftType: SdaiNumberRepType
 //	var asSwiftDouble: Double {get}
 }
 
-public protocol SDAIDoubleRepresentedNumberType: SDAINumberType 
+public protocol SDAIDoubleRepresentedNumberType: SDAINumberType, SDAIDoubleRepresented 
 where SwiftType == Double
 {}
 
-public protocol SDAIIntRepresentedNumberType: SDAINumberType 
+public protocol SDAIIntRepresentedNumberType: SDAINumberType, SDAIIntRepresented 
 where SwiftType == Int
 {}
 

@@ -31,11 +31,11 @@ where Self: SDAI.EntityReference
 //MARK: - from entity type list literal (with optional bounds)
 public protocol InitializableByEntityListLiteral
 {
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) 
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAI.EntityReference>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
 }
 public extension InitializableByEntityListLiteral
 {
-	init?(_ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) {
+	init?<E: SDAI.EntityReference>(_ elements: [SDAI.AggregationInitializerElement<E>]) {
 		self.init(bound1: 0, bound2: nil as Int?, elements)
 	}
 }
@@ -43,7 +43,7 @@ public extension InitializableByEntityListLiteral
 //MARK: - from entity type array literal (with required bounds)
 public protocol InitializableByEntityArrayLiteral
 {
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<SDAI.EntityReference>]) 
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAI.EntityReference>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 
 }
 
 

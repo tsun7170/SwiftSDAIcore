@@ -121,7 +121,6 @@ public protocol SDAIObservableAggregateElement
 }
 
 public extension SDAIObservableAggregate 
-//where Element == ELEMENT
 {
 	var observer: EntityReferenceObserver? {
 		get { 
@@ -134,9 +133,6 @@ public extension SDAIObservableAggregate
 					entityObserver( nil, elem.entityReference )
 					return .next
 				}
-//				for elem in self {
-//					entityObserver( nil, elem.entityReference )
-//				}
 			}
 		}
 	}
@@ -147,9 +143,6 @@ public extension SDAIObservableAggregate
 				entityObserver( elem.entityReference, nil )
 				return .next
 			}
-//			for elem in self {
-//				entityObserver( elem.entityReference, nil )
-//			}
 		}
 	}
 	
@@ -158,98 +151,7 @@ public extension SDAIObservableAggregate
 	}
 }
 
-//public extension SDAIObservableAggregate 
-//where Element == ELEMENT?
-//{
-//	var observer: EntityReferenceObserver? {
-//		get { 
-//			return _observer
-//		}
-//		set {
-//			_observer = newValue
-//			if let entityObserver = newValue {
-//				for elem in self {
-//					entityObserver( nil, elem?.entityReference )
-//				}
-//			}
-//		}
-//	}
-//	
-//	func teardown() {
-//		if let entityObserver = observer {
-//			for elem in self {
-//				entityObserver( elem?.entityReference, nil )
-//			}
-//		}
-//	}
-//	
-//	mutating func resetObserver() {
-//		_observer = nil
-//	}
-//}
 
-
-//public extension SDAIObservableAggregate 
-//where ELEMENT: SDAISelectType, 
-//			Element == ELEMENT
-//{
-//	var observer: EntityReferenceObserver? {
-//		get { 
-//			return _observer
-//		}
-//		set {
-//			_observer = newValue
-//			if let entityObserver = newValue {
-//				for select in self {
-//					entityObserver( nil, select.asFundamentalType.entityReference )
-//				}
-//			}
-//		}
-//	}
-//	
-//	func teardown() {
-//		if let entityObserver = observer {
-//			for select in self {
-//				entityObserver( select.asFundamentalType.entityReference, nil )
-//			}
-//		}
-//	}
-//	
-//	mutating func resetObserver() {
-//		_observer = nil
-//	}
-//}
-//
-//public extension SDAIObservableAggregate 
-//where ELEMENT: SDAISelectType, 
-//			Element == ELEMENT?
-//{
-//	var observer: EntityReferenceObserver? {
-//		get { 
-//			return _observer
-//		}
-//		set {
-//			_observer = newValue
-//			if let entityObserver = newValue {
-//				for select in self {
-//					entityObserver( nil, select?.asFundamentalType.entityReference )
-//				}
-//			}
-//		}
-//	}
-//	
-//	func teardown() {
-//		if let entityObserver = observer {
-//			for select in self {
-//				entityObserver( select?.asFundamentalType.entityReference, nil )
-//			}
-//		}
-//	}
-//	
-//	mutating func resetObserver() {
-//		_observer = nil
-//	}
-//}
 
 //MARK: - aggregation subtypes
 public extension SDAIDefinedType 
@@ -278,39 +180,4 @@ where Self: SDAIAggregationType, Supertype: SDAIAggregationType,
 }
 
 
-
-
-
-
-//extension SDAI {
-//	public struct AGGREGATE<Element,S:LazySequenceProtocol>: SDAIAggregationType 
-//	where S.Element==Element 
-//	{
-//		public var hiBound: SDAI.INTEGER? { return nil }
-//		public var hiIndex: SDAI.INTEGER {
-//			var count = 0
-//			for _ in content { count += 1 }
-//			return SDAI.INTEGER(count)
-//		}
-//		public var loBound: SDAI.INTEGER { return SDAI.INTEGER(0) }
-//		public var loIndex: SDAI.INTEGER { return SDAI.INTEGER(0) }
-//		
-//		public func makeIterator() -> S.Iterator { return content.makeIterator() }
-//		public var asSwiftType: Array<Element> { return Array(content) }
-//		public var _observer: EntityReferenceObserver?
-//		
-//		
-//		private var content: S
-//		public init(from base: S) {
-//			self.content = base
-//		}
-//		public init(_ swiftValue: Array<Element>) {
-//			self.init(from: swiftValue.lazy as! S)
-//		}
-//		
-//		public func QUERY(logical_expression:@escaping (Element) -> LOGICAL ) -> AGGREGATE<Element,LazyFilterSequence<S.Elements>> {
-//			return AGGREGATE<Element,LazyFilterSequence<S.Elements>>(from: content.filter{ logical_expression($0).isTRUE })
-//		}
-//	}
-//}
 

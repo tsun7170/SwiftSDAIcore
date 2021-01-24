@@ -59,12 +59,18 @@ public extension SDAI {
 	static func AIE<E:SDAIGenericType, I:SwiftIntConvertible>(_ element: E, repeat n: I) -> AggregationInitializerElement<E> {
 		return repeatElement(element as E?, count: n.asSwiftInt)
 	}
+	static func AIE<E:SDAIGenericType, I:SwiftIntConvertible>(_ element: E, repeat n: I?) -> AggregationInitializerElement<E> {
+		return repeatElement(element as E?, count: n!.asSwiftInt)
+	}
 	static func AIE<E:SDAIGenericType>(_ element: E) -> AggregationInitializerElement<E> {
 		return AIE(element, repeat: 1)
 	}
 	
 	static func AIE<E:SDAIGenericType, I:SwiftIntConvertible>(_ element: E?, repeat n: I) -> AggregationInitializerElement<E> {
 		return repeatElement(element, count: n.asSwiftInt)
+	}
+	static func AIE<E:SDAIGenericType, I:SwiftIntConvertible>(_ element: E?, repeat n: I?) -> AggregationInitializerElement<E> {
+		return repeatElement(element, count: n!.asSwiftInt)
 	}
 	static func AIE<E:SDAIGenericType>(_ element: E?) -> AggregationInitializerElement<E> {
 		return AIE(element, repeat: 1)
@@ -74,12 +80,18 @@ public extension SDAI {
 	static func AIE<E:SDAISwiftType, I:SwiftIntConvertible>(_ element: E, repeat n: I) -> AggregationInitializerElement<E> {
 		return repeatElement(element as E?, count: n.asSwiftInt)
 	}
+	static func AIE<E:SDAISwiftType, I:SwiftIntConvertible>(_ element: E, repeat n: I?) -> AggregationInitializerElement<E> {
+		return repeatElement(element as E?, count: n!.asSwiftInt)
+	}
 	static func AIE<E:SDAISwiftType>(_ element: E) -> AggregationInitializerElement<E> {
 		return AIE(element, repeat: 1)
 	}
 	
 	static func AIE<E:SDAISwiftType, I:SwiftIntConvertible>(_ element: E?, repeat n: I) -> AggregationInitializerElement<E> {
 		return repeatElement(element, count: n.asSwiftInt)
+	}
+	static func AIE<E:SDAISwiftType, I:SwiftIntConvertible>(_ element: E?, repeat n: I?) -> AggregationInitializerElement<E> {
+		return repeatElement(element, count: n!.asSwiftInt)
 	}
 	static func AIE<E:SDAISwiftType>(_ element: E?) -> AggregationInitializerElement<E> {
 		return AIE(element, repeat: 1)
@@ -92,11 +104,6 @@ public protocol SDAIAggregationInitializer: Sequence
 where Element: SDAI__AIE__type
 {
 	typealias ELEMENT = Element.Element.Wrapped
-
-//	func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL
-//	
-//	typealias RESULT_AGGREGATE = SDAI.LIST<ELEMENT>
-//	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> RESULT_AGGREGATE
 }
 
 extension Array: SDAIAggregationInitializer 

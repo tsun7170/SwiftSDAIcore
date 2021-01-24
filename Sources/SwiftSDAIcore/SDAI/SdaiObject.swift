@@ -15,15 +15,20 @@ public protocol SDAIGenericType: Hashable, InitializableBySelecttype
 	var typeMembers: Set<SDAI.STRING> {get}
 	var value: Value {get}
 }
-public extension SDAIDefinedType
-where Supertype: SDAIGenericType, Value == Supertype.Value
+
+public extension SDAIGenericType where Self: SDAIDefinedType
+//where Supertype: SDAIGenericType
 {
 	var typeMembers: Set<SDAI.STRING> {
 		var members = rep.typeMembers
 		members.insert(SDAI.STRING(Self.typeName))
 		return members
 	}
-	
+}
+
+public extension SDAIGenericType where Self: SDAIDefinedType
+//where Value == Supertype.Value
+{
 	var value: Value {rep.value}	
 }
 
