@@ -7,7 +7,16 @@
 
 import Foundation
 
-
+public protocol SDAIAggregateIndexingGettable {
+	associatedtype ELEMENT
+	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {get}
+	subscript(index: Int?) -> ELEMENT? {get}
+}
+public protocol SDAIAggregateIndexingSettable {
+	associatedtype ELEMENT
+	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {get set}
+	subscript(index: Int?) -> ELEMENT? {get set}
+}
 
 //MARK: - Aggregation type
 public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Sequence
@@ -20,8 +29,8 @@ public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Seq
 	var loIndex: Int {get}
 	var size: Int {get}
 	
-	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {get}
-	subscript(index: Int?) -> ELEMENT? {get}
+//	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {get set}
+//	subscript(index: Int?) -> ELEMENT? {get set}
 	
 	func forEachELEMENT(do task: (_ elem: ELEMENT) -> SDAI.IterControl )
 	
@@ -41,12 +50,25 @@ extension SDAI {
 	}
 }
 
-public extension SDAIAggregationType
+public extension SDAIAggregateIndexingGettable
 {
 	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
-		return self[index?.asSwiftType]
+		get{
+			return self[index?.asSwiftType]
+		}
 	}
+}
 
+public extension SDAIAggregateIndexingSettable
+{
+	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
+		get{
+			return self[index?.asSwiftType]
+		}
+		set{
+			self[index?.asSwiftType] = newValue
+		}
+	}
 }
 
 public extension SDAIAggregationType
@@ -155,7 +177,8 @@ public extension SDAIObservableAggregate
 
 //MARK: - aggregation subtypes
 public extension SDAIDefinedType 
-where Self: SDAIAggregationType, Supertype: SDAIAggregationType, 
+where Self: SDAIAggregationType, 
+			Supertype: SDAIAggregationType, 
 			ELEMENT == Supertype.ELEMENT
 {
 	// Sequence \SDAIAggregationType
@@ -171,13 +194,33 @@ where Self: SDAIAggregationType, Supertype: SDAIAggregationType,
 		get { return rep._observer }
 		set { rep._observer = newValue }
 	}
-	subscript(index: Int?) -> ELEMENT? { return rep[index] }
+//	subscript(index: Int?) -> ELEMENT? { 
+//		get{ return rep[index] }
+//		set{ rep[index] = newValue }
+//	}
 	func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL { return rep.CONTAINS(elem: elem) }
 	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> Supertype.RESULT_AGGREGATE {
 		return rep.QUERY(logical_expression: logical_expression)
 	}
-
 }
 
+public extension SDAIDefinedType
+where Self: SDAIAggregateIndexingGettable, 
+			Supertype: SDAIAggregateIndexingGettable, 
+			ELEMENT == Supertype.ELEMENT
+{
+	subscript(index: Int?) -> ELEMENT? { 
+		get{ return rep[index] }
+	}
+}
 
-
+public extension SDAIDefinedType
+where Self: SDAIAggregateIndexingSettable, 
+			Supertype: SDAIAggregateIndexingSettable, 
+			ELEMENT == Supertype.ELEMENT
+{
+	subscript(index: Int?) -> ELEMENT? { 
+		get{ return rep[index] }
+		set{ rep[index] = newValue }
+	}
+}

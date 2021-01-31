@@ -93,9 +93,16 @@ extension SDAI {
 		public typealias Value = _ComplexEntityValue
 		public var value: Value { abstruct() }
 		
-		public required convenience init?<S: SDAISelectType>(possiblyFrom select: S?) {
-			guard let entityRef = select?.entityReference else { return nil }
-//			self.init(complex: entityRef.complexEntity)
+//		public required convenience init?<S: SDAISelectType>(possiblyFrom select: S?) {
+//			self.init(fromGenetic: select)
+////			guard let entityRef = select?.entityReference else { return nil }
+//////			self.init(complex: entityRef.complexEntity)
+////			abstruct()
+//		}
+		// InitializableByGenerictype
+		public required convenience init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+//			guard let fundamental = generic?.setValue(elementType: ELEMENT.self) else { return nil }
+//			self.init(fundamental: fundamental)
 			abstruct()
 		}
 
@@ -172,8 +179,14 @@ extension SDAI {
 			super.init()
 		}
 		
-		public required convenience init?<S: SDAISelectType>(possiblyFrom select: S?) {
-			guard let entityRef = select?.entityReference else { return nil }
+//		public required convenience init?<S: SDAISelectType>(possiblyFrom select: S?) {
+//			self.init(fromGeneric: select)
+////			guard let entityRef = select?.entityReference else { return nil }
+////			self.init(complex: entityRef.complexEntity)
+//		}
+		// InitializableByGenerictype
+		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+			guard let entityRef = generic?.entityReference else { return nil }
 			self.init(complex: entityRef.complexEntity)
 		}
 		

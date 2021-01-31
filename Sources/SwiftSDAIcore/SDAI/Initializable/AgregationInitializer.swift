@@ -176,3 +176,24 @@ where ELEMENT: SDAISwiftType
 	}
 }
 
+//MARK: - from list literal (with optional bounds)
+public protocol InitializableByListLiteral
+{
+	associatedtype ELEMENT
+	
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) 
+}
+public extension InitializableByListLiteral
+{
+	init?(_ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) {
+		self.init(bound1: 0, bound2: nil as Int?, elements)
+	}
+}
+
+//MARK: - from array literal (with required bounds)
+public protocol InitializableByArrayLiteral
+{
+	associatedtype ELEMENT
+
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) 	
+}

@@ -14,9 +14,14 @@ where Supertype: SDAI__STRING__type
 {}
 public extension SDAI__STRING__subtype
 {
-	// SDAIGenericType
-	init?<S: SDAISelectType>(possiblyFrom select: S?) {
-		guard let fundamental = FundamentalType(possiblyFrom: select) else { return nil }
+//	// SDAIGenericType
+//	init?<S: SDAISelectType>(possiblyFrom select: S?) {
+//		guard let fundamental = FundamentalType(possiblyFrom: select) else { return nil }
+//		self.init(fundamental: fundamental)
+//	}
+	// InitializableByGenerictype
+	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		guard let fundamental = Fundamental(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
 	}
 	

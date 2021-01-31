@@ -18,18 +18,19 @@ public extension InitializableBySelecttype
 		self.init(possiblyFrom: select)
 	}
 }
+public extension InitializableBySelecttype
+where Self: InitializableByGenerictype
+{
+	init?<S: SDAISelectType>(possiblyFrom select: S?) {
+		self.init(fromGeneric: select)
+	}
+}
 
 //MARK: - from select type as list (with optional bounds)
 public protocol InitializableBySelecttypeAsList
 {
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S: SDAISelectType>(bound1: I1, bound2: I2?, _ select: S?)	
 }
-//public extension InitializableBySelecttypeAsList
-//{
-//	init?<S: SDAISelectType>(_ select: S?) {
-//		self.init(bound1: 0, bound2: nil as Int?, select)
-//	}
-//}
 
 //MARK: - from select type as array (with required bounds)
 public protocol InitializableBySelecttypeAsArray
@@ -40,23 +41,23 @@ public protocol InitializableBySelecttypeAsArray
 
 
 
-//MARK: - from select type list literal (with optional bounds)
-public protocol InitializableBySelecttypeListLiteral
-{
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-}
-public extension InitializableBySelecttypeListLiteral
-{
-	init?<E: SDAISelectType>(_ elements: [SDAI.AggregationInitializerElement<E>]) {
-		self.init(bound1: 0, bound2: nil as Int?, elements)
-	}
-}
-
-//MARK: - from select type list literal (with required bounds)
-public protocol InitializableBySelecttypeArrayLiteral
-{
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-}
+////MARK: - from select type list literal (with optional bounds)
+//public protocol InitializableBySelecttypeListLiteral
+//{
+//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
+//}
+//public extension InitializableBySelecttypeListLiteral
+//{
+//	init?<E: SDAISelectType>(_ elements: [SDAI.AggregationInitializerElement<E>]) {
+//		self.init(bound1: 0, bound2: nil as Int?, elements)
+//	}
+//}
+//
+////MARK: - from select type list literal (with required bounds)
+//public protocol InitializableBySelecttypeArrayLiteral
+//{
+//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 
+//}
 
 
 

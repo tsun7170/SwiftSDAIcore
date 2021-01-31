@@ -129,8 +129,31 @@ extension SDAI {
 			return [SDAI.STRING(Self.typeName)]
 		}
 		public var value: FundamentalType { return self.asFundamentalType }
-		public init?<S>(possiblyFrom select: S?) where S : SDAISelectType {
-			guard let numberValue = select?.numberValue else { return nil }
+		
+		public var entityReference: SDAI.EntityReference? {nil}	
+		public var stringValue: SDAI.STRING? {nil}
+		public var binaryValue: SDAI.BINARY? {nil}
+		public var logicalValue: SDAI.LOGICAL? {nil}
+		public var booleanValue: SDAI.BOOLEAN? {nil}
+		public var numberValue: SDAI.NUMBER? { self }
+		public var realValue: SDAI.REAL? {nil}
+		public var integerValue: SDAI.INTEGER? {nil}
+		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
+		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
+
+		
+//		public init?<S>(possiblyFrom select: S?) where S : SDAISelectType {
+//			self.init(fromGenetic: select)
+////			guard let numberValue = select?.numberValue else { return nil }
+////			self.init(numberValue)
+//		}
+		// InitializableByGenerictype
+		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+			guard let numberValue = generic?.numberValue else { return nil }
 			self.init(numberValue)
 		}
 		
