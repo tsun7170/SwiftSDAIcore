@@ -9,7 +9,7 @@ import Foundation
 
 extension SDAI {
 	public static func INSERT<LISTTYPE: SDAIListType, GEN, Integer: SwiftIntConvertible>( L: inout LISTTYPE?, E: GEN?, P: Integer? ) 
-	where LISTTYPE.ELEMENT == GEN
+//	where LISTTYPE.ELEMENT == GEN
 	{
 		abstruct()
 	}

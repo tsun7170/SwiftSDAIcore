@@ -42,6 +42,8 @@ extension SDAI {
 	
 	//MARK: - ComplexEntity
 	open class ComplexEntity: SDAI.Object, SDAIGenericType {
+		public typealias FundamentalType = ComplexEntity
+		
 		private var partialEntities: Dictionary<PartialEntity.TypeIdentity,(instance:PartialEntity,reference:EntityReference?)> = [:]
 		
 		public init(entities:[PartialEntity]) {
@@ -92,6 +94,22 @@ extension SDAI {
 		
 		public typealias Value = _ComplexEntityValue
 		public var value: Value { abstruct() }
+		
+		public var entityReference: SDAI.EntityReference? { EntityReference(complex: self) }	
+		public var stringValue: SDAI.STRING? {nil}
+		public var binaryValue: SDAI.BINARY? {nil}
+		public var logicalValue: SDAI.LOGICAL? {nil}
+		public var booleanValue: SDAI.BOOLEAN? {nil}
+		public var numberValue: SDAI.NUMBER? {nil}
+		public var realValue: SDAI.REAL? {nil}
+		public var integerValue: SDAI.INTEGER? {nil}
+		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
+		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
+
 		
 //		public required convenience init?<S: SDAISelectType>(possiblyFrom select: S?) {
 //			self.init(fromGenetic: select)
@@ -161,13 +179,29 @@ extension SDAI {
 		public var typeMembers: Set<STRING> { complexEntity.typeMembers }
 		public var value: ComplexEntity.Value { complexEntity.value }
 		
+		public var entityReference: SDAI.EntityReference? { self }	
+		public var stringValue: SDAI.STRING? {nil}
+		public var binaryValue: SDAI.BINARY? {nil}
+		public var logicalValue: SDAI.LOGICAL? {nil}
+		public var booleanValue: SDAI.BOOLEAN? {nil}
+		public var numberValue: SDAI.NUMBER? {nil}
+		public var realValue: SDAI.REAL? {nil}
+		public var integerValue: SDAI.INTEGER? {nil}
+		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
+		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
+
+		
 //		// InitializableByEntity
 //		public required convenience init?(possiblyFrom complex: SDAI.ComplexEntity?) {
 //			self.init(complex: complex)
 //		}
 		
 		// SDAIObservableAggregateElement
-		public var entityReference: SDAI.EntityReference? { return self }
+//		public var entityReference: SDAI.EntityReference? { return self }
 		
 		// EntityReference specific
 		public static var partialEntityType: PartialEntity.Type { abstruct() }
@@ -185,7 +219,7 @@ extension SDAI {
 ////			self.init(complex: entityRef.complexEntity)
 //		}
 		// InitializableByGenerictype
-		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		required public convenience init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 			guard let entityRef = generic?.entityReference else { return nil }
 			self.init(complex: entityRef.complexEntity)
 		}

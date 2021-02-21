@@ -11,6 +11,7 @@ import Foundation
 
 public protocol SDAIGenericType: Hashable, InitializableBySelecttype, InitializableByGenerictype 
 {
+	associatedtype FundamentalType: SDAIGenericType
 	associatedtype Value: SDAIValue
 	var typeMembers: Set<SDAI.STRING> {get}
 	var value: Value {get}
@@ -30,26 +31,8 @@ public protocol SDAIGenericType: Hashable, InitializableBySelecttype, Initializa
 	func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>?
 	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM?
 }
-//public extension SDAIGenericType
-//{
-//	var entityReference: SDAI.EntityReference? {nil}	
-//	var stringValue: SDAI.STRING? {nil}
-//	var binaryValue: SDAI.BINARY? {nil}
-//	var logicalValue: SDAI.LOGICAL? {nil}
-//	var booleanValue: SDAI.BOOLEAN? {nil}
-//	var numberValue: SDAI.NUMBER? {nil}
-//	var realValue: SDAI.REAL? {nil}
-//	var integerValue: SDAI.INTEGER? {nil}
-//	func arrayOptionalValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.ARRAY_OPTIONAL<ELEMENT>? {nil}
-//	func arrayValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.ARRAY<ELEMENT>? {nil}
-//	func listValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.LIST<ELEMENT>? {nil}
-//	func bagValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.BAG<ELEMENT>? {nil}
-//	func setValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.SET<ELEMENT>? {nil}
-//	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
-//}
 
 public extension SDAIGenericType where Self: SDAIDefinedType
-//where Supertype: SDAIGenericType
 {
 	var typeMembers: Set<SDAI.STRING> {
 		var members = rep.typeMembers
@@ -59,7 +42,6 @@ public extension SDAIGenericType where Self: SDAIDefinedType
 }
 
 public extension SDAIGenericType where Self: SDAIDefinedType
-//where Value == Supertype.Value
 {
 	var value: Value {rep.value}	
 }
@@ -130,7 +112,10 @@ where Supertype: SDAISwiftTypeRepresented, Self: SDAISwiftTypeRepresented, Swift
 
 //MARK: - SDAI namespace
 public enum SDAI {
-	public typealias GENERIC = Any
+	
+	
+	
+	
 	public typealias GENERIC_ENTITY = EntityReference
 
 //	public static let INDETERMINATE: Any? = nil

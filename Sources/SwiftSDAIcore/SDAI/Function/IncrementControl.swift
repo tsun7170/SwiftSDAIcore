@@ -52,33 +52,33 @@ extension SDAI {
 	public static func FROM<T,U,V>(_ bound1: T?, TO bound2: U?, BY increment: V? ) -> IncrementControl<NUMBER>?
 	where T: SDAIDoubleRepresented, U: SwiftDoubleConvertible, V: SwiftDoubleConvertible {
 		return IncrementControl<NUMBER>(bound1: bound1?.asSwiftDouble, 
-																		bound2: bound2?.asSwiftDouble, 
-																		increment: increment?.asSwiftDouble)
+																		bound2: bound2?.possiblyAsSwiftDouble, 
+																		increment: increment?.possiblyAsSwiftDouble)
 	}
 	
 	public static func FROM<T,U,V>(_ bound1: T?, TO bound2: U?, BY increment: V? ) -> IncrementControl<NUMBER>?
 	where T: SwiftDoubleConvertible, U: SDAIDoubleRepresented, V: SwiftDoubleConvertible {
-		return IncrementControl<NUMBER>(bound1: bound1?.asSwiftDouble, 
+		return IncrementControl<NUMBER>(bound1: bound1?.possiblyAsSwiftDouble, 
 																		bound2: bound2?.asSwiftDouble, 
-																		increment: increment?.asSwiftDouble)
+																		increment: increment?.possiblyAsSwiftDouble)
 	}
 	
 	public static func FROM<T,U,V>(_ bound1: T?, TO bound2: U?, BY increment: V? ) -> IncrementControl<NUMBER>?
 	where T: SwiftDoubleConvertible, U: SwiftDoubleConvertible, V: SDAIDoubleRepresented {
-		return IncrementControl<NUMBER>(bound1: bound1?.asSwiftDouble, 
-																		bound2: bound2?.asSwiftDouble, 
+		return IncrementControl<NUMBER>(bound1: bound1?.possiblyAsSwiftDouble, 
+																		bound2: bound2?.possiblyAsSwiftDouble, 
 																		increment: increment?.asSwiftDouble)
 	}
 	
 	public static func FROM<T,U>(_ bound1: T?, TO bound2: U? ) -> IncrementControl<NUMBER>?
 	where T: SDAIDoubleRepresented, U: SwiftDoubleConvertible {
 		return IncrementControl<NUMBER>(bound1: bound1?.asSwiftDouble, 
-																		bound2: bound2?.asSwiftDouble)
+																		bound2: bound2?.possiblyAsSwiftDouble)
 	}
 	
 	public static func FROM<T,U>(_ bound1: T?, TO bound2: U? ) -> IncrementControl<NUMBER>?
 	where T: SwiftDoubleConvertible, U: SDAIDoubleRepresented {
-		return IncrementControl<NUMBER>(bound1: bound1?.asSwiftDouble, 
+		return IncrementControl<NUMBER>(bound1: bound1?.possiblyAsSwiftDouble, 
 																		bound2: bound2?.asSwiftDouble)
 	}
 

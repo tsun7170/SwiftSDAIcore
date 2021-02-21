@@ -20,9 +20,15 @@ public extension SDAI__ARRAY__subtype
 //	}
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
-		guard let fundamental = Fundamental(fromGeneric: generic) else { return nil }
+		guard let fundamental = FundamentalType(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
 	}
+	
+	// InitializableByGenericArray
+	init?<T: SDAI__ARRAY__type>(generic arraytype: T?) {
+		self.init(fundamental: FundamentalType(generic: arraytype))
+	}
+
 	
 	// InitializableBySwifttypeAsArray
 	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2) {

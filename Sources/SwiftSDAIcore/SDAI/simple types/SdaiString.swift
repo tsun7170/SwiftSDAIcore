@@ -7,8 +7,20 @@
 
 import Foundation
 
+//MARK: - String convertible
+public protocol SwiftStringConvertible
+{
+	var possiblyAsSwiftString: String? {get}
+}
 
-public protocol SDAIStringType: SDAISimpleType, ExpressibleByStringLiteral
+extension String: SwiftStringConvertible
+{
+	public var possiblyAsSwiftString: String? { return self }
+}
+
+
+//MARK: - STRING type
+public protocol SDAIStringType: SDAISimpleType, ExpressibleByStringLiteral, SwiftStringConvertible
 where StringLiteralType == String
 {
 	var length: Int {get}
@@ -28,6 +40,10 @@ public extension SDAIStringType
 	func ISLIKE<T:SDAIStringType>(PATTERN substring: T? ) -> SDAI.LOGICAL{
 		return self.ISLIKE(PATTERN: substring?.asSwiftString)
 	}
+}
+public extension SDAIStringType where SwiftType == String
+{
+	var possiblyAsSwiftString: String? { return self.asSwiftType }
 }
 
 public protocol SDAI__STRING__type: SDAIStringType 

@@ -20,8 +20,18 @@ public extension SDAI__ARRAY_OPTIONAL__subtype
 //	}
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
-		guard let fundamental = Fundamental(fromGeneric: generic) else { return nil }
+		guard let fundamental = FundamentalType(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
+	}
+	
+	// InitializableByGenericArray
+	init?<T: SDAI__ARRAY__type>(generic arraytype: T?) {
+		self.init(fundamental: FundamentalType(generic: arraytype))
+	}
+
+	// InitializableByGenericArrayOptional
+	init?<T: SDAI__ARRAY_OPTIONAL__type>(generic arraytype: T?) {
+		self.init(fundamental: FundamentalType(generic: arraytype))
 	}
 	
 	// InitializableByEmptyArrayLiteral

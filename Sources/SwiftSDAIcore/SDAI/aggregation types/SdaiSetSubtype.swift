@@ -21,10 +21,15 @@ public extension SDAI__SET__subtype
 //	}
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
-		guard let fundamental = Fundamental(fromGeneric: generic) else { return nil }
+		guard let fundamental = FundamentalType(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
 	}
 	
+	// InitializableByGenericSet
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, generic settype: T?) {
+		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: settype))
+	}
+
 	// InitializableByEmptyListLiteral
 	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, emptyLiteral) )

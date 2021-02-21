@@ -118,21 +118,40 @@ public func %   <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresentedNumber
 //public func ./. <U: SDAIIntRepresentedNumberType>(lhs: Double?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
 //public func %   <U: SDAIIntRepresentedNumberType>(lhs: Double?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
 
-//MARK: Number vs. Select
-public func +   <T: SDAINumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.NUMBER? { abstruct() }
-public func -   <T: SDAINumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.NUMBER? { abstruct() }
-public func *   <T: SDAINumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.NUMBER? { abstruct() }
-public func /   <T: SDAINumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.NUMBER? { abstruct() }
-public func **  <T: SDAINumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.NUMBER? { abstruct() }
-public func ./. <T: SDAINumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
-public func %   <T: SDAINumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+//MARK: Double vs. Select
+public func +   <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.REAL? { abstruct() }
+public func -   <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.REAL? { abstruct() }
+public func *   <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.REAL? { abstruct() }
+public func /   <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.REAL? { abstruct() }
+public func **  <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.REAL? { abstruct() }
+public func ./. <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+public func %   <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
 
-//MARK: Select vs. Number
-public func +   <T: SDAISelectType, U: SDAINumberType>(lhs: T?, rhs: U?) -> SDAI.NUMBER? { abstruct() }
-public func -   <T: SDAISelectType, U: SDAINumberType>(lhs: T?, rhs: U?) -> SDAI.NUMBER? { abstruct() }
-public func *   <T: SDAISelectType, U: SDAINumberType>(lhs: T?, rhs: U?) -> SDAI.NUMBER? { abstruct() }
-public func /   <T: SDAISelectType, U: SDAINumberType>(lhs: T?, rhs: U?) -> SDAI.NUMBER? { abstruct() }
-public func **  <T: SDAISelectType, U: SDAINumberType>(lhs: T?, rhs: U?) -> SDAI.NUMBER? { abstruct() }
-public func ./. <T: SDAISelectType, U: SDAINumberType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
-public func %   <T: SDAISelectType, U: SDAINumberType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+//MARK: Select vs. Double
+public func +   <T: SDAISelectType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.REAL? { abstruct() }
+public func -   <T: SDAISelectType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.REAL? { abstruct() }
+public func *   <T: SDAISelectType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.REAL? { abstruct() }
+public func /   <T: SDAISelectType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.REAL? { abstruct() }
+public func **  <T: SDAISelectType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.REAL? { abstruct() }
+public func ./. <T: SDAISelectType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+public func %   <T: SDAISelectType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+
+//MARK: Int vs. Select
+public func +   <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+public func -   <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+public func *   <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+public func /   <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.REAL? { abstruct() }
+public func **  <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+public func ./. <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+public func %   <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+
+//MARK: Int vs. Double
+public func +   <T: SDAISelectType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+public func -   <T: SDAISelectType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+public func *   <T: SDAISelectType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+public func /   <T: SDAISelectType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.REAL? { abstruct() }
+public func **  <T: SDAISelectType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+public func ./. <T: SDAISelectType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+public func %   <T: SDAISelectType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { abstruct() }
+
 

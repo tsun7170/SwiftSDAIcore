@@ -21,7 +21,7 @@ public extension SDAI__INTEGER__subtype
 //	}
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
-		guard let fundamental = Fundamental(fromGeneric: generic) else { return nil }
+		guard let fundamental = FundamentalType(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
 	}
 	

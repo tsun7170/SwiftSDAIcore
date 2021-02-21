@@ -126,8 +126,8 @@ public extension InitializableBySelecttypeArrayOptional
 	where T.ELEMENT: SDAISelectType
 	{
 		guard let arraytype = arraytype, 
-					bound1.asSwiftInt == arraytype.loIndex, 
-					bound2.asSwiftInt == arraytype.hiIndex 
+					bound1.possiblyAsSwiftInt == arraytype.loIndex, 
+					bound2.possiblyAsSwiftInt == arraytype.hiIndex 
 		else { return nil }
 		self.init(arraytype)
 	}
@@ -146,8 +146,8 @@ public extension InitializableBySelecttypeArray
 	where T.ELEMENT: SDAISelectType
 	{
 		guard let arraytype = arraytype, 
-					bound1.asSwiftInt == arraytype.loIndex, 
-					bound2.asSwiftInt == arraytype.hiIndex 
+					bound1.possiblyAsSwiftInt == arraytype.loIndex, 
+					bound2.possiblyAsSwiftInt == arraytype.hiIndex 
 		else { return nil }
 		self.init(arraytype)
 	}

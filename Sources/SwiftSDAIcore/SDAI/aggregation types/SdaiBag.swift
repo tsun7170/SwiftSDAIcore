@@ -10,19 +10,27 @@ import Foundation
 
 
 //MARK: - bag type
-public protocol SDAIBagType: SDAIAggregationType, SDAIAggregateIndexingGettable, 
+public protocol SDAIBagType: SDAIAggregationType, //SDAIAggregateIndexingGettable, 
 														 SDAIUnderlyingType, SDAISwiftTypeRepresented,
-														 InitializableByEmptyListLiteral, InitializableBySwifttypeAsList, InitializableBySelecttypeAsList, InitializableByListLiteral
+														 InitializableByEmptyListLiteral, InitializableBySwifttypeAsList, InitializableBySelecttypeAsList, InitializableByListLiteral, InitializableByGenericSet
 where ELEMENT: SDAIGenericType
 {
 	mutating func add(member: ELEMENT?)
 	mutating func remove(member: ELEMENT?)
 }
 
-
+//MARK: - bag subtypes
+public extension SDAIDefinedType
+where Self: SDAIBagType,
+			Supertype: SDAIBagType,
+			ELEMENT == Supertype.ELEMENT
+{
+	mutating func add(member: ELEMENT?) { rep.add(member: member) }
+	mutating func remove(member: ELEMENT?) { rep.remove(member: member) }
+}
 
 //MARK: - BAG type
-public protocol SDAI__BAG__type: SDAIBagType
+public protocol SDAI__BAG__type: SDAIBagType, InitializableByGenericBag
 where Element == ELEMENT,
 			FundamentalType == SDAI.BAG<ELEMENT>,
 			Value == FundamentalType.Value,
@@ -73,7 +81,12 @@ extension SDAI {
 		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
 		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
-		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+
+		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {
+			if let value = self as? BAG<ELEM> { return value }
+			return BAG<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM(fromGeneric: $0) }
+		}
+
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
@@ -130,8 +143,8 @@ extension SDAI {
 		internal init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(bound1: I1, bound2: I2?, _ elements: [S], conv: (S.Element) -> ELEMENT? )
 		{
 			var swiftValue = SwiftType()
-			if let hi = bound2 {
-				swiftValue.reserveCapacity(hi.asSwiftInt)
+			if let hi = bound2?.possiblyAsSwiftInt {
+				swiftValue.reserveCapacity(hi)
 			}
 			for aie in elements {
 				for elem in aie {
@@ -154,6 +167,18 @@ extension SDAI {
 			self.init(fundamental: fundamental)
 		}
 
+		// InitializableByGenericSet
+		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, generic settype: T?) {
+			guard let settype = settype else { return nil }
+			self.init(bound1: bound1, bound2: bound2, [settype]){ELEMENT(fromGeneric: $0)}
+		}
+
+		// InitializableByGenericBag
+		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, generic bagtype: T?) {
+			guard let bagtype = bagtype else { return nil }
+			self.init(bound1: bound1, bound2: bound2, [bagtype]){ELEMENT(fromGeneric: $0)}
+		}
+
 		// InitializableByEmptyListLiteral
 		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
 			self.init(from: SwiftType(), bound1: bound1, bound2: bound2)
@@ -161,8 +186,8 @@ extension SDAI {
 
 		// InitializableBySwifttypeAsList
 		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2?) {
-			self.bound1 = bound1.asSwiftInt
-			self.bound2 = bound2?.asSwiftInt
+			self.bound1 = bound1.possiblyAsSwiftInt ?? 0
+			self.bound2 = bound2?.possiblyAsSwiftInt
 			self.rep = swiftValue
 		}
 

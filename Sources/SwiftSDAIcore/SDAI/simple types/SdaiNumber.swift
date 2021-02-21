@@ -22,50 +22,53 @@ public protocol SDAIIntRepresented
 	var asSwiftInt: Int {get}
 }
 
+
 //MARK: - Double convertible
 public protocol SwiftDoubleConvertible
 {
-	var asSwiftDouble: Double {get}
+	var possiblyAsSwiftDouble: Double? {get}
 }
 
 extension Double: SwiftDoubleConvertible, SDAIDoubleRepresented
 {
 	public var asSwiftDouble: Double { return self }
+	public var possiblyAsSwiftDouble: Double? { return self }
 }
 
 extension Int: SwiftDoubleConvertible
 {
-	public var asSwiftDouble: Double { return Double(self) }
+	public var possiblyAsSwiftDouble: Double? { return Double(self) }
 }
 
 public extension SwiftDoubleConvertible
 where Self: SDAIDoubleRepresentedNumberType
 {
-	var asSwiftDouble: Double { return self.asSwiftType }
+	var possiblyAsSwiftDouble: Double? { return self.asSwiftType }
 }
 
 public extension SwiftDoubleConvertible
 where Self: SDAIIntRepresentedNumberType
 {
-	var asSwiftDouble: Double { return Double(self.asSwiftType) }
+	var possiblyAsSwiftDouble: Double? { return Double(self.asSwiftType) }
 }
 
 
 //MARK: - Int convertible
 public protocol SwiftIntConvertible
 {
-	var asSwiftInt: Int {get}
+	var possiblyAsSwiftInt: Int? {get}
 }
 
 extension Int: SwiftIntConvertible, SDAIIntRepresented
 {
 	public var asSwiftInt: Int { return self }
+	public var possiblyAsSwiftInt: Int? { return self }
 }
 
 public extension SwiftIntConvertible
 where Self: SDAIIntRepresentedNumberType
 {
-	var asSwiftInt: Int { return self.asSwiftType }
+	var possiblyAsSwiftInt: Int? { return self.asSwiftType }
 }
 
 
@@ -91,12 +94,12 @@ where FundamentalType == SDAI.NUMBER,
 {
 	init?(_ double: Double?)
 	init(_ double: Double)
-	init?<T:SDAINumberType>(_ subtype: T?)
-	init<T:SDAINumberType>(_ subtype: T)
+	init?<T:SDAIDoubleRepresentedNumberType>(_ subtype: T?)
+	init<T:SDAIDoubleRepresentedNumberType>(_ subtype: T)
 }
 public extension SDAI__NUMBER__type
 {
-//	var asSwiftDouble: Double { return self.asSwiftType }
+	var asSwiftDouble: Double { return self.asSwiftType }
 
 	init?(_ double: Double?) {
 		guard let double = double else { return nil }
@@ -108,11 +111,11 @@ public extension SDAI__NUMBER__type
 	init(floatLiteral value: Double) {
 		self.init(value)
 	}
-	init?<T:SDAINumberType>(_ subtype: T?) {
+	init?<T:SDAIDoubleRepresentedNumberType>(_ subtype: T?) {
 		guard let subtype = subtype else { return nil }
 		self.init(subtype)
 	}
-	init<T:SDAINumberType>(_ subtype: T) {
+	init<T:SDAIDoubleRepresentedNumberType>(_ subtype: T) {
 		self.init(subtype.asSwiftDouble)
 	}
 }
@@ -175,7 +178,7 @@ extension SDAI {
 		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
-			if let rhs = rhs as? SwiftDoubleConvertible { return self.asSwiftDouble == rhs.asSwiftDouble }
+			if let rhs = rhs as? SwiftDoubleConvertible { return self.asSwiftDouble == rhs.possiblyAsSwiftDouble }
 			return false
 		}
 	}	

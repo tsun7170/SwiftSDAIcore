@@ -20,3 +20,16 @@ public extension SDAIValue
 	}
 }
 
+
+//MARK: - Generic Value
+extension SDAI
+{
+	public typealias GenericValue = AnyHashable	
+}
+
+extension SDAI.GenericValue: SDAIValue
+{
+	public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool {
+		return self == rhs as AnyHashable
+	}
+}

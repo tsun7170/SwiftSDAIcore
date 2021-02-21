@@ -63,8 +63,15 @@ extension SDAI {
 		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
 		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
-		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
-		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+
+		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {
+			return BAG<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM(fromGeneric: $0) }
+		}
+		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {
+			if let value = self as? SET<ELEM> { return value }
+			return SET<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM(fromGeneric: $0) }
+		}
+
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		
@@ -120,8 +127,8 @@ extension SDAI {
 		private init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(bound1: I1, bound2: I2?, _ elements: [S], conv: (S.Element) -> ELEMENT? )
 		{
 			var swiftValue = SwiftType()
-			if let hi = bound2 {
-				swiftValue.reserveCapacity(hi.asSwiftInt)
+			if let hi = bound2?.possiblyAsSwiftInt {
+				swiftValue.reserveCapacity(hi)
 			}
 			for aie in elements {
 				for elem in aie {
@@ -143,6 +150,12 @@ extension SDAI {
 			guard let fundamental = generic?.setValue(elementType: ELEMENT.self) else { return nil }
 			self.init(fundamental: fundamental)
 		}
+		
+		// InitializableByGenericSet
+		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, generic settype: T?) {
+			guard let settype = settype else { return nil }
+			self.init(bound1: bound1, bound2: bound2, [settype]){ELEMENT(fromGeneric: $0)}
+		}
 
 		// InitializableByEmptyListLiteral
 		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
@@ -151,8 +164,8 @@ extension SDAI {
 
 		// InitializableBySwifttypeAsList
 		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2?) {
-			self.bound1 = bound1.asSwiftInt
-			self.bound2 = bound2?.asSwiftInt
+			self.bound1 = bound1.possiblyAsSwiftInt ?? 0
+			self.bound2 = bound2?.possiblyAsSwiftInt
 			self.rep = swiftValue
 		}
 		

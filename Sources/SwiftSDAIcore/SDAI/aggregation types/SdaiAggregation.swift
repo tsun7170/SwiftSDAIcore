@@ -7,19 +7,70 @@
 
 import Foundation
 
+//MARK: - aggregation indexing
 public protocol SDAIAggregateIndexingGettable {
 	associatedtype ELEMENT
 	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {get}
 	subscript(index: Int?) -> ELEMENT? {get}
 }
-public protocol SDAIAggregateIndexingSettable {
+public protocol SDAIAggregateIndexingSettable: SDAIAggregateIndexingGettable {
 	associatedtype ELEMENT
 	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {get set}
 	subscript(index: Int?) -> ELEMENT? {get set}
 }
 
+public extension SDAIAggregateIndexingGettable
+{
+	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
+		get{
+			return self[index?.asSwiftType]
+		}
+	}
+}
+
+public extension SDAIAggregateIndexingSettable
+{
+	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
+		get{
+			return self[index?.asSwiftType]
+		}
+		set{
+			self[index?.asSwiftType] = newValue
+		}
+	}
+}
+
+
+//MARK: - aggregation behavior
+public protocol SDAIAggregationBehavior {
+	var aggregationHiBound: Int? {get}
+	var aggregationHiIndex: Int? {get}
+	var aggregationLoBound: Int? {get}
+	var aggregationLoIndex: Int? {get}
+	var aggregationSize: Int? {get}
+}
+
+public extension SDAIAggregationType
+{
+	var aggregationHiBound: Int? { self.hiBound }
+	var aggregationHiIndex: Int? { self.hiIndex }
+	var aggregationLoBound: Int? { self.loBound }
+	var aggregationLoIndex: Int? { self.loIndex }
+	var aggregationSize: Int? { self.size }
+}
+
+public extension SDAIAggregationBehavior where Self: SDAIDefinedType, Supertype: SDAISelectType
+{
+	var aggregationHiBound: Int? { rep.aggregationHiBound }
+	var aggregationHiIndex: Int? { rep.aggregationHiIndex }
+	var aggregationLoBound: Int? { rep.aggregationLoBound }
+	var aggregationLoIndex: Int? { rep.aggregationLoIndex }
+	var aggregationSize   : Int? { rep.aggregationSize    }
+}
+
+
 //MARK: - Aggregation type
-public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Sequence
+public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Sequence, SDAIAggregateIndexingGettable, SDAIAggregationBehavior
 {	
 	associatedtype ELEMENT
 	
@@ -43,31 +94,17 @@ public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Seq
 	var _observer: EntityReferenceObserver? { get set }
 }
 
+//MARK: - generic aggregate
+extension SDAI {
+	public typealias AGGREGATE<ELEMENT> = LIST<ELEMENT> where ELEMENT : SDAIGenericType
+}
+
+
+//MARK: - aggregation iteration
 extension SDAI {
 	public enum IterControl {
 		case next
 		case stop
-	}
-}
-
-public extension SDAIAggregateIndexingGettable
-{
-	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
-		get{
-			return self[index?.asSwiftType]
-		}
-	}
-}
-
-public extension SDAIAggregateIndexingSettable
-{
-	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
-		get{
-			return self[index?.asSwiftType]
-		}
-		set{
-			self[index?.asSwiftType] = newValue
-		}
 	}
 }
 

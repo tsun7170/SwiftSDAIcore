@@ -8,17 +8,10 @@
 import Foundation
 
 //MARK: - Underlying Type base
-public protocol SDAISelectCompatibleUnderlyingTypeBase: SDAIGenericType
+public protocol SDAISelectCompatibleUnderlyingTypeBase: SDAIGenericType where FundamentalType: SDAISelectCompatibleUnderlyingTypeBase
 {
-	associatedtype FundamentalType: SDAISelectCompatibleUnderlyingTypeBase
-//	associatedtype SwiftType//: SDAISwiftType
-	
 	static var typeName: String {get}
-
-	var asFundamentalType: FundamentalType {get}
-//	var asSwiftType: SwiftType {get}
-	
-//	init?(fundamental: FundamentalType?)
+	var asFundamentalType: FundamentalType {get}	
 	init(fundamental: FundamentalType)
 }
 public extension SDAISelectCompatibleUnderlyingTypeBase

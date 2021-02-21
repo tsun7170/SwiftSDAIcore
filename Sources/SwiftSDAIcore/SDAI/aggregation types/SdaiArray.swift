@@ -65,8 +65,18 @@ extension SDAI {
 		public var numberValue: SDAI.NUMBER? {nil}
 		public var realValue: SDAI.REAL? {nil}
 		public var integerValue: SDAI.INTEGER? {nil}
-		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
-		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+		
+		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {
+			return ARRAY_OPTIONAL<ELEM>(bound1: self.loIndex, bound2: self.hiIndex, [self]) {
+				guard let conv = ELEM(fromGeneric: $0) else { return (false,nil) }
+				return (true, conv)
+			}
+		}
+		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {
+			if let value = self as? ARRAY<ELEM> { return value }
+			return ARRAY<ELEM>(bound1: self.loIndex, bound2: self.hiIndex, [self]) { ELEM(fromGeneric: $0) }
+		}
+		
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
 		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
@@ -124,7 +134,9 @@ extension SDAI {
 		private init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(bound1: I1, bound2: I2, _ elements: [S], conv: (S.Element) -> ELEMENT? )
 		{
 			var swiftValue = SwiftType()
-			swiftValue.reserveCapacity(bound2.asSwiftInt - bound1.asSwiftInt + 1)
+			if let b2 = bound2.possiblyAsSwiftInt, let b1 = bound1.possiblyAsSwiftInt {
+				swiftValue.reserveCapacity(b2 - b1 + 1)
+			}
 			for aie in elements {
 				for elem in aie {
 					guard let converted = conv(elem) else { return nil }
@@ -146,11 +158,17 @@ extension SDAI {
 			self.init(fundamental: fundamental)
 		}
 
+		// InitializableByGenericArray
+		public init?<T: SDAI__ARRAY__type>(generic arraytype: T?) {
+			guard let arraytype = arraytype else { return nil }
+			self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { ELEMENT(fromGeneric: $0) }
+		}
+		
 		
 		// InitializableBySwifttypeAsArray
 		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2) {
-			self.bound1 = bound1.asSwiftInt
-			self.bound2 = bound2.asSwiftInt
+			self.bound1 = bound1.possiblyAsSwiftInt!
+			self.bound2 = bound2.possiblyAsSwiftInt!
 			self.rep = swiftValue
 			assert(rep.count == self.size)
 		} 

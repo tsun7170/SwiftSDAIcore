@@ -104,8 +104,8 @@ public extension InitializableByDefinedtypeArrayOptional
 	where T.ELEMENT: SDAIUnderlyingType
 	{
 		guard let arraytype = arraytype, 
-					bound1.asSwiftInt == arraytype.loIndex, 
-					bound2.asSwiftInt == arraytype.hiIndex 
+					bound1.possiblyAsSwiftInt == arraytype.loIndex, 
+					bound2.possiblyAsSwiftInt == arraytype.hiIndex 
 		else { return nil }
 		self.init(arraytype)
 	}
@@ -124,8 +124,8 @@ public extension InitializableByDefinedtypeArray
 	where T.ELEMENT: SDAIUnderlyingType
 	{
 		guard let arraytype = arraytype, 
-					bound1.asSwiftInt == arraytype.loIndex, 
-					bound2.asSwiftInt == arraytype.hiIndex 
+					bound1.possiblyAsSwiftInt == arraytype.loIndex, 
+					bound2.possiblyAsSwiftInt == arraytype.hiIndex 
 		else { return nil }
 		self.init(arraytype)
 	}

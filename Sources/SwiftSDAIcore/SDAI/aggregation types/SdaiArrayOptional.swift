@@ -12,13 +12,13 @@ import Foundation
 //MARK: - array optional type
 public protocol SDAIArrayOptionalType: SDAIAggregationType, SDAIAggregateIndexingSettable,
 																			 SDAIUnderlyingType, SDAISwiftTypeRepresented,
-																			 InitializableBySwifttypeAsArray, InitializableByArrayLiteral
+																			 InitializableBySwifttypeAsArray, InitializableByArrayLiteral, InitializableByGenericArray
 where ELEMENT: SDAIGenericType
 {}
 
 
 //MARK: - ARRAY_OPTIONAL type
-public protocol SDAI__ARRAY_OPTIONAL__type: SDAIArrayOptionalType, InitializableByEmptyArrayLiteral
+public protocol SDAI__ARRAY_OPTIONAL__type: SDAIArrayOptionalType, InitializableByEmptyArrayLiteral, InitializableByGenericArrayOptional
 where Element == ELEMENT?,
 			FundamentalType == SDAI.ARRAY_OPTIONAL<ELEMENT>,
 			Value == FundamentalType.Value,
@@ -71,7 +71,16 @@ extension SDAI {
 		public var numberValue: SDAI.NUMBER? {nil}
 		public var realValue: SDAI.REAL? {nil}
 		public var integerValue: SDAI.INTEGER? {nil}
-		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+		
+		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {
+			if let value = self as? ARRAY_OPTIONAL<ELEM> { return value }
+			return ARRAY_OPTIONAL<ELEM>(bound1: self.loIndex, bound2: self.hiIndex, [self]) { 
+					if( $0 == nil ) { return (true,nil) }
+					guard let conv = ELEM(fromGeneric: $0) else { return (false,nil) }
+					return (true, conv)
+				}
+		}
+		
 		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
 		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
@@ -125,19 +134,17 @@ extension SDAI {
 		}
 				
 		// ARRAY_OPTIONAL specific
-		internal init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(bound1: I1, bound2: I2, _ elements: [S], conv: (S.Element) -> ELEMENT? )
+		internal init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(bound1: I1, bound2: I2, _ elements: [S], conv: (S.Element) -> (Bool,ELEMENT?) )
 		{
 			var swiftValue = SwiftType()
-			swiftValue.reserveCapacity(bound2.asSwiftInt - bound1.asSwiftInt + 1)
+			if let b2 = bound2.possiblyAsSwiftInt, let b1 = bound1.possiblyAsSwiftInt {
+				swiftValue.reserveCapacity(b2 - b1 + 1)
+			}
 			for aie in elements {
 				for elem in aie {
-					if( let elem = elem ){
-						guard let converted = conv(elem) else { return nil }
-						swiftValue.append( converted )
-					}
-					else{
-						swiftValue.append( conv(elem) )
-					}
+						let (good,converted) = conv(elem)
+					if good { swiftValue.append( converted ) }
+					else { return nil }
 				}
 			}
 			self.init(from: swiftValue, bound1: bound1, bound2: bound2)
@@ -155,22 +162,42 @@ extension SDAI {
 			self.init(fundamental: fundamental)
 		}
 
+		// InitializableByGenericArray
+		public init?<T: SDAI__ARRAY__type>(generic arraytype: T?) {
+			guard let arraytype = arraytype else { return nil }
+			self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]){ 
+				guard let conv = ELEMENT(fromGeneric: $0) else { return (false,nil) }
+				return (true, conv)				
+			}
+		} 
+
+		// InitializableByGenericArrayOptional
+		public init?<T: SDAI__ARRAY_OPTIONAL__type>(generic arraytype: T?) {
+			guard let arraytype = arraytype else { return nil }
+			self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { 
+				if( $0 == nil ) { return (true,nil) }
+				guard let conv = ELEMENT(fromGeneric: $0) else { return (false,nil) }
+				return (true, conv)
+			}
+		}
+		
+		
 		// InitializableByEmptyArrayLiteral
 		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
-			self.init(from: SwiftType(repeating: nil, count: bound2.asSwiftInt - bound1.asSwiftInt + 1), bound1: bound1, bound2: bound2)
+			self.init(from: SwiftType(repeating: nil, count: bound2.possiblyAsSwiftInt! - bound1.possiblyAsSwiftInt! + 1), bound1: bound1, bound2: bound2)
 		} 
 		
 		// InitializableBySwifttypeAsArray
 		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2) {
-			self.bound1 = bound1.asSwiftInt
-			self.bound2 = bound2.asSwiftInt
+			self.bound1 = bound1.possiblyAsSwiftInt!
+			self.bound2 = bound2.possiblyAsSwiftInt!
 			self.rep = swiftValue
 			assert(rep.count == self.size)
 		} 
 		
 		// InitializableByArrayLiteral
 		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) {
-			self.init(bound1: bound1, bound2: bound2, elements){ $0 }
+			self.init(bound1: bound1, bound2: bound2, elements){ (true,$0) }
 		} 
 	}
 }
@@ -192,14 +219,21 @@ where ELEMENT: InitializableBySelecttype
 	where T.ELEMENT: SDAISelectType
 	{
 		guard let arraytype = arraytype else { return nil }
-		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]){ ELEMENT(possiblyFrom: $0) }
+		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]){ 
+			if( $0 == nil ) { return (true,nil) }
+			guard let conv = ELEMENT(possiblyFrom: $0) else { return (false,nil) }
+			return (true, conv)
+		}
 	}
 	
 	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAISelectType
 	{
 		guard let arraytype = arraytype else { return nil }
-		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]){ ELEMENT(possiblyFrom: $0) }
+		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]){ 
+			guard let conv = ELEMENT(possiblyFrom: $0) else { return (false,nil) }
+			return (true, conv)
+		}
 	}
 }
 
@@ -216,14 +250,21 @@ where ELEMENT: InitializableByEntity
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		guard let arraytype = arraytype else { return nil }
-		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { ELEMENT(possiblyFrom: $0) }
+		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { 
+			if( $0 == nil ) { return (true,nil) }
+			guard let conv = ELEMENT(possiblyFrom: $0) else { return (false,nil) }
+			return (true, conv)
+		}
 	}
 	
 	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		guard let arraytype = arraytype else { return nil }
-		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { ELEMENT(possiblyFrom: $0) }
+		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { 
+			guard let conv = ELEMENT(possiblyFrom: $0) else { return (false,nil) }
+			return (true, conv)
+		}
 	}			
 }
 
@@ -241,14 +282,21 @@ where ELEMENT: InitializableByDefinedtype
 	 where T.ELEMENT: SDAIUnderlyingType
 	 {
 		guard let arraytype = arraytype else { return nil }
-		 self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { ELEMENT(possiblyFrom: $0) }
+		 self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { 
+			if( $0 == nil ) { return (true,nil) }
+			guard let conv = ELEMENT(possiblyFrom: $0) else { return (false,nil) }
+			return (true, conv)
+		}
 	 }
 	
 	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType
 	{
 		guard let arraytype = arraytype else { return nil }
-		self.init(bound1:arraytype.loIndex, bound2:arraytype.hiIndex, [arraytype]) { ELEMENT(possiblyFrom: $0) }
+		self.init(bound1:arraytype.loIndex, bound2:arraytype.hiIndex, [arraytype]) { 
+			guard let conv = ELEMENT(possiblyFrom: $0) else { return (false,nil) }
+			return (true, conv)
+		}
 	}
 }
 

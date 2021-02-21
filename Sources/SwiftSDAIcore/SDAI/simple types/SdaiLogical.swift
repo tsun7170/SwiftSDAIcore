@@ -7,18 +7,18 @@
 
 import Foundation
 
-public protocol SwiftBoolOptionalConvertible
+public protocol SwiftBoolConvertible
 {
-	var asSwiftBoolOptional: Bool? {get}
+	var possiblyAsSwiftBool: Bool? {get}
 }
 
 
 //MARK: - LOGICAL type
-public protocol SDAILogicalType: SDAISimpleType, ExpressibleByBooleanLiteral, SwiftBoolOptionalConvertible
+public protocol SDAILogicalType: SDAISimpleType, ExpressibleByBooleanLiteral, SwiftBoolConvertible
 {
 	var isTRUE: Bool {get}
 	var isnotTRUE: Bool {get}
-	var asSwiftBoolOptional: Bool? {get}
+	var possiblyAsSwiftBool: Bool? {get}
 }
 public extension SDAILogicalType
 {
@@ -36,7 +36,7 @@ where FundamentalType == SDAI.LOGICAL,
 }
 public extension SDAI__LOGICAL__type
 {
-	var asSwiftBoolOptional: Bool? { return self.asSwiftType }
+	var possiblyAsSwiftBool: Bool? { return self.asSwiftType }
 	var isTRUE: Bool { return self.asSwiftType ?? false }
 
 	init(booleanLiteral value: Bool) {
@@ -46,10 +46,10 @@ public extension SDAI__LOGICAL__type
 		self.init(nil)
 	}
 	init<T:SDAILogicalType>(_ subtype: T?) {
-		self.init(subtype?.asSwiftBoolOptional)
+		self.init(subtype?.possiblyAsSwiftBool)
 	}
 	init<T:SDAILogicalType>(_ subtype: T) {
-		self.init(subtype.asSwiftBoolOptional)
+		self.init(subtype.possiblyAsSwiftBool)
 	}
 }
 
@@ -111,7 +111,7 @@ extension SDAI {
 		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
-			if let rhs = rhs as? SwiftBoolOptionalConvertible { return self.asSwiftBoolOptional == rhs.asSwiftBoolOptional }
+			if let rhs = rhs as? SwiftBoolConvertible { return self.possiblyAsSwiftBool == rhs.possiblyAsSwiftBool }
 			return false
 		}
 	}

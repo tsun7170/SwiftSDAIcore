@@ -21,9 +21,16 @@ public extension SDAI__LIST__subtype
 //	}
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
-		guard let fundamental = Fundamental(fromGeneric: generic) else { return nil }
+		guard let fundamental = FundamentalType(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
 	}
+	
+	// InitializableByGenericList
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, generic listtype: T?) 
+	{
+		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: listtype))
+	}
+
 	
 	// InitializableByEmptyListLiteral
 	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {

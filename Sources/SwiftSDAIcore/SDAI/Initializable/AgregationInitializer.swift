@@ -57,20 +57,20 @@ public extension SDAI {
 	
 	//MARK: SDAIGenericType AIE
 	static func AIE<E:SDAIGenericType, I:SwiftIntConvertible>(_ element: E, repeat n: I) -> AggregationInitializerElement<E> {
-		return repeatElement(element as E?, count: n.asSwiftInt)
+		return repeatElement(element as E?, count: n.possiblyAsSwiftInt ?? 1)
 	}
 	static func AIE<E:SDAIGenericType, I:SwiftIntConvertible>(_ element: E, repeat n: I?) -> AggregationInitializerElement<E> {
-		return repeatElement(element as E?, count: n!.asSwiftInt)
+		return repeatElement(element as E?, count: n!.possiblyAsSwiftInt ?? 1)
 	}
 	static func AIE<E:SDAIGenericType>(_ element: E) -> AggregationInitializerElement<E> {
 		return AIE(element, repeat: 1)
 	}
 	
 	static func AIE<E:SDAIGenericType, I:SwiftIntConvertible>(_ element: E?, repeat n: I) -> AggregationInitializerElement<E> {
-		return repeatElement(element, count: n.asSwiftInt)
+		return repeatElement(element, count: n.possiblyAsSwiftInt ?? 1)
 	}
 	static func AIE<E:SDAIGenericType, I:SwiftIntConvertible>(_ element: E?, repeat n: I?) -> AggregationInitializerElement<E> {
-		return repeatElement(element, count: n!.asSwiftInt)
+		return repeatElement(element, count: n!.possiblyAsSwiftInt ?? 1)
 	}
 	static func AIE<E:SDAIGenericType>(_ element: E?) -> AggregationInitializerElement<E> {
 		return AIE(element, repeat: 1)
@@ -78,20 +78,20 @@ public extension SDAI {
 
 	//MARK: SwiftType AIE
 	static func AIE<E:SDAISwiftType, I:SwiftIntConvertible>(_ element: E, repeat n: I) -> AggregationInitializerElement<E> {
-		return repeatElement(element as E?, count: n.asSwiftInt)
+		return repeatElement(element as E?, count: n.possiblyAsSwiftInt ?? 1)
 	}
 	static func AIE<E:SDAISwiftType, I:SwiftIntConvertible>(_ element: E, repeat n: I?) -> AggregationInitializerElement<E> {
-		return repeatElement(element as E?, count: n!.asSwiftInt)
+		return repeatElement(element as E?, count: n!.possiblyAsSwiftInt ?? 1)
 	}
 	static func AIE<E:SDAISwiftType>(_ element: E) -> AggregationInitializerElement<E> {
 		return AIE(element, repeat: 1)
 	}
 	
 	static func AIE<E:SDAISwiftType, I:SwiftIntConvertible>(_ element: E?, repeat n: I) -> AggregationInitializerElement<E> {
-		return repeatElement(element, count: n.asSwiftInt)
+		return repeatElement(element, count: n.possiblyAsSwiftInt ?? 1)
 	}
 	static func AIE<E:SDAISwiftType, I:SwiftIntConvertible>(_ element: E?, repeat n: I?) -> AggregationInitializerElement<E> {
-		return repeatElement(element, count: n!.asSwiftInt)
+		return repeatElement(element, count: n!.possiblyAsSwiftInt ?? 1)
 	}
 	static func AIE<E:SDAISwiftType>(_ element: E?) -> AggregationInitializerElement<E> {
 		return AIE(element, repeat: 1)

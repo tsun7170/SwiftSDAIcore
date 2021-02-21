@@ -26,7 +26,7 @@ where FundamentalType == SDAI.BOOLEAN,
 }
 public extension SDAI__BOOLEAN__type
 {
-	var asSwiftBoolOptional: Bool? { return self.asSwiftType }
+	var possiblyAsSwiftBool: Bool? { return self.asSwiftType }
 	var isTRUE: Bool { return self.asSwiftType }
 
 	init?(_ bool: Bool?) {
@@ -109,7 +109,7 @@ extension SDAI {
 		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
-			if let rhs = rhs as? SwiftBoolOptionalConvertible { return self.asSwiftBoolOptional == rhs.asSwiftBoolOptional }
+			if let rhs = rhs as? SwiftBoolConvertible { return self.possiblyAsSwiftBool == rhs.possiblyAsSwiftBool }
 			return false
 		}
 	}
