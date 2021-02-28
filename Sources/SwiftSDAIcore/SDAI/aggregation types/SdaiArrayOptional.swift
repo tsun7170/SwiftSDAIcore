@@ -196,14 +196,17 @@ extension SDAI {
 		} 
 		
 		// InitializableByArrayLiteral
-		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) {
-			self.init(bound1: bound1, bound2: bound2, elements){ (true,$0) }
+		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) {
+			self.init(bound1: bound1, bound2: bound2, elements){ 
+				if let elem = ELEMENT(fromGeneric: $0){ return (true,elem) }
+				else{ return (false,nil) }
+			}
 		} 
 	}
 }
 
 
-extension SDAI.ARRAY_OPTIONAL: SDAIObservableAggregate
+extension SDAI.ARRAY_OPTIONAL: SDAIObservableAggregate, SDAIObservableAggregateElement
 where ELEMENT: SDAIObservableAggregateElement
 {}
 

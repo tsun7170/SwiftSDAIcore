@@ -179,13 +179,16 @@ where ELEMENT: SDAISwiftType
 //MARK: - from list literal (with optional bounds)
 public protocol InitializableByListLiteral
 {
-	associatedtype ELEMENT
+//	associatedtype ELEMENT: SDAIGenericType
 	
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) 
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
+//	where E.FundamentalType == ELEMENT.FundamentalType
 }
 public extension InitializableByListLiteral
 {
-	init?(_ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) {
+	init?<E: SDAIGenericType>(_ elements: [SDAI.AggregationInitializerElement<E>]) 
+//	where E.FundamentalType == ELEMENT.FundamentalType
+	{
 		self.init(bound1: 0, bound2: nil as Int?, elements)
 	}
 }
@@ -193,7 +196,8 @@ public extension InitializableByListLiteral
 //MARK: - from array literal (with required bounds)
 public protocol InitializableByArrayLiteral
 {
-	associatedtype ELEMENT
+//	associatedtype ELEMENT: SDAIGenericType
 
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) 	
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 	
+//	where E.FundamentalType == ELEMENT.FundamentalType
 }

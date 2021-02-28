@@ -166,17 +166,24 @@ where ELEMENT: InitializableBySwifttype
 
 
 //MARK: - extension for EntityReferenceObserver
-public protocol SDAIObservableAggregate: SDAIAggregationType 
+public protocol SDAIObservableAggregateElement
+{
+	var entityReferences: AnySequence<SDAI.EntityReference> { get }
+}
+
+public extension SDAIDefinedType
+where Self: SDAIObservableAggregateElement,
+			Supertype: SDAIObservableAggregateElement
+{
+	var entityReferences: AnySequence<SDAI.EntityReference> { return rep.entityReferences }
+}
+
+public protocol SDAIObservableAggregate: SDAIAggregationType, SDAIObservableAggregateElement 
 where ELEMENT: SDAIObservableAggregateElement
 {
 	var observer: EntityReferenceObserver? {get set}
 	func teardown()
 	mutating func resetObserver()
-}
-
-public protocol SDAIObservableAggregateElement
-{
-	var entityReference: SDAI.EntityReference? { get }
 }
 
 public extension SDAIObservableAggregate 
@@ -189,7 +196,9 @@ public extension SDAIObservableAggregate
 			_observer = newValue
 			if let entityObserver = newValue {
 				self.forEachELEMENT { elem in
-					entityObserver( nil, elem.entityReference )
+					for entityRef in elem.entityReferences {
+						entityObserver( nil, entityRef )
+					}
 					return .next
 				}
 			}
@@ -199,7 +208,9 @@ public extension SDAIObservableAggregate
 	func teardown() {
 		if let entityObserver = observer {
 			self.forEachELEMENT { elem in
-				entityObserver( elem.entityReference, nil )
+				for entityRef in elem.entityReferences {
+					entityObserver( entityRef, nil )
+				}
 				return .next
 			}
 		}
@@ -207,9 +218,22 @@ public extension SDAIObservableAggregate
 	
 	mutating func resetObserver() {
 		_observer = nil
+	}	
+}
+
+public extension SDAIObservableAggregate where Element == ELEMENT
+{
+	var entityReferences: AnySequence<SDAI.EntityReference> { 
+		AnySequence<SDAI.EntityReference>(self.lazy.flatMap { $0.entityReferences })
 	}
 }
 
+public extension SDAIObservableAggregate where Element == ELEMENT?
+{
+	var entityReferences: AnySequence<SDAI.EntityReference> { 
+		AnySequence<SDAI.EntityReference>(self.lazy.compactMap{$0}.flatMap { $0.entityReferences })
+	}
+}
 
 
 //MARK: - aggregation subtypes

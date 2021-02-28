@@ -59,8 +59,11 @@ fileprivate class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {
 	override func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { _base.enumValue(enumType: enumType) }
 }
 
+public protocol SDAI__GENERIC__type: SDAIGenericType
+{}
+
 extension SDAI {
-	public struct GENERIC: SDAIGenericType {		
+	public struct GENERIC: SDAI__GENERIC__type {		
 		public typealias FundamentalType = Self
 		public typealias Value = GenericValue
 		private let box: _AnyGenericBox

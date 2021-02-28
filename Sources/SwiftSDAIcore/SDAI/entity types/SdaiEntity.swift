@@ -194,6 +194,11 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
+		// SDAIObservableAggregateElement
+		public var entityReferences: AnySequence<SDAI.EntityReference> { 
+			AnySequence<SDAI.EntityReference>(CollectionOfOne<SDAI.EntityReference>(self))
+		}
+
 		
 //		// InitializableByEntity
 //		public required convenience init?(possiblyFrom complex: SDAI.ComplexEntity?) {

@@ -176,15 +176,15 @@ extension SDAI {
 		}
 
 		// InitializableByListLiteral
-		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<ELEMENT>]) {
-			self.init(bound1: bound1, bound2: bound2, elements){ $0 }
+		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E:SDAIGenericType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
+			self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(fromGeneric: $0) }
 		} 
 
 	}
 }
 
 
-extension SDAI.SET: SDAIObservableAggregate
+extension SDAI.SET: SDAIObservableAggregate, SDAIObservableAggregateElement
 where ELEMENT: SDAIObservableAggregateElement
 {}
 
