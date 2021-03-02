@@ -218,6 +218,16 @@ extension SDAI {
 			super.init()
 		}
 		
+		// SDAI.GENERIC_ENTITY
+		public init(_ entityRef: EntityReference) {
+			self.complexEntity = entityRef.complexEntity
+			super.init()
+		}
+		public init?(_ entityRef: EntityReference?) {
+			guard let entityRef = entityRef else { return nil }
+			self.init(entityRef)
+		}
+		
 //		public required convenience init?<S: SDAISelectType>(possiblyFrom select: S?) {
 //			self.init(fromGeneric: select)
 ////			guard let entityRef = select?.entityReference else { return nil }
