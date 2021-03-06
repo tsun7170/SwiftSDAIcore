@@ -223,7 +223,7 @@ extension SDAI {
 			self.complexEntity = entityRef.complexEntity
 			super.init()
 		}
-		public init?(_ entityRef: EntityReference?) {
+		public convenience init?(_ entityRef: EntityReference?) {
 			guard let entityRef = entityRef else { return nil }
 			self.init(entityRef)
 		}

@@ -197,11 +197,16 @@ extension SDAI {
 	public static func USEDIN<GEN:SDAIGenericType>(T: GEN?) -> BAG<EntityReference>? {
 		abstruct()
 	}
-	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference>(T: GEN?, ENTITY:ENT.Type, ATTR:String) -> BAG<ENT>? {
-		guard let complex = T?.entityReference?.complexEntity else { return BAG() }
-		return BAG(from: complex.usedIn(entity: ENTITY, attr: ATTR))
+//	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference>(T: GEN?, ENTITY:ENT.Type, ATTR:String) -> BAG<ENT>? {
+//		guard let complex = T?.entityReference?.complexEntity else { return BAG() }
+//		return BAG(from: complex.usedIn(entity: ENTITY, attr: ATTR))
+//	}
+	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference, R:SDAIGenericType>(T: GEN?, ROLE: KeyPath<ENT,R>) -> BAG<ENT>? {
+		abstruct()
 	}
-
+	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference, R:SDAIGenericType>(T: GEN?, ROLE: KeyPath<ENT,R?>) -> BAG<ENT>? {
+		abstruct()
+	}
 	
 	public static func VALUE<Str: SwiftStringConvertible>(_ V: Str?) -> NUMBER? {
 		guard let str = V?.possiblyAsSwiftString, let double = Double(str) else { return nil }
