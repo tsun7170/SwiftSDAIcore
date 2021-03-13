@@ -85,6 +85,10 @@ extension SDAI {
 		}
 		
 		// SDAIGenericType
+		public var asFundamentalType: FundamentalType { return self }	
+		public init(fundamental: FundamentalType) {
+			box = fundamental.box
+		}
 		public var typeMembers: Set<SDAI.STRING> { return [SDAI.STRING("GENERIC")] }
 		public var value: Value { box.value }
 		

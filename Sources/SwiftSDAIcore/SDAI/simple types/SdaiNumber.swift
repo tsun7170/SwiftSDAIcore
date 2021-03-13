@@ -27,6 +27,7 @@ public protocol SDAIIntRepresented
 public protocol SwiftDoubleConvertible
 {
 	var possiblyAsSwiftDouble: Double? {get}
+	var asSwiftDouble: Double {get}
 }
 
 extension Double: SwiftDoubleConvertible, SDAIDoubleRepresented
@@ -38,6 +39,7 @@ extension Double: SwiftDoubleConvertible, SDAIDoubleRepresented
 extension Int: SwiftDoubleConvertible
 {
 	public var possiblyAsSwiftDouble: Double? { return Double(self) }
+	public var asSwiftDouble: Double { return Double(self) }
 }
 
 public extension SwiftDoubleConvertible
@@ -57,6 +59,7 @@ where Self: SDAIIntRepresentedNumberType
 public protocol SwiftIntConvertible
 {
 	var possiblyAsSwiftInt: Int? {get}
+	var asSwiftInt: Int {get}
 }
 
 extension Int: SwiftIntConvertible, SDAIIntRepresented
@@ -69,6 +72,7 @@ public extension SwiftIntConvertible
 where Self: SDAIIntRepresentedNumberType
 {
 	var possiblyAsSwiftInt: Int? { return self.asSwiftType }
+	var asSwiftInt: Int { return self.asSwiftType }
 }
 
 
@@ -94,8 +98,8 @@ where FundamentalType == SDAI.NUMBER,
 {
 	init?(_ double: Double?)
 	init(_ double: Double)
-	init?<T:SDAIDoubleRepresentedNumberType>(_ subtype: T?)
-	init<T:SDAIDoubleRepresentedNumberType>(_ subtype: T)
+	init?<T:SDAINumberType>(_ subtype: T?)
+	init<T:SDAINumberType>(_ subtype: T)
 }
 public extension SDAI__NUMBER__type
 {
@@ -111,11 +115,11 @@ public extension SDAI__NUMBER__type
 	init(floatLiteral value: Double) {
 		self.init(value)
 	}
-	init?<T:SDAIDoubleRepresentedNumberType>(_ subtype: T?) {
+	init?<T:SDAINumberType>(_ subtype: T?) {
 		guard let subtype = subtype else { return nil }
 		self.init(subtype)
 	}
-	init<T:SDAIDoubleRepresentedNumberType>(_ subtype: T) {
+	init<T:SDAINumberType>(_ subtype: T) {
 		self.init(subtype.asSwiftDouble)
 	}
 }
@@ -178,7 +182,7 @@ extension SDAI {
 		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
-			if let rhs = rhs as? SwiftDoubleConvertible { return self.asSwiftDouble == rhs.possiblyAsSwiftDouble }
+			if let rhs = rhs as? SwiftDoubleConvertible { return self.asSwiftDouble == rhs.asSwiftDouble }
 			return false
 		}
 	}	

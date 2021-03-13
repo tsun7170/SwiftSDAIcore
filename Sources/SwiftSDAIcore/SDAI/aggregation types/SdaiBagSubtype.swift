@@ -15,11 +15,32 @@ where Supertype: SDAI__BAG__type
 
 public extension SDAI__BAG__subtype
 {
-//	// InitializableBySelecttype
-//	init?<S: SDAISelectType>(possiblyFrom select: S?) {
-//		guard let fundamental = FundamentalType(possiblyFrom: select) else { return nil }
-//		self.init(fundamental: fundamental)
-//	}
+	// Aggregation operator support
+	func intersectionWith<U: SDAI__BAG__type>(rhs: U) -> SDAI.BAG<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.intersectionWith(rhs: rhs) }
+	func intersectionWith<U: SDAI__SET__type>(rhs: U) -> SDAI.SET<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.intersectionWith(rhs: rhs) }
+	func intersectionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.BAG<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.intersectionWith(rhs: rhs) }
+	
+	func unionWith<U: SDAIBagType>(rhs: U) -> SDAI.BAG<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(rhs: rhs) }
+	func unionWith<U: SDAIListType>(rhs: U) -> SDAI.BAG<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(rhs: rhs) }
+	func unionWith<U: SDAIGenericType>(rhs: U) -> SDAI.BAG<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.FundamentalType { rep.unionWith(rhs: rhs) }
+	func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.BAG<ELEMENT>? { rep.unionWith(rhs: rhs) }
+	func unionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.BAG<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(rhs: rhs) }
+
+	func differenceWith<U: SDAIBagType>(rhs: U) -> SDAI.BAG<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.differenceWith(rhs: rhs) }
+	func differenceWith<U: SDAIGenericType>(rhs: U) -> SDAI.BAG<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.FundamentalType { rep.differenceWith(rhs: rhs) }
+	func differenceWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.BAG<ELEMENT>? { rep.differenceWith(rhs: rhs) }
+	func differenceWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.BAG<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.differenceWith(rhs: rhs) }
+
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType(fromGeneric: generic) else { return nil }
@@ -56,7 +77,6 @@ public extension SDAI__BAG__subtype
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
 	} 
 }
-
 
 //MARK: - for select type element
 public extension SDAI__BAG__subtype

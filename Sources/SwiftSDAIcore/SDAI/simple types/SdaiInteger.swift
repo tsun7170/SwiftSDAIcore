@@ -19,13 +19,13 @@ where FundamentalType == SDAI.INTEGER,
 {
 	init?(_ int: Int?)
 	init(_ int: Int)
-	init?<T:SDAIIntRepresentedNumberType>(_ subtype: T?)
-	init<T:SDAIIntRepresentedNumberType>(_ subtype: T)
+	init?<T:SDAIIntegerType>(_ subtype: T?)
+	init<T:SDAIIntegerType>(_ subtype: T)
 }
 public extension SDAI__INTEGER__type
 {
 	var asSwiftInt: Int { return self.asSwiftType }
-//	var asSwiftDouble: Double { return Double(self.asSwiftType) }
+	var asSwiftDouble: Double { return Double(self.asSwiftType) }
 
 	init?(_ int: Int?) {
 		guard let int = int else { return nil }
@@ -34,12 +34,12 @@ public extension SDAI__INTEGER__type
 	init(integerLiteral value: Int) {
 		self.init(value)
 	}
-	init?<T:SDAIIntRepresentedNumberType>(_ subtype: T?) {
+	init?<T:SDAIIntegerType>(_ subtype: T?) {
 		guard let subtype = subtype else { return nil }
 		self.init(subtype)
 	}
-	init<T:SDAIIntRepresentedNumberType>(_ subtype: T) {
-		self.init(subtype.asSwiftType)
+	init<T:SDAIIntegerType>(_ subtype: T) {
+		self.init(subtype.asSwiftInt)
 	}
 }
 
@@ -100,7 +100,7 @@ extension SDAI {
 		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
-			if let rhs = rhs as? SwiftIntConvertible { return self.asSwiftInt == rhs.possiblyAsSwiftInt }
+			if let rhs = rhs as? SwiftIntConvertible { return self.asSwiftInt == rhs.asSwiftInt }
 			return false
 		}
 	}

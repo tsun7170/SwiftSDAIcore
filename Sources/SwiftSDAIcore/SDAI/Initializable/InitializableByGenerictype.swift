@@ -67,8 +67,8 @@ public extension InitializableByGenericArrayOptional
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY_OPTIONAL__type>(bound1: I1, bound2: I2, generic arraytype: T?) 
 	{
 		guard let arraytype = arraytype, 
-					bound1.possiblyAsSwiftInt == arraytype.loIndex, 
-					bound2.possiblyAsSwiftInt == arraytype.hiIndex 
+					bound1.asSwiftInt == arraytype.loIndex, 
+					bound2.asSwiftInt == arraytype.hiIndex 
 		else { return nil }
 		self.init(generic: arraytype)
 	}
@@ -85,8 +85,8 @@ public extension InitializableByGenericArray
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY__type>(bound1: I1, bound2: I2, generic arraytype: T?) 
 	{
 		guard let arraytype = arraytype, 
-					bound1.possiblyAsSwiftInt == arraytype.loIndex, 
-					bound2.possiblyAsSwiftInt == arraytype.hiIndex 
+					bound1.asSwiftInt == arraytype.loIndex, 
+					bound2.asSwiftInt == arraytype.hiIndex 
 		else { return nil }
 		self.init(generic: arraytype)
 	}

@@ -109,8 +109,8 @@ public extension InitializableByEntityArrayOptional
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		guard let arraytype = arraytype, 
-					bound1.possiblyAsSwiftInt == arraytype.loIndex, 
-					bound2.possiblyAsSwiftInt == arraytype.hiIndex 
+					bound1.asSwiftInt == arraytype.loIndex, 
+					bound2.asSwiftInt == arraytype.hiIndex 
 		else { return nil }
 		self.init(arraytype)
 	}
@@ -129,8 +129,8 @@ public extension InitializableByEntityArray
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		guard let arraytype = arraytype, 
-					bound1.possiblyAsSwiftInt == arraytype.loIndex, 
-					bound2.possiblyAsSwiftInt == arraytype.hiIndex 
+					bound1.asSwiftInt == arraytype.loIndex, 
+					bound2.asSwiftInt == arraytype.hiIndex 
 		else { return nil }
 		self.init(arraytype)
 	}

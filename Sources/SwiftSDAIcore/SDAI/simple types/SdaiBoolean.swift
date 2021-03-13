@@ -27,6 +27,7 @@ where FundamentalType == SDAI.BOOLEAN,
 public extension SDAI__BOOLEAN__type
 {
 	var possiblyAsSwiftBool: Bool? { return self.asSwiftType }
+	var asSwiftBool: Bool { return self.asSwiftType }
 	var isTRUE: Bool { return self.asSwiftType }
 
 	init?(_ bool: Bool?) {

@@ -8,7 +8,10 @@
 import Foundation
 
 //MARK: - SELECT TYPE base
-public protocol SDAISelectType: SDAIConstructedType, InitializableByDefinedtype, InitializableByEntity, SDAIObservableAggregateElement, SwiftDoubleConvertible, SwiftIntConvertible, SwiftStringConvertible, SwiftBoolConvertible, SDAIAggregationBehavior
+public protocol SDAISelectType: SDAIConstructedType, InitializableByDefinedtype, InitializableByEntity,
+																SwiftDoubleConvertible, SwiftIntConvertible, SwiftStringConvertible, SwiftBoolConvertible, 
+																SDAIObservableAggregateElement, SDAIAggregationBehavior
+																
 where Value == FundamentalType,
 			FundamentalType: SDAISelectType
 {}
@@ -25,16 +28,19 @@ public extension SDAISelectType
 	
 	// SwiftDoubleConvertible
 	var possiblyAsSwiftDouble: Double? { self.realValue?.asSwiftType }
+	var asSwiftDouble: Double { self.possiblyAsSwiftDouble! }
 	
 	// SwiftIntConvertible,
 	var possiblyAsSwiftInt: Int? { self.integerValue?.asSwiftType }
+	var asSwiftInt: Int { self.possiblyAsSwiftInt! }
 	
 	// SwiftStringConvertible, 
 	var possiblyAsSwiftString: String? { self.stringValue?.asSwiftType }
+	var asSwiftString: String { self.possiblyAsSwiftString! }
 	
 	// SwiftBoolConvertible
 	var possiblyAsSwiftBool: Bool? { self.logicalValue?.asSwiftType }
-	
+	var asSwiftBool: Bool { self.possiblyAsSwiftBool! }	
 }
 
 

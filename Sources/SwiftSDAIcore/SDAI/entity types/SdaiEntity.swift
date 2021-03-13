@@ -88,6 +88,13 @@ extension SDAI {
 
 		
 		// SDAIGenericType
+		public var asFundamentalType: FundamentalType { return self }	
+		public required convenience init(fundamental: FundamentalType) {
+			let peArray = fundamental.partialEntities.values.map {$0.instance}
+			self.init(entities: peArray)
+		}
+
+		
 		public var typeMembers: Set<SDAI.STRING> { 
 			Set( partialEntities.values.map{ (pe) -> STRING in STRING(stringLiteral: pe.instance.qualifiedEntityName) } ) 
 		}
@@ -168,14 +175,19 @@ extension SDAI {
 	
 	
 	//MARK: - EntityReference
-	open class EntityReference: SDAI.Object, SDAIGenericType, InitializableByEntity, SDAIObservableAggregateElement 
+	open class EntityReference: SDAI.ObjectReference<ComplexEntity>, SDAIGenericType, InitializableByEntity, SDAIObservableAggregateElement 
 	{		
-		public let complexEntity: ComplexEntity
+		public var complexEntity: ComplexEntity {self.object}
 		
 		// SDAIGenericType
 		public typealias Value = ComplexEntity.Value
 		public typealias FundamentalType = EntityReference
 		
+		public var asFundamentalType: FundamentalType { return self }	
+//		public required convenience init(fundamental: FundamentalType) {
+//			self.init(fundamental)
+//		}
+
 		public var typeMembers: Set<STRING> { complexEntity.typeMembers }
 		public var value: ComplexEntity.Value { complexEntity.value }
 		
@@ -214,14 +226,14 @@ extension SDAI {
 		
 		public required init?(complex complexEntity: ComplexEntity?) {
 			guard let complexEntity = complexEntity else { return nil }
-			self.complexEntity = complexEntity
-			super.init()
+//			self.complexEntity = complexEntity
+			super.init(object: complexEntity)
 		}
 		
 		// SDAI.GENERIC_ENTITY
 		public init(_ entityRef: EntityReference) {
-			self.complexEntity = entityRef.complexEntity
-			super.init()
+//			self.complexEntity = entityRef.complexEntity
+			super.init(object: entityRef.complexEntity)
 		}
 		public convenience init?(_ entityRef: EntityReference?) {
 			guard let entityRef = entityRef else { return nil }

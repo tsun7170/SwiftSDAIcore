@@ -18,8 +18,8 @@ where FundamentalType == SDAI.REAL,
 {
 	init?(_ double: Double?)
 	init(_ double: Double)
-	init?<T:SDAIDoubleRepresentedNumberType>(_ subtype: T?)
-	init<T:SDAIDoubleRepresentedNumberType>(_ subtype: T)
+	init?<T:SDAIRealType>(_ subtype: T?)
+	init<T:SDAIRealType>(_ subtype: T)
 }
 public extension SDAI__REAL__type
 {
@@ -35,11 +35,11 @@ public extension SDAI__REAL__type
 	init(floatLiteral value: Double) {
 		self.init(value)
 	}
-	init?<T:SDAIDoubleRepresentedNumberType>(_ subtype: T?) {
+	init?<T:SDAIRealType>(_ subtype: T?) {
 		guard let subtype = subtype else { return nil }
 		self.init(subtype)
 	}
-	init<T:SDAIDoubleRepresentedNumberType>(_ subtype: T) {
+	init<T:SDAIRealType>(_ subtype: T) {
 		self.init(subtype.asSwiftDouble)
 	}
 }
@@ -106,7 +106,7 @@ extension SDAI {
 		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
-			if let rhs = rhs as? SwiftDoubleConvertible { return self.asSwiftDouble == rhs.possiblyAsSwiftDouble }
+			if let rhs = rhs as? SwiftDoubleConvertible { return self.asSwiftDouble == rhs.asSwiftDouble }
 			return false
 		}
 	}

@@ -11,10 +11,12 @@ import Foundation
 public protocol SwiftStringConvertible
 {
 	var possiblyAsSwiftString: String? {get}
+	var asSwiftString: String {get}
 }
 
 extension String: SwiftStringConvertible
 {
+	public var asSwiftString: String { return self }
 	public var possiblyAsSwiftString: String? { return self }
 }
 
@@ -43,6 +45,7 @@ public extension SDAIStringType
 }
 public extension SDAIStringType where SwiftType == String
 {
+	var asSwiftString: String { return self.asSwiftType }
 	var possiblyAsSwiftString: String? { return self.asSwiftType }
 }
 

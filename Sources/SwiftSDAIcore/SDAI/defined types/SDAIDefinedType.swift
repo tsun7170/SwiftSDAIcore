@@ -11,16 +11,16 @@ import Foundation
 public protocol SDAISelectCompatibleUnderlyingTypeBase: SDAIGenericType where FundamentalType: SDAISelectCompatibleUnderlyingTypeBase
 {
 	static var typeName: String {get}
-	var asFundamentalType: FundamentalType {get}	
-	init(fundamental: FundamentalType)
+//	var asFundamentalType: FundamentalType {get}	
+//	init(fundamental: FundamentalType)
 }
-public extension SDAISelectCompatibleUnderlyingTypeBase
-{
-	init?(fundamental: FundamentalType?) {
-		guard let fundamental = fundamental else { return nil }
-		self.init(fundamental: fundamental)
-	}	
-}
+//public extension SDAISelectCompatibleUnderlyingTypeBase
+//{
+//	init?(fundamental: FundamentalType?) {
+//		guard let fundamental = fundamental else { return nil }
+//		self.init(fundamental: fundamental)
+//	}	
+//}
 
 
 

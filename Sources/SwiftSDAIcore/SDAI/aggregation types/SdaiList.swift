@@ -25,7 +25,22 @@ where Element == ELEMENT,
 			FundamentalType == SDAI.LIST<ELEMENT>,
 			Value == FundamentalType.Value,
 			SwiftType == FundamentalType.SwiftType
-{}
+{
+	// Aggregation operator support
+	func unionWith<U: SDAIListType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+	func unionWith<U: SDAIGenericType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.FundamentalType
+	func unionWith<U: SDAIGenericType>(lhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.FundamentalType
+	func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>?
+	func unionWith<U: SDAI__GENERIC__type>(lhs: U) -> SDAI.LIST<ELEMENT>?
+	func unionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+	func unionWith<U: SDAIAggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+	
+}
 
 
 extension SDAI {
@@ -115,6 +130,8 @@ extension SDAI {
 				rep[index - loIndex] = newValue
 			}
 		}
+
+		public var asAggregationSequence: AnySequence<ELEMENT> { return AnySequence(rep) }
 		
 		public func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL {
 			guard let elem = elem else { return UNKNOWN }
@@ -184,6 +201,69 @@ extension SDAI {
 		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
 			self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(fromGeneric: $0) }
 		} 
+
+		//MARK: Aggregation operator support
+		// Union
+		private func append<S: SDAIAggregationSequence>(other: S) -> SwiftType
+		where S.ELEMENT: SDAIGenericType, S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
+			var result = self.rep
+			result.append(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT(fundamental: $0.asFundamentalType) } )
+			return result
+		}
+		private func prepend<S: SDAIAggregationSequence>(other: S) -> SwiftType
+		where S.ELEMENT: SDAIGenericType, S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
+			var result = self.rep
+			result.insert(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT(fundamental: $0.asFundamentalType) }, at: 0 )
+			return result
+		}
+		
+		public func unionWith<U: SDAIListType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
+			let result = self.append(other: rhs)
+			return LIST(from: result, bound1: 0, bound2: _Infinity)
+		}
+		public func unionWith<U: SDAIGenericType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+		where ELEMENT.FundamentalType == U.FundamentalType {
+			var result = self.rep
+			result.append(ELEMENT(fundamental: rhs.asFundamentalType))
+			return LIST(from: result, bound1: 0, bound2: _Infinity)
+		}
+		public func unionWith<U: SDAIGenericType>(lhs: U) -> SDAI.LIST<ELEMENT>? 
+		where ELEMENT.FundamentalType == U.FundamentalType {
+			var result = self.rep
+			result.insert(ELEMENT(fundamental: lhs.asFundamentalType), at: 0 )
+			return LIST(from: result, bound1: 0, bound2: _Infinity)
+		}
+		public func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>? {
+			if let rhs = rhs.listValue(elementType: ELEMENT.self) {
+				return self.unionWith(rhs: rhs)
+			}
+			else if let rhs = ELEMENT(fromGeneric: rhs) {
+				return self.unionWith(rhs: rhs)
+			}
+			return nil
+		}
+		public func unionWith<U: SDAI__GENERIC__type>(lhs: U) -> SDAI.LIST<ELEMENT>? {
+			if let lhs = lhs.listValue(elementType: ELEMENT.self) {
+				let result = self.prepend(other: lhs)
+				return LIST(from: result, bound1: 0, bound2: _Infinity)
+			}
+			else if let lhs = ELEMENT(fromGeneric: lhs) {
+				return self.unionWith(lhs: lhs)
+			}
+			return nil
+		}
+		public func unionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
+			let result = self.append(other: rhs)
+			return LIST(from: result, bound1: 0, bound2: _Infinity)
+		}
+		public func unionWith<U: SDAIAggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>? 
+		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
+			let result = self.prepend(other: lhs)
+			return LIST(from: result, bound1: 0, bound2: _Infinity)
+		}
+		
 
 	}
 }

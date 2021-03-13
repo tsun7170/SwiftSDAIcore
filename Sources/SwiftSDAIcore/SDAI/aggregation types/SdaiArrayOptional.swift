@@ -119,6 +119,8 @@ extension SDAI {
 			}
 		}
 		
+		public var asAggregationSequence: AnySequence<ELEMENT> { return AnySequence(rep.lazy.compactMap{$0}) }
+
 		public func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL {
 			guard let elem = elem else { return UNKNOWN }
 			return LOGICAL(rep.contains(elem))
@@ -142,7 +144,7 @@ extension SDAI {
 			}
 			for aie in elements {
 				for elem in aie {
-						let (good,converted) = conv(elem)
+					let (good,converted) = conv(elem)
 					if good { swiftValue.append( converted ) }
 					else { return nil }
 				}
@@ -150,12 +152,6 @@ extension SDAI {
 			self.init(from: swiftValue, bound1: bound1, bound2: bound2)
 		}
 		
-//		// InitializableBySelecttype
-//		public init?<S: SDAISelectType>(possiblyFrom select: S?) {
-//			self.init(fromGeneric: select)
-////			guard let fundamental = select?.arrayOptionalValue(elementType: ELEMENT.self) else { return nil }
-////			self.init(fundamental: fundamental)
-//		}
 		// InitializableByGenerictype
 		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 			guard let fundamental = generic?.arrayOptionalValue(elementType: ELEMENT.self) else { return nil }
@@ -189,8 +185,8 @@ extension SDAI {
 		
 		// InitializableBySwifttypeAsArray
 		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2) {
-			self.bound1 = bound1.possiblyAsSwiftInt!
-			self.bound2 = bound2.possiblyAsSwiftInt!
+			self.bound1 = bound1.asSwiftInt
+			self.bound2 = bound2.asSwiftInt
 			self.rep = swiftValue
 			assert(rep.count == self.size)
 		} 
@@ -214,10 +210,6 @@ where ELEMENT: SDAIObservableAggregateElement
 extension SDAI.ARRAY_OPTIONAL: InitializableBySelecttypeArrayOptional, InitializableBySelecttypeArray
 where ELEMENT: InitializableBySelecttype
 {
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(possiblyFrom: $0) }
-//	} 
-	
 	public init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAISelectType
 	{
@@ -245,10 +237,6 @@ where ELEMENT: InitializableBySelecttype
 extension SDAI.ARRAY_OPTIONAL: InitializableByEntityArrayOptional, InitializableByEntityArray
 where ELEMENT: InitializableByEntity
 {
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAI.EntityReference>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(possiblyFrom: $0) }
-//	} 
-
 	public init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -276,11 +264,6 @@ where ELEMENT: InitializableByEntity
 extension SDAI.ARRAY_OPTIONAL: InitializableByDefinedtypeArrayOptional, InitializableByDefinedtypeArray
 where ELEMENT: InitializableByDefinedtype
 {
-//	 public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIUnderlyingType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	 {
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(possiblyFrom: $0) }
-//	 }		
-	 
 	 public init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
 	 where T.ELEMENT: SDAIUnderlyingType
 	 {
@@ -303,14 +286,4 @@ where ELEMENT: InitializableByDefinedtype
 	}
 }
 
-//extension SDAI.ARRAY_OPTIONAL: InitializableByOptionalSwiftArrayLiteral
-//where ELEMENT: InitializableBySwifttype
-//{
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	where E == ELEMENT.SwiftType
-//	{
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT($0) }
-//	}
-//}
-//
 

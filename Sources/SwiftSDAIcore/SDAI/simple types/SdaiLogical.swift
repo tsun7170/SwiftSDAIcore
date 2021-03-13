@@ -10,6 +10,7 @@ import Foundation
 public protocol SwiftBoolConvertible
 {
 	var possiblyAsSwiftBool: Bool? {get}
+	var asSwiftBool: Bool {get}
 }
 
 
@@ -37,6 +38,7 @@ where FundamentalType == SDAI.LOGICAL,
 public extension SDAI__LOGICAL__type
 {
 	var possiblyAsSwiftBool: Bool? { return self.asSwiftType }
+	var asSwiftBool: Bool { return self.possiblyAsSwiftBool! }
 	var isTRUE: Bool { return self.asSwiftType ?? false }
 
 	init(booleanLiteral value: Bool) {

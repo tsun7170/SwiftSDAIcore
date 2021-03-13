@@ -17,18 +17,18 @@ extension SDAI {
 	}
 	
 	public static func ACOS<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
-		guard let r = V?.possiblyAsSwiftDouble else { return nil }
+		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( acos(r) )
 	}
 	
 	public static func ASIN<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
-		guard let r = V?.possiblyAsSwiftDouble else { return nil }
+		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( asin(r) )
 	}
 	
 	public static func ATAN<Number1: SwiftDoubleConvertible, Number2: SwiftDoubleConvertible>
 	(V1: Number1?, V2: Number2?) -> REAL? {
-		guard let r1 = V1?.possiblyAsSwiftDouble, let r2 = V2?.possiblyAsSwiftDouble else { return nil }
+		guard let r1 = V1?.asSwiftDouble, let r2 = V2?.asSwiftDouble else { return nil }
 		return REAL( atan2(r1, r2) )
 	}
 	
@@ -40,7 +40,7 @@ extension SDAI {
 	}
 	
 	public static func COS<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
-		guard let r = V?.possiblyAsSwiftDouble else { return nil }
+		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( cos(r) )
 	}
 	
@@ -49,7 +49,7 @@ extension SDAI {
 	}
 	
 	public static func EXP<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
-		guard let r = V?.possiblyAsSwiftDouble else { return nil }
+		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( exp(r) )
 	}
 
@@ -62,6 +62,12 @@ extension SDAI {
 	public static func FORMAT<Number: SDAISelectType, Str: SwiftStringConvertible>(N: Number?, F: Str?) -> STRING? {
 		abstruct()
 	}
+//	public static func FORMAT<Number: SDAINumberType, Str: SDAISelectType>(N: Number?, F: Str?) -> STRING? {
+//		abstruct()
+//	}
+//	public static func FORMAT<Number: SDAISelectType, Str: SDAISelectType>(N: Number?, F: Str?) -> STRING? {
+//		abstruct()
+//	}
 
 	
 	public static func HIBOUND<Aggregate: SDAIAggregationBehavior>(_ V: Aggregate?) -> INTEGER? {
@@ -81,17 +87,17 @@ extension SDAI {
 	}
 	
 	public static func LOG<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
-		guard let r = V?.possiblyAsSwiftDouble else { return nil }
+		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( log(r) )
 	}
 	
 	public static func LOG2<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
-		guard let r = V?.possiblyAsSwiftDouble else { return nil }
+		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( log(r)/log(2) )
 	}
 	
 	public static func LOG10<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
-		guard let r = V?.possiblyAsSwiftDouble else { return nil }
+		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( log10(r) )
 	}
 	
@@ -128,7 +134,7 @@ extension SDAI {
 	}
 	
 	public static func ODD<Integer: SwiftIntConvertible>(_ V: Integer?) -> LOGICAL {
-		guard let i = V?.possiblyAsSwiftInt else { return LOGICAL(nil) }
+		guard let i = V?.asSwiftInt else { return LOGICAL(nil) }
 		return LOGICAL( i % 2 == 1 )
 	}
 	
@@ -141,7 +147,7 @@ extension SDAI {
 	}
 	
 	public static func SIN<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
-		guard let r = V?.possiblyAsSwiftDouble else { return nil }
+		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( sin(r) )
 	}
 
@@ -156,12 +162,12 @@ extension SDAI {
 	
 
 	public static func SQRT<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
-		guard let r = V?.possiblyAsSwiftDouble else { return nil }
+		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( sqrt(r) )
 	}
 	
 	public static func TAN<Number: SwiftDoubleConvertible>(_ V: Number?) -> REAL? {
-		guard let r = V?.possiblyAsSwiftDouble else { return nil }
+		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( tan(r) )
 	}
 	

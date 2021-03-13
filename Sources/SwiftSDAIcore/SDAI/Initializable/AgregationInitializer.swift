@@ -38,17 +38,18 @@ public protocol InitializableByEmptyArrayLiteral
 
 //MARK: - Aggregation Initializer Element type
 public protocol SDAI__AIE__element: Hashable {
-	associatedtype Wrapped: Hashable
+	associatedtype Wrapped: SDAIGenericType
 	var unsafelyUnwrapped: Wrapped {get}
 	init(_ some: Wrapped)
 }
 
-public protocol SDAI__AIE__type: Sequence where Element: SDAI__AIE__element{
+public protocol SDAI__AIE__type: Sequence where Element: SDAI__AIE__element
+{
 	associatedtype ELEMENT = Element.Wrapped
 	var count: Int {get}
 }
 extension Optional: SDAI__AIE__element 
-where Wrapped: Hashable
+where Wrapped: SDAIGenericType
 {}
 extension SDAI.AggregationInitializerElement: SDAI__AIE__type where Element: SDAI__AIE__element {}
 
@@ -57,58 +58,38 @@ public extension SDAI {
 	
 	//MARK: SDAIGenericType AIE
 	static func AIE<E:SDAIGenericType, I:SwiftIntConvertible>(_ element: E, repeat n: I) -> AggregationInitializerElement<E> {
-		return repeatElement(element as E?, count: n.possiblyAsSwiftInt ?? 1)
+		return repeatElement(element as E?, count: n.asSwiftInt)
 	}
 	static func AIE<E:SDAIGenericType, I:SwiftIntConvertible>(_ element: E, repeat n: I?) -> AggregationInitializerElement<E> {
-		return repeatElement(element as E?, count: n!.possiblyAsSwiftInt ?? 1)
+		return repeatElement(element as E?, count: n?.asSwiftInt ?? 1)
 	}
 	static func AIE<E:SDAIGenericType>(_ element: E) -> AggregationInitializerElement<E> {
 		return AIE(element, repeat: 1)
 	}
 	
 	static func AIE<E:SDAIGenericType, I:SwiftIntConvertible>(_ element: E?, repeat n: I) -> AggregationInitializerElement<E> {
-		return repeatElement(element, count: n.possiblyAsSwiftInt ?? 1)
+		return repeatElement(element, count: n.asSwiftInt)
 	}
 	static func AIE<E:SDAIGenericType, I:SwiftIntConvertible>(_ element: E?, repeat n: I?) -> AggregationInitializerElement<E> {
-		return repeatElement(element, count: n!.possiblyAsSwiftInt ?? 1)
+		return repeatElement(element, count: n?.asSwiftInt ?? 1)
 	}
 	static func AIE<E:SDAIGenericType>(_ element: E?) -> AggregationInitializerElement<E> {
 		return AIE(element, repeat: 1)
 	}
 
-	//MARK: SwiftType AIE
-	static func AIE<E:SDAISwiftType, I:SwiftIntConvertible>(_ element: E, repeat n: I) -> AggregationInitializerElement<E> {
-		return repeatElement(element as E?, count: n.possiblyAsSwiftInt ?? 1)
-	}
-	static func AIE<E:SDAISwiftType, I:SwiftIntConvertible>(_ element: E, repeat n: I?) -> AggregationInitializerElement<E> {
-		return repeatElement(element as E?, count: n!.possiblyAsSwiftInt ?? 1)
-	}
-	static func AIE<E:SDAISwiftType>(_ element: E) -> AggregationInitializerElement<E> {
-		return AIE(element, repeat: 1)
-	}
-	
-	static func AIE<E:SDAISwiftType, I:SwiftIntConvertible>(_ element: E?, repeat n: I) -> AggregationInitializerElement<E> {
-		return repeatElement(element, count: n.possiblyAsSwiftInt ?? 1)
-	}
-	static func AIE<E:SDAISwiftType, I:SwiftIntConvertible>(_ element: E?, repeat n: I?) -> AggregationInitializerElement<E> {
-		return repeatElement(element, count: n!.possiblyAsSwiftInt ?? 1)
-	}
-	static func AIE<E:SDAISwiftType>(_ element: E?) -> AggregationInitializerElement<E> {
-		return AIE(element, repeat: 1)
-	}
 }
 
 
 //MARK: - Aggregation Initializer
-public protocol SDAIAggregationInitializer: Sequence
+public protocol SDAIAggregationInitializer: Sequence, SwiftDictRepresentable, SDAIAggregationSequence
+where Element: SDAI__AIE__type, ELEMENT == Element.Element.Wrapped
+{}
+
+extension Array: SDAIAggregationInitializer, SwiftDictRepresentable, SDAIAggregationSequence
 where Element: SDAI__AIE__type
 {
-	typealias ELEMENT = Element.Element.Wrapped
+	public typealias ELEMENT = Element.Element.Wrapped
 }
-
-extension Array: SDAIAggregationInitializer 
-where Element: SDAI__AIE__type
-{}
 
 public extension SDAIAggregationInitializer
 {
@@ -119,14 +100,30 @@ public extension SDAIAggregationInitializer
 		}
 		return SDAI.FALSE
 	}
-}
 
-public extension SDAIAggregationInitializer 
-where ELEMENT: SDAIGenericType
-{
 	typealias RESULT_AGGREGATE = SDAI.LIST<ELEMENT>
 	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> RESULT_AGGREGATE {
 		abstruct()
+	}
+	
+	// SwiftDictRepresentable
+	var asSwiftDict: Dictionary<ELEMENT.FundamentalType, Int> {
+		var dict: Dictionary<ELEMENT.FundamentalType, Int> = [:]
+		for elem in self.asAggregationSequence {
+			let fundamental = elem.asFundamentalType
+			if let count = dict[fundamental] {
+				dict[fundamental] = count + 1
+			}
+			else {
+				dict[fundamental] = 1
+			}
+		}
+		return dict
+	}
+	
+	// SDAIAggregationSequence
+	var asAggregationSequence: AnySequence<ELEMENT> {
+		return AnySequence(self.lazy.flatMap({ $0 }).compactMap({ $0 as? ELEMENT }))
 	}
 }
 
@@ -176,18 +173,15 @@ where ELEMENT: SDAISwiftType
 	}
 }
 
+
 //MARK: - from list literal (with optional bounds)
 public protocol InitializableByListLiteral
 {
-//	associatedtype ELEMENT: SDAIGenericType
-	
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	where E.FundamentalType == ELEMENT.FundamentalType
 }
 public extension InitializableByListLiteral
 {
 	init?<E: SDAIGenericType>(_ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	where E.FundamentalType == ELEMENT.FundamentalType
 	{
 		self.init(bound1: 0, bound2: nil as Int?, elements)
 	}
@@ -196,8 +190,5 @@ public extension InitializableByListLiteral
 //MARK: - from array literal (with required bounds)
 public protocol InitializableByArrayLiteral
 {
-//	associatedtype ELEMENT: SDAIGenericType
-
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 	
-//	where E.FundamentalType == ELEMENT.FundamentalType
 }

@@ -68,9 +68,27 @@ public extension SDAIAggregationBehavior where Self: SDAIDefinedType, Supertype:
 	var aggregationSize   : Int? { rep.aggregationSize    }
 }
 
+//MARK: - aggregation sequence
+public protocol SDAIAggregationSequence
+{
+	associatedtype ELEMENT
+	var asAggregationSequence: AnySequence<ELEMENT> {get}
+}
+
+//MARK: - dict representable
+public protocol SwiftDictRepresentable {
+	associatedtype ELEMENT: SDAIGenericType
+	var asSwiftDict: Dictionary<ELEMENT.FundamentalType,Int> {get}
+}
+
+public extension SDAIDefinedType
+where Supertype: SwiftDictRepresentable, Self: SwiftDictRepresentable, Supertype.ELEMENT.FundamentalType == Self.ELEMENT.FundamentalType
+{
+	var asSwiftDict: Dictionary<ELEMENT.FundamentalType,Int> { return rep.asSwiftDict }
+}
 
 //MARK: - Aggregation type
-public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Sequence, SDAIAggregateIndexingGettable, SDAIAggregationBehavior
+public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Sequence, SDAIAggregateIndexingGettable, SDAIAggregationBehavior, SDAIAggregationSequence
 {	
 	associatedtype ELEMENT
 	
@@ -83,7 +101,8 @@ public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Seq
 //	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {get set}
 //	subscript(index: Int?) -> ELEMENT? {get set}
 	
-	func forEachELEMENT(do task: (_ elem: ELEMENT) -> SDAI.IterControl )
+//	func forEachELEMENT(do task: (_ elem: ELEMENT) -> SDAI.IterControl )
+//	var asAggregationSequence: AnySequence<ELEMENT> {get}
 	
 	func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL	// Express membership operator 'IN' translation
 	
@@ -108,25 +127,25 @@ extension SDAI {
 	}
 }
 
-public extension SDAIAggregationType
-where Element == ELEMENT
-{
-	func forEachELEMENT(do task: (_ elem: ELEMENT) -> SDAI.IterControl ) {
-		for elem in self {
-			if task(elem) == .stop { break }
-		}
-	}
-}
-public extension SDAIAggregationType
-where Element == ELEMENT?
-{
-	func forEachELEMENT(do task: (_ elem: ELEMENT) -> SDAI.IterControl ) {
-		for elem in self {
-			guard let elem = elem else { continue }
-			if task(elem) == .stop { break }
-		}
-	}
-}
+//public extension SDAIAggregationType
+//where Element == ELEMENT
+//{
+//	func forEachELEMENT(do task: (_ elem: ELEMENT) -> SDAI.IterControl ) {
+//		for elem in self {
+//			if task(elem) == .stop { break }
+//		}
+//	}
+//}
+//public extension SDAIAggregationType
+//where Element == ELEMENT?
+//{
+//	func forEachELEMENT(do task: (_ elem: ELEMENT) -> SDAI.IterControl ) {
+//		for elem in self {
+//			guard let elem = elem else { continue }
+//			if task(elem) == .stop { break }
+//		}
+//	}
+//}
 
 
 //MARK: - extension per ELEMENT type
@@ -195,24 +214,34 @@ public extension SDAIObservableAggregate
 		set {
 			_observer = newValue
 			if let entityObserver = newValue {
-				self.forEachELEMENT { elem in
+				for elem in self.asAggregationSequence {
 					for entityRef in elem.entityReferences {
 						entityObserver( nil, entityRef )
 					}
-					return .next
 				}
+//				self.forEachELEMENT { elem in
+//					for entityRef in elem.entityReferences {
+//						entityObserver( nil, entityRef )
+//					}
+//					return .next
+//				}
 			}
 		}
 	}
 	
 	func teardown() {
 		if let entityObserver = observer {
-			self.forEachELEMENT { elem in
+			for elem in self.asAggregationSequence {
 				for entityRef in elem.entityReferences {
 					entityObserver( entityRef, nil )
 				}
-				return .next
 			}
+//			self.forEachELEMENT { elem in
+//				for entityRef in elem.entityReferences {
+//					entityObserver( entityRef, nil )
+//				}
+//				return .next
+//			}
 		}
 	}
 	
@@ -259,6 +288,8 @@ where Self: SDAIAggregationType,
 //		get{ return rep[index] }
 //		set{ rep[index] = newValue }
 //	}
+	var asAggregationSequence: AnySequence<ELEMENT> { return rep.asAggregationSequence }
+
 	func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL { return rep.CONTAINS(elem: elem) }
 	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> Supertype.RESULT_AGGREGATE {
 		return rep.QUERY(logical_expression: logical_expression)

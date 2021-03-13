@@ -13,6 +13,10 @@ public protocol SDAIGenericType: Hashable, InitializableBySelecttype, Initializa
 {
 	associatedtype FundamentalType: SDAIGenericType
 	associatedtype Value: SDAIValue
+
+	var asFundamentalType: FundamentalType {get}	
+	init(fundamental: FundamentalType)
+
 	var typeMembers: Set<SDAI.STRING> {get}
 	var value: Value {get}
 	
@@ -24,12 +28,21 @@ public protocol SDAIGenericType: Hashable, InitializableBySelecttype, Initializa
 	var numberValue: SDAI.NUMBER? {get}
 	var realValue: SDAI.REAL? {get}
 	var integerValue: SDAI.INTEGER? {get}
+	
 	func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>?
 	func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>?
 	func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>?
 	func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>?
 	func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>?
 	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM?
+}
+
+public extension SDAIGenericType
+{
+	init?(fundamental: FundamentalType?) {
+		guard let fundamental = fundamental else { return nil }
+		self.init(fundamental: fundamental)
+	}		
 }
 
 public extension SDAIGenericType where Self: SDAIDefinedType
@@ -76,7 +89,12 @@ public extension SDAIGenericType where Self: SDAIDefinedType
 	}
 }
 
-
+public extension SDAIGenericType where Self: SDAI.EntityReference
+{
+	init(fundamental: FundamentalType) {
+		self.init(complex: fundamental.complexEntity)!
+	}
+}
 
 
 public protocol SDAINamedType 
@@ -99,6 +117,7 @@ public protocol SDAISwiftTypeRepresented
 	associatedtype SwiftType
 	var asSwiftType: SwiftType {get}	
 }
+
 public extension SDAIDefinedType 
 where Supertype: SDAISwiftTypeRepresented, Self: SDAISwiftTypeRepresented, SwiftType == Supertype.SwiftType
 {
@@ -127,7 +146,7 @@ public enum SDAI {
 	public static let CONST_E:REAL = REAL(exp(1.0))
 	public static let PI:REAL = REAL(Double.pi)
 	
-	
+	public static let _Infinity:INTEGER? = nil;
 
 
 	//MARK: - SDAI.Object	
@@ -143,6 +162,23 @@ public enum SDAI {
 		}
 	}
 	
+	//MARK: - SDAI.ObjectReference
+	open class ObjectReference<OBJ: Object>: Hashable {
+		internal let object: OBJ
+		
+		public init(object: OBJ) {
+			self.object = object
+		}
+
+		public static func == (lhs: ObjectReference<OBJ>, rhs: ObjectReference<OBJ>) -> Bool {
+			return lhs.object === rhs.object
+		}
+		
+		public func hash(into hasher: inout Hasher) {
+			object.hash(into: &hasher)
+		}
+		
+	}
 }
 
 

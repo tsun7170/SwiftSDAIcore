@@ -115,6 +115,8 @@ extension SDAI {
 			}
 		}
 		
+		public var asAggregationSequence: AnySequence<ELEMENT> { return AnySequence(rep) }
+
 		public func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL {
 			guard let elem = elem else { return UNKNOWN }
 			return LOGICAL(rep.contains(elem))
@@ -167,8 +169,8 @@ extension SDAI {
 		
 		// InitializableBySwifttypeAsArray
 		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2) {
-			self.bound1 = bound1.possiblyAsSwiftInt!
-			self.bound2 = bound2.possiblyAsSwiftInt!
+			self.bound1 = bound1.asSwiftInt
+			self.bound2 = bound2.asSwiftInt
 			self.rep = swiftValue
 			assert(rep.count == self.size)
 		} 

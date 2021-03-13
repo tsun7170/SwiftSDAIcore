@@ -14,11 +14,20 @@ where Supertype: SDAI__LIST__type
 {}
 public extension SDAI__LIST__subtype
 {
-//	// InitializableBySelecttype
-//	init?<S: SDAISelectType>(possiblyFrom select: S?) {
-//		guard let fundamental = FundamentalType(possiblyFrom: select) else { return nil }
-//		self.init(fundamental: fundamental)
-//	}
+	// Aggregation operator support
+	func unionWith<U: SDAIListType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(rhs: rhs) }
+	func unionWith<U: SDAIGenericType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.FundamentalType { rep.unionWith(rhs: rhs) }
+	func unionWith<U: SDAIGenericType>(lhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.FundamentalType { rep.unionWith(lhs: lhs) }
+	func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>? { rep.unionWith(rhs: rhs) }
+	func unionWith<U: SDAI__GENERIC__type>(lhs: U) -> SDAI.LIST<ELEMENT>? { rep.unionWith(lhs: lhs) }
+	func unionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(rhs: rhs) }
+	func unionWith<U: SDAIAggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(lhs: lhs) }
+	
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType(fromGeneric: generic) else { return nil }
