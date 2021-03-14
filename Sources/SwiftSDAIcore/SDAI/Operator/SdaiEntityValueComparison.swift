@@ -18,8 +18,6 @@ public func .==. (lhs: SDAI.EntityReference?, rhs: SDAI.PartialEntity?) -> SDAI.
 public func .!=. (lhs: SDAI.EntityReference?, rhs: SDAI.PartialEntity?) -> SDAI.LOGICAL { abstruct() }
 
 
-//public func .==. <T: SDAISelectType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { abstruct() }
-//public func .!=. <T: SDAISelectType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { abstruct() }
 
 public func .==. <T: SDAISelectType>(lhs: T?, rhs: SDAI.EntityReference?) -> SDAI.LOGICAL { abstruct() }
 public func .!=. <T: SDAISelectType>(lhs: T?, rhs: SDAI.EntityReference?) -> SDAI.LOGICAL { abstruct() }
@@ -36,3 +34,6 @@ public func .!=. (lhs: SDAI.PartialEntity?, rhs: SDAI.EntityReference?) -> SDAI.
 
 public func .==. <U: SDAISelectType>(lhs: SDAI.PartialEntity?, rhs: U?) -> SDAI.LOGICAL { abstruct() }
 public func .!=. <U: SDAISelectType>(lhs: SDAI.PartialEntity?, rhs: U?) -> SDAI.LOGICAL { abstruct() }
+
+public func .==. <T: SDAI__GENERIC__type, U: SDAIGenericType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { abstruct() }
+public func .!=. <T: SDAI__GENERIC__type, U: SDAIGenericType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { abstruct() }

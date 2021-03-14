@@ -7,7 +7,7 @@
 
 import Foundation
 
-//MARK:  Intersection operator
+//MARK:  Intersection operator (12.6.2)
 // Bag * Bag = Bag
 public func * <T: SDAI__BAG__type, U: SDAI__BAG__type>(lhs: T?, rhs: U?) -> SDAI.BAG<T.ELEMENT>?	
 where T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { 
@@ -61,7 +61,7 @@ where T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 
 
 
-//MARK: - Union operator
+//MARK: - Union operator (12.6.3)
 // Bag + Bag = Bag
 // Bag + Set = Bag
 public func + <T: SDAI__BAG__type, U: SDAIBagType>(lhs: T?, rhs: U?) -> SDAI.BAG<T.ELEMENT>?	
@@ -320,7 +320,7 @@ where T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 
 
 
-//MARK: - Difference operator
+//MARK: - Difference operator (12.6.4)
 // Bag - Bag = Bag
 // Bag - Set = Bag
 public func - <T: SDAI__BAG__type, U: SDAIBagType>(lhs: T?, rhs: U?) -> SDAI.BAG<T.ELEMENT>?	
@@ -414,13 +414,13 @@ where T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 
 
 
-//MARK: - Subset operator
+//MARK: - Subset operator (12.6.5)
 public func <=   <T: SDAIBagType, U: SDAIBagType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL 
 where T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { 
 	return rhs >= lhs
 }
 
-//MARK: - Superset operator
+//MARK: - Superset operator (12.6.6)
 public func >=   <T: SDAIBagType, U: SDAIBagType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL 
 where T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { 
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }

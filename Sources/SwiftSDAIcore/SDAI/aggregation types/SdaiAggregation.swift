@@ -7,7 +7,7 @@
 
 import Foundation
 
-//MARK: - aggregation indexing
+//MARK: - Aggregate indexing (12.6.1)
 public protocol SDAIAggregateIndexingGettable {
 	associatedtype ELEMENT
 	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {get}
@@ -98,14 +98,9 @@ public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Seq
 	var loIndex: Int {get}
 	var size: Int {get}
 	
-//	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {get set}
-//	subscript(index: Int?) -> ELEMENT? {get set}
-	
-//	func forEachELEMENT(do task: (_ elem: ELEMENT) -> SDAI.IterControl )
-//	var asAggregationSequence: AnySequence<ELEMENT> {get}
-	
 	func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL	// Express membership operator 'IN' translation
 	
+	//MARK: Query expression (12.6.7)
 	associatedtype RESULT_AGGREGATE: SDAIAggregationType where RESULT_AGGREGATE.ELEMENT == ELEMENT
 	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> RESULT_AGGREGATE
 	
