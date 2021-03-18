@@ -14,10 +14,13 @@ public protocol SwiftStringConvertible
 	var asSwiftString: String {get}
 }
 
-extension String: SwiftStringConvertible
+public protocol SwiftStringRepresented: SwiftStringConvertible
+{}
+
+extension String: SwiftStringRepresented
 {
-	public var asSwiftString: String { return self }
 	public var possiblyAsSwiftString: String? { return self }
+	public var asSwiftString: String { return self }
 }
 
 
@@ -49,7 +52,7 @@ public extension SDAIStringType where SwiftType == String
 	var possiblyAsSwiftString: String? { return self.asSwiftType }
 }
 
-public protocol SDAI__STRING__type: SDAIStringType 
+public protocol SDAI__STRING__type: SDAIStringType, SwiftStringRepresented 
 where FundamentalType == SDAI.STRING,
 			Value == FundamentalType.Value,
 			SwiftType == FundamentalType.SwiftType
@@ -103,6 +106,8 @@ extension SDAI {
 		public var numberValue: SDAI.NUMBER? {nil}
 		public var realValue: SDAI.REAL? {nil}
 		public var integerValue: SDAI.INTEGER? {nil}
+		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
+		
 		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
 		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}

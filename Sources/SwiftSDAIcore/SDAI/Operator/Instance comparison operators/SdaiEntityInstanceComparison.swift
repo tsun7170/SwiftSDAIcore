@@ -30,13 +30,6 @@ public func .===. <T: SDAISelectType>(lhs: T?, rhs: SDAI.EntityReference?) -> SD
 public func .!==. <T: SDAISelectType>(lhs: T?, rhs: SDAI.EntityReference?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
 
-//MARK: select vs. select
-public func .===. <T: SDAISelectType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
-	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
-	return SDAI.GENERIC(lhs) .===. rhs
-}
-public func .!==. <T: SDAISelectType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
-
 
 //MARK: partial vs. partial
 public func .===. (lhs: SDAI.PartialEntity?, rhs: SDAI.PartialEntity?) -> SDAI.LOGICAL { 

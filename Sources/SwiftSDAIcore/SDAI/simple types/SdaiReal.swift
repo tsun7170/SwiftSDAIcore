@@ -65,6 +65,8 @@ extension SDAI {
 		public var numberValue: SDAI.NUMBER? { NUMBER(self) }
 		public var realValue: SDAI.REAL? { self }
 		public var integerValue: SDAI.INTEGER? {nil}
+		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
+		
 		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
 		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}

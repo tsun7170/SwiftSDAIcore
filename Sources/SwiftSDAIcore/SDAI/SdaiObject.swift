@@ -28,6 +28,7 @@ public protocol SDAIGenericType: Hashable, InitializableBySelecttype, Initializa
 	var numberValue: SDAI.NUMBER? {get}
 	var realValue: SDAI.REAL? {get}
 	var integerValue: SDAI.INTEGER? {get}
+	var genericEnumValue: SDAI.GenericEnumValue? {get}
 	
 	func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>?
 	func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>?
@@ -69,6 +70,8 @@ public extension SDAIGenericType where Self: SDAIDefinedType
 	var numberValue: SDAI.NUMBER? {rep.numberValue}
 	var realValue: SDAI.REAL? {rep.realValue}
 	var integerValue: SDAI.INTEGER? {rep.integerValue}
+	var genericEnumValue: SDAI.GenericEnumValue? {rep.genericEnumValue}
+	
 	func arrayOptionalValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.ARRAY_OPTIONAL<ELEMENT>? {
 		rep.arrayOptionalValue(elementType: elementType)
 	}
@@ -131,14 +134,8 @@ where Supertype: SDAISwiftTypeRepresented, Self: SDAISwiftTypeRepresented, Swift
 
 //MARK: - SDAI namespace
 public enum SDAI {
-	
-	
-	
-	
 	public typealias GENERIC_ENTITY = EntityReference
 
-//	public static let INDETERMINATE: Any? = nil
-	
 	public static let TRUE:LOGICAL = true
 	public static let FALSE:LOGICAL = false
 	public static let UNKNOWN:LOGICAL = nil

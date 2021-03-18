@@ -26,6 +26,8 @@ fileprivate class _AnyGenericBox: Hashable {
 	var numberValue: SDAI.NUMBER? { abstruct() }
 	var realValue: SDAI.REAL? { abstruct() }
 	var integerValue: SDAI.INTEGER? { abstruct() }
+	public var genericEnumValue: SDAI.GenericEnumValue? {abstruct()}
+	
 	func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? { abstruct() }
 	func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? { abstruct() }
 	func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? { abstruct() }
@@ -51,6 +53,8 @@ fileprivate class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {
 	override var numberValue: SDAI.NUMBER? { _base.numberValue }
 	override var realValue: SDAI.REAL? { _base.realValue }
 	override var integerValue: SDAI.INTEGER? { _base.integerValue }
+	override var genericEnumValue: SDAI.GenericEnumValue? { _base.genericEnumValue }
+
 	override func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? { _base.arrayOptionalValue(elementType: elementType) }
 	override func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? { _base.arrayValue(elementType: elementType) }
 	override func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? { _base.listValue(elementType: elementType) }
@@ -100,6 +104,8 @@ extension SDAI {
 		public var numberValue: SDAI.NUMBER? { box.numberValue }
 		public var realValue: SDAI.REAL? { box.realValue }
 		public var integerValue: SDAI.INTEGER? { box.integerValue }
+		public var genericEnumValue: SDAI.GenericEnumValue? { box.genericEnumValue }
+
 		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? { box.arrayOptionalValue(elementType: elementType) }
 		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? { box.arrayValue(elementType: elementType) }
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? { box.listValue(elementType: elementType) }

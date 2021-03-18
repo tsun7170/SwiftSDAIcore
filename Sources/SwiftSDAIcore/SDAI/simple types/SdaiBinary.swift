@@ -16,12 +16,23 @@ where StringLiteralType == String
 	subscript(index: Int?) -> SDAI.BINARY? {get}
 	subscript(range: ClosedRange<Int>?) -> SDAI.BINARY? {get}
 
+//	subscript<I: SDAI__INTEGER__type>(index: I) -> SDAI.BINARY {get}
+//	subscript(index: Int) -> SDAI.BINARY {get}
+//	subscript(range: ClosedRange<Int>) -> SDAI.BINARY {get}
+
 }
 public extension SDAIBinaryType
 {
-	subscript<I: SDAI__INTEGER__type>(index: I?) -> SDAI.BINARY? {
-		return self[index?.asSwiftType]
-	}
+	subscript<I: SDAI__INTEGER__type>(index: I?) -> SDAI.BINARY? { return self[index?.asSwiftType] }
+	
+//	subscript(index: Int?) -> SDAI.BINARY? { 
+//		guard let index = index else {return nil}
+//		return self[index]
+//	}
+//	subscript(range: ClosedRange<Int>?) -> SDAI.BINARY? {
+//		guard let range = range else {return nil}
+//		return self[range]
+//	}
 }
 
 
@@ -75,6 +86,8 @@ extension SDAI {
 		public var numberValue: SDAI.NUMBER? {nil}
 		public var realValue: SDAI.REAL? {nil}
 		public var integerValue: SDAI.INTEGER? {nil}
+		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
+		
 		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
 		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
@@ -83,11 +96,6 @@ extension SDAI {
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		
-//		public init?<S>(possiblyFrom select: S?) where S : SDAISelectType {
-//			self.init(fromGeneric: select)
-////			guard let binaryValue = select?.binaryValue else { return nil }
-////			self.init(binaryValue)
-//		}
 		// InitializableByGenerictype
 		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 			guard let binaryValue = generic?.binaryValue else { return nil }

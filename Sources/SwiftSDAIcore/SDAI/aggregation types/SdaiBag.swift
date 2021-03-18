@@ -122,6 +122,8 @@ extension SDAI {
 		public var numberValue: SDAI.NUMBER? {nil}
 		public var realValue: SDAI.REAL? {nil}
 		public var integerValue: SDAI.INTEGER? {nil}
+		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
+
 		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
 		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
@@ -187,17 +189,33 @@ extension SDAI {
 		
 		// SwiftDictRepresentable
 		public var asSwiftDict: Dictionary<ELEMENT.FundamentalType, Int> {
-			var dict: Dictionary<ELEMENT.FundamentalType, Int> = [:]
-			for elem in self {
-				let fundamental = elem.asFundamentalType
-				if let count = dict[fundamental] {
-					dict[fundamental] = count + 1
-				}
-				else {
-					dict[fundamental] = 1
-				}
-			}
-			return dict
+//			var dict: Dictionary<ELEMENT.FundamentalType, Int> = [:]
+//			for elem in self {
+//				let fundamental = elem.asFundamentalType
+//				if let count = dict[fundamental] {
+//					dict[fundamental] = count + 1
+//				}
+//				else {
+//					dict[fundamental] = 1
+//				}
+//			}
+//			return dict
+			return Dictionary<ELEMENT.FundamentalType,Int>( self.lazy.map{($0.asFundamentalType, 1)} ){$0 + $1}
+		}
+
+		public var asValueDict: Dictionary<ELEMENT.Value,Int> {
+//			var dict: Dictionary<ELEMENT.FundamentalType, Int> = [:]
+//			for elem in self {
+//				let value = elem.value
+//				if let count = dict[value] {
+//					dict[value] = count + 1
+//				}
+//				else {
+//					dict[value] = 1
+//				}
+//			}
+//			return dict
+			return Dictionary<ELEMENT.Value,Int>( self.lazy.map{($0.value, 1)} ){$0 + $1}
 		}
 		
 		// BAG specific

@@ -155,8 +155,9 @@ extension SDAI {
 		return INTEGER(V?.aggregationSize)
 	}
 	
-	public static func SIZEOF<AIE: SDAI__AIE__type>(_ V: [AIE]) -> INTEGER? {
-		return INTEGER(  V.reduce(0, {$0 + $1.count})  )
+	public static func SIZEOF<AI: SDAIAggregationInitializer>(_ V: AI?) -> INTEGER?
+	{
+		return INTEGER(  V?.reduce(0, {$0 + $1.count})  )
 	}
 
 	

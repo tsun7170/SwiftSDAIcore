@@ -79,12 +79,16 @@ public protocol SDAIAggregationSequence
 public protocol SwiftDictRepresentable {
 	associatedtype ELEMENT: SDAIGenericType
 	var asSwiftDict: Dictionary<ELEMENT.FundamentalType,Int> {get}
+	var asValueDict: Dictionary<ELEMENT.Value,Int> {get}
 }
 
 public extension SDAIDefinedType
-where Supertype: SwiftDictRepresentable, Self: SwiftDictRepresentable, Supertype.ELEMENT.FundamentalType == Self.ELEMENT.FundamentalType
+where Supertype: SwiftDictRepresentable, Self: SwiftDictRepresentable, 
+			Supertype.ELEMENT.FundamentalType == Self.ELEMENT.FundamentalType,
+			Supertype.ELEMENT.Value == Self.ELEMENT.Value
 {
 	var asSwiftDict: Dictionary<ELEMENT.FundamentalType,Int> { return rep.asSwiftDict }
+	var asValueDict: Dictionary<ELEMENT.Value,Int> { return rep.asValueDict }
 }
 
 //MARK: - Aggregation type

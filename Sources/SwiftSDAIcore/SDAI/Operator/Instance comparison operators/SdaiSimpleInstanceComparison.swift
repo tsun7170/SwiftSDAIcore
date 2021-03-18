@@ -8,110 +8,115 @@
 import Foundation
 
 //MARK: - Instance comparison operators (numeric, logical, string, binary and enumeration) (12.2.2)
+
 //MARK: numeric type vs. numeric type
-public func .===. <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+public func .===. <T: SDAIIntRepresented, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
+public func .!==. <T: SDAIIntRepresented, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
-public func .===. <T: SDAIIntRepresentedNumberType>(lhs: T?, rhs: Int?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <T: SDAIIntRepresentedNumberType>(lhs: T?, rhs: Int?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+public func .===. <T: SDAIIntRepresented, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
+public func .!==. <T: SDAIIntRepresented, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
-public func .===. <U: SDAIIntRepresentedNumberType>(lhs: Int?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <U: SDAIIntRepresentedNumberType>(lhs: Int?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+public func .===. <T: SDAIDoubleRepresented, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
+public func .!==. <T: SDAIDoubleRepresented, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
-public func .===. <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+public func .===. <T: SDAIDoubleRepresented, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
+public func .!==. <T: SDAIDoubleRepresented, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
-public func .===. <T: SDAIIntRepresentedNumberType>(lhs: T?, rhs: Double?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <T: SDAIIntRepresentedNumberType>(lhs: T?, rhs: Double?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+//MARK: numeric vs. select
+public func .===. <T: SDAIIntRepresented, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
+public func .!==. <T: SDAIIntRepresented, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
-public func .===. <U: SDAIDoubleRepresentedNumberType>(lhs: Int?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <U: SDAIDoubleRepresentedNumberType>(lhs: Int?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+public func .===. <T: SDAIDoubleRepresented, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
+public func .!==. <T: SDAIDoubleRepresented, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
-public func .===. <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+//MARK: select vs. numeric
+public func .===. <T: SDAISelectType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs .===. lhs }
+public func .!==. <T: SDAISelectType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
-public func .===. <T: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: Double?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <T: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: Double?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
-
-public func .===. <U: SDAIDoubleRepresentedNumberType>(lhs: Double?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <U: SDAIDoubleRepresentedNumberType>(lhs: Double?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
-
-public func .===. <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
-
-public func .===. <T: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: Int?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <T: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: Int?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
-
-public func .===. <U: SDAIIntRepresentedNumberType>(lhs: Double?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <U: SDAIIntRepresentedNumberType>(lhs: Double?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+public func .===. <T: SDAISelectType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs .===. lhs }
+public func .!==. <T: SDAISelectType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
 
 //MARK: logical type vs. logival type
 public func .===. <T: SDAILogicalType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
 public func .!==. <T: SDAILogicalType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
+//MARK: logical type vs. select
+public func .===. <T: SDAILogicalType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
+public func .!==. <T: SDAILogicalType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+
+//MARK: select vs. logical type
+public func .===. <T: SDAISelectType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs .===. lhs }
+public func .!==. <T: SDAISelectType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+
+
 //MARK: string type vs. string type
-public func .===. <T: SDAIStringType, U: SDAIStringType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <T: SDAIStringType, U: SDAIStringType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+public func .===. <T: SwiftStringRepresented, U: SwiftStringRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
+public func .!==. <T: SwiftStringRepresented, U: SwiftStringRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
-public func .===. <T: SDAIStringType>(lhs: T?, rhs: String?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <T: SDAIStringType>(lhs: T?, rhs: String?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+//MARK: string type vs. select
+public func .===. <T: SwiftStringRepresented, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
+public func .!==. <T: SwiftStringRepresented, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
-public func .===. <U: SDAIStringType>(lhs: String?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <U: SDAIStringType>(lhs: String?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+//MARK: select vs. string type
+public func .===. <T: SDAISelectType, U: SwiftStringRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs .===. lhs }
+public func .!==. <T: SDAISelectType, U: SwiftStringRepresented>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+
 
 //MARK: binary type vs. binary type
 public func .===. <T: SDAIBinaryType, U: SDAIBinaryType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
 public func .!==. <T: SDAIBinaryType, U: SDAIBinaryType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
-public func .===. <T: SDAIBinaryType>(lhs: T?, rhs: String?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <T: SDAIBinaryType>(lhs: T?, rhs: String?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+//MARK: binary type vs. select
+public func .===. <T: SDAIBinaryType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
+public func .!==. <T: SDAIBinaryType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
-public func .===. <U: SDAIBinaryType>(lhs: String?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <U: SDAIBinaryType>(lhs: String?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+//MARK: select vs. binary type
+public func .===. <T: SDAISelectType, U: SDAIBinaryType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs .===. lhs }
+public func .!==. <T: SDAISelectType, U: SDAIBinaryType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+
 
 //MARK: enum type vs. enum type
-public func .===. <T: SDAIEnumerationType>(lhs: T?, rhs: T?) -> SDAI.LOGICAL { lhs .==. rhs }
-public func .!==. <T: SDAIEnumerationType>(lhs: T?, rhs: T?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+public func .===. <T: SDAIEnumerationType, U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL where T.FundamentalType == U.FundamentalType { lhs .==. rhs }
+public func .!==. <T: SDAIEnumerationType, U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL where T.FundamentalType == U.FundamentalType { !(lhs .===. rhs) }
+
+//MARK: enum type vs. select
+public func .===. <T: SDAIEnumerationType,U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs }
+public func .!==. <T: SDAIEnumerationType,U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+
+//MARK: select vs. enum type
+public func .===. <T: SDAISelectType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs .===. lhs }
+public func .!==. <T: SDAISelectType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+
+
+//MARK: select vs. select
+public func .===. <T: SDAISelectType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
+	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
+	return SDAI.GENERIC(lhs) .===. rhs
+}
+public func .!==. <T: SDAISelectType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
 
 //MARK: GENERIC vs. generic type
 public func .===. <T: SDAI__GENERIC__type, U: SDAIGenericType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL {
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
+	
 	if let lhs = lhs.entityReference, let rhs = rhs.entityReference {
 		return lhs .===. rhs
 	}
-	else if let lhs = lhs.stringValue, let rhs = rhs.stringValue {
+	if let lhs = lhs.stringValue, let rhs = rhs.stringValue {
 		return lhs .===. rhs
 	}
-	else if let lhs = lhs.binaryValue, let rhs = rhs.binaryValue {
+	if let lhs = lhs.arrayOptionalValue(elementType: SDAI.GENERIC.self), 
+		 let rhs = rhs.arrayOptionalValue(elementType: SDAI.GENERIC.self) {
 		return lhs .===. rhs
 	}
-	else if let lhs = lhs.booleanValue, let rhs = rhs.booleanValue {
+	if let lhs = lhs.listValue(elementType: SDAI.GENERIC.self), 
+		 let rhs = rhs.listValue(elementType: SDAI.GENERIC.self) {
 		return lhs .===. rhs
 	}
-	else if let lhs = lhs.logicalValue, let rhs = rhs.logicalValue {
-		return lhs .===. rhs
-	}
-	else if let lhs = lhs.integerValue, let rhs = rhs.integerValue {
-		return lhs .===. rhs
-	}
-	else if let lhs = lhs.realValue, let rhs = rhs.realValue {
-		return lhs .===. rhs
-	}
-	else if let lhs = lhs.numberValue, let rhs = rhs.numberValue {
-		return lhs .===. rhs
-	}
-	else if let lhs = lhs.arrayOptionalValue(elementType: SDAI.GENERIC.self), 
-					let rhs = rhs.arrayOptionalValue(elementType: SDAI.GENERIC.self) {
-		return lhs .===. rhs
-	}
-	else if let lhs = lhs.listValue(elementType: SDAI.GENERIC.self), 
-					let rhs = rhs.listValue(elementType: SDAI.GENERIC.self) {
-		return lhs .===. rhs
-	}
-	else if let lhs = lhs.bagValue(elementType: SDAI.GENERIC.self), 
-					let rhs = rhs.bagValue(elementType: SDAI.GENERIC.self) {
+	if let lhs = lhs.bagValue(elementType: SDAI.GENERIC.self), 
+		 let rhs = rhs.bagValue(elementType: SDAI.GENERIC.self) {
 		return lhs .===. rhs
 	}
 	return lhs .==. rhs	
