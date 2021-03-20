@@ -18,6 +18,8 @@ where FundamentalType == SDAI.REAL,
 {
 	init?(_ double: Double?)
 	init(_ double: Double)
+	init?(_ int: Int?)
+	init(_ int: Int)
 	init?<T:SDAIRealType>(_ subtype: T?)
 	init<T:SDAIRealType>(_ subtype: T)
 }
@@ -28,6 +30,13 @@ public extension SDAI__REAL__type
 	init?(_ double: Double?) {
 		guard let double = double else { return nil }
 		self.init(double)
+	}
+	init?(_ int: Int?) {
+		guard let int = int else { return nil }
+		self.init(int)
+	}
+	init(_ int: Int) {
+		self.init(Double(int))
 	}
 	init(integerLiteral value: Int) {
 		self.init(SwiftType(value))

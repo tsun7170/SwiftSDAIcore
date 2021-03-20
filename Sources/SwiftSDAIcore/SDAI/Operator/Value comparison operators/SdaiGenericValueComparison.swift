@@ -77,7 +77,7 @@ public func >    <T: SDAI__GENERIC__type, U: SDAIGenericType>(lhs: T?, rhs: U?) 
 		return lhs > rhs
 	}
 	if let lhs = lhs.genericEnumValue, let rhs = rhs.genericEnumValue {
-		if lhs.typeId == rhs.typeId { return lhs.enumCardinal > rhs.enumCardinal }
+		if lhs.typeId == rhs.typeId { return SDAI.LOGICAL(lhs.enumCardinal > rhs.enumCardinal) }
 		return SDAI.UNKNOWN
 	}
 	return SDAI.UNKNOWN

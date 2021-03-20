@@ -12,11 +12,13 @@ public protocol SdaiNumberRepType : SignedNumeric, Strideable
 extension Double: SdaiNumberRepType {}
 extension Int: SdaiNumberRepType {}
 
+//MARK: - Double represented
 public protocol SDAIDoubleRepresented
 {
 	var asSwiftDouble: Double {get}
 }
 
+//MARK: - Int represented
 public protocol SDAIIntRepresented: SwiftDoubleConvertible
 {
 	var asSwiftInt: Int {get}
@@ -97,6 +99,8 @@ where FundamentalType == SDAI.NUMBER,
 {
 	init?(_ double: Double?)
 	init(_ double: Double)
+	init?(_ int: Int?)
+	init(_ int: Int)
 	init?<T:SDAINumberType>(_ subtype: T?)
 	init<T:SDAINumberType>(_ subtype: T)
 }
@@ -107,6 +111,13 @@ public extension SDAI__NUMBER__type
 	init?(_ double: Double?) {
 		guard let double = double else { return nil }
 		self.init(double)
+	}
+	init?(_ int: Int?) {
+		guard let int = int else { return nil }
+		self.init(int)
+	}
+	init(_ int: Int) {
+		self.init(Double(int))
 	}
 	init(integerLiteral value: Int) {
 		self.init(SwiftType(value))

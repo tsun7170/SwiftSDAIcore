@@ -15,7 +15,6 @@ public protocol SDAIIntegerType: SDAIRealType, SwiftIntConvertible
 public protocol SDAI__INTEGER__type: SDAIIntegerType, SDAIIntRepresentedNumberType
 where FundamentalType == SDAI.INTEGER,
 			Value == FundamentalType.Value
-//			SwiftType == FundamentalType.SwiftType
 {
 	init?(_ int: Int?)
 	init(_ int: Int)
@@ -74,11 +73,6 @@ extension SDAI {
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		
-//		public init?<S>(possiblyFrom select: S?) where S : SDAISelectType {
-//			self.init(fromGeneric: select)
-////			guard let integerValue = select?.integerValue else { return nil }
-////			self.init(integerValue)
-//		}
 		// InitializableByGenerictype
 		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 			guard let integerValue = generic?.integerValue else { return nil }
@@ -104,6 +98,12 @@ extension SDAI {
 			if let rhs = rhs as? Self { return self == rhs }
 			if let rhs = rhs as? SwiftIntConvertible { return self.asSwiftInt == rhs.asSwiftInt }
 			return false
+		}
+		
+		// INTEGER specific
+		public init?(truncating real: SDAIDoubleRepresented?) {
+			guard let double = real?.asSwiftDouble else { return nil }
+			self.init(Int(double))
 		}
 	}
 }
