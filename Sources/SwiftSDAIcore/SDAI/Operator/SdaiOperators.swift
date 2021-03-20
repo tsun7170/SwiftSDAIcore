@@ -16,9 +16,18 @@ infix operator .!==. : ComparisonPrecedence
 infix operator .||. : AdditionPrecedence
 
 //MARK: - index range support
-public func ... <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> ClosedRange<Int>? { abstruct() }
-public func ... <T: SDAIIntRepresentedNumberType>(lhs: T?, rhs: Int?) -> ClosedRange<Int>? { abstruct() }
-public func ... <U: SDAIIntRepresentedNumberType>(lhs: Int?, rhs: U?) -> ClosedRange<Int>? { abstruct() }
+public func ... <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> ClosedRange<Int>? { 
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return lhs.asSwiftInt ... rhs.asSwiftInt
+}
+public func ... <T: SDAIIntRepresentedNumberType>(lhs: T?, rhs: Int?) -> ClosedRange<Int>? { 
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return lhs.asSwiftInt ... rhs.asSwiftInt
+}
+public func ... <U: SDAIIntRepresentedNumberType>(lhs: Int?, rhs: U?) -> ClosedRange<Int>? { 
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return lhs.asSwiftInt ... rhs.asSwiftInt
+}
 
 
 
