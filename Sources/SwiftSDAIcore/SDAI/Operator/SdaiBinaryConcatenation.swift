@@ -7,7 +7,10 @@
 
 import Foundation
 
-//MARK: - Binary concatenation operator
-public func + <T: SDAIBinaryType, U: SDAIBinaryType>(lhs: T?, rhs: U?) -> SDAI.BINARY? { abstruct() }
-public func + <T: SDAIBinaryType>(lhs: T?, rhs: String?) -> SDAI.BINARY? { abstruct() }
-public func + <U: SDAIBinaryType>(lhs: String?, rhs: U?) -> SDAI.BINARY? { abstruct() }
+//MARK: - Binary concatenation operator (12.3.2)
+
+public func + <T: SDAI__BINARY__type, U: SDAI__BINARY__type>(lhs: T?, rhs: U?) -> SDAI.BINARY? { 
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return SDAI.BINARY( lhs.asSwiftType + rhs.asSwiftType )
+}
+
