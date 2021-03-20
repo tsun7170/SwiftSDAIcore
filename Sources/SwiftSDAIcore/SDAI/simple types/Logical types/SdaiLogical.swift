@@ -118,6 +118,17 @@ extension SDAI {
 			if let rhs = rhs as? SwiftBoolConvertible { return self.possiblyAsSwiftBool == rhs.possiblyAsSwiftBool }
 			return false
 		}
+		
+		// LIGICAL specific
+		public init(fromCardinal cardinal: Int) {
+			var bool: Bool? = nil
+			switch cardinal {
+			case 0: bool = false
+			case 2: bool = true
+			default:bool = nil
+			}
+			self.init(bool)
+		}
 	}
 }
 
