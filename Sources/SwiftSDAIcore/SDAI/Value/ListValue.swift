@@ -24,18 +24,33 @@ extension SDAI {
 		
 		// Hashable \SDAIValue
 		public func hash(into hasher: inout Hasher) {
-			hasher.combine(hiIndex)
-			elements.forEach { hasher.combine($0) }
+			var visited = Set<SDAI.ComplexEntity>()
+			self.hashAsValue(into: &hasher, visited: &visited)
 		}
 		
 		// SDAIValue
 		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool {
+			var visited = Set<SDAI.ComplexPair>()
+			return self.isValueEqual(to: rhs, visited: &visited)
+		}
+
+		public func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<SDAI.ComplexEntity>) {
+			hiIndex.hash(into: &hasher)
+			elements.forEach { $0.hashAsValue(into: &hasher, visited: &complexEntities) }
+		}
+		
+		public func isValueEqual<T: SDAIValue>(to rhs: T, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool {
 			guard let rav = rhs as? Self else { return false }
 			if rav.hiIndex != self.hiIndex { return false }
 
 			return self.elements.elementsEqual(rav.elements) { (le, re) -> Bool in
-				return le.isValueEqual(to: re)
+				return le.isValueEqual(to: re, visited: &comppairs)
 			}
+		}
+		
+		public func isValueEqualOptionally<T: SDAIValue>(to rhs: T?, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool? {
+			guard let rhs = rhs else { return nil }
+			return self.isValueEqual(to: rhs, visited: &comppairs)
 		}
 
 		// _ListValue specific

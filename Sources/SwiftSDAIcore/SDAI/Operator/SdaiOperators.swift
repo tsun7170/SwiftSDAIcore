@@ -15,7 +15,7 @@ infix operator .===. : ComparisonPrecedence
 infix operator .!==. : ComparisonPrecedence
 infix operator .||. : AdditionPrecedence
 
-//MARK: - index range support
+//MARK: - index range support (12.3.1)
 public func ... <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> ClosedRange<Int>? { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return lhs.asSwiftInt ... rhs.asSwiftInt

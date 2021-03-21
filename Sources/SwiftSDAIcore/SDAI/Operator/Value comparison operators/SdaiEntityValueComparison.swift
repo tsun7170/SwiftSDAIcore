@@ -11,8 +11,7 @@ import Foundation
 
 //MARK: entity ref vs. entity ref
 public func .==. (lhs: SDAI.EntityReference?, rhs: SDAI.EntityReference?) -> SDAI.LOGICAL { 
-	guard let lhs = lhs?.value, let rhs = rhs?.value else { return SDAI.UNKNOWN }
-	return SDAI.LOGICAL( lhs == rhs )
+	return SDAI.LOGICAL( lhs?.value.isValueEqualOptionally(to: rhs?.value) )
 }
 public func .!=. (lhs: SDAI.EntityReference?, rhs: SDAI.EntityReference?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
 

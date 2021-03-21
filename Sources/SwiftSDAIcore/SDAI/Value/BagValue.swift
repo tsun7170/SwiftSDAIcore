@@ -25,12 +25,31 @@ extension SDAI {
 		
 		// Hashable \SDAIValue
 		public func hash(into hasher: inout Hasher) {
-			hasher.combine(hiIndex)
-			elements.forEach { hasher.combine($0) }
+			var visited = Set<SDAI.ComplexEntity>()
+			self.hashAsValue(into: &hasher, visited: &visited)
 		}
 		
 		// SDAIValue
 		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool {
+			var visited = Set<SDAI.ComplexPair>()
+			return self.isValueEqual(to: rhs, visited: &visited)
+		}
+		
+		private var asCountedSet: CountedSet {
+			var cset = CountedSet(minimumCapacity: self.size)
+			for e in self.elements {
+				if let count = cset[e] { cset[e] = count + 1 }
+				else { cset[e] = 1 }
+			}
+			return cset
+		}
+
+		public func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<SDAI.ComplexEntity>) {
+			hiIndex.hash(into: &hasher)
+			elements.forEach { $0.hashAsValue(into: &hasher, visited: &complexEntities) }
+		}
+		
+		public func isValueEqual<T: SDAIValue>(to rhs: T, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool {
 			guard let rav = rhs as? Self else { return false }
 			if rav.hiIndex != self.hiIndex { return false }
 
@@ -45,15 +64,12 @@ extension SDAI {
 			return cset.isEmpty
 		}
 		
-		private var asCountedSet: CountedSet {
-			var cset = CountedSet(minimumCapacity: self.size)
-			for e in self.elements {
-				if let count = cset[e] { cset[e] = count + 1 }
-				else { cset[e] = 1 }
-			}
-			return cset
+		public func isValueEqualOptionally<T: SDAIValue>(to rhs: T?, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool? {
+			guard let rhs = rhs else { return nil }
+			return self.isValueEqual(to: rhs, visited: &comppairs)
 		}
 
+		
 		// _BagValue specific
 		init(from bag: BAG<ELEMENT>) {
 			hiIndex = bag.hiIndex

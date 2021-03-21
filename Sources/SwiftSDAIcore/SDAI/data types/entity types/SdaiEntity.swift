@@ -41,8 +41,8 @@ extension SDAI {
 	
 	
 	//MARK: - ComplexEntity
-	open class ComplexEntity: SDAI.Object, SDAIGenericType {
-		public typealias FundamentalType = ComplexEntity
+	open class ComplexEntity: SDAI.Object//, SDAIGenericType 
+	{
 		
 		private var partialEntities: Dictionary<PartialEntity.TypeIdentity,(instance:PartialEntity,reference:EntityReference?)> = [:]
 		
@@ -88,51 +88,47 @@ extension SDAI {
 
 		
 		// SDAIGenericType
-		public var asFundamentalType: FundamentalType { return self }	
-		public required convenience init(fundamental: FundamentalType) {
-			let peArray = fundamental.partialEntities.values.map {$0.instance}
-			self.init(entities: peArray)
-		}
-
-		
+//		public typealias FundamentalType = ComplexEntity
+//		
+//		public var asFundamentalType: FundamentalType { return self }	
+//		public required convenience init(fundamental: FundamentalType) {
+//			let peArray = fundamental.partialEntities.values.map {$0.instance}
+//			self.init(entities: peArray)
+//		}
+//
+//		
 		public var typeMembers: Set<SDAI.STRING> { 
 			Set( partialEntities.values.map{ (pe) -> STRING in STRING(stringLiteral: pe.instance.qualifiedEntityName) } ) 
 		}
 		
 		public typealias Value = _ComplexEntityValue
 		public var value: Value { abstruct() }
-		
-		public var entityReference: SDAI.EntityReference? { EntityReference(complex: self) }	
-		public var stringValue: SDAI.STRING? {nil}
-		public var binaryValue: SDAI.BINARY? {nil}
-		public var logicalValue: SDAI.LOGICAL? {nil}
-		public var booleanValue: SDAI.BOOLEAN? {nil}
-		public var numberValue: SDAI.NUMBER? {nil}
-		public var realValue: SDAI.REAL? {nil}
-		public var integerValue: SDAI.INTEGER? {nil}
-		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
+//		
+//		public var entityReference: SDAI.EntityReference? { EntityReference(complex: self) }	
+//		public var stringValue: SDAI.STRING? {nil}
+//		public var binaryValue: SDAI.BINARY? {nil}
+//		public var logicalValue: SDAI.LOGICAL? {nil}
+//		public var booleanValue: SDAI.BOOLEAN? {nil}
+//		public var numberValue: SDAI.NUMBER? {nil}
+//		public var realValue: SDAI.REAL? {nil}
+//		public var integerValue: SDAI.INTEGER? {nil}
+//		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
+//
+//		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+//		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+//		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
+//		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+//		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+//		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
-		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
-		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
-		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
-		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
-		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
-
 		
-//		public required convenience init?<S: SDAISelectType>(possiblyFrom select: S?) {
-//			self.init(fromGenetic: select)
-////			guard let entityRef = select?.entityReference else { return nil }
-//////			self.init(complex: entityRef.complexEntity)
-////			abstruct()
+//		// InitializableByGenerictype
+//		public required convenience init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+////			guard let fundamental = generic?.setValue(elementType: ELEMENT.self) else { return nil }
+////			self.init(fundamental: fundamental)
+//			abstruct()
 //		}
-		// InitializableByGenerictype
-		public required convenience init?<G: SDAIGenericType>(fromGeneric generic: G?) {
-//			guard let fundamental = generic?.setValue(elementType: ELEMENT.self) else { return nil }
-//			self.init(fundamental: fundamental)
-			abstruct()
-		}
-
+//
 		func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<ComplexEntity>) {
 			guard !complexEntities.contains(self) else { return }
 			complexEntities.insert(self)
@@ -142,12 +138,14 @@ extension SDAI {
 		}
 		
 		func isValueEqual(to rhs: ComplexEntity, visited comppairs: inout Set<ComplexPair>) -> Bool {
+			// per (12.2.1.7)
 			if self === rhs { return true }
 			let lr = ComplexPair(l: self, r: rhs)
+			let rl = ComplexPair(l: rhs, r: self)
 			if comppairs.contains( lr ) { return true }
 			if self.partialEntities.count != rhs.partialEntities.count { return false }
 			
-			comppairs.insert(lr)
+			comppairs.insert(lr); comppairs.insert(rl)
 			for (typeIdentity, (lpe,_)) in self.partialEntities {
 				guard let (rpe,_) = rhs.partialEntities[typeIdentity] else { return false }
 				if lpe === rpe { continue }
@@ -157,13 +155,15 @@ extension SDAI {
 		}
 		
 		func isValueEqualOptionally(to rhs: ComplexEntity?, visited comppairs: inout Set<ComplexPair>) -> Bool? {
+			// per (12.2.1.7)
 			guard let rhs = rhs else{ return nil }
 			if self === rhs { return true }
 			let lr = ComplexPair(l: self, r: rhs)
+			let rl = ComplexPair(l: rhs, r: self)
 			if comppairs.contains( lr ) { return true }
 			if self.partialEntities.count != rhs.partialEntities.count { return false }
 			
-			comppairs.insert(lr)
+			comppairs.insert(lr); comppairs.insert(rl)
 			var isequal: Bool? = true
 			for (typeIdentity, (lpe,_)) in self.partialEntities {
 				guard let (rpe,_) = rhs.partialEntities[typeIdentity] else { return false }
@@ -186,9 +186,6 @@ extension SDAI {
 		public typealias FundamentalType = EntityReference
 		
 		public var asFundamentalType: FundamentalType { return self }	
-//		public required convenience init(fundamental: FundamentalType) {
-//			self.init(fundamental)
-//		}
 
 		public var typeMembers: Set<STRING> { complexEntity.typeMembers }
 		public var value: ComplexEntity.Value { complexEntity.value }
@@ -216,27 +213,17 @@ extension SDAI {
 		}
 
 		
-//		// InitializableByEntity
-//		public required convenience init?(possiblyFrom complex: SDAI.ComplexEntity?) {
-//			self.init(complex: complex)
-//		}
-		
-		// SDAIObservableAggregateElement
-//		public var entityReference: SDAI.EntityReference? { return self }
-		
 		// EntityReference specific
 		public static var partialEntityType: PartialEntity.Type { abstruct() }
 		
 		
 		public required init?(complex complexEntity: ComplexEntity?) {
 			guard let complexEntity = complexEntity else { return nil }
-//			self.complexEntity = complexEntity
 			super.init(object: complexEntity)
 		}
 		
 		// SDAI.GENERIC_ENTITY
 		public init(_ entityRef: EntityReference) {
-//			self.complexEntity = entityRef.complexEntity
 			super.init(object: entityRef.complexEntity)
 		}
 		public convenience init?(_ entityRef: EntityReference?) {
@@ -244,11 +231,6 @@ extension SDAI {
 			self.init(entityRef)
 		}
 		
-//		public required convenience init?<S: SDAISelectType>(possiblyFrom select: S?) {
-//			self.init(fromGeneric: select)
-////			guard let entityRef = select?.entityReference else { return nil }
-////			self.init(complex: entityRef.complexEntity)
-//		}
 		// InitializableByGenerictype
 		required public convenience init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 			guard let entityRef = generic?.entityReference else { return nil }

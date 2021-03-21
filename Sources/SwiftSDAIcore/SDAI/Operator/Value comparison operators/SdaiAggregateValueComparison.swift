@@ -11,17 +11,7 @@ import Foundation
 
 //MARK: array vs. array
 public func .==. <T: SDAIArrayOptionalType, U: SDAIArrayOptionalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
-	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
-	if SDAI.SIZEOF(lhs) != SDAI.SIZEOF(rhs) { return SDAI.FALSE }
-	if lhs.loIndex != rhs.loIndex { return SDAI.FALSE }
-
-	var result = SDAI.TRUE
-	for idx in lhs.loIndex ... lhs.hiIndex {
-		let comp = SDAI.GENERIC(lhs[idx]) .==. rhs[idx]
-		if comp == SDAI.FALSE { return SDAI.FALSE }
-		if comp == SDAI.UNKNOWN { result = SDAI.UNKNOWN }		
-	}
-	return result
+	return SDAI.LOGICAL( lhs?.value.isValueEqualOptionally(to: rhs?.value) )
 }
 public func .!=. <T: SDAIArrayOptionalType, U: SDAIArrayOptionalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
 
@@ -36,16 +26,7 @@ public func .!=. <T: SDAISelectType, U: SDAIArrayOptionalType>(lhs: T?, rhs: U?)
 
 //MARK: list vs. list
 public func .==. <T: SDAIListType, U: SDAIListType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
-	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
-	if SDAI.SIZEOF(lhs) != SDAI.SIZEOF(rhs) { return SDAI.FALSE }
-
-	var result = SDAI.TRUE
-	for idx in lhs.loIndex ... lhs.hiIndex {
-		let comp = SDAI.GENERIC(lhs[idx]) .==. rhs[idx]
-		if comp == SDAI.FALSE { return SDAI.FALSE }
-		if comp == SDAI.UNKNOWN { result = SDAI.UNKNOWN }		
-	}
-	return result
+	return SDAI.LOGICAL( lhs?.value.isValueEqualOptionally(to: rhs?.value) )
 }
 public func .!=. <T: SDAIListType, U: SDAIListType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
 
@@ -79,18 +60,7 @@ public func .!=. <T: SDAISelectType, U: SDAIListType>(lhs: T?, rhs: U?) -> SDAI.
 
 //MARK: (bag or set) vs. (bag or set)
 public func .==. <T: SDAIBagType, U: SDAIBagType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
-	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
-	if SDAI.SIZEOF(lhs) != SDAI.SIZEOF(rhs) { return SDAI.FALSE }
-
-	let lhsDict = lhs.asValueDict
-	let rhsDict = rhs.asValueDict
-	for (elem,lhsCount) in lhsDict {
-		if let elem = (elem as Any) as? U.ELEMENT.Value, let rhsCount = rhsDict[elem] {
-			if lhsCount != rhsCount { return SDAI.FALSE }
-		}
-		else { return SDAI.FALSE }
-	}
-	return SDAI.TRUE
+	return SDAI.LOGICAL( lhs?.value.isValueEqualOptionally(to: rhs?.value) )
 }
 public func .!=. <T: SDAIBagType, U: SDAIBagType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
 
