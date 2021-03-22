@@ -43,19 +43,21 @@ extension SDAI {
 	//MARK: - ComplexEntity
 	open class ComplexEntity: SDAI.Object//, SDAIGenericType 
 	{
-		
-		private var partialEntities: Dictionary<PartialEntity.TypeIdentity,(instance:PartialEntity,reference:EntityReference?)> = [:]
+		public var partialEntities: [PartialEntity] {
+			_partialEntities.values.map{ (pe) in pe.instance }
+		}
+		private var _partialEntities: Dictionary<PartialEntity.TypeIdentity,(instance:PartialEntity,reference:EntityReference?)> = [:]
 		
 		public init(entities:[PartialEntity]) {
 			super.init()
 			
 			for pe in entities {
-				partialEntities[type(of: pe).typeIdentity] = (instance:pe, reference:nil)	
+				_partialEntities[type(of: pe).typeIdentity] = (instance:pe, reference:nil)	
 			}
 		}
 		
 		public func partialEntityInstance<PENT:PartialEntity>(_ peType:PENT.Type) -> PENT? {
-			if let (pe,_) = partialEntities[peType.typeIdentity] {
+			if let (pe,_) = _partialEntities[peType.typeIdentity] {
 				return pe as? PENT
 			}
 			return nil
@@ -63,7 +65,7 @@ extension SDAI {
 		
 		public func resolvePartialEntityInstance(from namelist:[PartialEntity.TypeIdentity]) -> PartialEntity? {
 			for typeIdentity in namelist {
-				if let (pe,_) = partialEntities[typeIdentity] {
+				if let (pe,_) = _partialEntities[typeIdentity] {
 					return pe
 				}
 			}
@@ -71,11 +73,11 @@ extension SDAI {
 		}
 		
 		public func entityReference<EREF:EntityReference>(_ erType:EREF.Type) -> EREF? {
-			if let (pe,eref) = partialEntities[erType.partialEntityType.typeIdentity] {
+			if let (pe,eref) = _partialEntities[erType.partialEntityType.typeIdentity] {
 				if eref != nil { return eref as? EREF }
 				
 				if let eref = EREF(complex:self) {
-					partialEntities[erType.partialEntityType.typeIdentity] = (pe,eref)
+					_partialEntities[erType.partialEntityType.typeIdentity] = (pe,eref)
 					return eref
 				}
 			}
@@ -98,7 +100,7 @@ extension SDAI {
 //
 //		
 		public var typeMembers: Set<SDAI.STRING> { 
-			Set( partialEntities.values.map{ (pe) -> STRING in STRING(stringLiteral: pe.instance.qualifiedEntityName) } ) 
+			Set( _partialEntities.values.map{ (pe) -> STRING in STRING(stringLiteral: pe.instance.qualifiedEntityName) } ) 
 		}
 		
 		public typealias Value = _ComplexEntityValue
@@ -132,7 +134,7 @@ extension SDAI {
 		func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<ComplexEntity>) {
 			guard !complexEntities.contains(self) else { return }
 			complexEntities.insert(self)
-			for (pe,_) in partialEntities.values {
+			for (pe,_) in _partialEntities.values {
 				pe.hashAsValue(into: &hasher, visited: &complexEntities)
 			}
 		}
@@ -143,11 +145,11 @@ extension SDAI {
 			let lr = ComplexPair(l: self, r: rhs)
 			let rl = ComplexPair(l: rhs, r: self)
 			if comppairs.contains( lr ) { return true }
-			if self.partialEntities.count != rhs.partialEntities.count { return false }
+			if self._partialEntities.count != rhs._partialEntities.count { return false }
 			
 			comppairs.insert(lr); comppairs.insert(rl)
-			for (typeIdentity, (lpe,_)) in self.partialEntities {
-				guard let (rpe,_) = rhs.partialEntities[typeIdentity] else { return false }
+			for (typeIdentity, (lpe,_)) in self._partialEntities {
+				guard let (rpe,_) = rhs._partialEntities[typeIdentity] else { return false }
 				if lpe === rpe { continue }
 				if !lpe.isValueEqual(to: rpe, visited: &comppairs) { return false }
 			}
@@ -161,12 +163,12 @@ extension SDAI {
 			let lr = ComplexPair(l: self, r: rhs)
 			let rl = ComplexPair(l: rhs, r: self)
 			if comppairs.contains( lr ) { return true }
-			if self.partialEntities.count != rhs.partialEntities.count { return false }
+			if self._partialEntities.count != rhs._partialEntities.count { return false }
 			
 			comppairs.insert(lr); comppairs.insert(rl)
 			var isequal: Bool? = true
-			for (typeIdentity, (lpe,_)) in self.partialEntities {
-				guard let (rpe,_) = rhs.partialEntities[typeIdentity] else { return false }
+			for (typeIdentity, (lpe,_)) in self._partialEntities {
+				guard let (rpe,_) = rhs._partialEntities[typeIdentity] else { return false }
 				if lpe === rpe { continue }
 				if let result = lpe.isValueEqualOptionally(to: rpe, visited: &comppairs), !result { return false }
 				else { isequal = nil }
