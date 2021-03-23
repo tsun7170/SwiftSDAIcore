@@ -126,26 +126,6 @@ extension SDAI {
 	}
 }
 
-//public extension SDAIAggregationType
-//where Element == ELEMENT
-//{
-//	func forEachELEMENT(do task: (_ elem: ELEMENT) -> SDAI.IterControl ) {
-//		for elem in self {
-//			if task(elem) == .stop { break }
-//		}
-//	}
-//}
-//public extension SDAIAggregationType
-//where Element == ELEMENT?
-//{
-//	func forEachELEMENT(do task: (_ elem: ELEMENT) -> SDAI.IterControl ) {
-//		for elem in self {
-//			guard let elem = elem else { continue }
-//			if task(elem) == .stop { break }
-//		}
-//	}
-//}
-
 
 //MARK: - extension per ELEMENT type
 public extension SDAIAggregationType
@@ -218,12 +198,6 @@ public extension SDAIObservableAggregate
 						entityObserver( nil, entityRef )
 					}
 				}
-//				self.forEachELEMENT { elem in
-//					for entityRef in elem.entityReferences {
-//						entityObserver( nil, entityRef )
-//					}
-//					return .next
-//				}
 			}
 		}
 	}
@@ -235,12 +209,6 @@ public extension SDAIObservableAggregate
 					entityObserver( entityRef, nil )
 				}
 			}
-//			self.forEachELEMENT { elem in
-//				for entityRef in elem.entityReferences {
-//					entityObserver( entityRef, nil )
-//				}
-//				return .next
-//			}
 		}
 	}
 	
@@ -283,10 +251,6 @@ where Self: SDAIAggregationType,
 		get { return rep._observer }
 		set { rep._observer = newValue }
 	}
-//	subscript(index: Int?) -> ELEMENT? { 
-//		get{ return rep[index] }
-//		set{ rep[index] = newValue }
-//	}
 	var asAggregationSequence: AnySequence<ELEMENT> { return rep.asAggregationSequence }
 
 	func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL { return rep.CONTAINS(elem: elem) }

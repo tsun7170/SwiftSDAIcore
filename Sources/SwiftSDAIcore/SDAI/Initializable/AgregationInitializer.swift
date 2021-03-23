@@ -108,17 +108,6 @@ public extension SDAIAggregationInitializer
 	
 	// SwiftDictRepresentable
 	var asSwiftDict: Dictionary<ELEMENT.FundamentalType, Int> {
-//		var dict: Dictionary<ELEMENT.FundamentalType, Int> = [:]
-//		for elem in self.asAggregationSequence {
-//			let fundamental = elem.asFundamentalType
-//			if let count = dict[fundamental] {
-//				dict[fundamental] = count + 1
-//			}
-//			else {
-//				dict[fundamental] = 1
-//			}
-//		}
-//		return dict
 		return Dictionary<ELEMENT.FundamentalType,Int>( self.asAggregationSequence.lazy.map{($0.asFundamentalType, 1)} ){$0 + $1}
 	}
 	

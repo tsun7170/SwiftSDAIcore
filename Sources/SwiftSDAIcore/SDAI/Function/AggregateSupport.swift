@@ -7,88 +7,23 @@
 
 import Foundation
 
+//MARK: Membership operator (12.2.3)
+
 extension SDAI {
-	//MARK: AGGREGATE(:CONTAINS)
-//	public static func AGGREGATE<AGG:SDAIAggregationType, ELEM>(_ agg:AGG?, CONTAINS elem:ELEM?) -> SDAI.LOGICAL 
-//	where ELEM: SDAISelectType,
-//				AGG.ELEMENT: InitializableBySelecttype
-//	{
-//		abstruct()
-//	}
-//	
-//	public static func AGGREGATE<AGG:SDAIAggregationType>(_ agg:AGG?, CONTAINS elem:SDAI.EntityReference?) -> SDAI.LOGICAL 
-//	where AGG.ELEMENT: InitializableByEntity
-//	{
-//		abstruct()
-//	}
-//	
-//	public static func AGGREGATE<AGG:SDAIAggregationType, ELEM>(_ agg:AGG?, CONTAINS elem:ELEM?) -> SDAI.LOGICAL 
-//	where ELEM: SDAIUnderlyingType,
-//				AGG.ELEMENT: InitializableByDefinedtype
-//	{
-//		abstruct()
-//	}
-//	
-//	public static func AGGREGATE<AGG:SDAIAggregationType, ELEM>(_ agg:AGG?, CONTAINS elem:ELEM?) -> SDAI.LOGICAL 
-//	where ELEM == AGG.ELEMENT.SwiftType,
-//				AGG.ELEMENT: InitializableBySwifttype
-//	{
-//		abstruct()
-//	}
-	public static func aggregate<AGG:SDAIAggregationType, ELEM:SDAIGenericType>(_ agg:AGG?, contains elem:ELEM?) -> SDAI.LOGICAL 
+	public static func aggregate<AGG:SDAIAggregationType, ELEM:SDAIGenericType>(_ agg:AGG?, contains elem:ELEM?) -> SDAI.LOGICAL where AGG.ELEMENT: SDAIGenericType
 	{
-		abstruct()
+		guard let agg = agg, let elem = elem else { return SDAI.UNKNOWN }
+		guard let aggelem = AGG.ELEMENT(fromGeneric: elem) else { return SDAI.FALSE }
+		return agg.CONTAINS(elem: aggelem)
 	}
 	
-
-//	public static func AGGREGATE<AGG:SDAIAggregationInitializer, ELEM>(_ agg:AGG?, CONTAINS elem:ELEM?) -> SDAI.LOGICAL 
-//	where ELEM: SDAISelectType,
-//				AGG.ELEMENT: InitializableBySelecttype
-//	{
-//		abstruct()
-//	}
-//	
-//	public static func AGGREGATE<AGG:SDAIAggregationInitializer>(_ agg:AGG?, CONTAINS elem:SDAI.EntityReference?) -> SDAI.LOGICAL 
-//	where AGG.ELEMENT: InitializableByEntity
-//	{
-//		abstruct()
-//	}
-//	
-//	public static func AGGREGATE<AGG:SDAIAggregationInitializer, ELEM>(_ agg:AGG?, CONTAINS elem:ELEM?) -> SDAI.LOGICAL 
-//	where ELEM: SDAIUnderlyingType,
-//				AGG.ELEMENT: InitializableByDefinedtype
-//	{
-//		abstruct()
-//	}
-//	
-//	public static func AGGREGATE<AGG:SDAIAggregationInitializer, ELEM>(_ agg:AGG?, CONTAINS elem:ELEM?) -> SDAI.LOGICAL 
-//	where ELEM == AGG.ELEMENT.SwiftType,
-//				AGG.ELEMENT: InitializableBySwifttype
-//	{
-//		abstruct()
-//	}
-//	
-//	public static func AGGREGATE<AGG:SDAIAggregationInitializer, ELEM>(_ agg:AGG?, CONTAINS elem:ELEM?) -> SDAI.LOGICAL 
-//	where AGG.ELEMENT == ELEM.SwiftType,
-//				ELEM: InitializableBySwifttype
-//	{
-//		abstruct()
-//	}
 	public static func aggregate<AGG:SDAIAggregationInitializer, ELEM:SDAIGenericType>(_ agg:AGG?, contains elem:ELEM?) -> SDAI.LOGICAL 
 	{
-		abstruct()
+		guard let agg = agg, let elem = elem else { return SDAI.UNKNOWN }
+		guard let aggelem = AGG.ELEMENT(fromGeneric: elem) else { return SDAI.FALSE }
+		return agg.CONTAINS(elem: aggelem)
 	}
 	
-	
-
-	
-
-//	public static func AGGREGATE<Element, ELEM>(_ agg:Array<Element>?, CONTAINS elem:ELEM?) -> SDAI.LOGICAL 
-//	where Element: SDAI__AIE__type,
-//				ELEM == Element.Element.Wrapped
-//	{
-//		abstruct()
-//	}
 
 }
 

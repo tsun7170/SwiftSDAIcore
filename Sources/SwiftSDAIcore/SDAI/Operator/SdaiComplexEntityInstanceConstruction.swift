@@ -8,7 +8,7 @@
 import Foundation
 
 
-//MARK: - Complex entity instance construction operator
+//MARK: - Complex entity instance construction operator (12.10)
 
 //MARK: partial vs. xxx
 public func .||. (lhs: SDAI.PartialEntity, rhs: SDAI.PartialEntity) -> SDAI.ComplexEntity  { 
