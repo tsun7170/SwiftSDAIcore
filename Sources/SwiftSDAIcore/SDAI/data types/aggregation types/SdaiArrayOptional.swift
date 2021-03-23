@@ -181,7 +181,7 @@ extension SDAI {
 		
 		// InitializableByEmptyArrayLiteral
 		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
-			self.init(from: SwiftType(repeating: nil, count: bound2.possiblyAsSwiftInt! - bound1.possiblyAsSwiftInt! + 1), bound1: bound1, bound2: bound2)
+			self.init(from: SwiftType(repeating: nil, count: bound2.asSwiftInt - bound1.asSwiftInt + 1), bound1: bound1, bound2: bound2)
 		} 
 		
 		// InitializableBySwifttypeAsArray

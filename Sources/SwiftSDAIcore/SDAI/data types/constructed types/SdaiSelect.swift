@@ -28,19 +28,19 @@ public extension SDAISelectType
 	
 	// SwiftDoubleConvertible
 	var possiblyAsSwiftDouble: Double? { self.realValue?.asSwiftType }
-	var asSwiftDouble: Double { self.possiblyAsSwiftDouble! }
+	var asSwiftDouble: Double { SDAI.UNWRAP(self.possiblyAsSwiftDouble) }
 	
 	// SwiftIntConvertible,
 	var possiblyAsSwiftInt: Int? { self.integerValue?.asSwiftType }
-	var asSwiftInt: Int { self.possiblyAsSwiftInt! }
+	var asSwiftInt: Int { SDAI.UNWRAP(self.possiblyAsSwiftInt) }
 	
 	// SwiftStringConvertible, 
 	var possiblyAsSwiftString: String? { self.stringValue?.asSwiftType }
-	var asSwiftString: String { self.possiblyAsSwiftString! }
+	var asSwiftString: String { SDAI.UNWRAP(self.possiblyAsSwiftString) }
 	
 	// SwiftBoolConvertible
 	var possiblyAsSwiftBool: Bool? { self.logicalValue?.asSwiftType }
-	var asSwiftBool: Bool { self.possiblyAsSwiftBool! }	
+	var asSwiftBool: Bool { SDAI.UNWRAP(self.possiblyAsSwiftBool) }	
 }
 
 

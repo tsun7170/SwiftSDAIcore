@@ -189,32 +189,10 @@ extension SDAI {
 		
 		// SwiftDictRepresentable
 		public var asSwiftDict: Dictionary<ELEMENT.FundamentalType, Int> {
-//			var dict: Dictionary<ELEMENT.FundamentalType, Int> = [:]
-//			for elem in self {
-//				let fundamental = elem.asFundamentalType
-//				if let count = dict[fundamental] {
-//					dict[fundamental] = count + 1
-//				}
-//				else {
-//					dict[fundamental] = 1
-//				}
-//			}
-//			return dict
 			return Dictionary<ELEMENT.FundamentalType,Int>( self.lazy.map{($0.asFundamentalType, 1)} ){$0 + $1}
 		}
 
 		public var asValueDict: Dictionary<ELEMENT.Value,Int> {
-//			var dict: Dictionary<ELEMENT.FundamentalType, Int> = [:]
-//			for elem in self {
-//				let value = elem.value
-//				if let count = dict[value] {
-//					dict[value] = count + 1
-//				}
-//				else {
-//					dict[value] = 1
-//				}
-//			}
-//			return dict
 			return Dictionary<ELEMENT.Value,Int>( self.lazy.map{($0.value, 1)} ){$0 + $1}
 		}
 		
@@ -416,10 +394,6 @@ where ELEMENT: SDAIObservableAggregateElement
 extension SDAI.BAG: InitializableBySelecttypeBag, InitializableBySelecttypeSet
 where ELEMENT: InitializableBySelecttype
 {
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1 = 0 as! I1, bound2: I2? = nil, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(possiblyFrom: $0) }
-//	} 
-	
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
 	where T.ELEMENT: SDAISelectType
 	{
@@ -440,10 +414,6 @@ where ELEMENT: InitializableBySelecttype
 extension SDAI.BAG: InitializableByEntityBag, InitializableByEntitySet  
 where ELEMENT: InitializableByEntity
 {
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAI.EntityReference>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(bound1: bound1, bound2: bound2, elements) { ELEMENT(possiblyFrom: $0) }
-//	}
-	
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -463,11 +433,6 @@ where ELEMENT: InitializableByEntity
 extension SDAI.BAG: InitializableByDefinedtypeBag, InitializableByDefinedtypeSet 
 where ELEMENT: InitializableByDefinedtype
 {
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E:SDAIUnderlyingType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	{
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(possiblyFrom: $0) }
-//	}		
-	
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType
 	{
@@ -484,14 +449,5 @@ where ELEMENT: InitializableByDefinedtype
 }
 
 
-//extension SDAI.BAG: InitializableBySwiftListLiteral 
-//where ELEMENT: InitializableBySwifttype
-//{
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	where E == ELEMENT.SwiftType
-//	{
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT($0) }
-//	}
-//}
 
 

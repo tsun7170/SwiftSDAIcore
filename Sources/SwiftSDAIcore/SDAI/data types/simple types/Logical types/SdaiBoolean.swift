@@ -49,7 +49,7 @@ public extension SDAI__BOOLEAN__type
 		self.init(bool)
 	}
 	init<T:SDAI__LOGICAL__type>(_ logical: T) {
-		self.init( logical.asSwiftType! )
+		self.init( SDAI.UNWRAP(logical.asSwiftType) )
 	}
 }
 

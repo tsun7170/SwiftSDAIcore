@@ -88,49 +88,13 @@ extension SDAI {
 		public func usedIn<ENT:EntityReference>(entity:ENT.Type, attr: String) -> [ENT] { abstruct() }
 		public func usedIn() -> [EntityReference] { abstruct() }
 
-		
-		// SDAIGenericType
-//		public typealias FundamentalType = ComplexEntity
-//		
-//		public var asFundamentalType: FundamentalType { return self }	
-//		public required convenience init(fundamental: FundamentalType) {
-//			let peArray = fundamental.partialEntities.values.map {$0.instance}
-//			self.init(entities: peArray)
-//		}
-//
-//		
 		public var typeMembers: Set<SDAI.STRING> { 
 			Set( _partialEntities.values.map{ (pe) -> STRING in STRING(stringLiteral: pe.instance.qualifiedEntityName) } ) 
 		}
 		
 		public typealias Value = _ComplexEntityValue
 		public var value: Value { abstruct() }
-//		
-//		public var entityReference: SDAI.EntityReference? { EntityReference(complex: self) }	
-//		public var stringValue: SDAI.STRING? {nil}
-//		public var binaryValue: SDAI.BINARY? {nil}
-//		public var logicalValue: SDAI.LOGICAL? {nil}
-//		public var booleanValue: SDAI.BOOLEAN? {nil}
-//		public var numberValue: SDAI.NUMBER? {nil}
-//		public var realValue: SDAI.REAL? {nil}
-//		public var integerValue: SDAI.INTEGER? {nil}
-//		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
-//
-//		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
-//		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
-//		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
-//		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
-//		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
-//		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		
-//		// InitializableByGenerictype
-//		public required convenience init?<G: SDAIGenericType>(fromGeneric generic: G?) {
-////			guard let fundamental = generic?.setValue(elementType: ELEMENT.self) else { return nil }
-////			self.init(fundamental: fundamental)
-//			abstruct()
-//		}
-//
 		func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<ComplexEntity>) {
 			guard !complexEntities.contains(self) else { return }
 			complexEntities.insert(self)
