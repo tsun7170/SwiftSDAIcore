@@ -91,7 +91,7 @@ where Supertype: SwiftDictRepresentable, Self: SwiftDictRepresentable,
 	var asValueDict: Dictionary<ELEMENT.Value,Int> { return rep.asValueDict }
 }
 
-//MARK: - Aggregation type
+//MARK: - Aggregation type (8.2)
 public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Sequence, SDAIAggregateIndexingGettable, SDAIAggregationBehavior, SDAIAggregationSequence
 {	
 	associatedtype ELEMENT

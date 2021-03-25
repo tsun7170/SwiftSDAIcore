@@ -7,18 +7,12 @@
 
 import Foundation
 
-//MARK: - NUMBER subtype
+//MARK: - NUMBER subtype (8.1.1, 8.3.2)
 public protocol SDAI__NUMBER__subtype: SDAI__NUMBER__type, SDAIDefinedType
 where Supertype: SDAI__NUMBER__type
-//			Supertype.FundamentalType == SDAI.NUMBER
 {}
 public extension SDAI__NUMBER__subtype
 {
-//	// SDAIGenericType
-//	init?<S: SDAISelectType>(possiblyFrom select: S?) {
-//		guard let fundamental = FundamentalType(possiblyFrom: select) else { return nil }
-//		self.init(fundamental: fundamental)
-//	}
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType(fromGeneric: generic) else { return nil }

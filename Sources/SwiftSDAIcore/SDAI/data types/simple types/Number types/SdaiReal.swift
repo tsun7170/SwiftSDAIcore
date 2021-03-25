@@ -7,14 +7,13 @@
 
 import Foundation
 
-//MARK: - REAL type
+//MARK: - REAL type (8.1.2)
 public protocol SDAIRealType: SDAINumberType 
 {}
 
 public protocol SDAI__REAL__type: SDAIRealType, SDAIDoubleRepresentedNumberType, ExpressibleByFloatLiteral
 where FundamentalType == SDAI.REAL,
 			Value == FundamentalType.Value
-//			SwiftType == FundamentalType.SwiftType
 {
 	init?(_ double: Double?)
 	init(_ double: Double)
@@ -84,11 +83,6 @@ extension SDAI {
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		
-//		public init?<S>(possiblyFrom select: S?) where S : SDAISelectType {
-//			self.init(fromGeneric: select)
-////			guard let realValue = select?.realValue else { return nil }
-////			self.init(realValue)
-//		}
 		// InitializableByGenerictype
 		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 			guard let realValue = generic?.realValue else { return nil }
@@ -120,16 +114,7 @@ extension SDAI {
 			if let rhs = rhs as? SwiftDoubleConvertible { return self.asSwiftDouble == rhs.asSwiftDouble }
 			return false
 		}
-//		
-//		public func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<SDAI.ComplexEntity>) {
-//			self.hash(into: &hasher)
-//		}
-//		public func isValueEqual<T: SDAIValue>(to rhs: T, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool {
-//			self.isValueEqual(to: rhs)
-//		}
-//		public func isValueEqualOptionally<T: SDAIValue>(to rhs: T?, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool? {
-//			self.isValueEqualOptionally(to: rhs)
-//		}
+
 	}
 }
 

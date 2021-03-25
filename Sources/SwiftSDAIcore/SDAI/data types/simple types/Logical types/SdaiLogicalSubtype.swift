@@ -7,18 +7,12 @@
 
 import Foundation
 
-//MARK: - LOGICAL subtype
+//MARK: - LOGICAL subtype (8.1.4, 8.3.2)
 public protocol SDAI__LOGICAL__subtype: SDAI__LOGICAL__type, SDAIDefinedType
 where Supertype: SDAI__LOGICAL__type
-//			Supertype.FundamentalType == SDAI.LOGICAL
 {}
 public extension SDAI__LOGICAL__subtype
 {
-//	// SDAIGenericType
-//	init?<S: SDAISelectType>(possiblyFrom select: S?) {
-//		guard let fundamental = FundamentalType(possiblyFrom: select) else { return nil }
-//		self.init(fundamental: fundamental)
-//	}
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType(fromGeneric: generic) else { return nil }

@@ -8,7 +8,7 @@
 import Foundation
 
 
-//MARK: - INTEGER type
+//MARK: - INTEGER type (8.1.3)
 public protocol SDAIIntegerType: SDAIRealType, SwiftIntConvertible
 {}
 

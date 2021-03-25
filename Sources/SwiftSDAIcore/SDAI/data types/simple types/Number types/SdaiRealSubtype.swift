@@ -8,18 +8,12 @@
 import Foundation
 
 
-//MARK: - REAL subtype
+//MARK: - REAL subtype (8.1.2, 8.3.2)
 public protocol SDAI__REAL__subtype: SDAI__REAL__type, SDAIDefinedType
 where Supertype: SDAI__REAL__type
-//			Supertype.FundamentalType == SDAI.REAL
 {}
 public extension SDAI__REAL__subtype
 {
-//	// SDAIGenericType
-//	init?<S: SDAISelectType>(possiblyFrom select: S?) {
-//		guard let fundamental = FundamentalType(possiblyFrom: select) else { return nil }
-//		self.init(fundamental: fundamental)
-//	}
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType(fromGeneric: generic) else { return nil }

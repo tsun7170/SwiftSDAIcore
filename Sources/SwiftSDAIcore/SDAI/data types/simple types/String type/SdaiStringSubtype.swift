@@ -7,18 +7,12 @@
 
 import Foundation
 
-//MARK: - STRING subtype
+//MARK: - STRING subtype (8.1.6, 8.3.2)
 public protocol SDAI__STRING__subtype: SDAI__STRING__type, SDAIDefinedType
 where Supertype: SDAI__STRING__type
-//			Supertype.FundamentalType == SDAI.STRING
 {}
 public extension SDAI__STRING__subtype
 {
-//	// SDAIGenericType
-//	init?<S: SDAISelectType>(possiblyFrom select: S?) {
-//		guard let fundamental = FundamentalType(possiblyFrom: select) else { return nil }
-//		self.init(fundamental: fundamental)
-//	}
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType(fromGeneric: generic) else { return nil }

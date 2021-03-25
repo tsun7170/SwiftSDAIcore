@@ -7,18 +7,12 @@
 
 import Foundation
 
-//MARK: - BINARY subtype
+//MARK: - BINARY subtype (8.1.7, 8.3.2)
 public protocol SDAI__BINARY__subtype: SDAI__BINARY__type, SDAIDefinedType
 where Supertype: SDAI__BINARY__type
-//			FundamentalType == SDAI.BINARY
 {}
 public extension SDAI__BINARY__subtype
 {
-//	// SDAIGenericType
-//	init?<S: SDAISelectType>(possiblyFrom select: S?) {
-//		guard let fundamental = FundamentalType(possiblyFrom: select) else { return nil }
-//		self.init(fundamental: fundamental)
-//	}
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType(fromGeneric: generic) else { return nil }

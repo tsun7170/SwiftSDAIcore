@@ -8,7 +8,7 @@
 import Foundation
 
 
-//MARK: - BAG subtypes
+//MARK: - BAG subtypes (8.2.3, 8.3.2)
 public protocol SDAI__BAG__subtype: SDAI__BAG__type, SDAIDefinedType
 where Supertype: SDAI__BAG__type
 {}
@@ -82,11 +82,6 @@ public extension SDAI__BAG__subtype
 public extension SDAI__BAG__subtype
 where ELEMENT: InitializableBySelecttype
 {
-//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	{
-//		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
-//	}
-
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T:SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
 	where T.ELEMENT: SDAISelectType
 	{
@@ -105,10 +100,6 @@ where ELEMENT: InitializableBySelecttype
 public extension SDAI__BAG__subtype
 where ELEMENT: InitializableByEntity
 {
-//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAI.EntityReference>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
-//	}
-
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -127,11 +118,6 @@ where ELEMENT: InitializableByEntity
 public extension SDAI__BAG__subtype
 where ELEMENT: InitializableByDefinedtype
 {
-//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E:SDAIUnderlyingType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	{
-//		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
-//	}
-
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T:SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType
 	{
@@ -146,14 +132,4 @@ where ELEMENT: InitializableByDefinedtype
 }
 
 
-////MARK: - for swift type array literal
-//public extension SDAI__BAG__subtype
-//where ELEMENT: InitializableBySwifttype
-//{
-//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	where E == ELEMENT.SwiftType
-//	{
-//		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
-//	}
-//}
 

@@ -166,7 +166,7 @@ extension SDAI {
 		return REAL( tan(r) )
 	}
 	
-	public static func TYPEOF<Generic: SDAIGenericType>(_ V: Generic?) -> SET<STRING> {
+	public static func TYPEOF<Generic: SDAIGenericType>(_ V: Generic?) -> SET<STRING>? {
 		guard let v = V else { return SET<STRING>() }
 		return SET<STRING>(from: v.typeMembers )
 	}

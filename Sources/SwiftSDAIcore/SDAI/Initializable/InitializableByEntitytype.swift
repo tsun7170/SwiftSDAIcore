@@ -28,24 +28,6 @@ where Self: SDAI.EntityReference
 }
 
 
-////MARK: - from entity type list literal (with optional bounds)
-//public protocol InitializableByEntityListLiteral
-//{
-//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAI.EntityReference>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//}
-//public extension InitializableByEntityListLiteral
-//{
-//	init?<E: SDAI.EntityReference>(_ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(bound1: 0, bound2: nil as Int?, elements)
-//	}
-//}
-//
-////MARK: - from entity type array literal (with required bounds)
-//public protocol InitializableByEntityArrayLiteral
-//{
-//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAI.EntityReference>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//}
-
 
 
 //MARK: - from entity type list

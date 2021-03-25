@@ -7,7 +7,8 @@
 
 import Foundation
 
-//MARK: - SELECT TYPE base
+//MARK: - SELECT TYPE base (8.4.2)
+
 public protocol SDAISelectType: SDAIConstructedType, InitializableByDefinedtype, InitializableByEntity,
 																SwiftDoubleConvertible, SwiftIntConvertible, SwiftStringConvertible, SwiftBoolConvertible, 
 																SDAIObservableAggregateElement, SDAIAggregationBehavior

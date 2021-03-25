@@ -7,7 +7,7 @@
 
 import Foundation
 
-//MARK: - BINARY type
+//MARK: - BINARY type (8.1.7)
 public protocol SDAIBinaryType: SDAISimpleType, ExpressibleByStringLiteral
 where StringLiteralType == String
 {
@@ -16,23 +16,10 @@ where StringLiteralType == String
 	subscript(index: Int?) -> SDAI.BINARY? {get}
 	subscript(range: ClosedRange<Int>?) -> SDAI.BINARY? {get}
 
-//	subscript<I: SDAI__INTEGER__type>(index: I) -> SDAI.BINARY {get}
-//	subscript(index: Int) -> SDAI.BINARY {get}
-//	subscript(range: ClosedRange<Int>) -> SDAI.BINARY {get}
-
 }
 public extension SDAIBinaryType
 {
 	subscript<I: SDAI__INTEGER__type>(index: I?) -> SDAI.BINARY? { return self[index?.asSwiftType] }
-	
-//	subscript(index: Int?) -> SDAI.BINARY? { 
-//		guard let index = index else {return nil}
-//		return self[index]
-//	}
-//	subscript(range: ClosedRange<Int>?) -> SDAI.BINARY? {
-//		guard let range = range else {return nil}
-//		return self[range]
-//	}
 }
 
 
@@ -157,17 +144,7 @@ extension SDAI {
 			if let rhs = rhs as? Self { return self == rhs }
 			return false
 		}
-//		
-//		public func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<SDAI.ComplexEntity>) {
-//			self.hash(into: &hasher)
-//		}
-//		public func isValueEqual<T: SDAIValue>(to rhs: T, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool {
-//			self.isValueEqual(to: rhs)
-//		}
-//		public func isValueEqualOptionally<T: SDAIValue>(to rhs: T?, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool? {
-//			self.isValueEqualOptionally(to: rhs)
-//		}
-//
+
 	}
 }
 

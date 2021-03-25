@@ -11,7 +11,7 @@ import Foundation
 
 
 
-//MARK: - list type
+//MARK: - list type (8.2.2)
 public protocol SDAIListType: SDAIAggregationType, SDAIAggregateIndexingSettable, 
 															SDAIUnderlyingType, SDAISwiftTypeRepresented,
 															InitializableByEmptyListLiteral, InitializableBySwifttypeAsList, InitializableBySelecttypeAsList, InitializableByListLiteral, InitializableByGenericList

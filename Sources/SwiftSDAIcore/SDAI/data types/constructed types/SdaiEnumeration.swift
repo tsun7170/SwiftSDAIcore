@@ -7,7 +7,8 @@
 
 import Foundation
 
-//MARK: - ENUMERATION TYPE base
+//MARK: - ENUMERATION TYPE base (8.4.1)
+
 public protocol SDAIEnumerationType: SDAIConstructedType, SDAIUnderlyingType
 where Value == FundamentalType, 
 			FundamentalType: SDAIEnumerationType, 
@@ -33,10 +34,11 @@ where Self: SDAIValue
 }
 
 
+//MARK: - GenericEnumValue
+
 extension SDAI {
 	public typealias ENUMERATION = Int
 	
-	//MARK: - GenericEnumValue
 	public struct GenericEnumValue: Hashable
 	{
 		let typeId: Any.Type

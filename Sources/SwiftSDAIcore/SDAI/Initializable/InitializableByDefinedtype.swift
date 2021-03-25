@@ -20,24 +20,6 @@ public extension InitializableByDefinedtype
 }
 
 
-////MARK: - from defined type list literal (with optional bounds)
-//public protocol InitializableByDefinedtypeListLiteral
-//{
-//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIUnderlyingType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//}
-//public extension InitializableByDefinedtypeListLiteral
-//{
-//	init?<E: SDAIUnderlyingType>(_ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(bound1: 0, bound2: nil as Int?, elements)
-//	}
-//}
-//
-////MARK: - from defined type array literal (with required bounds)
-//public protocol InitializableByDefinedtypeArrayLiteral
-//{
-//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIUnderlyingType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 	
-//}
-
 
 
 //MARK: - from defined type list

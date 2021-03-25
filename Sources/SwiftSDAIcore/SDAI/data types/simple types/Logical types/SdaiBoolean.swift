@@ -8,7 +8,7 @@
 import Foundation
 
 
-//MARK: - BOOLEAN type
+//MARK: - BOOLEAN type (8.1.5)
 public protocol SDAIBooleanType: SDAILogicalType
 {}
 
@@ -110,16 +110,7 @@ extension SDAI {
 			if let rhs = rhs as? SwiftBoolConvertible { return self.possiblyAsSwiftBool == rhs.possiblyAsSwiftBool }
 			return false
 		}
-//		
-//		public func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<SDAI.ComplexEntity>) {
-//			self.hash(into: &hasher)
-//		}
-//		public func isValueEqual<T: SDAIValue>(to rhs: T, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool {
-//			self.isValueEqual(to: rhs)
-//		}
-//		public func isValueEqualOptionally<T: SDAIValue>(to rhs: T?, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool? {
-//			self.isValueEqualOptionally(to: rhs)
-//		}
+
 	}
 }
 

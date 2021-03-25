@@ -24,7 +24,7 @@ extension String: SwiftStringRepresented
 }
 
 
-//MARK: - STRING type
+//MARK: - STRING type (8.1.6)
 public protocol SDAIStringType: SDAISimpleType, ExpressibleByStringLiteral, SwiftStringConvertible
 where StringLiteralType == String
 {
@@ -161,16 +161,7 @@ extension SDAI {
 			if let rhs = rhs as? Self { return self == rhs }
 			return false
 		}
-//		
-//		public func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<SDAI.ComplexEntity>) {
-//			self.hash(into: &hasher)
-//		}
-//		public func isValueEqual<T: SDAIValue>(to rhs: T, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool {
-//			self.isValueEqual(to: rhs)
-//		}
-//		public func isValueEqualOptionally<T: SDAIValue>(to rhs: T?, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool? {
-//			self.isValueEqualOptionally(to: rhs)
-//		}
+
 	}
 }
 

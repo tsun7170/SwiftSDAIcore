@@ -8,7 +8,7 @@
 import Foundation
 
 
-//MARK: - array type
+//MARK: - array type (8.2.1)
 public protocol SDAIArrayType: SDAIArrayOptionalType
 {}
 

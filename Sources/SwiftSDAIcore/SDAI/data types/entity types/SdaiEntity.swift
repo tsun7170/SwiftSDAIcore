@@ -41,7 +41,7 @@ extension SDAI {
 	
 	
 	//MARK: - ComplexEntity
-	open class ComplexEntity: SDAI.Object//, SDAIGenericType 
+	open class ComplexEntity: SDAI.Object
 	{
 		public var partialEntities: [PartialEntity] {
 			_partialEntities.values.map{ (pe) in pe.instance }
@@ -142,7 +142,7 @@ extension SDAI {
 	}
 	
 	
-	//MARK: - EntityReference
+	//MARK: - EntityReference (8.3.1)
 	open class EntityReference: SDAI.ObjectReference<ComplexEntity>, SDAIGenericType, InitializableByEntity, SDAIObservableAggregateElement 
 	{		
 		public var complexEntity: ComplexEntity {self.object}

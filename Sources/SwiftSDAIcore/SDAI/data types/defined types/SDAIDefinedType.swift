@@ -7,20 +7,12 @@
 
 import Foundation
 
-//MARK: - Underlying Type base
-public protocol SDAISelectCompatibleUnderlyingTypeBase: SDAIGenericType where FundamentalType: SDAISelectCompatibleUnderlyingTypeBase
+//MARK: - Underlying Type base (8.6.3)
+public protocol SDAISelectCompatibleUnderlyingTypeBase: SDAIGenericType 
+where FundamentalType: SDAISelectCompatibleUnderlyingTypeBase
 {
 	static var typeName: String {get}
-//	var asFundamentalType: FundamentalType {get}	
-//	init(fundamental: FundamentalType)
 }
-//public extension SDAISelectCompatibleUnderlyingTypeBase
-//{
-//	init?(fundamental: FundamentalType?) {
-//		guard let fundamental = fundamental else { return nil }
-//		self.init(fundamental: fundamental)
-//	}	
-//}
 
 
 
@@ -38,29 +30,18 @@ public extension SDAIUnderlyingType
 
 
 
-//MARK: - Defined Type
+//MARK: - Defined Type (8.3.2)
 public protocol SDAIDefinedType: SDAINamedType, SDAISelectCompatibleUnderlyingTypeBase
 {
 	associatedtype Supertype: SDAISelectCompatibleUnderlyingTypeBase 
-	where //Supertype.FundamentalType: SDAIUnderlyingSelectType,
-				FundamentalType == Supertype.FundamentalType,
-//				SwiftType == FundamentalType.SwiftType,
+	where FundamentalType == Supertype.FundamentalType,
 				Value == Supertype.Value
 	
 	var rep: Supertype {get set}	
 }
 public extension SDAIDefinedType
 { 
-	// SDAIGenericType \SDAIUnderlyingType\SDAIDefinedType
-//	var asSwiftType: Supertype.SwiftType { return rep.asSwiftType }
 	var asFundamentalType: FundamentalType { return rep.asFundamentalType }
-//	var typeMembers: Set<SDAI.STRING> {
-//		var members = rep.typeMembers
-//		members.insert(SDAI.STRING(Self.typeName))
-//		return members
-//	}
-//	var value: Supertype.Value {rep.value}
-
 }
 
 public extension SDAIDefinedType where Self: Equatable, FundamentalType: Equatable
@@ -78,7 +59,7 @@ public extension SDAIDefinedType where Self: Equatable, FundamentalType: Equatab
 	}
 }
 
-public extension SDAIDefinedType where Self: Sequence, FundamentalType: Sequence//, Element == FundamentalType.Element
+public extension SDAIDefinedType where Self: Sequence, FundamentalType: Sequence
 {
 	func makeIterator() -> FundamentalType.Iterator { return self.asFundamentalType.makeIterator() }
 

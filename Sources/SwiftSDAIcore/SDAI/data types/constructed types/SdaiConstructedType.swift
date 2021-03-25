@@ -7,20 +7,11 @@
 
 import Foundation
 
-
+//MARK: - Constructed data types (8.4)
 
 public protocol SDAIConstructedType: SDAISelectCompatibleUnderlyingTypeBase 
-//where Value == FundamentalType,
-//			SwiftType == FundamentalType
 {}
-//public extension SDAIConstructedType
-//{
-//	// SDAIGenericType \SDAIUnderlyingType\SDAIConstructedType\SDAIEnumerationType
-//	var value: Value { self.asFundamentalType }
-//	
-//	// SDAIUnderlyingType \SDAIConstructedType\SDAIEnumerationType
-//	var asSwiftType: SwiftType { self.asFundamentalType }
-//}
+
 
 
 

@@ -41,26 +41,6 @@ public protocol InitializableBySelecttypeAsArray
 
 
 
-////MARK: - from select type list literal (with optional bounds)
-//public protocol InitializableBySelecttypeListLiteral
-//{
-//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//}
-//public extension InitializableBySelecttypeListLiteral
-//{
-//	init?<E: SDAISelectType>(_ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(bound1: 0, bound2: nil as Int?, elements)
-//	}
-//}
-//
-////MARK: - from select type list literal (with required bounds)
-//public protocol InitializableBySelecttypeArrayLiteral
-//{
-//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//}
-
-
-
 
 //MARK: - from select type list
 public protocol InitializableBySelecttypeList

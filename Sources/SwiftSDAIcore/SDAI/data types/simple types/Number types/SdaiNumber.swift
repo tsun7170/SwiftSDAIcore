@@ -80,7 +80,7 @@ where Self: SDAIIntRepresentedNumberType
 }
 
 
-//MARK: - NUMBER type
+//MARK: - NUMBER type (8.1.1)
 public protocol SDAINumberType: SDAISimpleType, ExpressibleByIntegerLiteral, SwiftDoubleConvertible
 where SwiftType: SdaiNumberRepType
 {}
@@ -165,11 +165,6 @@ extension SDAI {
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		
-//		public init?<S>(possiblyFrom select: S?) where S : SDAISelectType {
-//			self.init(fromGenetic: select)
-////			guard let numberValue = select?.numberValue else { return nil }
-////			self.init(numberValue)
-//		}
 		// InitializableByGenerictype
 		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 			guard let numberValue = generic?.numberValue else { return nil }
@@ -197,16 +192,7 @@ extension SDAI {
 			if let rhs = rhs as? SwiftDoubleConvertible { return self.asSwiftDouble == rhs.asSwiftDouble }
 			return false
 		}
-//		
-//		public func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<SDAI.ComplexEntity>) {
-//			self.hash(into: &hasher)
-//		}
-//		public func isValueEqual<T: SDAIValue>(to rhs: T, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool {
-//			self.isValueEqual(to: rhs)
-//		}
-//		public func isValueEqualOptionally<T: SDAIValue>(to rhs: T?, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool? {
-//			self.isValueEqualOptionally(to: rhs)
-//		}
+
 	}	
 }
 

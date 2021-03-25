@@ -7,18 +7,12 @@
 
 import Foundation
 
-//MARK: - BOOLEAN subtype
+//MARK: - BOOLEAN subtype (8.1.5, 8.3.2)
 public protocol SDAI__BOOLEAN__subtype: SDAI__BOOLEAN__type, SDAIDefinedType
 where Supertype: SDAI__BOOLEAN__type
-//			Supertype.FundamentalType == SDAI.BOOLEAN
 {}
 public extension SDAI__BOOLEAN__subtype
 {
-//	// SDAIGenericType
-//	init?<S: SDAISelectType>(possiblyFrom select: S?) {
-//		guard let fundamental = FundamentalType(possiblyFrom: select) else { return nil }
-//		self.init(fundamental: fundamental)
-//	}
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType(fromGeneric: generic) else { return nil }

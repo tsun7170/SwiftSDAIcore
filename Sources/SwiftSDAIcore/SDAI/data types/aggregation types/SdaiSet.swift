@@ -8,7 +8,7 @@
 import Foundation
 
 
-//MARK: - set type
+//MARK: - set type (8.2.4)
 public protocol SDAISetType: SDAIBagType
 {}
 

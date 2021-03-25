@@ -9,7 +9,7 @@ import Foundation
 
 
 
-//MARK: - bag type
+//MARK: - bag type (8.2.3)
 public protocol SDAIBagType: SDAIAggregationType, 
 														 SDAIUnderlyingType, SDAISwiftTypeRepresented, SwiftDictRepresentable,
 														 InitializableByEmptyListLiteral, InitializableBySwifttypeAsList,

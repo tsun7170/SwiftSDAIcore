@@ -8,7 +8,7 @@
 import Foundation
 
 
-//MARK: - LIST subtype
+//MARK: - LIST subtype (8.2.2, 8.3.2)
 public protocol SDAI__LIST__subtype: SDAI__LIST__type, SDAIDefinedType
 where Supertype: SDAI__LIST__type
 {}
@@ -71,11 +71,6 @@ public extension SDAI__LIST__subtype
 public extension SDAI__LIST__subtype
 where ELEMENT: InitializableBySelecttype
 {
-//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	{
-//		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
-//	}
-
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T:SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
 	where T.ELEMENT: SDAISelectType//, T.ELEMENT == T.Element
 	{
@@ -88,10 +83,6 @@ where ELEMENT: InitializableBySelecttype
 public extension SDAI__LIST__subtype
 where ELEMENT: InitializableByEntity
 {
-//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAI.EntityReference>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
-//	}
-
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -104,11 +95,6 @@ where ELEMENT: InitializableByEntity
 public extension SDAI__LIST__subtype
 where ELEMENT: InitializableByDefinedtype
 {
-//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIUnderlyingType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	{
-//		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
-//	}
-
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T:SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType
 	{
@@ -116,15 +102,3 @@ where ELEMENT: InitializableByDefinedtype
 	}
 }
 
-
-////MARK: - for swift type array literal
-//public extension SDAI__LIST__subtype
-//where ELEMENT: InitializableBySwifttype
-//{
-//	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	where E == ELEMENT.SwiftType
-//	{
-//		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
-//	}
-//}
-//

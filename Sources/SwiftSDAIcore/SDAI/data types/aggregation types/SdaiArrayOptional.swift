@@ -9,7 +9,7 @@ import Foundation
 
 
 
-//MARK: - array optional type
+//MARK: - array optional type (8.2.1)
 public protocol SDAIArrayOptionalType: SDAIAggregationType, SDAIAggregateIndexingSettable,
 																			 SDAIUnderlyingType, SDAISwiftTypeRepresented,
 																			 InitializableBySwifttypeAsArray, InitializableByArrayLiteral, InitializableByGenericArray
