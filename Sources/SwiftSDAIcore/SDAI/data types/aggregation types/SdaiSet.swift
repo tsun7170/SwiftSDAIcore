@@ -178,12 +178,6 @@ extension SDAI {
 			self.init(from: swiftValue, bound1: bound1, bound2: bound2)
 		}
 		
-//		// InitializableBySelecttype
-//		public init?<S: SDAISelectType>(possiblyFrom select: S?) {
-//			self.init(fromGeneric: select)
-////			guard let fundamental = select?.setValue(elementType: ELEMENT.self) else { return nil }
-////			self.init(fundamental: fundamental)
-//		}
 		// InitializableByGenerictype
 		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 			guard let fundamental = generic?.setValue(elementType: ELEMENT.self) else { return nil }
@@ -348,10 +342,6 @@ where ELEMENT: SDAIObservableAggregateElement
 extension SDAI.SET: InitializableBySelecttypeSet
 where ELEMENT: InitializableBySelecttype
 {
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(possiblyFrom: $0) }
-//	} 
-	
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?) 
 	where T.ELEMENT: SDAISelectType
 	{
@@ -367,10 +357,6 @@ where ELEMENT: InitializableBySelecttype
 extension SDAI.SET: InitializableByEntitySet
 where ELEMENT: InitializableByEntity
 {
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAI.EntityReference>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(bound1: bound1, bound2: bound2, elements) { ELEMENT(possiblyFrom: $0) }
-//	}
-
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -383,11 +369,6 @@ where ELEMENT: InitializableByEntity
 extension SDAI.SET: InitializableByDefinedtypeSet
 where ELEMENT: InitializableByDefinedtype
 {
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E:SDAIUnderlyingType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	{
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(possiblyFrom: $0) }
-//	}		
-	
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType
 	{
@@ -396,15 +377,4 @@ where ELEMENT: InitializableByDefinedtype
 	}
 }
 
-
-
-//extension SDAI.SET: InitializableBySwiftListLiteral 
-//where ELEMENT: InitializableBySwifttype
-//{
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	where E == ELEMENT.SwiftType
-//	{
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT($0) }
-//	}
-//}
 

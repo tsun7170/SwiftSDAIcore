@@ -14,6 +14,10 @@ where Supertype: SDAI__LIST__type
 {}
 public extension SDAI__LIST__subtype
 {
+	// Built-in procedure support
+	mutating func insert(element: ELEMENT, at position: Int) { rep.insert(element: element, at: position) }
+	mutating func remove(at position: Int) { rep.remove(at: position) }
+
 	// Aggregation operator support
 	func unionWith<U: SDAIListType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(rhs: rhs) }

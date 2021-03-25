@@ -15,8 +15,11 @@ public protocol SDAIBagType: SDAIAggregationType,
 														 InitializableByEmptyListLiteral, InitializableBySwifttypeAsList,
 														 InitializableBySelecttypeAsList, InitializableByListLiteral, InitializableByGenericSet
 {
+	//entity inverse attribute support
 	mutating func add(member: ELEMENT?)
 	mutating func remove(member: ELEMENT?)
+	
+	//aggregate superset operator support
 	func isSuperset<BAG: SDAIBagType>(of other: BAG) -> Bool 
 	where ELEMENT.FundamentalType == BAG.ELEMENT.FundamentalType
 }

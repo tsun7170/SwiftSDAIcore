@@ -16,7 +16,11 @@ public protocol SDAIListType: SDAIAggregationType, SDAIAggregateIndexingSettable
 															SDAIUnderlyingType, SDAISwiftTypeRepresented,
 															InitializableByEmptyListLiteral, InitializableBySwifttypeAsList, InitializableBySelecttypeAsList, InitializableByListLiteral, InitializableByGenericList
 where ELEMENT: SDAIGenericType
-{}
+{
+	// Built-in procedure support
+	mutating func insert(element: ELEMENT, at position: Int)
+	mutating func remove(at position: Int)
+}
 
 
 //MARK: - LIST type
@@ -162,12 +166,6 @@ extension SDAI {
 		}
 		
 		
-//	//	 InitializableBySelecttype
-//		public init?<S: SDAISelectType>(possiblyFrom select: S?) {
-//			self.init(fromGeneric: select)
-////			guard let fundamental = select?.listValue(elementType: ELEMENT.self) else { return nil }
-////			self.init(fundamental: fundamental)
-//		}
 		// InitializableByGenerictype
 		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 			guard let fundamental = generic?.listValue(elementType: ELEMENT.self) else { return nil }
@@ -203,6 +201,19 @@ extension SDAI {
 		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
 			self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(fromGeneric: $0) }
 		} 
+
+		// Built-in procedure support
+		public mutating func insert(element: ELEMENT, at position: Int) {
+			assert(position >= 0)
+			assert(position <= self.size)
+			self.rep.insert(element, at: position)
+		}
+		
+		public mutating func remove(at position: Int) {
+			assert(position >= 1)
+			assert(position <= self.size)
+			self.rep.remove(at: position-1)
+		}
 
 		//MARK: Aggregation operator support
 		// Union
@@ -277,11 +288,7 @@ where ELEMENT: SDAIObservableAggregateElement
 
 extension SDAI.LIST: InitializableBySelecttypeList
 where ELEMENT: InitializableBySelecttype
-{
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(possiblyFrom: $0) }
-//	} 
-	
+{	
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
 	where T.ELEMENT: SDAISelectType
 	{
@@ -294,10 +301,6 @@ where ELEMENT: InitializableBySelecttype
 extension SDAI.LIST: InitializableByEntityList
 where ELEMENT: InitializableByEntity
 {
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAI.EntityReference>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(bound1: bound1, bound2: bound2, elements) { ELEMENT(possiblyFrom: $0) }
-//	}
-
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -310,11 +313,6 @@ where ELEMENT: InitializableByEntity
 extension SDAI.LIST: InitializableByDefinedtypeList
 where ELEMENT: InitializableByDefinedtype
 {
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIUnderlyingType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	{
-//		self.init(bound1:bound1, bound2:bound2, elements){ ELEMENT(possiblyFrom: $0) }
-//	}		
-
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType
 	{
@@ -322,15 +320,4 @@ where ELEMENT: InitializableByDefinedtype
 		self.init(bound1:bound1, bound2:bound2, [listtype]) { ELEMENT(possiblyFrom: $0) }
 	}
 }
-
-
-//extension SDAI.LIST: InitializableBySwiftListLiteral 
-//where ELEMENT: InitializableBySwifttype
-//{
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	where E == ELEMENT.SwiftType
-//	{
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT($0) }
-//	}
-//}
 

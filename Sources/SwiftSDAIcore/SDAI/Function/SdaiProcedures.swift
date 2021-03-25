@@ -7,15 +7,18 @@
 
 import Foundation
 
+//MARK: Built-in Procedures (16)
+
 extension SDAI {
-	public static func INSERT<LISTTYPE: SDAIListType, GEN, Integer: SwiftIntConvertible>( L: inout LISTTYPE?, E: GEN?, P: Integer? ) 
-//	where LISTTYPE.ELEMENT == GEN
+	public static func INSERT<LISTTYPE: SDAIListType, GEN: SDAIGenericType, Integer: SwiftIntConvertible>( L: inout LISTTYPE?, E: GEN?, P: Integer? ) 
 	{
-		abstruct()
+		guard let E = LISTTYPE.ELEMENT(fromGeneric: E), let P = P?.possiblyAsSwiftInt else { return }
+		L?.insert(element: E, at: P)
 	}
 	
 	public static func REMOVE<LISTTYPE: SDAIListType, Integer: SwiftIntConvertible>( L: inout LISTTYPE?, P: Integer? ) 
 	{
-		abstruct()
+		guard let P = P?.possiblyAsSwiftInt else { return }
+		L?.remove(at: P)
 	}
 }
