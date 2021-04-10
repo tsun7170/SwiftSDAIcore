@@ -101,6 +101,10 @@ extension SDAI {
 
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
+		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix)
+		}
+
 		
 
 		// SDAIGenericType \SDAIUnderlyingType\SDAIAggregationType\SDAI__BAG__type\SDAI__SET__type

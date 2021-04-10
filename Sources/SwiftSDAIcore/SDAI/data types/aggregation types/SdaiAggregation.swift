@@ -164,6 +164,7 @@ where ELEMENT: InitializableBySwifttype
 
 
 //MARK: - extension for EntityReferenceObserver
+//MARK: observable element
 public protocol SDAIObservableAggregateElement
 {
 	var entityReferences: AnySequence<SDAI.EntityReference> { get }
@@ -184,6 +185,7 @@ where ELEMENT: SDAIObservableAggregateElement
 	mutating func resetObserver()
 }
 
+//MARK: observable aggregate
 public extension SDAIObservableAggregate 
 {
 	var observer: EntityReferenceObserver? {

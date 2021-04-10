@@ -10,31 +10,29 @@ import Foundation
 
 extension SDAIDictionarySchema {
 	
-	public class SchemaDefinition {
+	//MARK: (6.4.1)
+	public class SchemaDefinition: SDAI.Object {
+		public init(name: ExpressId) {
+			self.name = name
+			super.init()
+		}
 		
-//		public var name: ExpressId
-//		public let identification: InfoObjectId = "{ iso standard 10303 part(22) version(0) object(1) SDAI-dictionary-schema(1) }"
-//		
-//		
-//		
-//		public func add(entity: EntityDefinition ) {
-//			
-//		}
-//		
-//		public func add(clone: EntityDefinition) {
-//			
-//		}
-//		
-//		public func add(schema: ExternalSchema ) {
-//			
-//		}
-//		
-//		public func add(type: DefinedType ) {
-//			
-//		}
+		public let name: ExpressId
 		
+		public var identification: InfoObjectId?
+
+		public private(set) var entities: [ExpressId:EntityDefinition] = [:]
+		public private(set) var globalRules: [ExpressId:GlobalRule] = [:]
 		
+		public func addEntity(entityDef: EntityDefinition) {
+			entityDef.parentSchema = self
+			entities[entityDef.name] = entityDef
+		}
 		
+		public func addGlobalRule(name: ExpressId, rule:@escaping SDAI.GlobalRuleSignature) {
+			let ruleDef = GlobalRule(name: name, rule: rule, schema: self)
+			globalRules[name] = ruleDef
+		}
 		
 	}
 	

@@ -9,7 +9,7 @@
 import Foundation
 
 public enum P21Decode {
-	
+	public typealias EntityInstanceName = Int
 	
 }
 

@@ -36,6 +36,8 @@ public protocol SDAIGenericType: Hashable, InitializableBySelecttype, Initializa
 	func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>?
 	func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>?
 	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM?
+	
+	static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL]
 }
 
 public extension SDAIGenericType
@@ -45,6 +47,15 @@ public extension SDAIGenericType
 		self.init(fundamental: fundamental)
 	}		
 }
+
+public extension SDAIGenericType where Self: SDAIDefinedType
+{
+	static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+		return Supertype.validateWhereRules(instance:instance?.rep, prefix: prefix + "\\" + Supertype.typeName, excludingEntity: excludingEntity)
+	}
+}
+
+
 
 public extension SDAIGenericType where Self: SDAIDefinedType
 {
@@ -127,7 +138,9 @@ where Supertype: SDAISwiftTypeRepresented, Self: SDAISwiftTypeRepresented, Swift
 	var asSwiftType: SwiftType { return rep.asSwiftType }
 }
 
-
+public protocol SDAISchema {
+	static var schemaDefinition: SDAIDictionarySchema.SchemaDefinition {get}
+}
 
 
 
@@ -145,6 +158,12 @@ public enum SDAI {
 	
 	public static let _Infinity:INTEGER? = nil;
 
+	public typealias WhereLabel = SDAIDictionarySchema.ExpressId
+	
+	public typealias GlobalRuleSignature = (_ allComplexEntities: AnySequence<SDAI.ComplexEntity>) -> [SDAI.WhereLabel:SDAI.LOGICAL]
+	
+//	public typealias UniquenessLabel = SDAIDictionarySchema.ExpressId
+	public typealias UniquenessRuleSignature = (_ entity: SDAI.EntityReference) -> AnyHashable?
 
 	//MARK: - SDAI.Object	
 	open class Object: Hashable {

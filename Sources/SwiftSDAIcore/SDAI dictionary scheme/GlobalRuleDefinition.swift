@@ -1,0 +1,27 @@
+//
+//  File.swift
+//  
+//
+//  Created by Yoshida on 2021/04/10.
+//
+
+import Foundation
+
+extension SDAIDictionarySchema {
+	//MARK: (6.4.19)
+	public class GlobalRule: SDAI.Object {
+		public init(name: ExpressId, rule: @escaping SDAI.GlobalRuleSignature, schema: SchemaDefinition) {
+			self.name = name
+			self.rule = rule
+			self.parentSchema = schema
+			super.init()
+		}
+		
+		public let name: ExpressId
+		//		public var entities: SDAI.LIST<EntityDefinition>
+		//		public var whereRules: SDAI.LIST<WhereRule>
+		public unowned let parentSchema: SchemaDefinition
+		
+		public let rule: SDAI.GlobalRuleSignature
+	}
+}

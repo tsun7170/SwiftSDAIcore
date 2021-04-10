@@ -103,7 +103,8 @@ public extension SDAIAggregationInitializer
 
 	typealias RESULT_AGGREGATE = SDAI.LIST<ELEMENT>
 	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> RESULT_AGGREGATE {
-		abstruct()
+		let result = self.asAggregationSequence.filter { logical_expression($0).isTRUE }
+		return RESULT_AGGREGATE(from: result)
 	}
 	
 	// SwiftDictRepresentable

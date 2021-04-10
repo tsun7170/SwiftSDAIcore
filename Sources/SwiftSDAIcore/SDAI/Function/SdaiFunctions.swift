@@ -177,13 +177,16 @@ extension SDAI {
 	
 
 	public static func USEDIN<GEN:SDAIGenericType>(T: GEN?) -> BAG<EntityReference>? {
-		abstruct()
+		guard let T = T?.entityReference else { return BAG<EntityReference>() }
+		return BAG( from: T.complexEntity.usedIn() )
 	}
 	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference, R:SDAIGenericType>(T: GEN?, ROLE: KeyPath<ENT,R>) -> BAG<ENT>? {
-		abstruct()
+		guard let T = T?.entityReference else { return BAG<ENT>() }
+		return BAG(from: T.complexEntity.usedIn(as: ROLE))
 	}
 	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference, R:SDAIGenericType>(T: GEN?, ROLE: KeyPath<ENT,R?>) -> BAG<ENT>? {
-		abstruct()
+		guard let T = T?.entityReference else { return BAG<ENT>() }
+		return BAG(from: T.complexEntity.usedIn(as: ROLE))
 	}
 	
 	public static func VALUE<Str: SwiftStringConvertible>(_ V: Str?) -> NUMBER? {

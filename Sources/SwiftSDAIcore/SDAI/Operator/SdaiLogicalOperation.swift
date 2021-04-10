@@ -10,8 +10,7 @@ import Foundation
 //MARK: - Logical operators (12.4)
 
 public prefix func ! <T: SDAILogicalType>(logical: T?) -> SDAI.LOGICAL { 
-	guard let logical = logical else { return SDAI.UNKNOWN }
-	return !logical
+	return !SDAI.LOGICAL(logical)
 }
 public prefix func ! <T: SDAILogicalType>(logical: T) -> SDAI.LOGICAL { 
 	guard let bool = logical.possiblyAsSwiftBool else { return SDAI.UNKNOWN }
@@ -19,16 +18,13 @@ public prefix func ! <T: SDAILogicalType>(logical: T) -> SDAI.LOGICAL {
 }
 
 public func && <T: SDAILogicalType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
-	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
-	return lhs && rhs
+	return SDAI.LOGICAL(lhs) && SDAI.LOGICAL(rhs)
 }
 public func && <T: SDAILogicalType, U: SDAILogicalType>(lhs: T , rhs: U?) -> SDAI.LOGICAL { 
-	guard let rhs = rhs else { return SDAI.UNKNOWN }
-	return lhs && rhs
+	return lhs && SDAI.LOGICAL(rhs)
 }
 public func && <T: SDAILogicalType, U: SDAILogicalType>(lhs: T?, rhs: U ) -> SDAI.LOGICAL { 
-	guard let lhs = lhs else { return SDAI.UNKNOWN }
-	return lhs && rhs
+	return SDAI.LOGICAL(lhs) && rhs
 }
 public func && <T: SDAILogicalType, U: SDAILogicalType>(lhs: T , rhs: U ) -> SDAI.LOGICAL { 
 	let lhs = SDAI.cardinal(logical: lhs)
@@ -38,16 +34,13 @@ public func && <T: SDAILogicalType, U: SDAILogicalType>(lhs: T , rhs: U ) -> SDA
 
 
 public func || <T: SDAILogicalType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
-	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
-	return lhs || rhs
+	return SDAI.LOGICAL(lhs) || SDAI.LOGICAL(rhs)
 }
 public func || <T: SDAILogicalType, U: SDAILogicalType>(lhs: T , rhs: U?) -> SDAI.LOGICAL { 
-	guard let rhs = rhs else { return SDAI.UNKNOWN }
-	return lhs || rhs
+	return lhs || SDAI.LOGICAL(rhs)
 }
 public func || <T: SDAILogicalType, U: SDAILogicalType>(lhs: T?, rhs: U ) -> SDAI.LOGICAL { 
-	guard let lhs = lhs else { return SDAI.UNKNOWN }
-	return lhs || rhs
+	return SDAI.LOGICAL(lhs) || rhs
 }
 public func || <T: SDAILogicalType, U: SDAILogicalType>(lhs: T , rhs: U ) -> SDAI.LOGICAL { 
 	let lhs = SDAI.cardinal(logical: lhs)

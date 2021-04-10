@@ -24,6 +24,18 @@ extension SDAI {
 		return agg.CONTAINS(elem: aggelem)
 	}
 	
-
+	public static func validateAggregateElementsWhereRules<AGG:SDAIAggregationType>(_ agg:AGG?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] 
+	where AGG.ELEMENT: SDAIGenericType {
+		var result:[SDAI.WhereLabel:SDAI.LOGICAL] = [:]
+		guard let agg = agg else { return result }
+		
+		for idx in agg.loIndex ... agg.hiIndex {
+			let elemResult = AGG.ELEMENT.validateWhereRules(instance:agg[idx], prefix: prefix + "[\(idx)]", 
+																												excludingEntity: false) 
+				result.merge(elemResult) { $0 && $1 }
+			
+		}
+		return result
+	}
 }
 

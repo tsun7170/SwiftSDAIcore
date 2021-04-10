@@ -18,6 +18,9 @@ extension SDAI {
 	{
 		
 		private let complexEntity: ComplexEntity
+		public init(_ complex: ComplexEntity) {
+			self.complexEntity = complex
+		}
 		
 		// Equatable \Hashable\SDAIValue
 		public static func == (lhs: _ComplexEntityValue, rhs: _ComplexEntityValue) -> Bool {

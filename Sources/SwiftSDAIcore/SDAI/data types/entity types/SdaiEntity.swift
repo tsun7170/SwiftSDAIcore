@@ -14,8 +14,10 @@ extension SDAI {
 
 	
 	//MARK: - PartialEntity
-	open class PartialEntity: SDAI.Object {
+	open class PartialEntity: SDAIParameterDataSchema._PartialEntityBase {
 		public typealias TypeIdentity = EntityName
+		
+		open class var entityReferenceType: EntityReference.Type { abstruct() }
 		public class var typeIdentity: TypeIdentity { abstruct() }
 		public class var entityName: EntityName { abstruct() }
 		public class var qualifiedEntityName: EntityName { abstruct() }
@@ -41,11 +43,8 @@ extension SDAI {
 	
 	
 	//MARK: - ComplexEntity
-	open class ComplexEntity: SDAI.Object
+	open class ComplexEntity: SDAIParameterDataSchema._ComplexEntityBase
 	{
-		public var partialEntities: [PartialEntity] {
-			_partialEntities.values.map{ (pe) in pe.instance }
-		}
 		private var _partialEntities: Dictionary<PartialEntity.TypeIdentity,(instance:PartialEntity,reference:EntityReference?)> = [:]
 		
 		public init(entities:[PartialEntity]) {
@@ -54,6 +53,11 @@ extension SDAI {
 			for pe in entities {
 				_partialEntities[type(of: pe).typeIdentity] = (instance:pe, reference:nil)	
 			}
+		}
+		
+		//MARK: partial entity access
+		public var partialEntities: [PartialEntity] {
+			_partialEntities.values.map{ (pe) in pe.instance }
 		}
 		
 		public func partialEntityInstance<PENT:PartialEntity>(_ peType:PENT.Type) -> PENT? {
@@ -72,28 +76,109 @@ extension SDAI {
 			return nil
 		}
 		
-		public func entityReference<EREF:EntityReference>(_ erType:EREF.Type) -> EREF? {
-			if let (pe,eref) = _partialEntities[erType.partialEntityType.typeIdentity] {
+		//MARK: entity reference access
+		public var entityReferences: [EntityReference] {
+			var result:[EntityReference] = []
+			
+			for pe in self.partialEntities {
+				if let eref = self.entityReference(type(of: pe).entityReferenceType) {
+					result.append(eref)
+				}
+			}
+			return result
+		}
+		
+		public func entityReference<EREF:EntityReference>(_ erefType:EREF.Type) -> EREF? {
+			if let (pe,eref) = _partialEntities[erefType.partialEntityType.typeIdentity] {
 				if eref != nil { return eref as? EREF }
 				
 				if let eref = EREF(complex:self) {
-					_partialEntities[erType.partialEntityType.typeIdentity] = (pe,eref)
+					_partialEntities[erefType.partialEntityType.typeIdentity] = (pe,eref)
 					return eref
 				}
 			}
 			return nil
 		}
 		
-		public var roles: Set<STRING> { abstruct() }
-		public func usedIn<ENT:EntityReference>(entity:ENT.Type, attr: String) -> [ENT] { abstruct() }
-		public func usedIn() -> [EntityReference] { abstruct() }
+		//MARK: express built-in function support
+		private func findRoles(in entity: SDAI.EntityReference) -> [SDAIAttributeType] {
+			var roles:[SDAIAttributeType] = []
+			let entityDef = entity.definition
+			for (_, attrDef) in entityDef.attributes {
+				guard let attrEntitySeq = attrDef.genericValue(for: entity)?.entityReferences else { continue }
+				for attrEntity in attrEntitySeq {
+					if self === attrEntity.complexEntity {
+						roles.append(attrDef)
+					}
+				}
+			}
+			return roles
+		}
+		
+		public var roles: Set<STRING> { 
+			var result: Set<STRING> = []
+			let model = self.owningModel
+			let schemaInstance = model.defaultSchemaInstance
+			for complex in schemaInstance.allComplexEntities {
+				for entity in complex.entityReferences {
+					result.formUnion( self.findRoles(in: entity).lazy.map{ (attrDef) in
+						return STRING(attrDef.qualifiedAttributeName) 
+					} )
+				}
+			}
+			return result
+		}
+		
+		public func usedIn() -> [EntityReference] { 
+			var result: [EntityReference] = []
+			let model = self.owningModel
+			let schemaInstance = model.defaultSchemaInstance
+			for complex in schemaInstance.allComplexEntities {
+				for entity in complex.entityReferences {
+					result.append(contentsOf: self.findRoles(in: entity).lazy.map{ _ in entity } )
+				}
+			}
+			return result
+		}
+		
+		public func usedIn<ENT:EntityReference, R:SDAIGenericType>(as role: KeyPath<ENT,R>) -> [ENT] { 
+			var result: [ENT] = []
+			let model = self.owningModel
+			let schemaInstance = model.defaultSchemaInstance
+			for complex in schemaInstance.allComplexEntities {
+				guard let entity = complex.entityReference(ENT.self) else { continue }
+				let attr = SDAI.GENERIC( entity[keyPath: role] )
+				for attrEntity in attr.entityReferences {
+					if self === attrEntity.complexEntity {
+						result.append(entity)
+					}
+				}
+			}
+			return result
+		}
+		
+		public func usedIn<ENT:EntityReference, R:SDAIGenericType>(as role: KeyPath<ENT,R?>) -> [ENT] { 
+			var result: [ENT] = []
+			let model = self.owningModel
+			let schemaInstance = model.defaultSchemaInstance
+			for complex in schemaInstance.allComplexEntities {
+				guard let entity = complex.entityReference(ENT.self) else { continue }
+				guard let attr = SDAI.GENERIC( entity[keyPath: role] ) else { continue }
+				for attrEntity in attr.entityReferences {
+					if self === attrEntity.complexEntity {
+						result.append(entity)
+					}
+				}
+			}
+			return result
+		}
 
 		public var typeMembers: Set<SDAI.STRING> { 
-			Set( _partialEntities.values.map{ (pe) -> STRING in STRING(stringLiteral: pe.instance.qualifiedEntityName) } ) 
+			Set( _partialEntities.values.map{ (peTuple) -> STRING in STRING(stringLiteral: peTuple.instance.qualifiedEntityName) } ) 
 		}
 		
 		public typealias Value = _ComplexEntityValue
-		public var value: Value { abstruct() }
+		public var value: Value { _ComplexEntityValue(self) }
 
 		func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<ComplexEntity>) {
 			guard !complexEntities.contains(self) else { return }
@@ -139,11 +224,25 @@ extension SDAI {
 			}
 			return isequal
 		}
+		
+		//MARK: where rule validation support
+		public func validateEntityWhereRules(prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+			var result: [SDAI.WhereLabel:SDAI.LOGICAL] = [:]
+			for (pe,_) in _partialEntities.values {
+				if let eref = self.entityReference(type(of: pe).entityReferenceType) {
+					let peResult = type(of: eref).validateWhereRules(instance:eref, prefix: prefix + "\\" + pe.entityName, excludingEntity: false)
+					result.merge(peResult) { $0 && $1 }
+				}
+			}
+			return result
+		}
+
 	}
 	
 	
 	//MARK: - EntityReference (8.3.1)
-	open class EntityReference: SDAI.ObjectReference<ComplexEntity>, SDAIGenericType, InitializableByEntity, SDAIObservableAggregateElement 
+	open class EntityReference: SDAIParameterDataSchema.ApplicationInstance, SDAINamedType,
+															SDAIGenericType, InitializableByEntity, SDAIObservableAggregateElement 
 	{		
 		public var complexEntity: ComplexEntity {self.object}
 		
@@ -173,6 +272,18 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
+		open class func validateWhereRules(instance:SDAI.EntityReference?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+			var result: [SDAI.WhereLabel:SDAI.LOGICAL] = [:]
+			guard !excludingEntity, let instance = instance else { return result }
+			
+			for (attrname, attrdef) in self.entityDefinition.attributes {
+				let attrval = attrdef.genericValue(for: instance)
+				let attrresult = SDAI.GENERIC.validateWhereRules(instance: attrval, prefix: prefix + "." + attrname, excludingEntity: true)
+				result.merge(attrresult) { $0 && $1 }
+			}
+			return result
+		}
+
 		// SDAIObservableAggregateElement
 		public var entityReferences: AnySequence<SDAI.EntityReference> { 
 			AnySequence<SDAI.EntityReference>(CollectionOfOne<SDAI.EntityReference>(self))
@@ -181,7 +292,6 @@ extension SDAI {
 		
 		// EntityReference specific
 		public static var partialEntityType: PartialEntity.Type { abstruct() }
-		
 		
 		public required init?(complex complexEntity: ComplexEntity?) {
 			guard let complexEntity = complexEntity else { return nil }

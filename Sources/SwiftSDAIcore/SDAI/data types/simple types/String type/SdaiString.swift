@@ -115,6 +115,8 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
+		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] { return [:] }
+
 		
 		// InitializableByGenerictype
 		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
@@ -150,8 +152,54 @@ extension SDAI {
 			return STRING( SwiftType(charArray[swiftrange]) )
 		}
 		
+		// Line operator (12.2.5)
 		public func ISLIKE(PATTERN substring: String?) -> SDAI.LOGICAL {
-			abstruct()
+			guard let substring = substring else { return SDAI.UNKNOWN }
+			var strp = self.rep.makeIterator()
+			var patp = substring.makeIterator()
+			var strc = strp.next()
+			var patc = patp.next()
+			var accept = true
+			
+			while var patchar = patc {
+				if patchar == "!" {
+					accept = !accept
+				}
+				else {
+					guard let strchar = strc else { return SDAI.FALSE }
+					switch patchar {
+					case "@":
+						if strchar.isLetter != accept { return SDAI.FALSE }
+					case "^":
+						if strchar.isUppercase != accept { return SDAI.FALSE }
+					case "?":
+						if true != accept { return SDAI.FALSE }
+					case "&":
+						return SDAI.LOGICAL( accept )
+					case "#":
+						if strchar.isNumber != accept { return SDAI.FALSE }
+					case "$":
+						if (!strchar.isWhitespace) != accept { return SDAI.FALSE }
+						while let char = strc, !char.isWhitespace {
+							strc = strp.next()
+						}
+					case "*":
+						return SDAI.LOGICAL( accept )
+					case "\\":
+						patc = patp.next()
+						guard let char = patc else { return SDAI.UNKNOWN }
+						patchar = char
+						fallthrough
+					default:					
+						if (strchar == patchar ) != accept { return SDAI.FALSE }
+					}
+					accept = true
+					strc = strp.next()
+				}
+				patc = patp.next()
+			}
+			if !accept { return SDAI.UNKNOWN } 
+			return LOGICAL( strc == nil )
 		}
 		
 
