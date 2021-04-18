@@ -25,10 +25,13 @@ extension SDAIDictionarySchema {
 		public private(set) var attributes: [ExpressId:SDAIAttributeType] = [:]
 		public private(set) var uniquenessRules: [ExpressId:UniquenessRule] = [:]
 //		public var globalRules: SDAI.SET<GlobalRule>
-//
-//		
-//		
+
+		// swift language binding
 		public let type: SDAI.EntityReference.Type
+		
+		public var qualifiedEntityName: ExpressId {
+			return self.parentSchema.name + "." + self.name
+		}
 		
 		public func addAttribute<ENT: SDAI.EntityReference,T: SDAIGenericType>(name:ExpressId, keyPath: KeyPath<ENT,T>) {
 			let attrdef = NonOptionalAttribute(name: name, entityDef: self, keyPath: keyPath)

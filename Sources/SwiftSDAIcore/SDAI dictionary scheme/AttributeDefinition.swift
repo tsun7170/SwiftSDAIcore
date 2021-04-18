@@ -29,7 +29,7 @@ extension SDAIDictionarySchema {
 		public unowned let parentEntity: EntityDefinition
 		
 		//MARK: SDAIAttributeType
-		public var qualifiedAttributeName: SDAIDictionarySchema.ExpressId { abstruct() }
+		public var qualifiedAttributeName: SDAIDictionarySchema.ExpressId { parentEntity.qualifiedEntityName + "." + self.name }
 
 		public func genericValue(for entity: SDAI.EntityReference) -> SDAI.GENERIC? {
 			guard let entity = entity as? ENT else { return nil }
@@ -37,7 +37,7 @@ extension SDAIDictionarySchema {
 		}
 		
 		//MARK: swift binding support
-		public func value(for entity: ENT) -> T? { abstruct() }
+		open func value(for entity: ENT) -> T? { abstruct() }	// abstruct
 	}
 	
 	public class OptionalAttribute<ENT: SDAI.EntityReference, T: SDAIGenericType>: Attribute<ENT,T> {

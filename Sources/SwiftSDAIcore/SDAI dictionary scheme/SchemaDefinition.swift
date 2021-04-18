@@ -15,6 +15,7 @@ extension SDAIDictionarySchema {
 		public init(name: ExpressId) {
 			self.name = name
 			super.init()
+			SDAISessionSchema.SdaiSession.dataDictionary[self.name] = self
 		}
 		
 		public let name: ExpressId
@@ -24,6 +25,7 @@ extension SDAIDictionarySchema {
 		public private(set) var entities: [ExpressId:EntityDefinition] = [:]
 		public private(set) var globalRules: [ExpressId:GlobalRule] = [:]
 		
+		// swift language binding
 		public func addEntity(entityDef: EntityDefinition) {
 			entityDef.parentSchema = self
 			entities[entityDef.name] = entityDef
@@ -34,6 +36,9 @@ extension SDAIDictionarySchema {
 			globalRules[name] = ruleDef
 		}
 		
+		public var uniquenessRules: AnySequence<SDAIDictionarySchema.UniquenessRule> {
+			return AnySequence( self.entities.lazy.map{ $1.uniquenessRules.lazy.map { $1 }}.joined() )
+		}
 	}
 	
 	

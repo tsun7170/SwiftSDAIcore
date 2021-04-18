@@ -17,26 +17,26 @@ fileprivate class _AnyGenericBox: Hashable {
 			hasher.combine(value)
 	}
 	
-	var base: Any { abstruct() }
-	var value: SDAI.GenericValue { abstruct() }
-	var entityReference: SDAI.EntityReference? { abstruct() }
-	var stringValue: SDAI.STRING? { abstruct() }
-	var binaryValue: SDAI.BINARY? { abstruct() }
-	var logicalValue: SDAI.LOGICAL? { abstruct() }
-	var booleanValue: SDAI.BOOLEAN? { abstruct() }
-	var numberValue: SDAI.NUMBER? { abstruct() }
-	var realValue: SDAI.REAL? { abstruct() }
-	var integerValue: SDAI.INTEGER? { abstruct() }
-	var genericEnumValue: SDAI.GenericEnumValue? {abstruct()}
+	var base: Any { abstruct() }	// abstruct
+	var value: SDAI.GenericValue { abstruct() }	// abstruct
+	var entityReference: SDAI.EntityReference? { abstruct() }	// abstruct
+	var stringValue: SDAI.STRING? { abstruct() }	// abstruct
+	var binaryValue: SDAI.BINARY? { abstruct() }	// abstruct
+	var logicalValue: SDAI.LOGICAL? { abstruct() }	// abstruct
+	var booleanValue: SDAI.BOOLEAN? { abstruct() }	// abstruct
+	var numberValue: SDAI.NUMBER? { abstruct() }	// abstruct
+	var realValue: SDAI.REAL? { abstruct() }	// abstruct
+	var integerValue: SDAI.INTEGER? { abstruct() }	// abstruct
+	var genericEnumValue: SDAI.GenericEnumValue? { abstruct() }	// abstruct
 	
-	func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? { abstruct() }
-	func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? { abstruct() }
-	func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? { abstruct() }
-	func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? { abstruct() }
-	func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? { abstruct() }
-	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { abstruct() }
+	func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? { abstruct() }	// abstruct
+	func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? { abstruct() }	// abstruct
+	func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? { abstruct() }	// abstruct
+	func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? { abstruct() }	// abstruct
+	func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? { abstruct() }	// abstruct
+	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { abstruct() }	// abstruct
 	
-	class func validateWhereRules(instance:_AnyGenericBox?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] { abstruct() }
+	class func validateWhereRules(instance:_AnyGenericBox?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] { abstruct() }	// abstruct
 }
 
 fileprivate class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {

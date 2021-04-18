@@ -162,9 +162,25 @@ public enum SDAI {
 	
 	public typealias GlobalRuleSignature = (_ allComplexEntities: AnySequence<SDAI.ComplexEntity>) -> [SDAI.WhereLabel:SDAI.LOGICAL]
 	
-//	public typealias UniquenessLabel = SDAIDictionarySchema.ExpressId
+	public struct GlobalRuleValidationResult {
+		public var globalRule: SDAIDictionarySchema.GlobalRule
+		public var result: SDAI.LOGICAL
+		public var record: [SDAI.WhereLabel:SDAI.LOGICAL]
+	}
+	
 	public typealias UniquenessRuleSignature = (_ entity: SDAI.EntityReference) -> AnyHashable?
-
+	
+	public struct UniquenessRuleValidationResult {
+		public var uniquenessRule: SDAIDictionarySchema.UniquenessRule
+		public var result: SDAI.LOGICAL
+		public var record: (uniqueCount:Int, instanceCount:Int)
+	}
+	
+	public struct WhereRuleValidationResult {
+		public var result: SDAI.LOGICAL
+		public var record: [SDAI.EntityReference:[SDAI.WhereLabel:SDAI.LOGICAL]]
+	}
+	
 	//MARK: - SDAI.Object	
 	open class Object: Hashable {
 		public static func == (lhs: SDAI.Object, rhs: SDAI.Object) -> Bool {
@@ -194,6 +210,23 @@ public enum SDAI {
 			object.hash(into: &hasher)
 		}
 		
+	}
+	
+	public class UnownedReference<OBJ: Object>: Hashable {
+		public unowned let object: OBJ
+		
+		public init(_ object: OBJ) {
+			self.object = object
+		}
+		
+		public static func == (lhs: UnownedReference<OBJ>, rhs: UnownedReference<OBJ>) -> Bool {
+			return lhs.object === rhs.object
+		}
+		
+		public func hash(into hasher: inout Hasher) {
+			object.hash(into: &hasher)
+		}
+	
 	}
 }
 
