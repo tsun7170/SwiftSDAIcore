@@ -17,6 +17,10 @@ extension SDAI {
 	open class PartialEntity: SDAI.Object {
 		public typealias TypeIdentity = SDAIDictionarySchema.EntityDefinition
 		
+		public override init() {
+			super.init()	
+		}
+		
 		// class properties
 		open class var entityReferenceType: EntityReference.Type { abstruct() } // abstruct
 		
@@ -41,7 +45,7 @@ extension SDAI {
 		public var qualifiedEntityName: EntityName { 
 			return type(of: self).qualifiedEntityName
 		}
-		public var complexEntities: Set<UnownedReference<ComplexEntity>> = []
+//		public var complexEntities: Set<UnownedReference<ComplexEntity>> = []
 		
 //		public override init(model: SDAIPopulationSchema.SdaiModel) {
 //			super.init(model: model)
@@ -286,7 +290,7 @@ extension SDAI {
 	
 	
 	//MARK: - EntityReference (8.3.1)
-	open class EntityReference: SDAI.ObjectReference<SDAI.ComplexEntity>, SDAINamedType,
+	open class EntityReference: SDAI.UnownedReference<SDAI.ComplexEntity>, SDAINamedType,
 															SDAIGenericType, InitializableByEntity, SDAIObservableAggregateElement 
 	{		
 		public var complexEntity: ComplexEntity {self.object}
@@ -353,12 +357,12 @@ extension SDAI {
 		
 		public required init?(complex complexEntity: ComplexEntity?) {
 			guard let complexEntity = complexEntity else { return nil }
-			super.init(object: complexEntity)
+			super.init(complexEntity)
 		}
 		
 		// SDAI.GENERIC_ENTITY
 		public init(_ entityRef: EntityReference) {
-			super.init(object: entityRef.complexEntity)
+			super.init(entityRef.complexEntity)
 		}
 		public convenience init?(_ entityRef: EntityReference?) {
 			guard let entityRef = entityRef else { return nil }

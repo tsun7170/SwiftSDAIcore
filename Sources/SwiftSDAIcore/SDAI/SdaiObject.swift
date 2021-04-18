@@ -198,7 +198,7 @@ public enum SDAI {
 	open class ObjectReference<OBJ: Object>: Hashable {
 		internal let object: OBJ
 		
-		public init(object: OBJ) {
+		public init(_ object: OBJ) {
 			self.object = object
 		}
 
@@ -212,7 +212,7 @@ public enum SDAI {
 		
 	}
 	
-	public class UnownedReference<OBJ: Object>: Hashable {
+	open class UnownedReference<OBJ: Object>: Hashable {
 		public unowned let object: OBJ
 		
 		public init(_ object: OBJ) {
