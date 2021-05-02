@@ -9,7 +9,7 @@ import Foundation
 
 extension P21Decode {
 	
-	internal enum TerminalToken {
+	internal enum TerminalToken: Equatable {
 		case USER_DEFINED_KEYWORD(String)
 		case STANDARD_KEYWORD(String)
 		case INTEGER(Int)
@@ -34,8 +34,9 @@ extension P21Decode {
 //		case spDATA
 //		case spSIGNATURE
 		case spDOLLER_SIGN
-		case spspASTERISK
+		case spASTERISK
 		case spSEMICOLON
+		case spCOLON
 		case spLEFT_PARENTHESIS
 		case spRIGHT_PARENTHESIS
 		case spCOMMA
@@ -43,6 +44,49 @@ extension P21Decode {
 		case spLEFT_BRACE
 		case spRIGHT_BRACE
 		case spEQUAL
+		
+		var isKEYWORD: Bool {
+			switch self {
+			case .USER_DEFINED_KEYWORD(_):
+				return true
+			case .STANDARD_KEYWORD(_):
+				return true
+			default:
+				return false
+			}
+		}
+		
+		var isLHS_OCCURRENCE_NAME: Bool {
+			switch self {
+			case .ENTITY_INSTANCE_NAME(_):
+				return true
+			case .VALUE_INSTANCE_NAME(_):
+				return true
+			default:
+				return false
+			}	
+		}
+		
+		var isRHS_OCCURRENCE_NAME: Bool {
+			switch self {
+			case .ENTITY_INSTANCE_NAME(_):
+				return true
+			case .VALUE_INSTANCE_NAME(_):
+				return true
+			case .CONSTANT_ENTITY_NAME(_):
+				return true
+			case .CONSTANT_VALUE_NAME(_):
+				return true
+			default:
+				return false
+			}	
+		}
+		
+//		var isUNTYPED_PARAMETER: Bool {
+//			if self.isRHS_OCCURRENCE_NAME	
+//		}
+		
+		
 	}
 	
 	internal class TokenStream: IteratorProtocol
@@ -64,10 +108,11 @@ extension P21Decode {
 		
 		
 		private var p21stream: P21CharacterStream
+		internal var lineNumber: Int { p21stream.lineNumber }
 		
 		internal private(set) var error: P21Error?
 		private func setError(_ message: String) {
-			error = P21Error(message: message, lineNumber: p21stream.lineNumber)
+			error = P21Error(message: message, lineNumber: self.lineNumber)
 		}
 		
 		internal init(p21stream:P21CharacterStream) {
@@ -117,10 +162,13 @@ extension P21Decode {
 					return .spDOLLER_SIGN
 				}
 				else if c == "*" {
-					return .spspASTERISK
+					return .spASTERISK
 				}
 				else if c == ";" {
 					return .spSEMICOLON
+				}
+				else if c == ":" {
+					return .spCOLON
 				}
 				else if c == "(" {
 					return .spLEFT_PARENTHESIS
