@@ -378,6 +378,41 @@ extension SDAI {
 		public static func cast<EREF:EntityReference>( from source: EREF? ) -> Self? {
 			return source?.complexEntity.entityReference(self)
 		}
+		
+		// InitializableByP21Parameter
+		public static var bareTypeName: String { "GENERIC_ENTITY" }
+		
+//		public required convenience init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {
+//			switch p21untypedParam {
+//			case .rhsOccurenceName(let rhsname):
+//				switch rhsname {
+//				case .constantEntityName(let name):
+//					guard let entity = exchangeStructure.resolve(constantEntityName: name) else {exchangeStructure.add(errorContext: "while resolving \(Self.bareTypeName) instance"); return nil }
+//					self.init(complex: entity.complexEntity)
+//					
+//				case .entityInstanceName(let name):
+//					guard let complex = exchangeStructure.resolve(entityInstanceName: name) else {exchangeStructure.add(errorContext: "while resolving \(Self.bareTypeName) instance"); return nil }
+//					self.init(complex: complex)
+//				
+//				default:
+//					exchangeStructure.error = "unexpected p21parameter(\(p21untypedParam)) while resolving \(Self.bareTypeName) instance"
+//					return nil
+//				}
+//							
+//			case .nullValue:
+//				return nil
+//				
+//			default:
+//				exchangeStructure.error = "unexpected p21parameter(\(p21untypedParam)) while resolving \(Self.bareTypeName) value"
+//				return nil
+//			}
+//		}
+//
+//		public required convenience init?(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
+//			return nil
+//		}
+		
+
 	}
 }
 

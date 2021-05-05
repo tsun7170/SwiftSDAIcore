@@ -135,6 +135,16 @@ extension SDAI {
 				return AnySequence<SDAI.EntityReference>([])
 			}
 		}
+		
+		// InitializableByP21Parameter
+		public static var bareTypeName: String = "GENERIC"
+		public init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {
+			abstruct()	
+		}
+		public init?(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
+			abstruct()
+		}
+
 	}
 	
 }

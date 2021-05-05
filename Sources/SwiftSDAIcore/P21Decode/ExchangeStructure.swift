@@ -17,7 +17,10 @@ extension P21Decode {
 		public private(set) var valueInstanceRegistory: [ValueInstanceName:ValueInstanceRecord] = [:]
 		public private(set) var entityInstanceRegistory: [EntityInstanceName:EntityInstanceRecord] = [:]
 		
-		public private(set) var error: String?
+		public var error: String?
+		public func add(errorContext: String) {
+			error = (error ?? "unknown error") + ", " + errorContext
+		}
 
 		public func register(valueInstanceName: ValueInstanceName, reference: Resource) -> Bool {
 			let rec = ValueInstanceRecord(reference: reference)
@@ -51,6 +54,21 @@ extension P21Decode {
 			return true
 		}
 		
+		public func resolve(constantValueName: String) -> SDAI.GENERIC? {
+			abstruct()
+		}
+		
+		public func resolve(valueInstanceName: Int) -> Parameter? {
+			abstruct()
+		}
+		
+		public func resolve(constantEntityName: String) -> SDAI.EntityReference? {
+			abstruct()
+		}
+		
+		public func resolve(entityInstanceName: Int) -> SDAI.ComplexEntity? {
+			abstruct()
+		}
 	}
 }
 

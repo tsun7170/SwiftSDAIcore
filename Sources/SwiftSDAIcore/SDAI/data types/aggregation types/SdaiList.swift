@@ -281,6 +281,49 @@ extension SDAI {
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 		
+		
+		// InitializableByP21Parameter
+		public static var bareTypeName: String { self.typeName }
+		
+		public init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {
+			switch p21untypedParam {
+			case .list(let listval):
+				var array: SwiftType = []
+				for param in listval {
+					guard let elem = ELEMENT(p21param: param, from: exchangeStructure) else { exchangeStructure.add(errorContext: "while resolving \(Self.bareTypeName) element value"); return nil }
+					array.append(elem)
+				}
+				self.init(from: array)
+				
+			case .rhsOccurenceName(let rhsname):
+				switch rhsname {
+				case .constantValueName(let name):
+					guard let generic = exchangeStructure.resolve(constantValueName: name) else {exchangeStructure.add(errorContext: "while resolving \(Self.bareTypeName) value"); return nil }
+					guard let listValue = generic.listValue(elementType: ELEMENT.self) else { exchangeStructure.error = "constant value(\(name): \(generic)) is not compatible with \(Self.bareTypeName)[\(ELEMENT.self)]"; return nil }
+					self.init(listValue)
+				
+				case .valueInstanceName(let name):
+					guard let param = exchangeStructure.resolve(valueInstanceName: name) else {exchangeStructure.add(errorContext: "while resolving \(Self.bareTypeName) value from \(rhsname)"); return nil }
+					self.init(p21param: param, from: exchangeStructure)
+					
+				default:
+					exchangeStructure.error = "unexpected p21parameter(\(p21untypedParam)) while resolving \(Self.bareTypeName) value"
+					return nil
+				}
+							
+			case .nullValue:
+				return nil
+				
+			default:
+				exchangeStructure.error = "unexpected p21parameter(\(p21untypedParam)) while resolving \(Self.bareTypeName) value"
+				return nil
+			}
+		}
+
+		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
+			self.init(from: SwiftType())
+		}
+		
 
 	}
 }

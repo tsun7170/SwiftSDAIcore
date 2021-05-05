@@ -133,7 +133,7 @@ extension P21Decode.ExchangeStructure {
 		case string(String)
 		case rhsOccurenceName(RHSOccurenceName)
 		case enumeration(String)
-		case binary(String)
+		case binary(String)	// sequence of "0" or "1"
 		case list([Parameter])
 	}
 	

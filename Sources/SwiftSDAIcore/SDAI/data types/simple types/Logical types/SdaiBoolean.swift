@@ -112,6 +112,53 @@ extension SDAI {
 			if let rhs = rhs as? SwiftBoolConvertible { return self.possiblyAsSwiftBool == rhs.possiblyAsSwiftBool }
 			return false
 		}
+		
+		// InitializableByP21Parameter
+		public static var bareTypeName: String { self.typeName }
+		
+		public init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {
+			switch p21untypedParam {
+			case .enumeration(let enumcase):
+				switch enumcase {
+				case "T":
+					self.init(true)
+					
+				case "F":
+					self.init(false)
+					
+				default:
+					exchangeStructure.error = "unexpected p21parameter enum case(\(enumcase)) while resolving \(Self.bareTypeName) value"
+					return nil
+				}
+				
+			case .rhsOccurenceName(let rhsname):
+				switch rhsname {
+				case .constantValueName(let name):
+					guard let generic = exchangeStructure.resolve(constantValueName: name) else {exchangeStructure.add(errorContext: "while resolving \(Self.bareTypeName) value"); return nil }
+					guard let booleanValue = generic.booleanValue else { exchangeStructure.error = "constant value(\(name): \(generic)) is not compatible with \(Self.bareTypeName)"; return nil }
+					self.init(booleanValue)
+				
+				case .valueInstanceName(let name):
+					guard let param = exchangeStructure.resolve(valueInstanceName: name) else {exchangeStructure.add(errorContext: "while resolving \(Self.bareTypeName) value from \(rhsname)"); return nil }
+					self.init(p21param: param, from: exchangeStructure)
+					
+				default:
+					exchangeStructure.error = "unexpected p21parameter(\(p21untypedParam)) while resolving \(Self.bareTypeName) value"
+					return nil
+				}
+												
+			case .nullValue:
+				return nil
+				
+			default:
+				exchangeStructure.error = "unexpected p21parameter(\(p21untypedParam)) while resolving \(Self.bareTypeName) value"
+				return nil
+			}
+		}
+
+		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
+			self.init(false)
+		}
 
 	}
 }

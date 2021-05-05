@@ -9,7 +9,7 @@
 import Foundation
 
 
-public protocol SDAIGenericType: Hashable, InitializableBySelecttype, InitializableByGenerictype 
+public protocol SDAIGenericType: Hashable, InitializableBySelecttype, InitializableByGenerictype, InitializableByP21Parameter 
 {
 	associatedtype FundamentalType: SDAIGenericType
 	associatedtype Value: SDAIValue

@@ -107,6 +107,44 @@ extension SDAI {
 			guard let double = real?.asSwiftDouble else { return nil }
 			self.init(Int(double))
 		}
+		
+		// InitializableByP21Parameter
+		public static var bareTypeName: String { self.typeName }
+		
+		public init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {
+			switch p21untypedParam {
+			case .integer(let intval):
+				self.init(intval)
+				
+			case .rhsOccurenceName(let rhsname):
+				switch rhsname {
+				case .constantValueName(let name):
+					guard let generic = exchangeStructure.resolve(constantValueName: name) else {exchangeStructure.add(errorContext: "while resolving \(Self.bareTypeName) value"); return nil }
+					guard let integerValue = generic.integerValue else { exchangeStructure.error = "constant value(\(name): \(generic)) is not compatible with \(Self.bareTypeName)"; return nil }
+					self.init(integerValue)
+				
+				case .valueInstanceName(let name):
+					guard let param = exchangeStructure.resolve(valueInstanceName: name) else {exchangeStructure.add(errorContext: "while resolving \(Self.bareTypeName) value from \(rhsname)"); return nil }
+					self.init(p21param: param, from: exchangeStructure)
+					
+				default:
+					exchangeStructure.error = "unexpected p21parameter(\(p21untypedParam)) while resolving \(Self.bareTypeName) value"
+					return nil
+				}
+							
+			case .nullValue:
+				return nil
+				
+			default:
+				exchangeStructure.error = "unexpected p21parameter(\(p21untypedParam)) while resolving \(Self.bareTypeName) value"
+				return nil
+			}
+		}
+
+		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
+			self.init(0)
+		}
+		
 	}
 }
 
