@@ -13,12 +13,13 @@ extension SDAIDictionarySchema {
 	
 	//MARK: (6.4.12)
 	public class EntityDefinition : NamedType {
-		public init(name: ExpressId, type: SDAI.EntityReference.Type) {
+		public init(name: ExpressId, type: SDAI.EntityReference.Type, explicitAttributeCount: Int) {
 			self.type = type
+			self.partialEntityExplicitAttributeCount = explicitAttributeCount
 			super.init(name: name)
 		}
 
-//		public var supertypes: SDAI.LIST<EntityDefinition>
+		public private(set) var supertypes: [SDAI.EntityReference.Type] = [] // ending with self entity
 //		public var complex: SDAI.BOOLEAN
 //		public var instantiable: SDAI.BOOLEAN
 //		public var independent: SDAI.BOOLEAN
@@ -28,9 +29,15 @@ extension SDAIDictionarySchema {
 
 		// swift language binding
 		public let type: SDAI.EntityReference.Type
+		public var partialEntityType: SDAI.PartialEntity.Type { self.type.partialEntityType }
+		public let partialEntityExplicitAttributeCount: Int
 		
 		public var qualifiedEntityName: ExpressId {
 			return self.parentSchema.name + "." + self.name
+		}
+		
+		public func add(supertype: SDAI.EntityReference.Type) {
+			self.supertypes.append(supertype)
 		}
 		
 		public func addAttribute<ENT: SDAI.EntityReference,T: SDAIGenericType>(name:ExpressId, keyPath: KeyPath<ENT,T>) {
