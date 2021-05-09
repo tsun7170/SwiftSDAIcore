@@ -18,6 +18,10 @@ extension SDAI {
 			super.init()	
 		}
 		
+		public required convenience init?(parameters: [P21Decode.ExchangeStructure.Parameter], exchangeStructure: P21Decode.ExchangeStructure) {
+			self.init()
+		}
+		
 		// class properties
 		open class var entityReferenceType: EntityReference.Type { abstruct() } // abstruct
 		
@@ -32,26 +36,13 @@ extension SDAI {
 		}
 		
 		// instance properties
-//		public override var definition: SDAIDictionarySchema.EntityDefinition { 
-//			return type(of: self).entityReferenceType.entityDefinition
-//		}
-		
 		public var entityName: EntityName { 
 			return type(of: self).entityName
 		}
 		public var qualifiedEntityName: EntityName { 
 			return type(of: self).qualifiedEntityName
 		}
-//		public var complexEntities: Set<UnownedReference<ComplexEntity>> = []
-		
-//		public override init(model: SDAIPopulationSchema.SdaiModel) {
-//			super.init(model: model)
-//		}
-//		public init() { 
-//			let schema = type(of: self).entityReferenceType.entityDefinition.parentSchema!
-//			let fallback = SDAIPopulationSchema.SdaiModel.fallBackModel(for: schema)
-//			super.init(model:fallback)
-//		}
+
 		
 		open func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<ComplexEntity>) {
 			hasher.combine(Self.typeIdentity)
