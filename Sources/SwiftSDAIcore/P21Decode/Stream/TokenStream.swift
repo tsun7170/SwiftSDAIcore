@@ -19,20 +19,10 @@ extension P21Decode {
 		case VALUE_INSTANCE_NAME(Int)
 		case CONSTANT_ENTITY_NAME(String)
 		case CONSTANT_VALUE_NAME(String)
-//		case ANCHOR_NAME(String)
 		case TAG_NAME(String)
 		case RESOURCE(String)
 		case ENUMERATION(String)
 		case BINARY(String)
-//		case SIGNATURE_CONTENT
-//		case spISO_10303_21
-//		case spEND_ISO_10303_21
-//		case spHEADER
-//		case spENDSEC
-//		case spANCHOR
-//		case spREFERENCE
-//		case spDATA
-//		case spSIGNATURE
 		case spDOLLER_SIGN
 		case spASTERISK
 		case spSEMICOLON
@@ -40,7 +30,6 @@ extension P21Decode {
 		case spLEFT_PARENTHESIS
 		case spRIGHT_PARENTHESIS
 		case spCOMMA
-//		case spSOLIDUS
 		case spLEFT_BRACE
 		case spRIGHT_BRACE
 		case spEQUAL
@@ -80,13 +69,7 @@ extension P21Decode {
 			default:
 				return false
 			}	
-		}
-		
-//		var isUNTYPED_PARAMETER: Bool {
-//			if self.isRHS_OCCURRENCE_NAME	
-//		}
-		
-		
+		}		
 	}
 	
 	internal class TokenStream: IteratorProtocol
@@ -108,15 +91,23 @@ extension P21Decode {
 		
 		
 		private var p21stream: P21CharacterStream
+		private let activityMonitor: ActivityMonitor?
 		internal var lineNumber: Int { p21stream.lineNumber }
 		
-		internal private(set) var error: P21Error?
+		internal private(set) var error: P21Error? {
+			didSet {
+				if let monitor = activityMonitor, oldValue == nil, let error = error {
+					monitor.tokenStreamDidSet(error: error)
+				}
+			}
+		}
 		private func setError(_ message: String) {
 			error = P21Error(message: message, lineNumber: self.lineNumber)
 		}
 		
-		internal init(p21stream:P21CharacterStream) {
+		internal init(p21stream:P21CharacterStream, monitor: ActivityMonitor?) {
 			self.p21stream = p21stream
+			self.activityMonitor = monitor
 		}
 		
 		internal func confirm(specialToken: String) -> Bool {
@@ -129,6 +120,11 @@ extension P21Decode {
 		
 		internal func next() -> TerminalToken? {
 			while true {
+				if let monitor = activityMonitor, monitor.abortDecoder() {
+					setError("operation terminated by user action")
+					return nil
+				}
+				
 				guard let c = p21stream.next() else { return nil }
 				
 				if c == "!" {

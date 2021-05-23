@@ -20,20 +20,18 @@ extension SDAIPopulationSchema {
 			self.underlyingSchema = schema
 			self.contents = SdaiModelContents()
 			self.changeDate = Date()
+			self.mode = .readWrite
 			super.init()
 			self.contents.ownedBy = self
 			self.repository.contents.add(model:self)
 		}
 		
-		//MARK: (10.7.1)
-//		deinit {
-//		}
 		
 		public let name: STRING // (10.7.2)
 		public let contents: SdaiModelContents
 		public let underlyingSchema: SDAIDictionarySchema.SchemaDefinition
 		public unowned let repository: SDAISessionSchema.SdaiRepository
-		public var changeDate: SDAISessionSchema.TimeStamp?
+		public var changeDate: SDAISessionSchema.TimeStamp
 		public var mode: SDAISessionSchema.AccessType?
 		public internal(set) var associatedWith: SET<SDAI.UnownedReference<SchemaInstance>> = []
 		
@@ -54,6 +52,9 @@ extension SDAIPopulationSchema {
 			return _uniqueName
 		}
 		
+		public func updateChangeDate() {
+			self.changeDate = Date()
+		}
 	}
 	
 	

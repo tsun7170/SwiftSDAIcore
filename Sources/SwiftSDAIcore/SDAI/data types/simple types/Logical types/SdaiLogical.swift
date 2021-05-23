@@ -41,17 +41,21 @@ public extension SDAI__LOGICAL__type
 	var asSwiftBool: Bool { return SDAI.UNWRAP(self.possiblyAsSwiftBool) }
 	var isTRUE: Bool { return self.asSwiftType ?? false }
 
+	init(_ bool: Bool?) {
+		self.init(from: bool)
+	}
+
 	init(booleanLiteral value: Bool) {
-		self.init(value)
+		self.init(from: value)
 	}
 	init(nilLiteral: ()) {
-		self.init(nil)
+		self.init(from: nil as SwiftType)
 	}
 	init<T:SDAILogicalType>(_ subtype: T?) {
-		self.init(subtype?.possiblyAsSwiftBool)
+		self.init(from: subtype?.possiblyAsSwiftBool)
 	}
 	init<T:SDAILogicalType>(_ subtype: T) {
-		self.init(subtype.possiblyAsSwiftBool)
+		self.init(from: subtype.possiblyAsSwiftBool)
 	}
 }
 
@@ -65,7 +69,7 @@ extension SDAI {
 		
 		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__LOGICAL__type
 		public var typeMembers: Set<SDAI.STRING> {
-			return [SDAI.STRING(Self.typeName)]
+			return [SDAI.STRING(from: Self.typeName)]
 		}
 		public var value: FundamentalType { return self.asFundamentalType }
 		
@@ -103,7 +107,7 @@ extension SDAI {
 		}
 
 		// SDAISimpleType \SDAI__LOGICAL__type
-		public init(_ swiftValue: SwiftType) {
+		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
 				
@@ -163,7 +167,7 @@ extension SDAI {
 					return nil
 				}
 												
-			case .nullValue:
+			case .noValue:
 				self.init(nil as SwiftType)
 				
 			default:

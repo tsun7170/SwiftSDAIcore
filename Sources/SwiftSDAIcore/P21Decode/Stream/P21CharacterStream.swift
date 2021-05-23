@@ -18,13 +18,15 @@ extension P21Decode {
 			CharacterSet(charactersIn: Unicode.Scalar(0x0080) ... Unicode.Scalar(0x10FFFF)!) )
 		
 		private var charStream: AnyIterator<Character>
+		private let activityMonitor: ActivityMonitor?
 		
 		internal private(set) var lineNumber: Int = 1
 		
-		internal init<CHARSTREAM>(charStream: CHARSTREAM) 
+		internal init<CHARSTREAM>(charStream: CHARSTREAM, monitor: ActivityMonitor?) 
 		where CHARSTREAM: IteratorProtocol, CHARSTREAM.Element == Character
 		{
 			self.charStream = AnyIterator(charStream)
+			self.activityMonitor = monitor
 		}
 		
 		internal func next() -> Character? {
@@ -35,6 +37,9 @@ extension P21Decode {
 				if c.is(basicAlphabet) { return c }
 				if c.is(.newlines) {
 					lineNumber += 1
+					if let monitor = activityMonitor {
+						monitor.scannerDidDetectNewLine(lineNumber: lineNumber)
+					}
 				}
 			}
 		}

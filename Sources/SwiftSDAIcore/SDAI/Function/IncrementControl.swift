@@ -33,7 +33,7 @@ extension SDAI {
 			}
 			else {
 				defer { _current += _increment }
-				return ELEMENT(_current)				
+				return ELEMENT(from: _current)				
 			}
 		}
 	}

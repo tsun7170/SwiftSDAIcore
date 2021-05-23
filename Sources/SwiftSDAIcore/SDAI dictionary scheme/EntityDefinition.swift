@@ -31,6 +31,9 @@ extension SDAIDictionarySchema {
 		public let type: SDAI.EntityReference.Type
 		public var partialEntityType: SDAI.PartialEntity.Type { self.type.partialEntityType }
 		public let partialEntityExplicitAttributeCount: Int
+		public var totalExplicitAttribureCounts: [Int] {
+			supertypes.map { $0.entityDefinition.partialEntityExplicitAttributeCount }
+		}
 		
 		public var qualifiedEntityName: ExpressId {
 			return self.parentSchema.name + "." + self.name

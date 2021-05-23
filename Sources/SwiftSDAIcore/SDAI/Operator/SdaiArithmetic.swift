@@ -14,7 +14,7 @@ import Foundation
 
  public prefix func - <T: SDAINumberType>(number: T?) -> T? {
 	guard let number = number else { return nil }
-	return T( -(number.asSwiftType) )
+	return T( from: -(number.asSwiftType) )
 }
 
 //MARK: Int vs. Int

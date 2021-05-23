@@ -28,17 +28,21 @@ public extension SDAI__INTEGER__type
 
 	init?(_ int: Int?) {
 		guard let int = int else { return nil }
-		self.init(int)
+		self.init(from: int)
 	}
+	init(_ int: Int) {
+		self.init(from: int)
+	}
+
 	init(integerLiteral value: Int) {
-		self.init(value)
+		self.init(from: value)
 	}
 	init?<T:SDAIIntegerType>(_ subtype: T?) {
 		guard let subtype = subtype else { return nil }
-		self.init(subtype)
+		self.init(from: subtype.asSwiftInt)
 	}
 	init<T:SDAIIntegerType>(_ subtype: T) {
-		self.init(subtype.asSwiftInt)
+		self.init(from: subtype.asSwiftInt)
 	}
 }
 
@@ -51,7 +55,7 @@ extension SDAI {
 
 		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
 		public var typeMembers: Set<SDAI.STRING> {
-			return [SDAI.STRING(Self.typeName)]
+			return [SDAI.STRING(from: Self.typeName)]
 		}
 		public var value: FundamentalType { return self.asFundamentalType }
 		
@@ -90,7 +94,7 @@ extension SDAI {
 		}
 
 		// SDAISimpleType \SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
-		public init(_ swiftValue: SwiftType) {
+		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
 		
@@ -132,7 +136,7 @@ extension SDAI {
 					return nil
 				}
 							
-			case .nullValue:
+			case .noValue:
 				return nil
 				
 			default:

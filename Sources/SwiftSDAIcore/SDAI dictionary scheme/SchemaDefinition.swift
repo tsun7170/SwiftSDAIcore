@@ -12,8 +12,9 @@ extension SDAIDictionarySchema {
 	
 	//MARK: (6.4.1)
 	public class SchemaDefinition: SDAI.Object {
-		public init(name: ExpressId) {
+		public init(name: ExpressId, schema: SDAISchema.Type) {
 			self.name = name
+			self.schema = schema
 			super.init()
 			SDAISessionSchema.SdaiSession.dataDictionary[self.name] = self
 		}
@@ -27,6 +28,8 @@ extension SDAIDictionarySchema {
 		public private(set) var constants: [ExpressId:SDAI.GENERIC] = [:]
 		
 		// swift language binding
+		public let schema: SDAISchema.Type
+		
 		public func addEntity(entityDef: EntityDefinition) {
 			entityDef.parentSchema = self
 			entities[entityDef.name] = entityDef

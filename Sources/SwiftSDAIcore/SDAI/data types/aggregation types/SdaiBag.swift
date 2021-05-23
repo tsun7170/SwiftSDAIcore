@@ -420,7 +420,7 @@ extension SDAI {
 					return nil
 				}
 							
-			case .nullValue:
+			case .noValue:
 				return nil
 				
 			default:

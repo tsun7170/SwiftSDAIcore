@@ -7,6 +7,12 @@
 
 import Foundation
 
+//public protocol SDAIEntityReference {
+//	static var entityDefinition: SDAIDictionarySchema.EntityDefinition {get}
+//}
+//public extension SDAIEntityReference {
+//	static var entityDefinition: SDAIDictionarySchema.EntityDefinition { abstruct() }
+//}
 
 extension SDAI {
 	
@@ -14,8 +20,8 @@ extension SDAI {
 
 	
 	//MARK: - EntityReference (8.3.1)
-	open class EntityReference: SDAI.UnownedReference<SDAI.ComplexEntity>, SDAINamedType,
-															SDAIGenericType, InitializableByEntity, SDAIObservableAggregateElement 
+	open class EntityReference: SDAI.UnownedReference<SDAI.ComplexEntity>, //SDAIEntityReference, 
+															SDAINamedType, SDAIGenericType, InitializableByEntity, SDAIObservableAggregateElement 
 	{		
 		public var complexEntity: ComplexEntity {self.object}
 		
@@ -23,8 +29,13 @@ extension SDAI {
 		public unowned var owningModel: SDAIPopulationSchema.SdaiModel { return self.object.owningModel }
 		public var definition: SDAIDictionarySchema.EntityDefinition { return Self.entityDefinition }
 		
-		public static let entityDefinition: SDAIDictionarySchema.EntityDefinition = createEntityDefinition()
-		open class func createEntityDefinition() -> SDAIDictionarySchema.EntityDefinition { abstruct() }	// abstruct
+		open class var entityDefinition: SDAIDictionarySchema.EntityDefinition {
+			abstruct()
+		}
+//		open class func createEntityDefinition() -> SDAIDictionarySchema.EntityDefinition {
+//			abstruct()
+////			return SDAIDictionarySchema.EntityDefinition(name: "GENERIC_ENTITY", type: Self.self, explicitAttributeCount: 0)	
+//		}	// abstruct
 
 		//MARK: - (9.4.3)
 		public var persistentLabel: SDAIParameterDataSchema.STRING { 

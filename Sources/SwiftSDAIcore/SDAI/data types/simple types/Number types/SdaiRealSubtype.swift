@@ -21,8 +21,8 @@ public extension SDAI__REAL__subtype
 	}
 	
 	// SDAISimpleType \SDAI__NUMBER__type\SDAI__REAL__type\SDAI__REAL__subtype
-	init(_ swiftValue: SwiftType) {
-		self.init(FundamentalType(swiftValue))
+	init(from swiftValue: SwiftType) {
+		self.init(fundamental: FundamentalType(from: swiftValue))
 	}
 }
 

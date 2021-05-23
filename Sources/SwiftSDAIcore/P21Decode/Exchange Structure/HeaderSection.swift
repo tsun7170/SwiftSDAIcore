@@ -22,6 +22,7 @@ extension P21Decode.ExchangeStructure {
 extension P21Decode.ExchangeStructure.HeaderSection {
 	public typealias SimpleRecord = P21Decode.ExchangeStructure.SimpleRecord
 	
+	//MARK: - file_description (8.2.2)
 	public struct FILE_DESCRIPTION {
 		private let headerEntity: SimpleRecord
 		init(_ headerEntity: SimpleRecord) {
@@ -39,6 +40,7 @@ extension P21Decode.ExchangeStructure.HeaderSection {
 		}
 	}
 	
+	//MARK: - file_name (8.2.3)
 	public struct FILE_NAME {
 		private let headerEntity: SimpleRecord
 		init(_ headerEntity: SimpleRecord) {
@@ -77,8 +79,10 @@ extension P21Decode.ExchangeStructure.HeaderSection {
 		public typealias TIME_STAMP_TEXT = String
 	}
 	
+	//MARK: - file_schema (8.2.4)
 	public struct FILE_SCHEMA {
 		private let headerEntity: SimpleRecord
+		 
 		init(_ headerEntity: SimpleRecord) {
 			self.headerEntity = headerEntity
 		}

@@ -25,7 +25,7 @@ extension String: SwiftStringRepresented
 
 
 //MARK: - STRING type (8.1.6)
-public protocol SDAIStringType: SDAISimpleType, ExpressibleByStringLiteral, SwiftStringConvertible
+public protocol SDAIStringType: SDAISimpleType, SwiftStringConvertible, ExpressibleByStringLiteral
 where StringLiteralType == String
 {
 	var length: Int {get}
@@ -68,20 +68,23 @@ public extension SDAI__STRING__type
 
 	init?(_ string: String?) {
 		guard let string = string else { return nil }
-		self.init(string)
+		self.init(from: string)
+	}
+	init(_ string:String) {
+		self.init(from: string)
 	}
 	
 	init(stringLiteral value: String) {
-		self.init( SwiftType(value) )
+		self.init(from: SwiftType(value) )
 	}
 
 	init?<T:SDAI__STRING__type>(_ subtype: T?) {
 		guard let subtype = subtype else { return nil }
-		self.init(subtype)
+		self.init(from: subtype.asSwiftType)
 	}
 
 	init<T:SDAI__STRING__type>(_ subtype:T) {
-		self.init(subtype.asSwiftType)
+		self.init(from: subtype.asSwiftType)
 	}
 }
 
@@ -133,7 +136,7 @@ extension SDAI {
 		}
 
 		// SDAISimpleType \SDAI__STRING__type
-		public init(_ swiftValue: SwiftType) {
+		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
 
@@ -234,7 +237,7 @@ extension SDAI {
 					return nil
 				}
 							
-			case .nullValue:
+			case .noValue:
 				return nil
 				
 			default:

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol InitializableByP21Parameter
+public protocol InitializableByP21Parameter: InitializableByGenerictype
 {
 	static var bareTypeName: String {get}
 	init?(p21param: P21Decode.ExchangeStructure.Parameter, from exchangeStructure: P21Decode.ExchangeStructure)
@@ -38,6 +38,9 @@ public extension InitializableByP21Parameter
 			
 		case .omittedParameter:
 			self.init(p21omittedParamfrom: exchangeStructure)
+			
+		case .sdaiGeneric(let generic):
+			self.init(fromGeneric: generic)
 		}
 	}
 }
@@ -55,7 +58,7 @@ public extension InitializableByP21Parameter
 public extension InitializableByP21Parameter where Self: SDAIDefinedType
 {
 	init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {
-		guard let supertype = Supertype(p21untypedParam: p21untypedParam, from: exchangeStructure) else { exchangeStructure.add(errorContext: "while resolving \(Self.bareTypeName) value"); return nil }
+		guard let supertype = Supertype(p21untypedParam: p21untypedParam, from: exchangeStructure) else { exchangeStructure.add(errorContext: "while resolving \(Self.bareTypeName) value from untyped parameter(\(p21untypedParam))"); return nil }
 		self.init(fundamental: supertype.asFundamentalType)
 	}
 }
@@ -79,7 +82,7 @@ public extension InitializableByP21Parameter where Self: SDAI.EntityReference
 				return nil
 			}
 						
-		case .nullValue:
+		case .noValue:
 			return nil
 			
 		default:

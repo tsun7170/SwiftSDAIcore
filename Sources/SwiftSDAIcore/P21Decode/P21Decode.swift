@@ -10,7 +10,11 @@ import Foundation
 
 public enum P21Decode {
 	public typealias EntityInstanceName = Int
-	
+	public typealias ValueInstanceName = Int
+	public typealias ConstantName = String
+	public typealias SchemaName = ExchangeStructure.HeaderSection.FILE_SCHEMA.SCHEMA_NAME
+	public typealias SchemaList = KeyValuePairs<SchemaName,SDAISchema.Type>
+
 	public struct P21Error: Error {
 		public let message: String
 		public let lineNumber: Int

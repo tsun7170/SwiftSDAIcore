@@ -110,27 +110,31 @@ public extension SDAI__NUMBER__type
 
 	init?(_ double: Double?) {
 		guard let double = double else { return nil }
-		self.init(double)
+		self.init(from: double)
 	}
+	init(_ double: Double) {
+		self.init(from: double)
+	}
+
 	init?(_ int: Int?) {
 		guard let int = int else { return nil }
-		self.init(int)
+		self.init(from: SwiftType(int))
 	}
 	init(_ int: Int) {
-		self.init(Double(int))
+		self.init(from: SwiftType(int))
 	}
 	init(integerLiteral value: Int) {
-		self.init(SwiftType(value))
+		self.init(from: SwiftType(value))
 	}
 	init(floatLiteral value: Double) {
-		self.init(value)
+		self.init(from: value)
 	}
 	init?<T:SDAINumberType>(_ subtype: T?) {
 		guard let subtype = subtype else { return nil }
-		self.init(subtype)
+		self.init(from: subtype.asSwiftDouble)
 	}
 	init<T:SDAINumberType>(_ subtype: T) {
-		self.init(subtype.asSwiftDouble)
+		self.init(from: subtype.asSwiftDouble)
 	}
 }
 
@@ -143,7 +147,7 @@ extension SDAI {
 
 		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__NUMBER__type
 		public var typeMembers: Set<SDAI.STRING> {
-			return [SDAI.STRING(Self.typeName)]
+			return [SDAI.STRING(from: Self.typeName)]
 		}
 		public var value: FundamentalType { return self.asFundamentalType }
 		
@@ -183,7 +187,7 @@ extension SDAI {
 
 
 		// SDAISimpleType \SDAI__NUMBER__type
-		public init(_ swiftValue: SwiftType) {
+		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
 		
@@ -219,7 +223,7 @@ extension SDAI {
 					return nil
 				}
 							
-			case .nullValue:
+			case .noValue:
 				return nil
 				
 			default:

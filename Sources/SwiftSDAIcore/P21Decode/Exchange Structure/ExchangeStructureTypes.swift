@@ -49,6 +49,7 @@ extension P21Decode.ExchangeStructure {
 		case typedParameter(TypedParameter)
 		case untypedParameter(UntypedParameter)
 		case omittedParameter
+		case sdaiGeneric(SDAI.GENERIC)
 		
 		public var asTypedParameter: TypedParameter? {
 			guard case .typedParameter(let p) = self else { return nil }
@@ -58,7 +59,7 @@ extension P21Decode.ExchangeStructure {
 			return self == .omittedParameter
 		}
 		public var isNullValue: Bool {
-			return self == .untypedParameter(.nullValue)
+			return self == .untypedParameter(.noValue)
 		}
 		public var asInteger: Int? {
 			guard case .untypedParameter(.integer(let val)) = self else { return nil }
@@ -127,7 +128,7 @@ extension P21Decode.ExchangeStructure {
 	}
 	
 	public enum UntypedParameter: Equatable {
-		case nullValue
+		case noValue
 		case integer(Int)
 		case real(Double)
 		case string(String)
@@ -144,17 +145,20 @@ extension P21Decode.ExchangeStructure {
 		case constantValueName(String)
 	}
 
+	public typealias UniversalResourceIdentifier = String
 	public typealias URIFragmentIdentifier = String
+	public typealias UUID = URIFragmentIdentifier
+	public typealias AnchorName = URIFragmentIdentifier
 	
 	public enum AnchorItem: Equatable {
-		case nullValue
+		case noValue
 		case integer(Int)
 		case real(Double)
 		case string(String)
 		case enumeration(String)
 		case binary(String)
 		case rhsOccurenceName(RHSOccurenceName)
-		case resource(String)
+		case resource(Resource)
 		case anchorItemList([AnchorItem])
 	}
 	
@@ -168,7 +172,34 @@ extension P21Decode.ExchangeStructure {
 		}
 	}
 	
-	public typealias Resource = String
+	public struct Resource: Equatable {
+		public let uri: UniversalResourceIdentifier?
+		public let fragment: URIFragmentIdentifier?
+		
+		public init(_ uriref: String) {
+			if let fragmentSep = uriref.firstIndex(of: "#") {
+				if fragmentSep == uriref.startIndex {
+					self.uri = nil
+				}
+				else {
+					self.uri = String(uriref[..<fragmentSep])
+				}
+				self.fragment = String(uriref[uriref.index(after: fragmentSep)...])
+			}
+			else {
+				self.uri = uriref
+				self.fragment = nil
+			}
+		}
+	}
+	
+	
+	public enum URIFragment {
+		case uuid(UUID)
+		case anchorName(AnchorName)
+	}
+	
+//	public typealias Resource = String
 	public typealias ValueInstanceName = Int
 	public typealias EntityInstanceName = Int
 	

@@ -11,18 +11,31 @@ extension P21Decode {
 	
 	public class ExchangeStructureParser {
 		
+		private let activityMonitor: ActivityMonitor?
 		private let tokenStream: TokenStream
-		private let exchangeStructure = ExchangeStructure()
+		private let exchangeStructure: ExchangeStructure
 		
-		public init<CHARSTREAM>(charStream: CHARSTREAM) 
+		//MARK: constructor
+		public init<CHARSTREAM>(charStream: CHARSTREAM, monitor: ActivityMonitor?) 
 		where CHARSTREAM: IteratorProtocol, CHARSTREAM.Element == Character
 		{
-			let p21charStream = P21CharacterStream(charStream: charStream)
-			self.tokenStream = TokenStream(p21stream: p21charStream)
+			self.activityMonitor = monitor
+			
+			let p21charStream = P21CharacterStream(charStream: charStream, monitor: monitor)
+			self.tokenStream = TokenStream(p21stream: p21charStream, monitor: monitor)
+			
+			self.exchangeStructure = ExchangeStructure(monitor: monitor)
 		}
 		
+		
 		//MARK: - error handling
-		public private(set) var error: P21Error?
+		public private(set) var error: P21Error? {
+			didSet {
+				if let monitor = activityMonitor, oldValue == nil, let error = error {
+					monitor.parserDidSet(error: error)
+				}
+			}
+		}
 
 		private func setError(message: String) {
 			error = P21Error(message: message, lineNumber: tokenStream.lineNumber)
@@ -76,6 +89,7 @@ extension P21Decode {
 				return nil
 			}
 			
+			if let monitor = activityMonitor { monitor.startedParsingHeaderSection() }
 			if !parseHeaderSection() { add(errorContext: "while parsing exchange structure"); return nil }
 			
 			var lastToken: TerminalToken?
@@ -85,20 +99,28 @@ extension P21Decode {
 				switch token {
 				case .STANDARD_KEYWORD("ANCHOR") where expectingAnchor:
 					expectingAnchor = false
+					
+					if let monitor = activityMonitor { monitor.startedParsingAnchorSection() }
 					if !parseAnchorSection(beginWith: token) { add(errorContext: "while parsing end of exchange structure"); return nil }
 					
 				case .STANDARD_KEYWORD("REFERENCE") where expectingReference:
 					expectingAnchor = false
 					expectingReference = false
+
+					if let monitor = activityMonitor { monitor.startedParsingReferenceSection() }
 					if !parseReferenceSection(beginWith: token) { add(errorContext: "while parsing end of exchange structure"); return nil }
 
 				case .STANDARD_KEYWORD("DATA"):
 					expectingAnchor = false
 					expectingReference = false
+					
+					if let monitor = activityMonitor { monitor.startedParsingDataSection() }
 					if !parseDataSection(beginWith: token) { add(errorContext: "while parsing end of exchange structure"); return nil }
 
 				case .STANDARD_KEYWORD("END"):
 					if !tokenStream.confirm(specialToken: "-ISO-10303-21;") { setErrorFromTokenStream(context: "while parsing end of exchange structure"); return nil }
+					
+					if let monitor = activityMonitor { monitor.completedParsing() }					
 					return exchangeStructure
 					
 				default:
@@ -207,7 +229,7 @@ extension P21Decode {
 			guard let token = token else { setErrorEndOfTokenStream(lastToken: nil, context: "while parsing anchor item"); return nil }
 			switch token {
 			case .spDOLLER_SIGN:
-				return .nullValue
+				return .noValue
 				
 			case .INTEGER(let val):
 				return .integer(val)
@@ -225,7 +247,7 @@ extension P21Decode {
 				return .binary(val)
 				
 			case .RESOURCE(let ident):
-				return .resource(ident)
+				return .resource(ExchangeStructure.Resource(ident))
 				
 			case .spLEFT_PARENTHESIS:
 				guard let list = parseAnchorItemList(endingWith: .spRIGHT_PARENTHESIS) else { add(errorContext: "while parsing anchor item"); return nil }
@@ -322,18 +344,19 @@ extension P21Decode {
 		private func parseReference(beginWith name: TerminalToken) -> Bool {
 			if !confirm(nextToken: .spEQUAL, context: "while parsing reference", lastToken: name) { return false }
 			
-			guard let resource = tokenStream.next() else { setErrorEndOfTokenStream(lastToken: name, context: "while parsing reference"); return false }
-			guard case .RESOURCE(let resourceValue) = resource else { setError(unexpectedToken: resource, context: "while parsing reference RHS resource"); return false }
-			if !confirm(nextToken: .spSEMICOLON, context: "while parsing end of reference", lastToken: resource) { return false }
-
+			guard let resourceToken = tokenStream.next() else { setErrorEndOfTokenStream(lastToken: name, context: "while parsing reference"); return false }
+			guard case .RESOURCE(let uriref) = resourceToken else { setError(unexpectedToken: resourceToken, context: "while parsing reference RHS resource"); return false }
+			if !confirm(nextToken: .spSEMICOLON, context: "while parsing end of reference", lastToken: resourceToken) { return false }
+			let resource = ExchangeStructure.Resource(uriref)
+			
 			switch name {
 			case .ENTITY_INSTANCE_NAME(let entityName):
-				guard exchangeStructure.register(entityInstanceName: entityName, reference: resourceValue) else {
+				guard exchangeStructure.register(entityInstanceName: entityName, reference: resource) else {
 					setError(from: exchangeStructure, context: "while parsing reference")
 					return false
 				}
 			case .VALUE_INSTANCE_NAME(let valueName):
-				guard exchangeStructure.register(valueInstanceName: valueName, reference: resourceValue) else {
+				guard exchangeStructure.register(valueInstanceName: valueName, reference: resource) else {
 					setError(from: exchangeStructure, context: "while parsing reference")
 					return false
 				}
@@ -369,6 +392,7 @@ extension P21Decode {
 					case .spLEFT_PARENTHESIS:
 						guard let subsuper = parseSubsuperRecord(beginWith: token) else { add(errorContext: "while parsing entity instance RHS"); return false }
 						guard exchangeStructure.register(entityInstanceName: entityName, subsuperRecord: subsuper, dataSection: dataSection) else { setError(from: exchangeStructure, context: "while parsing data section complex entity instance"); return false }
+						
 					default:
 						if token.isKEYWORD {
 							guard let simple = parseSimpleRecord(keyword: token) else { add(errorContext: "while parsing entity instance RHS"); return false }
@@ -506,7 +530,7 @@ extension P21Decode {
 			else {
 				switch firstToken {
 				case .spDOLLER_SIGN:
-					return .untypedParameter(.nullValue)
+					return .untypedParameter(.noValue)
 					
 				case .INTEGER(let val):
 					return .untypedParameter(.integer(val))

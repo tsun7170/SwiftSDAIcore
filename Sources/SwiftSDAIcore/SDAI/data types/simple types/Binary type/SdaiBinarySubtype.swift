@@ -20,8 +20,8 @@ public extension SDAI__BINARY__subtype
 	}
 	
 	// SDAISimpleType \SDAI__BINARY__type\SDAI__BINARY__subtype
-	init(_ swiftValue: SwiftType) {
-		self.init(FundamentalType(swiftValue))
+	init(from swiftValue: SwiftType) {
+		self.init(fundamental: FundamentalType(from: swiftValue))
 	}
 	
 	// ExpressibleByStringLiteral \SDAI__BINARY__type\SDAI__BINARY__subtype

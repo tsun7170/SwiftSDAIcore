@@ -37,17 +37,17 @@ public extension SDAI__BINARY__type
 {
 	init?(_ string: String?) {
 		guard let string = string else { return nil }
-		self.init(string)
+		self.init(stringLiteral: string)
 	}
 	init(_ string: String) {
 		self.init(stringLiteral: string)
 	}
 	init?<T:SDAI__BINARY__type>(_ subtype: T?) {
 		guard let subtype = subtype else { return nil }	
-		self.init(subtype)
+		self.init(from: subtype.asSwiftType)
 	}
 	init<T:SDAI__BINARY__type>(_ subtype: T) {
-		self.init(subtype.asSwiftType)
+		self.init(from: subtype.asSwiftType)
 	}
 }
 
@@ -61,7 +61,7 @@ extension SDAI {
 
 		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__BINARY__type
 		public var typeMembers: Set<SDAI.STRING> {
-			return [SDAI.STRING(stringLiteral: Self.typeName)]
+			return [SDAI.STRING(from: Self.typeName)]
 		}
 		public var value: FundamentalType { return self.asFundamentalType }
 		
@@ -96,11 +96,11 @@ extension SDAI {
 		public var asSwiftType: SwiftType { return rep }
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
-			self.init(fundamental.rep)
+			self.init(from: fundamental.rep)
 		}
 
 		// SDAISimpleType \SDAI__BINARY__type
-		public init(_ swiftValue: SwiftType) {
+		public init(from swiftValue: SwiftType) {
 			assert(Self.isValidValue(value: swiftValue))
 			rep = swiftValue
 		}
@@ -124,12 +124,12 @@ extension SDAI {
 
 		public subscript(index: Int?) -> BINARY? {
 			guard let index = index, index >= 1, index <= self.blength else { return nil }
-			return BINARY( SwiftType([rep[index-1]]) )
+			return BINARY( from: SwiftType([rep[index-1]]) )
 		}
 		public subscript(range: ClosedRange<Int>?) -> BINARY? {
 			guard let range = range, range.lowerBound >= 1, range.upperBound <= self.blength else { return nil }
 			let swiftrange = (range.lowerBound - 1) ... (range.upperBound - 1)
-			return BINARY( SwiftType(rep[swiftrange]) )
+			return BINARY( from: SwiftType(rep[swiftrange]) )
 		}
 		
 		// BINARY specific
@@ -160,7 +160,7 @@ extension SDAI {
 					default: return nil						
 					}
 				})
-				self.init(swiftval)
+				self.init(from: swiftval)
 				
 			case .rhsOccurenceName(let rhsname):
 				switch rhsname {
@@ -178,7 +178,7 @@ extension SDAI {
 					return nil
 				}
 				
-			case .nullValue:
+			case .noValue:
 				return nil
 				
 			default:
@@ -188,7 +188,7 @@ extension SDAI {
 		}
 
 		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
-			self.init(SwiftType([]))
+			self.init(from: SwiftType([]))
 		}
 
 	}

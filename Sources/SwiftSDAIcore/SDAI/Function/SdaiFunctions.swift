@@ -12,7 +12,7 @@ import Foundation
 extension SDAI {
 	public static func ABS<Number: SDAINumberType>(_ V: Number?) -> Number? {
 		guard let v = V?.asSwiftType else { return nil }
-		return Number( abs(v) )  
+		return Number( from: abs(v) )  
 	}
 	public static func ABS<Number: SDAISelectType>(_ V: Number?) -> SDAI.NUMBER? {
 		return ABS(V?.numberValue)
@@ -106,7 +106,7 @@ extension SDAI {
 		return V ?? GEN1(fundamental: UNWRAP(SUBSTITUTE))
 	}
 	public static func NVL<GEN1: SDAISimpleType>(V: GEN1?, SUBSTITUTE: GEN1.SwiftType?) -> GEN1? {
-		return V ?? GEN1(UNWRAP(SUBSTITUTE))
+		return V ?? GEN1(from: UNWRAP(SUBSTITUTE))
 	}
 	public static func NVL<GEN1: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: SDAI.EntityReference?) -> GEN1? {
 		return V ?? UNWRAP(GEN1.cast(from:SUBSTITUTE))

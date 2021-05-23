@@ -28,6 +28,9 @@ extension SDAI {
 		public class var typeIdentity: TypeIdentity { 
 			return self.entityReferenceType.entityDefinition 
 		}
+		public class var entityDefinition: SDAIDictionarySchema.EntityDefinition {
+			return self.entityReferenceType.entityDefinition 
+		}
 		public class var entityName: EntityName { 
 			return self.entityReferenceType.entityDefinition.name 
 		}

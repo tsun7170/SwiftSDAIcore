@@ -20,8 +20,8 @@ public extension SDAI__NUMBER__subtype
 	}
 	
 	// SDAISimpleType \SDAI__NUMBER__type\SDAI__NUMBER__subtype
-	init(_ swiftValue: SwiftType) {
-		self.init(FundamentalType(swiftValue))
+	init(from swiftValue: SwiftType) {
+		self.init(fundamental: FundamentalType(from: swiftValue))
 	}
 }
 

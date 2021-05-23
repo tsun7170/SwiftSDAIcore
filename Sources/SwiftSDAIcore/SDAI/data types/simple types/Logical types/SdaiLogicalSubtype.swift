@@ -20,7 +20,7 @@ public extension SDAI__LOGICAL__subtype
 	}
 	
 	// SDAISimpleType \SDAI__LOGICAL__type\SDAI__LOGICAL__subtype
-	init(_ swiftValue: SwiftType) {
-		self.init(FundamentalType(swiftValue))
+	init(from swiftValue: SwiftType) {
+		self.init(fundamental: FundamentalType(from: swiftValue))
 	}
 }

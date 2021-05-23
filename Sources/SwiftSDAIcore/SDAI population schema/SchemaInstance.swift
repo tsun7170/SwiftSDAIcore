@@ -86,7 +86,7 @@ extension SDAIPopulationSchema {
 				return tuple
 			} )
 			let uniqueCount = unique.count
-			let result = SDAI.LOGICAL(uniqueCount == instanceCount) && unknown
+			let result = SDAI.LOGICAL(from: uniqueCount == instanceCount) && unknown
 			return SDAI.UniquenessRuleValidationResult(uniquenessRule: uniquenessRule, 
 																								 result: result, 
 																								 record: (uniqueCount, instanceCount))

@@ -30,26 +30,29 @@ public extension SDAI__BOOLEAN__type
 	var asSwiftBool: Bool { return self.asSwiftType }
 	var isTRUE: Bool { return self.asSwiftType }
 
+	init(_ bool: Bool) {
+		self.init(from: bool)
+	}
 	init?(_ bool: Bool?) {
 		guard let bool = bool else { return nil }
-		self.init(bool)
+		self.init(from: bool)
 	}
 	init(booleanLiteral value: Bool) {
-		self.init(value)
+		self.init(from: value)
 	}
 	init?<T:SDAI__BOOLEAN__type>(_ subtype: T?)	{
 		guard let subtype = subtype else { return nil }
-		self.init(subtype)
+		self.init(from: subtype.asSwiftType)
 	}
 	init<T:SDAI__BOOLEAN__type>(_ subtype: T) {
-		self.init(subtype.asSwiftType)
+		self.init(from: subtype.asSwiftType)
 	}
 	init?<T:SDAI__LOGICAL__type>(_ logical: T?) {
 		guard let bool = logical?.asSwiftType else { return nil }
-		self.init(bool)
+		self.init(from: bool)
 	}
 	init<T:SDAI__LOGICAL__type>(_ logical: T) {
-		self.init( SDAI.UNWRAP(logical.asSwiftType) )
+		self.init(from: SDAI.UNWRAP(logical.asSwiftType) )
 	}
 }
 
@@ -62,7 +65,7 @@ extension SDAI {
 		
 		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__LOGICAL__type\SDAI__BOOLEAN__type
 		public var typeMembers: Set<SDAI.STRING> {
-			return [SDAI.STRING(Self.typeName)]
+			return [SDAI.STRING(from: Self.typeName)]
 		}
 		public var value: FundamentalType { return self.asFundamentalType }
 		
@@ -101,7 +104,7 @@ extension SDAI {
 		}
 
 		// SDAISimpleType \SDAI__LOGICAL__type\SDAI__BOOLEAN__type
-		public init(_ swiftValue: SwiftType) {
+		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
 		
@@ -147,7 +150,7 @@ extension SDAI {
 					return nil
 				}
 												
-			case .nullValue:
+			case .noValue:
 				return nil
 				
 			default:

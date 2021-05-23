@@ -13,7 +13,7 @@ extension P21Decode.ExchangeStructure {
 		public private(set) var externalItems: [URIFragmentIdentifier:AnchorRecord] = [:]
 		
 		public mutating func register(name: URIFragmentIdentifier, item: AnchorItem, tag: AnchorTag?) {
-			let record = AnchorRecord(item: item, tag: tag)
+			let record = AnchorRecord(name: name, item: item, tag: tag)
 			externalItems[name] = record
 		}
 	}
@@ -23,13 +23,16 @@ extension P21Decode.ExchangeStructure {
 extension P21Decode.ExchangeStructure.AnchorSection {
 	public typealias AnchorItem = P21Decode.ExchangeStructure.AnchorItem
 	public typealias AnchorTag = P21Decode.ExchangeStructure.AnchorTag
+	public typealias URIFragmentIdentifier = P21Decode.ExchangeStructure.URIFragmentIdentifier
 	
 	
 	public class AnchorRecord {
-		public var anchorItem: AnchorItem	
-		public var anchorTag: AnchorTag?
+		public let anchorName: URIFragmentIdentifier
+		public let anchorItem: AnchorItem	
+		public let anchorTag: AnchorTag?
 		
-		public init(item: AnchorItem, tag: AnchorTag?) {
+		public init(name: URIFragmentIdentifier, item: AnchorItem, tag: AnchorTag?) {
+			self.anchorName = name
 			self.anchorItem = item
 			self.anchorTag = tag
 		}

@@ -13,7 +13,12 @@ extension SDAI {
 	//MARK: - ComplexEntity
 	open class ComplexEntity: SDAI.Object
 	{
-		private var _partialEntities: Dictionary<PartialEntity.TypeIdentity,(instance:PartialEntity,reference:EntityReference?)> = [:]
+		private enum EntityReferenceStatus {
+			case unknown
+			case resolved(EntityReference)
+			case invalid
+		}
+		private var _partialEntities: Dictionary<PartialEntity.TypeIdentity,(instance:PartialEntity,reference:EntityReferenceStatus)> = [:]
 		
 		public init(entities:[PartialEntity], model:SDAIPopulationSchema.SdaiModel, name:P21Decode.EntityInstanceName) {
 			self.owningModel = model
@@ -21,12 +26,12 @@ extension SDAI {
 			super.init()
 			model.contents.add(complex: self)
 			for pe in entities {
-				_partialEntities[type(of: pe).typeIdentity] = (instance:pe, reference:nil)	
+				_partialEntities[type(of: pe).typeIdentity] = (instance:pe, reference:.unknown)	
 			}
 		}
 		public convenience init(entities:[PartialEntity]) {
 			let pe = entities.first!
-			let schema = type(of: pe).entityReferenceType.entityDefinition.parentSchema!
+			let schema = type(of: pe).entityDefinition.parentSchema!
 			let fallback = SDAIPopulationSchema.SdaiModel.fallBackModel(for: schema)
 			let name = fallback.uniqueName
 			self.init(entities:entities, model:fallback, name:name)
@@ -39,20 +44,20 @@ extension SDAI {
 
 		//MARK: partial entity access
 		public var partialEntities: [PartialEntity] {
-			_partialEntities.values.map{ (pe) in pe.instance }
+			_partialEntities.values.map{ (tuple) in tuple.instance }
 		}
 		
 		public func partialEntityInstance<PENT:PartialEntity>(_ peType:PENT.Type) -> PENT? {
-			if let (pe,_) = _partialEntities[peType.typeIdentity] {
-				return pe as? PENT
+			if let tuple = _partialEntities[peType.typeIdentity] {
+				return tuple.instance as? PENT
 			}
 			return nil
 		}
 		
 		public func resolvePartialEntityInstance(from namelist:[PartialEntity.TypeIdentity]) -> PartialEntity? {
 			for typeIdentity in namelist {
-				if let (pe,_) = _partialEntities[typeIdentity] {
-					return pe
+				if let tuple = _partialEntities[typeIdentity] {
+					return tuple.instance
 				}
 			}
 			return nil
@@ -62,8 +67,8 @@ extension SDAI {
 		public var entityReferences: [EntityReference] {
 			var result:[EntityReference] = []
 			
-			for pe in self.partialEntities {
-				if let eref = self.entityReference(type(of: pe).entityReferenceType) {
+			for tuple in _partialEntities.values {
+				if let eref = self.entityReference(type(of:tuple.instance).entityReferenceType) {
 					result.append(eref)
 				}
 			}
@@ -71,12 +76,25 @@ extension SDAI {
 		}
 		
 		public func entityReference<EREF:EntityReference>(_ erefType:EREF.Type) -> EREF? {
-			if let (pe,eref) = _partialEntities[erefType.partialEntityType.typeIdentity] {
-				if eref != nil { return eref as? EREF }
+			let typeid = erefType.partialEntityType.typeIdentity
+			if let tuple = _partialEntities[typeid] {
+				switch tuple.reference {
+				case .resolved(let eref):
+					return eref as? EREF
 				
-				if let eref = EREF(complex:self) {
-					_partialEntities[erefType.partialEntityType.typeIdentity] = (pe,eref)
-					return eref
+				case .invalid:
+					return nil
+				
+				case .unknown:
+					let pe = tuple.instance
+					if let eref = EREF(complex:self) {
+						_partialEntities[typeid] = (instance:pe, reference:.resolved(eref))
+						return eref
+					}
+					else {
+						_partialEntities[typeid] = (instance:pe, reference:.invalid)
+						return nil
+					}
 				}
 			}
 			return nil
@@ -104,7 +122,7 @@ extension SDAI {
 				for complex in schemaInstance.object.allComplexEntities {
 					for entity in complex.entityReferences {
 						result.formUnion( self.findRoles(in: entity).lazy.map{ (attrDef) in
-							return STRING(attrDef.qualifiedAttributeName) 
+							return STRING(from: attrDef.qualifiedAttributeName) 
 						} )
 					}
 				}
@@ -160,7 +178,7 @@ extension SDAI {
 		}
 
 		public var typeMembers: Set<SDAI.STRING> { 
-			Set( _partialEntities.values.map{ (peTuple) -> STRING in STRING(stringLiteral: peTuple.instance.qualifiedEntityName) } ) 
+			Set( _partialEntities.values.map{ (tuple) -> STRING in STRING(from: tuple.instance.qualifiedEntityName) } ) 
 		}
 		
 		public typealias Value = _ComplexEntityValue
@@ -169,8 +187,8 @@ extension SDAI {
 		func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<ComplexEntity>) {
 			guard !complexEntities.contains(self) else { return }
 			complexEntities.insert(self)
-			for (pe,_) in _partialEntities.values {
-				pe.hashAsValue(into: &hasher, visited: &complexEntities)
+			for tuple in _partialEntities.values {
+				tuple.instance.hashAsValue(into: &hasher, visited: &complexEntities)
 			}
 		}
 		
@@ -183,10 +201,10 @@ extension SDAI {
 			if self._partialEntities.count != rhs._partialEntities.count { return false }
 			
 			comppairs.insert(lr); comppairs.insert(rl)
-			for (typeIdentity, (lpe,_)) in self._partialEntities {
-				guard let (rpe,_) = rhs._partialEntities[typeIdentity] else { return false }
-				if lpe === rpe { continue }
-				if !lpe.isValueEqual(to: rpe, visited: &comppairs) { return false }
+			for (typeIdentity, ltuple) in self._partialEntities {
+				guard let rtuple = rhs._partialEntities[typeIdentity] else { return false }
+				if ltuple.instance === rtuple.instance { continue }
+				if !ltuple.instance.isValueEqual(to: rtuple.instance, visited: &comppairs) { return false }
 			}
 			return true
 		}
@@ -202,10 +220,10 @@ extension SDAI {
 			
 			comppairs.insert(lr); comppairs.insert(rl)
 			var isequal: Bool? = true
-			for (typeIdentity, (lpe,_)) in self._partialEntities {
-				guard let (rpe,_) = rhs._partialEntities[typeIdentity] else { return false }
-				if lpe === rpe { continue }
-				if let result = lpe.isValueEqualOptionally(to: rpe, visited: &comppairs), !result { return false }
+			for (typeIdentity, ltuple) in self._partialEntities {
+				guard let rtuple = rhs._partialEntities[typeIdentity] else { return false }
+				if ltuple.instance === rtuple.instance { continue }
+				if let result = ltuple.instance.isValueEqualOptionally(to: rtuple.instance, visited: &comppairs), !result { return false }
 				else { isequal = nil }
 			}
 			return isequal
@@ -214,9 +232,9 @@ extension SDAI {
 		//MARK: where rule validation support
 		public func validateEntityWhereRules(prefix:SDAI.WhereLabel) -> [SDAI.EntityReference:[SDAI.WhereLabel:SDAI.LOGICAL]] {
 			var result: [SDAI.EntityReference:[SDAI.WhereLabel:SDAI.LOGICAL]] = [:]
-			for (pe,_) in _partialEntities.values {
-				if let eref = self.entityReference(type(of: pe).entityReferenceType) {
-					let peResult = type(of: eref).validateWhereRules(instance:eref, prefix: prefix + "\\" + pe.entityName, excludingEntity: false)
+			for tuple in _partialEntities.values {
+				if let eref = self.entityReference(type(of: tuple.instance).entityReferenceType) {
+					let peResult = type(of: eref).validateWhereRules(instance:eref, prefix: prefix + "\\" + tuple.instance.entityName, excludingEntity: false)
 					if !peResult.isEmpty {
 						result[eref] = peResult
 					}

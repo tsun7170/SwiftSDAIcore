@@ -12,13 +12,13 @@ public protocol InitializableBySwifttype
 {
 	associatedtype SwiftType
 	
-	init(_ swiftValue: SwiftType)
+	init(from swiftValue: SwiftType)
 }
 public extension InitializableBySwifttype
 {
-	init?(_ swiftValue: SwiftType?) {
+	init?(from swiftValue: SwiftType?) {
 		guard let swiftvalue = swiftValue else { return nil }
-		self.init(swiftvalue)
+		self.init(from: swiftvalue)
 	}
 }
 

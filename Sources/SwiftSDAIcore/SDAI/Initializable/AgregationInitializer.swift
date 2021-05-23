@@ -154,7 +154,7 @@ where ELEMENT: InitializableBySwifttype
 	func CONTAINS<T>(_ elem: T?) -> SDAI.LOGICAL 
 	where T == ELEMENT.SwiftType
 	{
-		return self.CONTAINS(elem: ELEMENT(elem))
+		return self.CONTAINS(elem: ELEMENT(from: elem))
 	}
 }
 

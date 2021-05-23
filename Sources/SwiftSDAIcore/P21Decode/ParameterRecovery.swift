@@ -30,7 +30,7 @@ extension P21Decode.ExchangeStructure {
 			
 		case .untypedParameter(let untypedParam):
 			switch untypedParam {
-			case .nullValue:
+			case .noValue:
 				self.error = "null value is detected"
 				self.add(errorContext: "while recovering required parameter of type(\(T.self))")
 				return .failure
@@ -45,6 +45,11 @@ extension P21Decode.ExchangeStructure {
 			self.error = "omitted parameter is detected"
 			self.add(errorContext: "while recovering required parameter of type(\(T.self))")
 			return .failure
+			
+		case .sdaiGeneric(let generic):
+			guard let recovered = T(fromGeneric: generic)
+			else { self.error = "could not convert generic value(\(generic)) to type(\(T.self))"; return .failure }
+			return .success(recovered)
 		}
 	}
 	
@@ -57,7 +62,7 @@ extension P21Decode.ExchangeStructure {
 			
 		case .untypedParameter(let untypedParam):
 			switch untypedParam {
-			case .nullValue:
+			case .noValue:
 				self.error = "null value is detected"
 				self.add(errorContext: "while recovering omittable parameter of type(\(T.self))")
 				return .failure
@@ -70,14 +75,23 @@ extension P21Decode.ExchangeStructure {
 			
 		case .omittedParameter:
 			return .success(nil as T?)
+			
+		case .sdaiGeneric(let generic):
+			guard let recovered = T(fromGeneric: generic)
+			else { self.error = "could not convert generic value(\(generic)) to type(\(T.self))"; return .failure }
+			return .success(recovered)
 		}
 	}
 
 	public func recoverOptionalParameter<T: InitializableByP21Parameter>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T?> {
 		switch parameter {
-		case .typedParameter(_), .untypedParameter(_):
-			let recovered = T(p21param: parameter, from: self)
-			guard self.error == nil
+		case .untypedParameter(let untyped):
+			if untyped == .noValue {
+				return .success(nil)
+			}
+			fallthrough
+		case .typedParameter(_):
+			guard let recovered = T(p21param: parameter, from: self)
 			else { self.add(errorContext: "while recovering optional parameter of type(\(T.self))"); return .failure }
 			return .success(recovered)
 			
@@ -85,6 +99,11 @@ extension P21Decode.ExchangeStructure {
 			self.error = "omitted parameter is detected"
 			self.add(errorContext: "while recovering optional parameter of type(\(T.self))")
 			return .failure
+			
+		case .sdaiGeneric(let generic):
+			guard let recovered = T(fromGeneric: generic)
+			else { self.error = "could not convert generic value(\(generic)) to type(\(T.self))"; return .failure }
+			return .success(recovered)
 		}
 	}
 	
@@ -98,6 +117,11 @@ extension P21Decode.ExchangeStructure {
 			
 		case .omittedParameter:
 			return .success(nil as T?)
+			
+		case .sdaiGeneric(let generic):
+			guard let recovered = T(fromGeneric: generic)
+			else { self.error = "could not convert generic value(\(generic)) to type(\(T.self))"; return .failure }
+			return .success(recovered)
 		}
 	}
 
