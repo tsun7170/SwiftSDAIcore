@@ -29,7 +29,7 @@ extension SDAI {
 		var result:[SDAI.WhereLabel:SDAI.LOGICAL] = [:]
 		guard let agg = agg else { return result }
 		
-		for idx in agg.loIndex ... agg.hiIndex {
+		for idx in stride(from: agg.loIndex, through: agg.hiIndex, by: 1) {
 			let elemResult = AGG.ELEMENT.validateWhereRules(instance:agg[idx], prefix: prefix + "[\(idx)]", 
 																												excludingEntity: false) 
 				result.merge(elemResult) { $0 && $1 }

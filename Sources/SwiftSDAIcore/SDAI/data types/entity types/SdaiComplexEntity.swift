@@ -11,7 +11,7 @@ extension SDAI {
 	
 	
 	//MARK: - ComplexEntity
-	open class ComplexEntity: SDAI.Object
+	open class ComplexEntity: SDAI.Object, CustomReflectable
 	{
 		private enum EntityReferenceStatus {
 			case unknown
@@ -19,6 +19,22 @@ extension SDAI {
 			case invalid
 		}
 		private var _partialEntities: Dictionary<PartialEntity.TypeIdentity,(instance:PartialEntity,reference:EntityReferenceStatus)> = [:]
+		
+		public var customMirror: Mirror {
+			return Mirror(self, 
+										children: [	"name" : self.qualifiedName, 
+																 "partialEntities" : self.partialEntities], 
+										displayStyle: .struct, 
+										ancestorRepresentation: .suppressed)
+		}
+//		public var description: String {
+//			var str = "ComplexEntity"
+//			for (pe,_) in _partialEntities.values {
+//				str += "\n\t\(pe)"
+//			}
+//			
+//			return str
+//		}
 		
 		public init(entities:[PartialEntity], model:SDAIPopulationSchema.SdaiModel, name:P21Decode.EntityInstanceName) {
 			self.owningModel = model
@@ -41,6 +57,8 @@ extension SDAI {
 		
 		// P21 support
 		public let p21name: P21Decode.EntityInstanceName
+		
+		public var qualifiedName: String { "\(self.owningModel.name)#\(self.p21name)" }
 
 		//MARK: partial entity access
 		public var partialEntities: [PartialEntity] {
@@ -80,14 +98,19 @@ extension SDAI {
 			if let tuple = _partialEntities[typeid] {
 				switch tuple.reference {
 				case .resolved(let eref):
-					return eref as? EREF
+					if let eref = eref as? EREF {
+						return eref
+					}
+					else {
+						fatalError("internal error")
+					}
 				
 				case .invalid:
 					return nil
 				
 				case .unknown:
 					let pe = tuple.instance
-					if let eref = EREF(complex:self) {
+					if let eref = erefType.init(complex:self) {
 						_partialEntities[typeid] = (instance:pe, reference:.resolved(eref))
 						return eref
 					}
@@ -233,8 +256,10 @@ extension SDAI {
 		public func validateEntityWhereRules(prefix:SDAI.WhereLabel) -> [SDAI.EntityReference:[SDAI.WhereLabel:SDAI.LOGICAL]] {
 			var result: [SDAI.EntityReference:[SDAI.WhereLabel:SDAI.LOGICAL]] = [:]
 			for tuple in _partialEntities.values {
-				if let eref = self.entityReference(type(of: tuple.instance).entityReferenceType) {
-					let peResult = type(of: eref).validateWhereRules(instance:eref, prefix: prefix + "\\" + tuple.instance.entityName, excludingEntity: false)
+				let etype = type(of: tuple.instance).entityReferenceType
+//				if let eref = self.entityReference(etype) {
+				if let eref = etype.init(complex: self) {
+					let peResult = etype.validateWhereRules(instance:eref, prefix: prefix + "\\" + tuple.instance.entityName, excludingEntity: false)
 					if !peResult.isEmpty {
 						result[eref] = peResult
 					}

@@ -11,16 +11,33 @@ extension SDAI {
 	
 	
 	//MARK: - PartialEntity
-	open class PartialEntity: SDAI.Object {
+	open class PartialEntity: SDAI.Object, CustomStringConvertible {
 		public typealias TypeIdentity = SDAIDictionarySchema.EntityDefinition
 		
 		public override init() {
 			super.init()	
+			assert(type(of:self) != PartialEntity.self, "abstruct class instantiated")	
 		}
 		
 		public required convenience init?(parameters: [P21Decode.ExchangeStructure.Parameter], exchangeStructure: P21Decode.ExchangeStructure) {
 			self.init()
 		}
+		
+		// CustomStringConvertible
+		public var description: String {
+			var str = "\n\(self.qualifiedEntityName)\n"
+			
+			let mirror = Mirror(reflecting: self)
+			for child in mirror.children {
+				str += "\t\(child.label ?? "<unnamed>"): \t\(child.value)\n"
+			}
+			
+			return str			
+		}
+//		public var customMirror: Mirror {
+//			let mirror = Mirror(reflecting: self)
+//			return Mirror(self, children: mirror.children, displayStyle: .struct, ancestorRepresentation: .suppressed)
+//		}
 		
 		// class properties
 		open class var entityReferenceType: EntityReference.Type { abstruct() } // abstruct

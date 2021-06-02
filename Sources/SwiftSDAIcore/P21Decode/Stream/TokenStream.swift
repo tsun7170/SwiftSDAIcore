@@ -185,7 +185,9 @@ extension P21Decode {
 					return .spEQUAL
 				}
 				else if c.is(Self.csTokenSeparatorStart) {
-					
+					if !self.scanTokenSeparators(c) {
+						return nil
+					}
 				}
 				else {
 					setError("unexpected character(\(c)) as a head of token")

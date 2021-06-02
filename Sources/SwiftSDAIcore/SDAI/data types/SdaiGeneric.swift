@@ -123,7 +123,8 @@ extension SDAI {
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { box.enumValue(enumType: enumType) }
 		
 		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
-			_AnyGenericBox.validateWhereRules(instance:instance?.box, prefix: prefix, excludingEntity: excludingEntity)
+			guard let instance = instance else { return [:] }
+			return type(of: instance.box).validateWhereRules(instance:instance.box, prefix: prefix, excludingEntity: excludingEntity)
 		}
 
 		// SDAIObservableAggregateElement

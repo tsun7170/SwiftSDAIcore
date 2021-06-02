@@ -20,13 +20,17 @@ extension P21Decode.ExchangeStructure {
 		return self.register(entityInstanceName: entityInstanceName, record: rec)
 	}
 		
-	public class DataSection {
+	public class DataSection: CustomStringConvertible {
 		
 		public unowned let exchangeStructure: P21Decode.ExchangeStructure
 		public let name: String
 		public let governingSchema: P21Decode.SchemaName
 		public private(set) var schema: SDAISchema.Type? = nil
 		public private(set) var model: SDAIPopulationSchema.SdaiModel? = nil
+		
+		public var description: String {
+			return "p21DataSection(\(name))"
+		}
 		
 		public init?(exchange: P21Decode.ExchangeStructure, name: String, schema: P21Decode.SchemaName) {
 			guard !exchange.dataSection.contains(where: { $0.name == name }) 
@@ -45,7 +49,7 @@ extension P21Decode.ExchangeStructure {
 			else { exchange.error = "header section file_schema entry shall specify only one schema (while \(exchange.headerSection.fileSchema.SCHEMA_IDENTIFIERS.count) schema found) since data section header does not have PARAMETER_LIST"; return nil }
 			
 			self.exchangeStructure = exchange
-			self.name = ""
+			self.name = "PRIMARY"
 			self.governingSchema = exchange.headerSection.fileSchema.SCHEMA_IDENTIFIERS[0]
 		}
 		

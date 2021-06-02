@@ -11,9 +11,14 @@ extension P21Decode.ExchangeStructure {
 	
 	public typealias SubsuperRecord = [SimpleRecord]
 	
-	public class SimpleRecord {
+	//MARK:  SimpleRecord
+	public class SimpleRecord: CustomStringConvertible {
 		public let keyword: Keyword
 		public private(set) var parameterList: [Parameter] = []
+		
+		public var description: String {
+			return "SimpleRecord(keyword:\(keyword), parameters:\(parameterList))"
+		}
 		
 		public init(userDefined keyword: String, parameters: [Parameter] ) {
 			self.keyword = .userDefinedKeyword(keyword)
@@ -30,9 +35,19 @@ extension P21Decode.ExchangeStructure {
 		}
 	}
 	
-	public enum Keyword: Equatable {
+	//MARK: Keyword
+	public enum Keyword: Equatable, CustomStringConvertible {
 		case userDefinedKeyword(String)
 		case standardKeyword(String)
+		
+		public var description: String {
+			switch self {
+			case .userDefinedKeyword(let keyword):
+				return "!"+keyword
+			case .standardKeyword(let keyword):
+				return keyword
+			}	
+		}
 		
 		public var asUserDefinedKeyword: String? {
 			guard case .userDefinedKeyword(let symbol) = self else { return nil }
@@ -45,11 +60,25 @@ extension P21Decode.ExchangeStructure {
 		}
 	}
 	
-	public enum Parameter: Equatable {
+	//MARK: Parameter
+	public enum Parameter: Equatable, CustomStringConvertible {
 		case typedParameter(TypedParameter)
 		case untypedParameter(UntypedParameter)
 		case omittedParameter
 		case sdaiGeneric(SDAI.GENERIC)
+		
+		public var description: String {
+			switch self {
+			case .typedParameter(let typed):
+				return "\(typed)"
+			case .untypedParameter(let untyped):
+				return "\(untyped)"
+			case .omittedParameter:
+				return "*"
+			case .sdaiGeneric(let generic):
+				return "\(generic)"
+			}
+		}
 		
 		public var asTypedParameter: TypedParameter? {
 			guard case .typedParameter(let p) = self else { return nil }
@@ -112,7 +141,8 @@ extension P21Decode.ExchangeStructure {
 		}
 	}
 	
-	public class TypedParameter: Equatable {
+	//MARK: TypedParameter
+	public class TypedParameter: Equatable, CustomStringConvertible {
 		public static func == (lhs: TypedParameter, rhs: TypedParameter) -> Bool {
 			if lhs === rhs { return true }
 			return lhs.keyword == rhs.keyword && lhs.parameter == rhs.parameter
@@ -121,13 +151,18 @@ extension P21Decode.ExchangeStructure {
 		public let keyword: Keyword
 		public let parameter: Parameter
 		
+		public var description: String {
+			return "\(keyword)(\(parameter))"
+		}
+		
 		public init(keyword: String, parameter: Parameter) {
 			self.keyword = .standardKeyword(keyword)
 			self.parameter = parameter
 		}
 	}
 	
-	public enum UntypedParameter: Equatable {
+	//MARK: UNtypedParameter
+	public enum UntypedParameter: Equatable, CustomStringConvertible {
 		case noValue
 		case integer(Int)
 		case real(Double)
@@ -136,13 +171,36 @@ extension P21Decode.ExchangeStructure {
 		case enumeration(String)
 		case binary(String)	// sequence of "0" or "1"
 		case list([Parameter])
+		
+		public var description: String {
+			switch self {
+			case .noValue:	return "$"
+			case .integer(let val):	return "INTEGER(\(val))"
+			case .real(let val): return "REAL(\(val))"
+			case .string(let val): return "STRING(\(val))"
+			case .rhsOccurenceName(let name): return "\(name)"
+			case .enumeration(let val): return ".\(val)."
+			case .binary(let val):	return "\"\(val)\""
+			case .list(let val): return "\(val)"
+			}
+		}
 	}
 	
-	public enum RHSOccurenceName: Equatable {
+	//MARK: RHSOccurenceName
+	public enum RHSOccurenceName: Equatable, CustomStringConvertible {
 		case entityInstanceName(Int)
 		case valueInstanceName(Int)
 		case constantEntityName(String)
 		case constantValueName(String)
+		
+		public var description: String {
+			switch self {
+			case .entityInstanceName(let name): return "#\(name)"
+			case .valueInstanceName(let name): return "@\(name)"
+			case .constantEntityName(let name): return "#\(name)"
+			case .constantValueName(let name): return "@\(name)"
+			}
+		}
 	}
 
 	public typealias UniversalResourceIdentifier = String
@@ -150,7 +208,7 @@ extension P21Decode.ExchangeStructure {
 	public typealias UUID = URIFragmentIdentifier
 	public typealias AnchorName = URIFragmentIdentifier
 	
-	public enum AnchorItem: Equatable {
+	public enum AnchorItem: Equatable, CustomStringConvertible {
 		case noValue
 		case integer(Int)
 		case real(Double)
@@ -160,11 +218,29 @@ extension P21Decode.ExchangeStructure {
 		case rhsOccurenceName(RHSOccurenceName)
 		case resource(Resource)
 		case anchorItemList([AnchorItem])
+		
+		public var description: String {
+			switch self {
+			case .noValue:	return "$"
+			case .integer(let val):	return "INTEGER(\(val))"
+			case .real(let val): return "REAL(\(val))"
+			case .string(let val): return "STRING(\(val))"
+			case .rhsOccurenceName(let name): return "\(name)"
+			case .enumeration(let val): return ".\(val)."
+			case .binary(let val):	return "\"\(val)\""
+			case .anchorItemList(let val): return "\(val)"
+			case .resource(let ref): return "\(ref)"
+			}
+		}
 	}
 	
-	public class AnchorTag {
+	public class AnchorTag: CustomStringConvertible {
 		public let tagName: String
 		public let anchorItem: AnchorItem
+		
+		public var description: String {
+			return "AnchorTag{\(tagName):\(anchorItem)}"
+		}
 		
 		public init(tagName: String, anchorItem: AnchorItem) {
 			self.tagName = tagName
@@ -172,9 +248,13 @@ extension P21Decode.ExchangeStructure {
 		}
 	}
 	
-	public struct Resource: Equatable {
+	public struct Resource: Equatable, CustomStringConvertible {
 		public let uri: UniversalResourceIdentifier?
 		public let fragment: URIFragmentIdentifier?
+		
+		public var description: String {
+			return "Resource(\(uri ?? "")#\(fragment ?? ""))"	
+		}
 		
 		public init(_ uriref: String) {
 			if let fragmentSep = uriref.firstIndex(of: "#") {
@@ -194,10 +274,10 @@ extension P21Decode.ExchangeStructure {
 	}
 	
 	
-	public enum URIFragment {
-		case uuid(UUID)
-		case anchorName(AnchorName)
-	}
+//	public enum URIFragment {
+//		case uuid(UUID)
+//		case anchorName(AnchorName)
+//	}
 	
 //	public typealias Resource = String
 	public typealias ValueInstanceName = Int

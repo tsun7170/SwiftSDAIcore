@@ -55,9 +55,13 @@ extension SDAIPopulationSchema {
 
 		
 		//MARK: (10.6.3)
-		public func add(model: SdaiModel) { 
+		@discardableResult
+		public func add(model: SdaiModel) -> Bool { 
+			if model.underlyingSchema != self.nativeSchema { return false }
+			
 			model.associatedWith.insert(SDAI.UnownedReference(self)) 
 			self.associatedModels.insert(model)
+			return true
 		}
 		
 		//MARK: (10.6.4)

@@ -19,7 +19,11 @@ final class SwiftSDAIcoreTests: XCTestCase {
 		XCTAssertEqual(A, "")
 	}
 	
-	struct StringSubType: SDAI__STRING__subtype {
+	
+	
+	
+	
+	struct StringSubType: SDAI__STRING__subtype, CustomStringConvertible {
 		
 		public typealias Supertype = SDAI.STRING
 		public typealias FundamentalType = Supertype.FundamentalType
@@ -37,12 +41,19 @@ final class SwiftSDAIcoreTests: XCTestCase {
 			guard let repval = generic?.stringValue else { return nil }
 			rep = repval
 		}
+		
+		public var description: String { "test desctiption" }
 	}
 	
 	func testStringSubtype1() {
 		let A = StringSubType("")
+		print("\nA = \(A)\n")
 		XCTAssertEqual(A, "")
 	}
+	
+	
+	
+	
 	
 	
 	class ENTITY1 : SDAI.EntityReference {

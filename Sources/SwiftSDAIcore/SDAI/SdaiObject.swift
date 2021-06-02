@@ -54,7 +54,7 @@ public enum SDAI {
 		}
 		
 		public func hash(into hasher: inout Hasher) {
-			hasher.combine(ObjectIdentifier(self))
+			ObjectIdentifier(self).hash(into: &hasher)
 		}
 	}
 	
@@ -67,11 +67,12 @@ public enum SDAI {
 		}
 
 		public static func == (lhs: ObjectReference<OBJ>, rhs: ObjectReference<OBJ>) -> Bool {
-			return lhs.object === rhs.object
+			return lhs.object === rhs.object // && type(of: lhs) == type(of: rhs)
 		}
 		
 		public func hash(into hasher: inout Hasher) {
 			object.hash(into: &hasher)
+			// ObjectIdentifier(type(of: self)).hash(into: &hasher)
 		}
 		
 	}
@@ -84,11 +85,12 @@ public enum SDAI {
 		}
 		
 		public static func == (lhs: UnownedReference<OBJ>, rhs: UnownedReference<OBJ>) -> Bool {
-			return lhs.object === rhs.object
+			return lhs.object === rhs.object //&& type(of: lhs) == type(of: rhs)
 		}
 		
 		public func hash(into hasher: inout Hasher) {
 			object.hash(into: &hasher)
+			//ObjectIdentifier(type(of: self)).hash(into: &hasher)
 		}
 	
 	}

@@ -20,14 +20,21 @@ extension SDAI {
 
 	
 	//MARK: - EntityReference (8.3.1)
-	open class EntityReference: SDAI.UnownedReference<SDAI.ComplexEntity>, //SDAIEntityReference, 
+	open class EntityReference: SDAI.UnownedReference<SDAI.ComplexEntity>, CustomStringConvertible,
 															SDAINamedType, SDAIGenericType, InitializableByEntity, SDAIObservableAggregateElement 
 	{		
 		public var complexEntity: ComplexEntity {self.object}
 		
+		//CustomStringConvertible
+		public var description: String {
+			let str = "\(self.definition.name)->\(self.complexEntity.qualifiedName)"
+			return str
+		}
+		
+		
 		//MARK: - (9.4.2)
 		public unowned var owningModel: SDAIPopulationSchema.SdaiModel { return self.object.owningModel }
-		public var definition: SDAIDictionarySchema.EntityDefinition { return Self.entityDefinition }
+		public var definition: SDAIDictionarySchema.EntityDefinition { return type(of: self).entityDefinition }
 		
 		open class var entityDefinition: SDAIDictionarySchema.EntityDefinition {
 			abstruct()
@@ -73,7 +80,7 @@ extension SDAI {
 			var result: [SDAI.WhereLabel:SDAI.LOGICAL] = [:]
 			guard !excludingEntity, let instance = instance else { return result }
 			
-			for (attrname, attrdef) in self.entityDefinition.attributes {
+			for (attrname, attrdef) in type(of:instance).entityDefinition.attributes {
 				let attrval = attrdef.genericValue(for: instance)
 				let attrresult = SDAI.GENERIC.validateWhereRules(instance: attrval, prefix: prefix + "." + attrname, excludingEntity: true)
 				result.merge(attrresult) { $0 && $1 }
@@ -93,6 +100,7 @@ extension SDAI {
 		public required init?(complex complexEntity: ComplexEntity?) {
 			guard let complexEntity = complexEntity else { return nil }
 			super.init(complexEntity)
+			assert(type(of:self) != EntityReference.self, "abstruct class instantiated")	
 		}
 		
 		// SDAI.GENERIC_ENTITY
