@@ -28,8 +28,8 @@ where Element == ELEMENT?,
 
 
 extension SDAI {
-	public typealias ARRAY_OPTIONAL_UNIQUE<ELEMENT> = ARRAY_OPTIONAL<ELEMENT> 
-	where ELEMENT: SDAIGenericType
+//	public typealias ARRAY_OPTIONAL_UNIQUE<ELEMENT> = ARRAY_OPTIONAL<ELEMENT> 
+//	where ELEMENT: SDAIGenericType
 	
 	
 	public struct ARRAY_OPTIONAL<ELEMENT:SDAIGenericType>: SDAI__ARRAY_OPTIONAL__type
@@ -88,8 +88,8 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
-			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix)
+		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix, round: round)
 		}
 		
 		// SDAIUnderlyingType
@@ -253,7 +253,42 @@ extension SDAI {
 
 extension SDAI.ARRAY_OPTIONAL: SDAIObservableAggregate, SDAIObservableAggregateElement
 where ELEMENT: SDAIObservableAggregateElement
-{}
+{
+	public var observer: EntityReferenceObserver? {
+		get { 
+			return _observer
+		}
+		set {
+			_observer = newValue
+			if let entityObserver = newValue {
+				for elem in self.asAggregationSequence {
+					for entityRef in elem.entityReferences {
+						entityObserver( nil, entityRef )
+					}
+				}
+			}
+		}
+	}
+	
+	public func teardown() {
+		if let entityObserver = observer {
+			for elem in self.asAggregationSequence {
+				for entityRef in elem.entityReferences {
+					entityObserver( entityRef, nil )
+				}
+			}
+		}
+	}
+	
+	public mutating func resetObserver() {
+		_observer = nil
+	}	
+	
+	public var entityReferences: AnySequence<SDAI.EntityReference> { 
+		AnySequence<SDAI.EntityReference>(self.lazy.compactMap{$0}.flatMap { $0.entityReferences })
+	}
+	
+}
 
 
 extension SDAI.ARRAY_OPTIONAL: InitializableBySelecttypeArrayOptional, InitializableBySelecttypeArray
@@ -265,7 +300,7 @@ where ELEMENT: InitializableBySelecttype
 		guard let arraytype = arraytype else { return nil }
 		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]){ 
 			if( $0 == nil ) { return (true,nil) }
-			guard let conv = ELEMENT(possiblyFrom: $0) else { return (false,nil) }
+			guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
 			return (true, conv)
 		}
 	}
@@ -275,7 +310,7 @@ where ELEMENT: InitializableBySelecttype
 	{
 		guard let arraytype = arraytype else { return nil }
 		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]){ 
-			guard let conv = ELEMENT(possiblyFrom: $0) else { return (false,nil) }
+			guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
 			return (true, conv)
 		}
 	}
@@ -292,7 +327,7 @@ where ELEMENT: InitializableByEntity
 		guard let arraytype = arraytype else { return nil }
 		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { 
 			if( $0 == nil ) { return (true,nil) }
-			guard let conv = ELEMENT(possiblyFrom: $0) else { return (false,nil) }
+				guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
 			return (true, conv)
 		}
 	}
@@ -302,7 +337,7 @@ where ELEMENT: InitializableByEntity
 	{
 		guard let arraytype = arraytype else { return nil }
 		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { 
-			guard let conv = ELEMENT(possiblyFrom: $0) else { return (false,nil) }
+			guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
 			return (true, conv)
 		}
 	}			
@@ -319,7 +354,7 @@ where ELEMENT: InitializableByDefinedtype
 		guard let arraytype = arraytype else { return nil }
 		 self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { 
 			if( $0 == nil ) { return (true,nil) }
-			guard let conv = ELEMENT(possiblyFrom: $0) else { return (false,nil) }
+			guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
 			return (true, conv)
 		}
 	 }
@@ -329,7 +364,7 @@ where ELEMENT: InitializableByDefinedtype
 	{
 		guard let arraytype = arraytype else { return nil }
 		self.init(bound1:arraytype.loIndex, bound2:arraytype.hiIndex, [arraytype]) { 
-			guard let conv = ELEMENT(possiblyFrom: $0) else { return (false,nil) }
+			guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
 			return (true, conv)
 		}
 	}

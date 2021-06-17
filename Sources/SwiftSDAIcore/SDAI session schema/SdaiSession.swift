@@ -14,7 +14,7 @@ extension SDAISessionSchema {
 			super.init()
 			for repository in repositories + [SdaiRepository.builtInRepository] {
 				knownServers[repository.name] = repository
-				repository.session.insert(SDAI.UnownedReference(self))
+				repository.associate(with: self)
 			}
 		}
 		
@@ -32,7 +32,9 @@ extension SDAISessionSchema {
 		
 		// (10.4.4)
 		public func closeSession() {
-
+			for repository in knownServers.values {
+				repository.dissociate(from: self)
+			}
 		}
 		
 		// (10.4.5)

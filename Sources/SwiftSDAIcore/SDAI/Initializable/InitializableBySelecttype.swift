@@ -12,12 +12,23 @@ public protocol InitializableBySelecttype
 {
 	init?<S: SDAISelectType>(possiblyFrom select: S?)
 }
+
 public extension InitializableBySelecttype
 {
 	init?<S: SDAISelectType>(_ select: S?) {
 		self.init(possiblyFrom: select)
 	}
+	
+	static func convert<T: SDAISelectType>(sibling: T?) -> Self? {
+		if let sibling = sibling as? Self {
+			return sibling
+		}
+		else {
+			return self.init(possiblyFrom: sibling)
+		}
+	}
 }
+
 public extension InitializableBySelecttype
 where Self: InitializableByGenerictype
 {

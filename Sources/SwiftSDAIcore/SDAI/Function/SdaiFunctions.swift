@@ -103,7 +103,7 @@ extension SDAI {
 	}
 
 	public static func NVL<GEN1: SDAIUnderlyingType>(V: GEN1?, SUBSTITUTE: GEN1.FundamentalType?) -> GEN1? {
-		return V ?? GEN1(fundamental: UNWRAP(SUBSTITUTE))
+		return V ?? GEN1.convert(from: UNWRAP(SUBSTITUTE))
 	}
 	public static func NVL<GEN1: SDAISimpleType>(V: GEN1?, SUBSTITUTE: GEN1.SwiftType?) -> GEN1? {
 		return V ?? GEN1(from: UNWRAP(SUBSTITUTE))
@@ -124,7 +124,7 @@ extension SDAI {
 		return V ?? UNWRAP(GEN1(possiblyFrom: SUBSTITUTE))
 	}
 	public static func NVL<GEN1: SDAISelectType, GEN2: SDAISelectType>(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1? {
-		return V ?? UNWRAP(GEN1(possiblyFrom: SUBSTITUTE))
+		return V ?? UNWRAP(GEN1.convert(sibling: SUBSTITUTE))
 	}
 	
 	public static func ODD<Integer: SwiftIntConvertible>(_ V: Integer?) -> LOGICAL {

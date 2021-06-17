@@ -10,13 +10,23 @@ import Foundation
 //MARK: - from defined type scalar
 public protocol InitializableByDefinedtype
 {
-	init?<T: SDAIUnderlyingType>(possiblyFrom underlyingType: T?)
+	init?<T: SDAIUnderlyingType>(possiblyFrom underlyingType: T?) 
 }
 public extension InitializableByDefinedtype
 {
-	init?<T: SDAIUnderlyingType>(_ underlyingType: T?) {
+	init?<T: SDAIUnderlyingType>(_ underlyingType: T?)
+	{
 		self.init(possiblyFrom: underlyingType)
 	}	
+	
+	static func convert<T: SDAIUnderlyingType>(sibling: T?) -> Self? {
+		if let sibling = sibling as? Self {
+			return sibling
+		}
+		else {
+			return self.init(possiblyFrom: sibling)
+		}
+	}
 }
 
 

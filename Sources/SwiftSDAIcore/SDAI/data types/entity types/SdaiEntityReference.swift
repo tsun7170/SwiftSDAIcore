@@ -7,15 +7,8 @@
 
 import Foundation
 
-//public protocol SDAIEntityReference {
-//	static var entityDefinition: SDAIDictionarySchema.EntityDefinition {get}
-//}
-//public extension SDAIEntityReference {
-//	static var entityDefinition: SDAIDictionarySchema.EntityDefinition { abstruct() }
-//}
 
-extension SDAI {
-	
+extension SDAI {	
 	public typealias EntityName = SDAIDictionarySchema.ExpressId
 
 	
@@ -39,10 +32,6 @@ extension SDAI {
 		open class var entityDefinition: SDAIDictionarySchema.EntityDefinition {
 			abstruct()
 		}
-//		open class func createEntityDefinition() -> SDAIDictionarySchema.EntityDefinition {
-//			abstruct()
-////			return SDAIDictionarySchema.EntityDefinition(name: "GENERIC_ENTITY", type: Self.self, explicitAttributeCount: 0)	
-//		}	// abstruct
 
 		//MARK: - (9.4.3)
 		public var persistentLabel: SDAIParameterDataSchema.STRING { 
@@ -76,13 +65,24 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		open class func validateWhereRules(instance:SDAI.EntityReference?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+		// validation related
+		private var _validated = ValueReference(notValidatedYet)
+		public internal(set) var validated: ValidationRound {
+			get { _validated.value }
+			set { _validated.value = newValue }
+		}
+		internal func unify(with other:EntityReference) {
+			self._validated = other._validated
+		}
+		
+		open class func validateWhereRules(instance:SDAI.EntityReference?, prefix:SDAI.WhereLabel, round: ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
 			var result: [SDAI.WhereLabel:SDAI.LOGICAL] = [:]
-			guard !excludingEntity, let instance = instance else { return result }
+			guard let instance = instance, instance.validated != round else { return result }
+			instance.validated = round
 			
 			for (attrname, attrdef) in type(of:instance).entityDefinition.attributes {
 				let attrval = attrdef.genericValue(for: instance)
-				let attrresult = SDAI.GENERIC.validateWhereRules(instance: attrval, prefix: prefix + "." + attrname, excludingEntity: true)
+				let attrresult = SDAI.GENERIC.validateWhereRules(instance: attrval, prefix: prefix + "." + attrname, round: round)
 				result.merge(attrresult) { $0 && $1 }
 			}
 			return result
@@ -101,15 +101,19 @@ extension SDAI {
 			guard let complexEntity = complexEntity else { return nil }
 			super.init(complexEntity)
 			assert(type(of:self) != EntityReference.self, "abstruct class instantiated")	
+			if !complexEntity.updateEntityReference(self) { return nil }
 		}
 		
-		// SDAI.GENERIC_ENTITY
-		public init(_ entityRef: EntityReference) {
-			super.init(entityRef.complexEntity)
+		public internal(set) var retainer: ComplexEntity? = nil // for temporary complex entity lifetime control
+		
+		public private(set) var derivedAttributeCache: [SDAIDictionarySchema.ExpressId:Any] = [:]
+		public func updateCache(derivedAttributeName:SDAIDictionarySchema.ExpressId, value:Any) {
+			guard self.complexEntity.owningModel.mode == .readOnly else { return }
+			derivedAttributeCache[derivedAttributeName] = value
 		}
-		public convenience init?(_ entityRef: EntityReference?) {
-			guard let entityRef = entityRef else { return nil }
-			self.init(entityRef)
+		
+		public func resetCache() {
+			derivedAttributeCache = [:]
 		}
 		
 		// InitializableByGenerictype

@@ -10,21 +10,45 @@ import Foundation
 
 public protocol SDAIAttributeType {
 	var name: SDAIDictionarySchema.ExpressId { get }
+	var domain: Any.Type { get }
+	var kind: SDAIDictionarySchema.AttirbuteKind { get }
+	var source: SDAIDictionarySchema.AttributeSource { get }
+	var mayYieldEntityReference: Bool { get }
 	var parentEntity: SDAIDictionarySchema.EntityDefinition { get }
 	var qualifiedAttributeName: SDAIDictionarySchema.ExpressId { get }
 	func genericValue(for entity: SDAI.EntityReference) -> SDAI.GENERIC?
 }
 
 extension SDAIDictionarySchema {
+	public enum AttirbuteKind {
+		case explicit
+		case explicitOptional
+		case explicitRedeclaring
+		case explicitOptionalRedeclaring
+		case derived
+		case derivedRedeclaring
+		case inverse
+	}
 	
-	public class Attribute<ENT: SDAI.EntityReference, T: SDAIGenericType>: SDAI.Object, SDAIAttributeType {
-		public init(name: ExpressId, entityDef: EntityDefinition) {
+	public enum AttributeSource {
+		case superEntity
+		case thisEntity
+		case subEntity
+	}
+	
+	public class Attribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: SDAI.Object, SDAIAttributeType {
+		public init(name: ExpressId, entityDef: EntityDefinition, 
+								kind: AttirbuteKind, source: AttributeSource, mayYieldEntityReference: Bool ) {
 			self.name = name
 			self.parentEntity = entityDef
+			self.kind = kind
+			self.source = source
+			self.mayYieldEntityReference = mayYieldEntityReference
 			super.init()
 		}
 		
 	//MARK: (6.4.13)
+		public var domain: Any.Type { BaseType.self }
 		public let name: ExpressId
 		public unowned let parentEntity: EntityDefinition
 		
@@ -36,32 +60,44 @@ extension SDAIDictionarySchema {
 			return SDAI.GENERIC(self.value(for: entity))
 		}
 		
+		public let kind: AttirbuteKind
+		public let source: AttributeSource
+		public let mayYieldEntityReference: Bool
+		
 		//MARK: swift binding support
-		open func value(for entity: ENT) -> T? { abstruct() }	// abstruct
+		open func value(for entity: ENT) -> BaseType? { abstruct() }	// abstruct
 	}
 	
-	public class OptionalAttribute<ENT: SDAI.EntityReference, T: SDAIGenericType>: Attribute<ENT,T> {
-		public init(name: ExpressId, entityDef: EntityDefinition, keyPath: KeyPath<ENT,T?>) {
+	
+	
+	public class OptionalAttribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: Attribute<ENT,BaseType> {
+		public init(name: ExpressId, entityDef: EntityDefinition, keyPath: KeyPath<ENT,BaseType?>, 
+								kind: AttirbuteKind, source: AttributeSource, mayYieldEntityReference: Bool ) {
 			self.keyPath = keyPath
-			super.init(name: name, entityDef: entityDef)
+			super.init(name: name, entityDef: entityDef, 
+								 kind: kind, source: source, mayYieldEntityReference: mayYieldEntityReference)
 		}
 		
-		public let keyPath: KeyPath<ENT,T?>
+		public let keyPath: KeyPath<ENT,BaseType?>
 
-		public override func value(for entity: ENT) -> T? { 
+		public override func value(for entity: ENT) -> BaseType? { 
 			return entity[keyPath: self.keyPath]
 		}
 	}
 
-	public class NonOptionalAttribute<ENT: SDAI.EntityReference, T: SDAIGenericType>: Attribute<ENT,T> {
-		public init(name: ExpressId, entityDef: EntityDefinition, keyPath: KeyPath<ENT,T>) {
+	
+	
+	public class NonOptionalAttribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: Attribute<ENT,BaseType> {
+		public init(name: ExpressId, entityDef: EntityDefinition, keyPath: KeyPath<ENT,BaseType>, 
+								kind: AttirbuteKind, source: AttributeSource, mayYieldEntityReference: Bool ) {
 			self.keyPath = keyPath
-			super.init(name: name, entityDef: entityDef)
+			super.init(name: name, entityDef: entityDef,
+								 kind: kind, source: source, mayYieldEntityReference: mayYieldEntityReference)
 		}
 		
-		public let keyPath: KeyPath<ENT,T>
+		public let keyPath: KeyPath<ENT,BaseType>
 
-		public override func value(for entity: ENT) -> T? { 
+		public override func value(for entity: ENT) -> BaseType? { 
 			return entity[keyPath: self.keyPath]
 		}
 }

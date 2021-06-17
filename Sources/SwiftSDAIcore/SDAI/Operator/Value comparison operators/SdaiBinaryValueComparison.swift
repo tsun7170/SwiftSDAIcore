@@ -45,7 +45,7 @@ public func <=   <T: SDAIBinaryType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDA
 //MARK: select vs. binary
 public func .==. <T: SDAISelectType, U: SDAIBinaryType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs .==. lhs }
 public func .!=. <T: SDAISelectType, U: SDAIBinaryType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SDAISelectType, U: SDAIBinaryType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs < lhs }
+public func >    <T: SDAISelectType, U: SDAIBinaryType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs?.binaryValue > rhs }
 public func <    <T: SDAISelectType, U: SDAIBinaryType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
 public func >=   <T: SDAISelectType, U: SDAIBinaryType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
 public func <=   <T: SDAISelectType, U: SDAIBinaryType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }

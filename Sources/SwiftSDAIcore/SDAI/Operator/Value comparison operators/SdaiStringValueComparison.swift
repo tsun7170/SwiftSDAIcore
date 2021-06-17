@@ -36,7 +36,7 @@ public func <=   <T: SDAISelectType, U: SwiftStringRepresented>(lhs: T?, rhs: U?
 //MARK: string type vs. select type
 public func .==. <T: SwiftStringRepresented, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs .==. lhs }
 public func .!=. <T: SwiftStringRepresented, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SwiftStringRepresented, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs < lhs }
+public func >    <T: SwiftStringRepresented, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs > rhs?.stringValue }
 public func <    <T: SwiftStringRepresented, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
 public func >=   <T: SwiftStringRepresented, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
 public func <=   <T: SwiftStringRepresented, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }

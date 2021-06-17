@@ -139,8 +139,8 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
-			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix)
+		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix, round: round)
 		}
 
 		
@@ -279,24 +279,24 @@ extension SDAI {
 		public func intersectionWith<U: SDAI__BAG__type>(rhs: U) -> SDAI.BAG<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.intersectionWith(other: rhs)
-			return BAG(bound1: 0, bound2: _Infinity, [result]){ ELEMENT(fundamental: $0) }
+			return BAG(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
 		public func intersectionWith<U: SDAI__SET__type>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.intersectionWith(other: rhs)
-			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT(fundamental: $0) }
+			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
 		public func intersectionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.BAG<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.intersectionWith(other: rhs )
-			return BAG(bound1: 0, bound2: _Infinity, [result]){ ELEMENT(fundamental: $0) }
+			return BAG(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
 		
 		// Union
 		private func unionWith<S: SDAIAggregationSequence>(other: S) -> SwiftType
 		where S.ELEMENT: SDAIGenericType, S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
 			var result = self.rep
-			result.append(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT(fundamental: $0.asFundamentalType) } )
+			result.append(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0) } )
 			return result
 		}
 		
@@ -313,7 +313,7 @@ extension SDAI {
 		public func unionWith<U: SDAIGenericType>(rhs: U) -> SDAI.BAG<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.FundamentalType {
 			var result = self.rep
-			result.append(ELEMENT(fundamental: rhs.asFundamentalType))
+			result.append(ELEMENT.convert(from: rhs))
 			return BAG(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.BAG<ELEMENT>? {
@@ -360,7 +360,7 @@ extension SDAI {
 		public func differenceWith<U: SDAIBagType>(rhs: U) -> SDAI.BAG<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.differenceWith(other: rhs)
-			return BAG(bound1: 0, bound2: _Infinity, [result]){ ELEMENT(fundamental: $0) }
+			return BAG(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
 		public func differenceWith<U: SDAIGenericType>(rhs: U) -> SDAI.BAG<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.FundamentalType {
@@ -370,7 +370,7 @@ extension SDAI {
 			}
 			return BAG(bound1: 0, bound2: _Infinity, selfDict.lazy.map(
 									{ (elem,count) in repeatElement(elem, count: count)})
-			) { ELEMENT(fundamental: $0) }
+			) { ELEMENT.convert(from: $0) }
 		}
 		public func differenceWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.BAG<ELEMENT>? {
 			if let rhs = rhs.setValue(elementType: ELEMENT.self) {
@@ -387,7 +387,7 @@ extension SDAI {
 		public func differenceWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.BAG<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.differenceWith(other: rhs)
-			return BAG(bound1: 0, bound2: _Infinity, [result]){ ELEMENT(fundamental: $0) }
+			return BAG(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
 
 		
@@ -440,7 +440,42 @@ extension SDAI {
 
 extension SDAI.BAG: SDAIObservableAggregate, SDAIObservableAggregateElement
 where ELEMENT: SDAIObservableAggregateElement
-{}
+{
+	public var observer: EntityReferenceObserver? {
+		get { 
+			return _observer
+		}
+		set {
+			_observer = newValue
+			if let entityObserver = newValue {
+				for elem in self.asAggregationSequence {
+					for entityRef in elem.entityReferences {
+						entityObserver( nil, entityRef )
+					}
+				}
+			}
+		}
+	}
+	
+	public func teardown() {
+		if let entityObserver = observer {
+			for elem in self.asAggregationSequence {
+				for entityRef in elem.entityReferences {
+					entityObserver( entityRef, nil )
+				}
+			}
+		}
+	}
+	
+	public mutating func resetObserver() {
+		_observer = nil
+	}	
+	
+	public var entityReferences: AnySequence<SDAI.EntityReference> { 
+		AnySequence<SDAI.EntityReference>(self.lazy.flatMap { $0.entityReferences })
+	}
+	
+}
 
 extension SDAI.BAG: InitializableBySelecttypeBag, InitializableBySelecttypeSet
 where ELEMENT: InitializableBySelecttype
@@ -449,14 +484,14 @@ where ELEMENT: InitializableBySelecttype
 	where T.ELEMENT: SDAISelectType
 	{
 		guard let bagtype = bagtype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, [bagtype]){ ELEMENT(possiblyFrom: $0) }
+		self.init(bound1: bound1, bound2: bound2, [bagtype]){ ELEMENT.convert(sibling: $0) }
 	}
 	
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?) 
 	where T.ELEMENT: SDAISelectType
 	{
 		guard let settype = settype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, [settype]){ ELEMENT(possiblyFrom: $0) }
+		self.init(bound1: bound1, bound2: bound2, [settype]){ ELEMENT.convert(sibling: $0) }
 	}
 	
 }
@@ -469,14 +504,18 @@ where ELEMENT: InitializableByEntity
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		guard let bagtype = bagtype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, [bagtype]) { ELEMENT(possiblyFrom: $0) }		
+		self.init(bound1: bound1, bound2: bound2, [bagtype]) {
+			return ELEMENT.convert(sibling: $0) 
+		}		
 	}
 
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		guard let settype = settype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, [settype]) { ELEMENT(possiblyFrom: $0) }		
+		self.init(bound1: bound1, bound2: bound2, [settype]) {
+				return ELEMENT.convert(sibling: $0) 
+		}		
 	}
 }
 
@@ -488,14 +527,14 @@ where ELEMENT: InitializableByDefinedtype
 	where T.ELEMENT: SDAIUnderlyingType
 	{
 		guard let bagtype = bagtype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, [bagtype]) { ELEMENT(possiblyFrom: $0) }
+		self.init(bound1: bound1, bound2: bound2, [bagtype]) { ELEMENT.convert(sibling: $0) }
 	}
 	
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType
 	{
 		guard let settype = settype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, [settype]) { ELEMENT(possiblyFrom: $0) }
+		self.init(bound1: bound1, bound2: bound2, [settype]) { ELEMENT.convert(sibling: $0) }
 	}	
 }
 

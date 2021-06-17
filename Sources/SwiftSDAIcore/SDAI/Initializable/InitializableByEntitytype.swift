@@ -12,12 +12,23 @@ public protocol InitializableByEntity
 {
 	init?(possiblyFrom complex: SDAI.ComplexEntity?)
 }
+
 public extension InitializableByEntity
 {
 	init?(possiblyFrom entityRef: SDAI.EntityReference?) {
 		self.init(possiblyFrom: entityRef?.complexEntity)
 	}
+
+	static func convert(sibling: SDAI.EntityReference?) -> Self? {
+		if let sibling = sibling as? Self {
+			return sibling
+		}
+		else {
+			return self.init(possiblyFrom: sibling)
+		}
+	}
 }
+
 public extension InitializableByEntity
 where Self: SDAI.EntityReference
 {

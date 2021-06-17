@@ -43,12 +43,18 @@ extension SDAIDictionarySchema {
 			self.supertypes.append(supertype)
 		}
 		
-		public func addAttribute<ENT: SDAI.EntityReference,T: SDAIGenericType>(name:ExpressId, keyPath: KeyPath<ENT,T>) {
-			let attrdef = NonOptionalAttribute(name: name, entityDef: self, keyPath: keyPath)
+		public func addAttribute<ENT: SDAI.EntityReference,T: SDAIGenericType>(
+			name:ExpressId, keyPath: KeyPath<ENT,T>, 
+			kind: AttirbuteKind, source: AttributeSource, mayYieldEntityReference: Bool ) {
+			let attrdef = NonOptionalAttribute(name: name, entityDef: self, keyPath: keyPath,
+																				 kind: kind, source: source, mayYieldEntityReference: mayYieldEntityReference)
 			self.attributes[name] = attrdef
 		}
-		public func addAttribute<ENT: SDAI.EntityReference,T: SDAIGenericType>(name:ExpressId, keyPath: KeyPath<ENT,T?>) {
-			let attrdef = OptionalAttribute(name: name, entityDef: self, keyPath: keyPath)
+		public func addAttribute<ENT: SDAI.EntityReference,T: SDAIGenericType>(
+			name:ExpressId, keyPath: KeyPath<ENT,T?>, 
+			kind: AttirbuteKind, source: AttributeSource, mayYieldEntityReference: Bool ) {
+			let attrdef = OptionalAttribute(name: name, entityDef: self, keyPath: keyPath,
+																			kind: kind, source: source, mayYieldEntityReference: mayYieldEntityReference)
 			self.attributes[name] = attrdef
 		}
 		

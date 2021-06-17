@@ -14,13 +14,18 @@ extension SDAI {
 	open class PartialEntity: SDAI.Object, CustomStringConvertible {
 		public typealias TypeIdentity = SDAIDictionarySchema.EntityDefinition
 		
-		public override init() {
+//		public override init() {
+//			super.init()	
+//			assert(type(of:self) != PartialEntity.self, "abstruct class instantiated")	
+//		}
+		
+		public init(asAbstructSuperclass:()) {
 			super.init()	
 			assert(type(of:self) != PartialEntity.self, "abstruct class instantiated")	
 		}
 		
 		public required convenience init?(parameters: [P21Decode.ExchangeStructure.Parameter], exchangeStructure: P21Decode.ExchangeStructure) {
-			self.init()
+			self.init(asAbstructSuperclass:())
 		}
 		
 		// CustomStringConvertible

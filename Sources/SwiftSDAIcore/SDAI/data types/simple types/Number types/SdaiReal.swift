@@ -76,7 +76,11 @@ extension SDAI {
 		public var booleanValue: SDAI.BOOLEAN? {nil}
 		public var numberValue: SDAI.NUMBER? { NUMBER(self) }
 		public var realValue: SDAI.REAL? { self }
-		public var integerValue: SDAI.INTEGER? {nil}
+		public var integerValue: SDAI.INTEGER? {
+			let intval = Int(self.asSwiftDouble)
+			if REAL(intval) == self { return INTEGER(intval) }
+			return nil
+		}
 		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
 		
 		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
@@ -86,7 +90,7 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] { return [:] }
+		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] { return [:] }
 
 		
 		// InitializableByGenerictype
@@ -113,6 +117,17 @@ extension SDAI {
 			rep = SwiftType(value)
 		}
 		
+//		// InitializableByDefinedtype \SDAIDefinedType
+//		public init?<T: SDAIUnderlyingType>(possiblyFrom underlyingType: T?) {
+//			if let fundamental = underlyingType?.asFundamentalType as? FundamentalType {
+//				self.init(fundamental: fundamental)
+//			}
+//			else if let subtype = (underlyingType as Any) as? SDAIRealType {
+//				self.init(subtype)
+//			}
+//			return nil
+//		}
+
 		// SDAIValue
 		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
 		{

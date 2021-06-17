@@ -36,7 +36,7 @@ public func <=   <T: SDAIEnumerationType,U: SDAISelectType>(lhs: T?, rhs: U?) ->
 //MARK: select vs. enum
 public func .==. <T: SDAISelectType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs .==. lhs }
 public func .!=. <T: SDAISelectType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SDAISelectType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs < lhs }
+public func >    <T: SDAISelectType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs?.enumValue(enumType: U.self) > rhs }
 public func <    <T: SDAISelectType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
 public func >=   <T: SDAISelectType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
 public func <=   <T: SDAISelectType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }

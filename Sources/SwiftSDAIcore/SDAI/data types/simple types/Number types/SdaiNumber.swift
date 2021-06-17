@@ -157,8 +157,12 @@ extension SDAI {
 		public var logicalValue: SDAI.LOGICAL? {nil}
 		public var booleanValue: SDAI.BOOLEAN? {nil}
 		public var numberValue: SDAI.NUMBER? { self }
-		public var realValue: SDAI.REAL? {nil}
-		public var integerValue: SDAI.INTEGER? {nil}
+		public var realValue: SDAI.REAL? { REAL(from: self.asSwiftDouble) }
+		public var integerValue: SDAI.INTEGER? {
+			let intval = Int(self.asSwiftDouble)
+			if NUMBER(intval) == self { return INTEGER(intval) }
+			return nil
+		}
 		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
 		
 		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
@@ -168,7 +172,7 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] { return [:] }
+		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] { return [:] }
 
 		
 		// InitializableByGenerictype
@@ -176,6 +180,7 @@ extension SDAI {
 			guard let numberValue = generic?.numberValue else { return nil }
 			self.init(numberValue)
 		}
+		
 		
 		// SDAIUnderlyingType \SDAISimpleType\SDAI__NUMBER__type
 		public static let typeName: String = "NUMBER"

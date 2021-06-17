@@ -93,4 +93,21 @@ final class SwiftSDAIcoreTests: XCTestCase {
 		XCTAssertNotNil(dictResult)
 	}
 	
+	func testOperator1() {
+		let R1 = SDAI.FORCE_OPTIONAL(SDAI.REAL(1))
+		let I1 = SDAI.FORCE_OPTIONAL(SDAI.INTEGER(0))
+		let R2 = SDAI.REAL(I1)
+		XCTAssertNotNil(R2)
+		let L1 = R1 > I1
+		XCTAssertTrue(SDAI.IS_TRUE(L1))
+		
+		let L2 = R1 >= I1
+		XCTAssertTrue(SDAI.IS_TRUE(L2))
+	}
+	
+	func testConversion1() {
+		let N1 = SDAI.NUMBER(1)
+		let I1 = SDAI.INTEGER( N1 )
+		XCTAssertNotNil(I1)
+	}
 }

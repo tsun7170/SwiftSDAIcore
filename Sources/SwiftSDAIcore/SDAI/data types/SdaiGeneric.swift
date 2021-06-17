@@ -28,7 +28,8 @@ fileprivate class _AnyGenericBox: Hashable {
 	var realValue: SDAI.REAL? { abstruct() }	// abstruct
 	var integerValue: SDAI.INTEGER? { abstruct() }	// abstruct
 	var genericEnumValue: SDAI.GenericEnumValue? { abstruct() }	// abstruct
-	
+	var entityReferences: AnySequence<SDAI.EntityReference> { abstruct() } // abstruct
+
 	func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? { abstruct() }	// abstruct
 	func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? { abstruct() }	// abstruct
 	func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? { abstruct() }	// abstruct
@@ -36,7 +37,7 @@ fileprivate class _AnyGenericBox: Hashable {
 	func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? { abstruct() }	// abstruct
 	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { abstruct() }	// abstruct
 	
-	class func validateWhereRules(instance:_AnyGenericBox?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] { abstruct() }	// abstruct
+	class func validateWhereRules(instance:_AnyGenericBox?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] { abstruct() }	// abstruct
 }
 
 fileprivate class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {
@@ -57,6 +58,14 @@ fileprivate class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {
 	override var realValue: SDAI.REAL? { _base.realValue }
 	override var integerValue: SDAI.INTEGER? { _base.integerValue }
 	override var genericEnumValue: SDAI.GenericEnumValue? { _base.genericEnumValue }
+	override var entityReferences: AnySequence<SDAI.EntityReference> {
+		if let base = (self._base as Any) as? SDAIObservableAggregateElement {
+			return base.entityReferences
+		}
+		else {
+			return AnySequence<SDAI.EntityReference>([])
+		}
+	}
 
 	override func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? { _base.arrayOptionalValue(elementType: elementType) }
 	override func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? { _base.arrayValue(elementType: elementType) }
@@ -65,9 +74,9 @@ fileprivate class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {
 	override func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? { _base.setValue(elementType: elementType) }
 	override func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { _base.enumValue(enumType: enumType) }
 	
-	override class func validateWhereRules(instance:_AnyGenericBox?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+	override class func validateWhereRules(instance:_AnyGenericBox?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
 		guard let instance = instance as? Self else { return [:] } 
-		return G.validateWhereRules(instance:instance._base, prefix: prefix, excludingEntity: excludingEntity)
+		return G.validateWhereRules(instance:instance._base, prefix: prefix, round: round)
 	}
 
 }
@@ -88,6 +97,10 @@ extension SDAI {
 		
 		public init<G: SDAIGenericType>(_ generic: G) {
 			box = _GenericBox<G>(generic)
+//			let validation = self.entityReferences
+//			for item in validation {
+//				assert(item is SDAI.EntityReference)
+//			}
 		}
 		
 		public var base: Any { box.base }
@@ -122,19 +135,21 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? { box.setValue(elementType: elementType) }
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { box.enumValue(enumType: enumType) }
 		
-		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, round: ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
 			guard let instance = instance else { return [:] }
-			return type(of: instance.box).validateWhereRules(instance:instance.box, prefix: prefix, excludingEntity: excludingEntity)
+			return type(of: instance.box).validateWhereRules(instance:instance.box, prefix: prefix, round: round)
 		}
 
 		// SDAIObservableAggregateElement
 		public var entityReferences: AnySequence<SDAI.EntityReference> {
-			if let base = self.base as? SDAIObservableAggregateElement {
-				return base.entityReferences
-			}
-			else {
-				return AnySequence<SDAI.EntityReference>([])
-			}
+			return box.entityReferences
+			
+//			if let base = self.base as? SDAIObservableAggregateElement {
+//				return base.entityReferences
+//			}
+//			else {
+//				return AnySequence<SDAI.EntityReference>([])
+//			}
 		}
 		
 		// InitializableByP21Parameter

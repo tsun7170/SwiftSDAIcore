@@ -128,7 +128,7 @@ public extension SDAIAggregationInitializer
 where ELEMENT: InitializableBySelecttype
 {
 	func CONTAINS<T: SDAISelectType>(_ elem: T?) -> SDAI.LOGICAL {
-		return self.CONTAINS(elem: ELEMENT(possiblyFrom: elem))
+		return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))
 	}
 }
 
@@ -136,7 +136,12 @@ public extension SDAIAggregationInitializer
 where ELEMENT: InitializableByEntity
 {
 	func CONTAINS(_ elem: SDAI.EntityReference?) -> SDAI.LOGICAL {
-		return self.CONTAINS(elem: ELEMENT(possiblyFrom: elem))
+		if let elem = elem as? ELEMENT {
+			return self.CONTAINS(elem: elem)
+		}
+		else {
+			return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))			
+		}
 	}
 }
 
@@ -144,7 +149,7 @@ public extension SDAIAggregationInitializer
 where ELEMENT: InitializableByDefinedtype
 {
 	func CONTAINS<T: SDAIUnderlyingType>(_ elem: T?) -> SDAI.LOGICAL {
-		return self.CONTAINS(elem: ELEMENT(possiblyFrom: elem))
+		return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))
 	}
 }
 

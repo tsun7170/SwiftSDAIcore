@@ -22,8 +22,8 @@ where Element == ELEMENT,
 {}
 
 extension SDAI {
-	public typealias ARRAY_UNIQUE<ELEMENT> = ARRAY<ELEMENT> 
-	where ELEMENT: SDAIGenericType
+//	public typealias ARRAY_UNIQUE<ELEMENT> = ARRAY<ELEMENT> 
+//	where ELEMENT: SDAIGenericType
 
 	
 	public struct ARRAY<ELEMENT:SDAIGenericType>: SDAI__ARRAY__type
@@ -83,8 +83,8 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
-			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix)
+		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix, round: round)
 		}
 
 
@@ -235,22 +235,52 @@ extension SDAI {
 
 extension SDAI.ARRAY: SDAIObservableAggregate, SDAIObservableAggregateElement
 where ELEMENT: SDAIObservableAggregateElement
-{}
+{
+	public var observer: EntityReferenceObserver? {
+		get { 
+			return _observer
+		}
+		set {
+			_observer = newValue
+			if let entityObserver = newValue {
+				for elem in self.asAggregationSequence {
+					for entityRef in elem.entityReferences {
+						entityObserver( nil, entityRef )
+					}
+				}
+			}
+		}
+	}
+	
+	public func teardown() {
+		if let entityObserver = observer {
+			for elem in self.asAggregationSequence {
+				for entityRef in elem.entityReferences {
+					entityObserver( entityRef, nil )
+				}
+			}
+		}
+	}
+	
+	public mutating func resetObserver() {
+		_observer = nil
+	}	
+	
+	public var entityReferences: AnySequence<SDAI.EntityReference> { 
+		AnySequence<SDAI.EntityReference>(self.lazy.flatMap { $0.entityReferences })
+	}
+}
 
 
 
 extension SDAI.ARRAY: InitializableBySelecttypeArray
 where ELEMENT: InitializableBySelecttype
 {
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAISelectType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(possiblyFrom: $0) }
-//	} 
-	
 	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAISelectType
 	{
 		guard let arraytype = arraytype else { return nil }
-		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]){ ELEMENT(possiblyFrom: $0) }
+		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]){ ELEMENT.convert(sibling: $0) }
 	}
 }
 
@@ -259,15 +289,13 @@ where ELEMENT: InitializableBySelecttype
 extension SDAI.ARRAY: InitializableByEntityArray
 where ELEMENT: InitializableByEntity
 {
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAI.EntityReference>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(possiblyFrom: $0) }
-//	} 
-
 	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		guard let arraytype = arraytype else { return nil }
-		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { ELEMENT(possiblyFrom: $0) }
+		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { 
+				return ELEMENT.convert(sibling: $0) 
+		}
 	}		
 }
 
@@ -276,27 +304,12 @@ where ELEMENT: InitializableByEntity
 extension SDAI.ARRAY: InitializableByDefinedtypeArray 
 where ELEMENT: InitializableByDefinedtype
 {
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIUnderlyingType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	{
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(possiblyFrom: $0) }
-//	}		
-	
 	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType
 	{
 		guard let arraytype = arraytype else { return nil }
-		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { ELEMENT(possiblyFrom: $0) }
+		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { ELEMENT.convert(sibling: $0) }
 	}
 }
-
-//extension SDAI.ARRAY: InitializableByOptionalSwiftArrayLiteral 
-//where ELEMENT: InitializableBySwifttype
-//{
-//	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 
-//	where E == ELEMENT.SwiftType
-//	{
-//		self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT($0) }
-//	}
-//}
 
 

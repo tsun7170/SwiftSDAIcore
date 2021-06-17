@@ -24,6 +24,10 @@ public enum SDAI {
 	
 	public static let _Infinity:INTEGER? = nil;
 
+	//MARK: - validation related
+	public typealias ValidationRound = Int
+	public static let notValidatedYet: ValidationRound = 0
+	
 	public typealias WhereLabel = SDAIDictionarySchema.ExpressId
 	
 	public typealias GlobalRuleSignature = (_ allComplexEntities: AnySequence<SDAI.ComplexEntity>) -> [SDAI.WhereLabel:SDAI.LOGICAL]
@@ -93,6 +97,15 @@ public enum SDAI {
 			//ObjectIdentifier(type(of: self)).hash(into: &hasher)
 		}
 	
+	}
+	
+	//MARK: - SDAI.ValueReference
+	public class ValueReference<T>: Object {
+		public var value: T
+		
+		public init(_ initialValue:T) {
+			self.value = initialValue
+		}
 	}
 }
 

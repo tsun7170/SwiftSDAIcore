@@ -101,8 +101,8 @@ extension SDAI {
 
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
-			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix)
+		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix, round: round)
 		}
 
 		
@@ -235,18 +235,18 @@ extension SDAI {
 		public func intersectionWith<U: SDAIBagType>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.intersectionWith(other: rhs)
-			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT(fundamental: $0) }
+			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
 		public func intersectionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.intersectionWith(other: rhs)
-			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT(fundamental: $0) }
+			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
 		
 		// Union
 		private func unionWith<S: SDAIAggregationSequence>(other: S) -> SwiftType
 		where S.ELEMENT: SDAIGenericType, S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
-			let result = self.rep.union( other.asAggregationSequence.lazy.map{ ELEMENT(fundamental: $0.asFundamentalType) } )
+			let result = self.rep.union( other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0) } )
 			return result
 		}
 		
@@ -263,7 +263,13 @@ extension SDAI {
 		public func unionWith<U: SDAIGenericType>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.FundamentalType {
 			var result = self.rep
-			result.insert(ELEMENT(fundamental: rhs.asFundamentalType))
+			result.insert(ELEMENT.convert(from: rhs))
+//			if let rhs = rhs as? ELEMENT {
+//				result.insert(rhs)
+//			}
+//			else {
+//				result.insert(ELEMENT(fundamental: rhs.asFundamentalType))
+//			}
 			return SET(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>? {
@@ -305,7 +311,7 @@ extension SDAI {
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 		{
 			let result = self.differenceWith(other: rhs)
-			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT(fundamental: $0) }
+			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
 		public func differenceWith<U: SDAIGenericType>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.FundamentalType {
@@ -315,7 +321,7 @@ extension SDAI {
 			}
 			return SET(bound1: 0, bound2: _Infinity, selfDict.lazy.map(
 									{ (elem,_) in CollectionOfOne(elem)})
-			) { ELEMENT(fundamental: $0) }
+			) { ELEMENT.convert(from: $0) }
 		}
 		public func differenceWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>? {
 			if let rhs = rhs.setValue(elementType: ELEMENT.self) {
@@ -332,7 +338,7 @@ extension SDAI {
 		public func differenceWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.differenceWith(other: rhs)
-			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT(fundamental: $0) }
+			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
 		
 		// InitializableByP21Parameter
@@ -385,7 +391,42 @@ extension SDAI {
 
 extension SDAI.SET: SDAIObservableAggregate, SDAIObservableAggregateElement
 where ELEMENT: SDAIObservableAggregateElement
-{}
+{
+	public var observer: EntityReferenceObserver? {
+		get { 
+			return _observer
+		}
+		set {
+			_observer = newValue
+			if let entityObserver = newValue {
+				for elem in self.asAggregationSequence {
+					for entityRef in elem.entityReferences {
+						entityObserver( nil, entityRef )
+					}
+				}
+			}
+		}
+	}
+	
+	public func teardown() {
+		if let entityObserver = observer {
+			for elem in self.asAggregationSequence {
+				for entityRef in elem.entityReferences {
+					entityObserver( entityRef, nil )
+				}
+			}
+		}
+	}
+	
+	public mutating func resetObserver() {
+		_observer = nil
+	}	
+	
+	public var entityReferences: AnySequence<SDAI.EntityReference> { 
+		AnySequence<SDAI.EntityReference>(self.lazy.flatMap { $0.entityReferences })
+	}
+	
+}
 
 extension SDAI.SET: InitializableBySelecttypeSet
 where ELEMENT: InitializableBySelecttype
@@ -394,7 +435,7 @@ where ELEMENT: InitializableBySelecttype
 	where T.ELEMENT: SDAISelectType
 	{
 		guard let settype = settype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, [settype]){ ELEMENT(possiblyFrom: $0) }
+		self.init(bound1: bound1, bound2: bound2, [settype]){ ELEMENT.convert(sibling: $0) }
 	}		
 }
 
@@ -409,7 +450,7 @@ where ELEMENT: InitializableByEntity
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		guard let settype = settype else { return nil }
-		self.init(bound1: bound1, bound2: bound2, [settype]) { ELEMENT(possiblyFrom: $0) }		
+		self.init(bound1: bound1, bound2: bound2, [settype]) { ELEMENT.convert(sibling: $0) }		
 	}
 }
 
@@ -421,7 +462,7 @@ where ELEMENT: InitializableByDefinedtype
 	where T.ELEMENT: SDAIUnderlyingType
 	{
 		guard let settype = settype else { return nil }
-		self.init(bound1:bound1, bound2:bound2, [settype]) { ELEMENT(possiblyFrom: $0) }
+		self.init(bound1:bound1, bound2:bound2, [settype]) { ELEMENT.convert(sibling: $0) }
 	}
 }
 

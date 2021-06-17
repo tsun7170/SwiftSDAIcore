@@ -132,7 +132,7 @@ public extension SDAIAggregationType
 where ELEMENT: InitializableBySelecttype
 {
 	func CONTAINS<T: SDAISelectType>(_ elem: T?) -> SDAI.LOGICAL {
-		return self.CONTAINS(elem: ELEMENT(possiblyFrom: elem))
+		return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))
 	}
 }
 
@@ -140,7 +140,12 @@ public extension SDAIAggregationType
 where ELEMENT: InitializableByEntity
 {
 	func CONTAINS(_ elem: SDAI.EntityReference?) -> SDAI.LOGICAL {
-		return self.CONTAINS(elem: ELEMENT(possiblyFrom: elem))
+		if let elem = elem as? ELEMENT {
+			return self.CONTAINS(elem: elem )
+		}
+		else {
+			return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))
+		}
 	}
 }
 
@@ -148,7 +153,7 @@ public extension SDAIAggregationType
 where ELEMENT: InitializableByDefinedtype
 {
 	func CONTAINS<T: SDAIUnderlyingType>(_ elem: T?) -> SDAI.LOGICAL {
-		return self.CONTAINS(elem: ELEMENT(possiblyFrom: elem))
+		return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))
 	}
 }
 
@@ -163,75 +168,6 @@ where ELEMENT: InitializableBySwifttype
 }
 
 
-//MARK: - extension for EntityReferenceObserver
-//MARK: observable element
-public protocol SDAIObservableAggregateElement
-{
-	var entityReferences: AnySequence<SDAI.EntityReference> { get }
-}
-
-public extension SDAIDefinedType
-where Self: SDAIObservableAggregateElement,
-			Supertype: SDAIObservableAggregateElement
-{
-	var entityReferences: AnySequence<SDAI.EntityReference> { return rep.entityReferences }
-}
-
-public protocol SDAIObservableAggregate: SDAIAggregationType, SDAIObservableAggregateElement 
-where ELEMENT: SDAIObservableAggregateElement
-{
-	var observer: EntityReferenceObserver? {get set}
-	func teardown()
-	mutating func resetObserver()
-}
-
-//MARK: observable aggregate
-public extension SDAIObservableAggregate 
-{
-	var observer: EntityReferenceObserver? {
-		get { 
-			return _observer
-		}
-		set {
-			_observer = newValue
-			if let entityObserver = newValue {
-				for elem in self.asAggregationSequence {
-					for entityRef in elem.entityReferences {
-						entityObserver( nil, entityRef )
-					}
-				}
-			}
-		}
-	}
-	
-	func teardown() {
-		if let entityObserver = observer {
-			for elem in self.asAggregationSequence {
-				for entityRef in elem.entityReferences {
-					entityObserver( entityRef, nil )
-				}
-			}
-		}
-	}
-	
-	mutating func resetObserver() {
-		_observer = nil
-	}	
-}
-
-public extension SDAIObservableAggregate where Element == ELEMENT
-{
-	var entityReferences: AnySequence<SDAI.EntityReference> { 
-		AnySequence<SDAI.EntityReference>(self.lazy.flatMap { $0.entityReferences })
-	}
-}
-
-public extension SDAIObservableAggregate where Element == ELEMENT?
-{
-	var entityReferences: AnySequence<SDAI.EntityReference> { 
-		AnySequence<SDAI.EntityReference>(self.lazy.compactMap{$0}.flatMap { $0.entityReferences })
-	}
-}
 
 
 //MARK: - aggregation subtypes

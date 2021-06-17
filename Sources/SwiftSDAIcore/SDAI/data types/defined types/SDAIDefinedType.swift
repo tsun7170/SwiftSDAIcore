@@ -21,9 +21,14 @@ public protocol SDAIUnderlyingType: SDAISelectCompatibleUnderlyingTypeBase, Init
 {}
 public extension SDAIUnderlyingType 
 {
-	init?<T: SDAIUnderlyingType>(possiblyFrom underlyingType: T?) {
-		guard let fundamental = underlyingType as? FundamentalType else { return nil }
-		self.init(fundamental: fundamental)
+	init?<T: SDAIUnderlyingType>(possiblyFrom underlyingType: T?) 
+	{
+		if let fundamental = underlyingType?.asFundamentalType as? FundamentalType {
+			self.init(fundamental: fundamental)
+		}
+		else {
+			self.init(fromGeneric: underlyingType)
+		}
 	}
 
 }

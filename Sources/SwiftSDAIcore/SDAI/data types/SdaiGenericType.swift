@@ -36,11 +36,33 @@ public protocol SDAIGenericType: Hashable, InitializableBySelecttype, Initializa
 	func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>?
 	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM?
 	
-	static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL]
+	static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL]
 }
 
 public extension SDAIGenericType
 {
+	static func convert<T: SDAIGenericType>(from other: T) -> Self 
+	where T.FundamentalType == FundamentalType
+	{
+		if let other = other as? Self {
+			return other
+		}
+		else {
+			return Self(fundamental: other.asFundamentalType)
+		}
+	}
+
+	static func convert<T: SDAIGenericType>(from other: T) -> Self 
+ where T == FundamentalType
+ {
+		if let other = other as? Self {
+			return other
+		}
+		else {
+			return Self(fundamental: other)
+		}
+	}
+
 	init?(fundamental: FundamentalType?) {
 		guard let fundamental = fundamental else { return nil }
 		self.init(fundamental: fundamental)
@@ -49,8 +71,8 @@ public extension SDAIGenericType
 
 public extension SDAIGenericType where Self: SDAIDefinedType
 {
-	static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, excludingEntity: Bool) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
-		return Supertype.validateWhereRules(instance:instance?.rep, prefix: prefix + "\\" + Supertype.typeName, excludingEntity: excludingEntity)
+	static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+		return Supertype.validateWhereRules(instance:instance?.rep, prefix: prefix + "\\" + Supertype.typeName, round: round)
 	}
 }
 
