@@ -53,12 +53,15 @@ public extension SDAI__BINARY__type
 
 
 extension SDAI {
-	public struct BINARY: SDAI__BINARY__type, SDAIValue 
+	public struct BINARY: SDAI__BINARY__type, SDAIValue, CustomStringConvertible
 	{
 		public typealias SwiftType = Array<Int8>
 		public typealias FundamentalType = Self
 		private var rep: SwiftType
 
+		// CustomStringConvertible
+		public var description: String { "BINARY(\(rep))" }
+		
 		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__BINARY__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(from: Self.typeName)]

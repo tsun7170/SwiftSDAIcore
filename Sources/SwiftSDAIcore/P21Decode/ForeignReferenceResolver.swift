@@ -9,7 +9,7 @@ import Foundation
 
 extension P21Decode {
 	
-	public class ForeignReferenceResolver {
+	open class ForeignReferenceResolver {
 		public typealias ParameterRecoveryResult = P21Decode.ExchangeStructure.ParameterRecoveryResult
 		
 		public var error: String?

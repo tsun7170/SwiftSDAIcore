@@ -11,7 +11,7 @@ import Foundation
 extension SDAIPopulationSchema {
 	
 	//MARK: (8.4.1)(10.6)
-	public class SchemaInstance: SDAI.Object {
+	public final class SchemaInstance: SDAI.Object {
 		//MARK: (10.5.2)
 		public init(repository: SDAISessionSchema.SdaiRepository, 
 								name: STRING, 
@@ -89,16 +89,33 @@ extension SDAIPopulationSchema {
 		}
 		
 		//MARK: (10.6.5)
-		public func validate(globalRule: SDAIDictionarySchema.GlobalRule) -> SDAI.GlobalRuleValidationResult {
-			let record = globalRule.rule(self.allComplexEntities) // apply rule to all complex entities
+		public func validate(globalRule: SDAIDictionarySchema.GlobalRule,
+												 recording: ValidationRecordingOption = .recordFailureOnly) 
+		-> SDAI.GlobalRuleValidationResult {
+			var record = globalRule.rule(self.allComplexEntities) // apply rule to all complex entities
+			
+			switch recording {
+			case .recordFailureOnly:
+				var reduced:[SDAI.WhereLabel : SDAI.LOGICAL] = [:]
+				for (label,result) in record {
+					if result == SDAI.FALSE { reduced[label] = result }
+				}
+				record = reduced
+				
+			case .recordAll:
+				break
+			}
+			
 			let result = record.reduce(SDAI.TRUE) { (result, tuple) in result && tuple.value }
+			
 			return SDAI.GlobalRuleValidationResult(globalRule: globalRule, 
 																						 result: result, 
 																						 record: record)
 		}
 		
 		//MARK: (10.6.6)
-		public func validate(uniquenessRule: SDAIDictionarySchema.UniquenessRule) ->SDAI.UniquenessRuleValidationResult {
+		public func validate(uniquenessRule: SDAIDictionarySchema.UniquenessRule) 
+		-> SDAI.UniquenessRuleValidationResult {
 			let entityType = uniquenessRule.parentEntity.type
 			var instanceCount = 0
 			var unknown = SDAI.TRUE
@@ -109,59 +126,112 @@ extension SDAIPopulationSchema {
 			} )
 			let uniqueCount = unique.count
 			let result = SDAI.LOGICAL(from: uniqueCount == instanceCount) && unknown
+			
 			return SDAI.UniquenessRuleValidationResult(uniquenessRule: uniquenessRule, 
 																								 result: result, 
 																								 record: (uniqueCount, instanceCount))
 		}
 		
 		//MARK: swift specific
-		private var validationRound: SDAI.ValidationRound = SDAI.notValidatedYet
+		public enum ValidationRecordingOption {
+			case recordFailureOnly
+			case recordAll
+		}
 		
-		public func validateWhereRules() -> SDAI.WhereRuleValidationResult {
+		public func validateGlobalRules(recording: ValidationRecordingOption = .recordFailureOnly,
+																		monitor: ValidationMonitor = ValidationMonitor() ) 
+		-> [SDAI.GlobalRuleValidationResult] {
+			var globalrec:[SDAI.GlobalRuleValidationResult] = []
+			monitor.willValidate(globalRules: AnySequence(self.nativeSchema.globalRules.values))
+			
+			for globalrule in self.nativeSchema.globalRules.values {
+				if monitor.terminateValidation { return globalrec }
+				
+				let result = self.validate(globalRule: globalrule, recording: recording)
+				monitor.didValidateGlobalRule(for: self, result: result)
+				
+				switch recording {
+				case .recordFailureOnly:
+					if result.result == SDAI.FALSE { globalrec.append(result) }
+				case .recordAll:
+					globalrec.append(result)
+				}
+			}
+			return globalrec			
+		}
+		
+		public func validateUniquenessRules(recording: ValidationRecordingOption = .recordFailureOnly,
+																				monitor: ValidationMonitor = ValidationMonitor() )
+		-> [SDAI.UniquenessRuleValidationResult] {
+			var uniquerec: [SDAI.UniquenessRuleValidationResult] = []
+			monitor.willValidate(uniquenessRules: AnySequence(self.nativeSchema.uniquenessRules))
+			
+			for uniquerule in self.nativeSchema.uniquenessRules {
+				if monitor.terminateValidation { return uniquerec }
+				
+				let result = self.validate(uniquenessRule: uniquerule)
+				monitor.didValidateUniquenessRule(for: self, result: result)
+				
+				switch recording {
+				case .recordFailureOnly:
+					if result.result == SDAI.FALSE { uniquerec.append(result) }
+				case .recordAll:
+					uniquerec.append(result)
+				}
+			}
+			return uniquerec
+		}
+		
+		private var validationRound: SDAI.ValidationRound = SDAI.notValidatedYet		
+		public func validateWhereRules(recording: ValidationRecordingOption = .recordFailureOnly,
+																	 monitor: ValidationMonitor = ValidationMonitor() ) 
+		-> SDAI.WhereRuleValidationResult {
 			validationRound += 1
 			var record:[SDAI.EntityReference:[SDAI.WhereLabel:SDAI.LOGICAL]] = [:]
+			monitor.willValidateWhereRules(for: self.allComplexEntities)
+			
 			for complex in self.allComplexEntities {
-				let compResult = complex.validateEntityWhereRules(prefix: "#\(complex.p21name)", round: validationRound)
+				if monitor.terminateValidation { return SDAI.WhereRuleValidationResult(result: SDAI.UNKNOWN, record: record) }
+				
+				let compResult = complex.validateEntityWhereRules(prefix: "#\(complex.p21name)", round: validationRound, recording: recording)
+				monitor.didValidateWhereRule(for: complex, result: compResult)
+				
 				record.merge(compResult) { (tuple1:[SDAI.WhereLabel : SDAI.LOGICAL], tuple2:[SDAI.WhereLabel : SDAI.LOGICAL]) -> [SDAI.WhereLabel : SDAI.LOGICAL] in
 					tuple1.merging(tuple2) { $0 && $1 }
 				}
 			}
 			let result = record.lazy.map{ $1.lazy.map{ $1 } }.joined().reduce(SDAI.TRUE) { $0 && $1 }
+			
 			return SDAI.WhereRuleValidationResult(result: result, record: record)
 		}
 		
 		//MARK: (10.6.8)
-		public private(set) var globalRuleValidationRecord: [SDAIDictionarySchema.GlobalRule:SDAI.GlobalRuleValidationResult]?
+		public private(set) var globalRuleValidationRecord: [SDAI.GlobalRuleValidationResult]?
 		
-		public private(set) var uniquenessRuleValidationRecord: [SDAIDictionarySchema.UniquenessRule:SDAI.UniquenessRuleValidationResult]?
+		public private(set) var uniquenessRuleValidationRecord: [SDAI.UniquenessRuleValidationResult]?
 		
 		public private(set) var whereRuleValidationRecord: SDAI.WhereRuleValidationResult?
 		
-		public func validateAllConstraints() -> SDAI.LOGICAL {
+		public func validateAllConstraints(recording: ValidationRecordingOption = .recordFailureOnly,
+																			 monitor: ValidationMonitor = ValidationMonitor() ) 
+		-> SDAI.LOGICAL {
 			// global rule check
-			var globalrec:[SDAIDictionarySchema.GlobalRule:SDAI.GlobalRuleValidationResult] = [:]
-			for globalrule in self.nativeSchema.globalRules.values {
-				globalrec[globalrule] = self.validate(globalRule: globalrule)
-			}
-			globalRuleValidationRecord = globalrec
+			globalRuleValidationRecord = validateGlobalRules(recording: recording, monitor: monitor)
 			
 			// uniqueness rule check
-			var uniquerec: [SDAIDictionarySchema.UniquenessRule:SDAI.UniquenessRuleValidationResult] = [:]
-			for uniquerule in self.nativeSchema.uniquenessRules {
-				uniquerec[uniquerule] = self.validate(uniquenessRule: uniquerule)
-			}
-			uniquenessRuleValidationRecord = uniquerec
+			uniquenessRuleValidationRecord = validateUniquenessRules(recording: recording, monitor: monitor)
 			
 			// where rule check
-			whereRuleValidationRecord = self.validateWhereRules()
+			whereRuleValidationRecord = validateWhereRules(recording: recording, monitor: monitor)
 			
 			// post process
+			if monitor.terminateValidation { return SDAI.UNKNOWN }
 			var result = SDAI.TRUE
 			result = result && globalRuleValidationRecord?.lazy.reduce(SDAI.TRUE) { (result, globalRuleResult) in
-				result && globalRuleResult.value.result
+				result && globalRuleResult.result
 			}
 			result = result && uniquenessRuleValidationRecord?.lazy.reduce(SDAI.TRUE) { (result, uniqueRuleResult) in
-				result && uniqueRuleResult.value.result
+				result && uniqueRuleResult.result
 			}
 			result = result && whereRuleValidationRecord?.result
 			

@@ -72,7 +72,7 @@ extension P21Decode {
 		}		
 	}
 	
-	internal class TokenStream: IteratorProtocol
+	internal final class TokenStream: IteratorProtocol
 	{
 		internal typealias Element = TerminalToken
 		

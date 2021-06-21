@@ -57,11 +57,14 @@ public extension SDAI__REAL__type
 }
 
 extension SDAI {
-	public struct REAL: SDAI__REAL__type, SDAIValue
+	public struct REAL: SDAI__REAL__type, SDAIValue, CustomStringConvertible
 	{
 		public typealias SwiftType = Double
 		public typealias FundamentalType = Self
 		private var rep: SwiftType
+		
+		// CustomStringConvertible
+		public var description: String { "REAL(\(rep))" }
 		
 		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__Nfrom: UMBER__type\SDAI__REAL__type
 		public var typeMembers: Set<SDAI.STRING> {

@@ -14,11 +14,6 @@ extension SDAI {
 	open class PartialEntity: SDAI.Object, CustomStringConvertible {
 		public typealias TypeIdentity = SDAIDictionarySchema.EntityDefinition
 		
-//		public override init() {
-//			super.init()	
-//			assert(type(of:self) != PartialEntity.self, "abstruct class instantiated")	
-//		}
-		
 		public init(asAbstructSuperclass:()) {
 			super.init()	
 			assert(type(of:self) != PartialEntity.self, "abstruct class instantiated")	
@@ -39,10 +34,6 @@ extension SDAI {
 			
 			return str			
 		}
-//		public var customMirror: Mirror {
-//			let mirror = Mirror(reflecting: self)
-//			return Mirror(self, children: mirror.children, displayStyle: .struct, ancestorRepresentation: .suppressed)
-//		}
 		
 		// class properties
 		open class var entityReferenceType: EntityReference.Type { abstruct() } // abstruct

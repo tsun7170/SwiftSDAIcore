@@ -9,7 +9,7 @@ import Foundation
 
 extension P21Decode {
 	
-	public class Decoder {
+	public final class Decoder {
 		public enum Error {
 			case decoderError(String)
 			case parserError(P21Error)

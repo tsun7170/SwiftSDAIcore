@@ -60,12 +60,22 @@ public extension SDAI__LOGICAL__type
 }
 
 extension SDAI {
-	public struct LOGICAL : SDAI__LOGICAL__type, SDAIValue
+	public struct LOGICAL : SDAI__LOGICAL__type, SDAIValue, CustomStringConvertible
 	{
 		
 		public typealias SwiftType = Bool?
 		public typealias FundamentalType = Self
 		private var rep: SwiftType
+		
+		// CustomStringConvertible
+		public var description: String { 
+			if let bool = rep {
+				return "LOGICAL(\(bool ? "TRUE" : "FALSE"))" 
+			}
+			else {
+				return "LOGICAL(UNKNOWN)" 
+			}
+		}
 		
 		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__LOGICAL__type
 		public var typeMembers: Set<SDAI.STRING> {

@@ -12,7 +12,7 @@ extension P21Decode.ExchangeStructure {
 	public typealias SubsuperRecord = [SimpleRecord]
 	
 	//MARK:  SimpleRecord
-	public class SimpleRecord: CustomStringConvertible {
+	public final class SimpleRecord: CustomStringConvertible {
 		public let keyword: Keyword
 		public private(set) var parameterList: [Parameter] = []
 		
@@ -142,7 +142,7 @@ extension P21Decode.ExchangeStructure {
 	}
 	
 	//MARK: TypedParameter
-	public class TypedParameter: Equatable, CustomStringConvertible {
+	public final class TypedParameter: Equatable, CustomStringConvertible {
 		public static func == (lhs: TypedParameter, rhs: TypedParameter) -> Bool {
 			if lhs === rhs { return true }
 			return lhs.keyword == rhs.keyword && lhs.parameter == rhs.parameter
@@ -234,7 +234,7 @@ extension P21Decode.ExchangeStructure {
 		}
 	}
 	
-	public class AnchorTag: CustomStringConvertible {
+	public final class AnchorTag: CustomStringConvertible {
 		public let tagName: String
 		public let anchorItem: AnchorItem
 		

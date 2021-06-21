@@ -12,7 +12,12 @@ extension SDAIDictionarySchema {
 	
 	
 	//MARK: (6.4.12)
-	public class EntityDefinition : NamedType {
+	public final class EntityDefinition : NamedType, CustomStringConvertible {
+		// CustomStringConvertible
+		public var description: String {
+			return "EntityDefinition(\(name): \(supertypes.count-1) supertypes, \(attributes.count) attributes, \(uniquenessRules.count) uniqueness rules)"
+		}
+		
 		public init(name: ExpressId, type: SDAI.EntityReference.Type, explicitAttributeCount: Int) {
 			self.type = type
 			self.partialEntityExplicitAttributeCount = explicitAttributeCount

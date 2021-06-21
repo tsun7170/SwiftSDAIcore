@@ -9,7 +9,7 @@ import Foundation
 
 extension P21Decode {
 	
-	public class ExchangeStructureParser {
+	public final class ExchangeStructureParser {
 		
 		private let activityMonitor: ActivityMonitor?
 		private let tokenStream: TokenStream

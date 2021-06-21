@@ -57,11 +57,14 @@ public extension SDAI__BOOLEAN__type
 }
 
 extension SDAI {
-	public struct BOOLEAN : SDAI__BOOLEAN__type, SDAIValue
+	public struct BOOLEAN : SDAI__BOOLEAN__type, SDAIValue, CustomStringConvertible
 	{
 		public typealias SwiftType = Bool
 		public typealias FundamentalType = Self
 		private var rep: SwiftType
+		
+		// CustomStringConvertible
+		public var description: String { "BOOLEAN(\( rep ? "TRUE" : "FALSE"))" }
 		
 		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__LOGICAL__type\SDAI__BOOLEAN__type
 		public var typeMembers: Set<SDAI.STRING> {

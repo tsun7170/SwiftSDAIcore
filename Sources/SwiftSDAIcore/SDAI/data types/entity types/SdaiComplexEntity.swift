@@ -11,7 +11,7 @@ extension SDAI {
 	
 	
 	//MARK: - ComplexEntity
-	open class ComplexEntity: SDAI.Object, CustomReflectable
+	public final class ComplexEntity: SDAI.Object, CustomReflectable
 	{
 		private enum EntityReferenceStatus {
 			case unknown
@@ -147,7 +147,8 @@ extension SDAI {
 			let entityDef = entity.definition
 			for attrDef in entityDef.attributes.values {
 				if !attrDef.mayYieldEntityReference { continue } 
-				if attrDef.kind == .derived || attrDef.kind == .derivedRedeclaring { continue }
+//				if attrDef.kind == .derived || attrDef.kind == .derivedRedeclaring { continue }
+				
 				guard let attrYieldingEntities = attrDef.genericValue(for: entity)?.entityReferences else { continue }
 				for attrEntity in attrYieldingEntities {
 					if self === attrEntity.complexEntity {
@@ -198,7 +199,8 @@ extension SDAI {
 							for attrDef in entityDef.attributes.values {
 								if !attrDef.mayYieldEntityReference { continue }
 								if attrDef.source != .thisEntity { continue }
-								if attrDef.kind == .derived || attrDef.kind == .derivedRedeclaring { continue }
+//								if attrDef.kind == .derived || attrDef.kind == .derivedRedeclaring { continue }
+								
 								guard let attrValue = attrDef.genericValue(for: entity) else { continue } 
 								let attrYieldingEntities = attrValue.entityReferences
 								for attrEntity in attrYieldingEntities {
@@ -225,7 +227,6 @@ extension SDAI {
 			let model = self.owningModel
 			for schemaInstance in model.associatedWith {
 				for complex in schemaInstance.allComplexEntities {
-//					if complex === self { continue }
 					guard let entity = complex.entityReference(ENT.self) else { continue }
 					let attr = SDAI.GENERIC( entity[keyPath: role] )
 					for attrEntity in attr.entityReferences {
@@ -243,7 +244,6 @@ extension SDAI {
 			let model = self.owningModel
 			for schemaInstance in model.associatedWith {
 				for complex in schemaInstance.allComplexEntities {
-//					if complex === self { continue }
 					guard let entity = complex.entityReference(ENT.self) else { continue }
 					guard let attr = SDAI.GENERIC( entity[keyPath: role] ) else { continue }
 					for attrEntity in attr.entityReferences {
@@ -309,13 +309,29 @@ extension SDAI {
 		}
 		
 		//MARK: where rule validation support
-		public func validateEntityWhereRules(prefix:SDAI.WhereLabel, round:ValidationRound) -> [SDAI.EntityReference:[SDAI.WhereLabel:SDAI.LOGICAL]] {
+		public func validateEntityWhereRules(prefix:SDAI.WhereLabel, 
+																				 round:ValidationRound, 
+																				 recording:SDAIPopulationSchema.SchemaInstance.ValidationRecordingOption) 
+		-> [SDAI.EntityReference:[SDAI.WhereLabel:SDAI.LOGICAL]] {
 			var result: [SDAI.EntityReference:[SDAI.WhereLabel:SDAI.LOGICAL]] = [:]
 			for tuple in _partialEntities.values {
 				let etype = type(of: tuple.instance).entityReferenceType
 				if let eref = self.entityReference(etype) {
-//				if let eref = etype.init(complex: self) {
-					let peResult = etype.validateWhereRules(instance:eref, prefix: prefix + "\\" + tuple.instance.entityName, round: round)
+					var peResult = etype.validateWhereRules(instance:eref, 
+																									prefix: prefix + "\\" + tuple.instance.entityName, 
+																									round: round)
+					switch recording {
+					case .recordFailureOnly:
+						var reduced: [SDAI.WhereLabel:SDAI.LOGICAL] = [:]
+						for (label,result) in peResult {
+							if result == SDAI.FALSE { reduced[label] = result }
+						}
+						peResult = reduced
+						
+					case .recordAll:
+						break
+					}
+					
 					if !peResult.isEmpty {
 						result[eref] = peResult
 					}

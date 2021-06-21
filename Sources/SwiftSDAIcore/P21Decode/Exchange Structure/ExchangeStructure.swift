@@ -9,7 +9,7 @@ import Foundation
 
 extension P21Decode {
 	
-	public class ExchangeStructure {
+	public final class ExchangeStructure {
 		public internal(set) var headerSection = HeaderSection()
 		public internal(set) var anchorSection = AnchorSection()
 		public internal(set) var dataSection: [DataSection] = []

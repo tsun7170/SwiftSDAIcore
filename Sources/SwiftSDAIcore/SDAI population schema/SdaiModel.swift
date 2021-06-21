@@ -10,7 +10,7 @@ import Foundation
 extension SDAIPopulationSchema {
 	
 	//MARK: (8.4.2)
-	public class SdaiModel: SDAI.Object {
+	public final class SdaiModel: SDAI.Object {
 		//MARK: (10.5.1)
 		public convenience init(repository: SDAISessionSchema.SdaiRepository, 
 								modelName: STRING, 

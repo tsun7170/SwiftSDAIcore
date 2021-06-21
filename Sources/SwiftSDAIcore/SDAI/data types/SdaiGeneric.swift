@@ -40,7 +40,7 @@ fileprivate class _AnyGenericBox: Hashable {
 	class func validateWhereRules(instance:_AnyGenericBox?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] { abstruct() }	// abstruct
 }
 
-fileprivate class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {
+fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {
 	private let _base: G
 	
 	init(_ base: G){
@@ -85,10 +85,13 @@ public protocol SDAI__GENERIC__type: SDAIGenericType, SDAIObservableAggregateEle
 {}
 
 extension SDAI {
-	public struct GENERIC: SDAI__GENERIC__type {		
+	public struct GENERIC: SDAI__GENERIC__type, CustomStringConvertible {		
 		public typealias FundamentalType = Self
 		public typealias Value = GenericValue
 		private let box: _AnyGenericBox
+		
+		// CustomStringConvertible
+		public var description: String { "GENERIC(\(box.base))" }
 		
 		public init?<G: SDAIGenericType>(_ generic: G?) {
 			guard let generic = generic else { return nil }

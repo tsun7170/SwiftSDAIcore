@@ -106,10 +106,32 @@ extension SDAI {
 		
 		public internal(set) var retainer: ComplexEntity? = nil // for temporary complex entity lifetime control
 		
-		public private(set) var derivedAttributeCache: [SDAIDictionarySchema.ExpressId:Any] = [:]
-		public func updateCache(derivedAttributeName:SDAIDictionarySchema.ExpressId, value:Any) {
+		public struct CachedValue {
+			public private(set) var value: Any?
+			fileprivate init(_ value: Any?) {
+				self.value = value
+			}
+		}
+
+		// derived attribute value caching
+		private var derivedAttributeCache: [SDAIDictionarySchema.ExpressId:CachedValue] = [:]
+		private static var lookedup: Int = 0
+		private static var cacheHit: Int = 0
+		public static var cacheHitRate: Double? {
+			guard lookedup > 0 else { return nil }
+			return Double(cacheHit) / Double(lookedup)
+		}
+		
+		public func cachedValue(derivedAttributeName:SDAIDictionarySchema.ExpressId) -> CachedValue? {
+			let result = derivedAttributeCache[derivedAttributeName]
+			Self.lookedup += 1
+			if result != nil { Self.cacheHit += 1 }
+			return result
+		}
+		
+		public func updateCache(derivedAttributeName:SDAIDictionarySchema.ExpressId, value:Any?) {
 			guard self.complexEntity.owningModel.mode == .readOnly else { return }
-			derivedAttributeCache[derivedAttributeName] = value
+			derivedAttributeCache[derivedAttributeName] = CachedValue(value)
 		}
 		
 		public func resetCache() {

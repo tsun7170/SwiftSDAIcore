@@ -9,7 +9,7 @@ import Foundation
 
 extension P21Decode {
 	
-	internal class P21CharacterStream: IteratorProtocol 
+	internal final class P21CharacterStream: IteratorProtocol 
 	{
 		internal typealias Element = Character
 		

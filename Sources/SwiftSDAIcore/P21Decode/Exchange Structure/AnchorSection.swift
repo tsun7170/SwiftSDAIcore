@@ -26,7 +26,7 @@ extension P21Decode.ExchangeStructure.AnchorSection {
 	public typealias URIFragmentIdentifier = P21Decode.ExchangeStructure.URIFragmentIdentifier
 	
 	
-	public class AnchorRecord {
+	public final class AnchorRecord {
 		public let anchorName: URIFragmentIdentifier
 		public let anchorItem: AnchorItem	
 		public let anchorTag: AnchorTag?

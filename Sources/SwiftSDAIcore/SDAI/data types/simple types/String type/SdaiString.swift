@@ -89,12 +89,15 @@ public extension SDAI__STRING__type
 }
 
 extension SDAI {
-	public struct STRING: SDAI__STRING__type, SDAIValue
+	public struct STRING: SDAI__STRING__type, SDAIValue, CustomStringConvertible
 	{
 		public typealias SwiftType = String
 		public typealias FundamentalType = Self
 		private var rep: SwiftType
 
+		// CustomStringConvertible
+		public var description: String { "STRING(\(rep))" }
+		
 		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__STRING__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]

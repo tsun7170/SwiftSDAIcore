@@ -9,7 +9,10 @@ import Foundation
 
 extension SDAIDictionarySchema {
 	//MARK: (6.4.19)
-	public class GlobalRule: SDAI.Object {
+	public final class GlobalRule: SDAI.Object, CustomStringConvertible {
+		// CustomStringConvertible
+		public var description: String { "GlobalRule(\(name))" }
+		
 		public init(name: ExpressId, rule: @escaping SDAI.GlobalRuleSignature, schema: SchemaDefinition) {
 			self.name = name
 			self.rule = rule

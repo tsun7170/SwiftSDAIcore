@@ -20,7 +20,7 @@ extension P21Decode.ExchangeStructure {
 		return self.register(entityInstanceName: entityInstanceName, record: rec)
 	}
 		
-	public class DataSection: CustomStringConvertible {
+	public final class DataSection: CustomStringConvertible {
 		
 		public unowned let exchangeStructure: P21Decode.ExchangeStructure
 		public let name: String
@@ -71,7 +71,7 @@ extension P21Decode.ExchangeStructure {
 		}
 	}
 	
-	public class EntityInstanceRecord {
+	public final class EntityInstanceRecord {
 		public var source: Source
 		public var resolved: SDAI.ComplexEntity? = nil
 //		public var historical: [Source] = []

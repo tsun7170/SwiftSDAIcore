@@ -47,12 +47,15 @@ public extension SDAI__INTEGER__type
 }
 
 extension SDAI {
-	public struct INTEGER: SDAI__INTEGER__type, SDAIValue
+	public struct INTEGER: SDAI__INTEGER__type, SDAIValue, CustomStringConvertible
 	{
 		public typealias SwiftType = Int
 		public typealias FundamentalType = Self
 		private var rep: SwiftType
 
+		// CustomStringConvertible
+		public var description: String { "INTEGER(\(rep))" }
+		
 		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(from: Self.typeName)]

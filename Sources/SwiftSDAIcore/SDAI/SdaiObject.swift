@@ -46,7 +46,18 @@ public enum SDAI {
 		public var record: (uniqueCount:Int, instanceCount:Int)
 	}
 	
-	public struct WhereRuleValidationResult {
+	public struct WhereRuleValidationResult: CustomStringConvertible {
+		public var description: String {
+			var str = "WhereRuleValidationResult( result:\(result)\n"
+			for (entity, rec) in record {
+				for (label,whereResult) in rec {
+					str += "\(entity): \(label): \(whereResult)\n"
+				}
+			} 
+			str += ")\n"
+			return str
+		}
+		
 		public var result: SDAI.LOGICAL
 		public var record: [SDAI.EntityReference:[SDAI.WhereLabel:SDAI.LOGICAL]]
 	}
@@ -100,7 +111,7 @@ public enum SDAI {
 	}
 	
 	//MARK: - SDAI.ValueReference
-	public class ValueReference<T>: Object {
+	public final class ValueReference<T>: Object {
 		public var value: T
 		
 		public init(_ initialValue:T) {

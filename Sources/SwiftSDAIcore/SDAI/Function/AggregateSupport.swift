@@ -29,6 +29,11 @@ extension SDAI {
 		var result:[SDAI.WhereLabel:SDAI.LOGICAL] = [:]
 		guard let agg = agg else { return result }
 		
+		if let hibound = agg.hiBound {
+			result[prefix + ".hiBound(\(hibound))"] = SDAI.LOGICAL(agg.hiIndex <= hibound)	
+		}
+		result[prefix + ".loBound(\(agg.loBound))"] = SDAI.LOGICAL(agg.hiIndex >= agg.loBound)
+		
 		for idx in stride(from: agg.loIndex, through: agg.hiIndex, by: 1) {
 			let elemResult = AGG.ELEMENT.validateWhereRules(instance:agg[idx], prefix: prefix + "[\(idx)]", 
 																												round: round) 

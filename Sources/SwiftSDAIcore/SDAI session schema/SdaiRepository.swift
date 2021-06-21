@@ -10,7 +10,7 @@ import Foundation
 extension SDAISessionSchema {
 	
 	//MARK: (7.4.3)
-	public class SdaiRepository: SDAI.Object {
+	public final class SdaiRepository: SDAI.Object {
 		public init(name: STRING, description: STRING) {
 			self.name = name
 			self.description = description
@@ -44,7 +44,7 @@ extension SDAISessionSchema {
 	} 
 	
 	//MARK: (7.4.4)
-	public class SdaiRepositoryContents: SDAI.Object {
+	public final class SdaiRepositoryContents: SDAI.Object {
 		public private(set) var models: [SDAIPopulationSchema.STRING: SDAIPopulationSchema.SdaiModel] = [:]
 		public private(set) var schemas: [SDAIPopulationSchema.STRING: SDAIPopulationSchema.SchemaInstance] = [:]
 		public fileprivate(set) unowned var repository: SdaiRepository!

@@ -11,7 +11,7 @@ import Foundation
 extension SDAIDictionarySchema {
 	
 	//MARK: (6.4.1)
-	public class SchemaDefinition: SDAI.Object {
+	public final class SchemaDefinition: SDAI.Object {
 		public init(name: ExpressId, schema: SDAISchema.Type) {
 			self.name = name
 			self.schema = schema

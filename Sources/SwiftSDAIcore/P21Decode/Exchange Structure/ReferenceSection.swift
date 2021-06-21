@@ -24,7 +24,7 @@ extension P21Decode.ExchangeStructure {
 		return self.register(entityInstanceName: entityInstanceName, record: rec)
 	}
 		
-	public class ValueInstanceRecord {
+	public final class ValueInstanceRecord {
 		public let name: ValueInstanceName
 		public let reference: Resource
 		public var resolved: Parameter? = nil

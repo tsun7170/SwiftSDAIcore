@@ -139,12 +139,15 @@ public extension SDAI__NUMBER__type
 }
 
 extension SDAI {
-	public struct NUMBER: SDAI__NUMBER__type, SDAIValue
+	public struct NUMBER: SDAI__NUMBER__type, SDAIValue, CustomStringConvertible
 	{
 		public typealias SwiftType = Double
 		public typealias FundamentalType = Self
 		private var rep: SwiftType
 
+		// CustomStringConvertible
+		public var description: String { "NUMBER(\(rep))" }
+		
 		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__NUMBER__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(from: Self.typeName)]

@@ -9,7 +9,7 @@ import Foundation
 
 extension SDAISessionSchema {
 	//MARK: (7.4.1)
-	public class SdaiSession: SDAI.Object {
+	public final class SdaiSession: SDAI.Object {
 		public init(repositories:[SdaiRepository]) {
 			super.init()
 			for repository in repositories + [SdaiRepository.builtInRepository] {
@@ -49,7 +49,7 @@ extension SDAISessionSchema {
 	}
 	
 	//MARK: (7.4.2)
-	public class Implementation: SDAI.Object {
+	public final class Implementation: SDAI.Object {
 		public let name: STRING = "SwiftSDAIcore"
 		public let level: STRING = "1.0.0"
 		public let sdaiVersion: STRING = "{ iso standard 10303 part(22) version(0) }"

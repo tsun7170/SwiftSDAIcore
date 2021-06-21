@@ -36,7 +36,12 @@ extension SDAIDictionarySchema {
 		case subEntity
 	}
 	
-	public class Attribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: SDAI.Object, SDAIAttributeType {
+	public class Attribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: SDAI.Object, SDAIAttributeType, CustomStringConvertible {
+		// CustomStringConvertible
+		public var description: String {
+			"Attribute(\(name): type:\(BaseType.self), kind:\(kind), source:\(source) of \(parentEntity.name))"
+		}		
+		
 		public init(name: ExpressId, entityDef: EntityDefinition, 
 								kind: AttirbuteKind, source: AttributeSource, mayYieldEntityReference: Bool ) {
 			self.name = name
@@ -55,9 +60,14 @@ extension SDAIDictionarySchema {
 		//MARK: SDAIAttributeType
 		public var qualifiedAttributeName: SDAIDictionarySchema.ExpressId { parentEntity.qualifiedEntityName + "." + self.name }
 
+		private var invokedBy: Set<SDAI.EntityReference> = []
 		public func genericValue(for entity: SDAI.EntityReference) -> SDAI.GENERIC? {
 			guard let entity = entity as? ENT else { return nil }
-			return SDAI.GENERIC(self.value(for: entity))
+			if invokedBy.contains(entity) { return nil }	// to prevent infinite invocation loop
+			invokedBy.insert(entity)
+			let value = SDAI.GENERIC(self.value(for: entity))
+			invokedBy.remove(entity)
+			return value
 		}
 		
 		public let kind: AttirbuteKind
@@ -70,7 +80,7 @@ extension SDAIDictionarySchema {
 	
 	
 	
-	public class OptionalAttribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: Attribute<ENT,BaseType> {
+	public final class OptionalAttribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: Attribute<ENT,BaseType> {
 		public init(name: ExpressId, entityDef: EntityDefinition, keyPath: KeyPath<ENT,BaseType?>, 
 								kind: AttirbuteKind, source: AttributeSource, mayYieldEntityReference: Bool ) {
 			self.keyPath = keyPath
@@ -87,7 +97,7 @@ extension SDAIDictionarySchema {
 
 	
 	
-	public class NonOptionalAttribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: Attribute<ENT,BaseType> {
+	public final class NonOptionalAttribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: Attribute<ENT,BaseType> {
 		public init(name: ExpressId, entityDef: EntityDefinition, keyPath: KeyPath<ENT,BaseType>, 
 								kind: AttirbuteKind, source: AttributeSource, mayYieldEntityReference: Bool ) {
 			self.keyPath = keyPath
