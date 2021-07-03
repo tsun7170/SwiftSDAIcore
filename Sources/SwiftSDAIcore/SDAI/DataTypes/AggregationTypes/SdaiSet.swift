@@ -20,9 +20,7 @@ where Element == ELEMENT,
 			SwiftType == FundamentalType.SwiftType
 {
 	// Aggregation operator support
-	func intersectionWith<U: SDAI__SET__type>(rhs: U) -> SDAI.SET<ELEMENT>? 
-	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
-	func intersectionWith<U: SDAI__BAG__type>(rhs: U) -> SDAI.SET<ELEMENT>? 
+	func intersectionWith<U: SDAIBagType>(rhs: U) -> SDAI.SET<ELEMENT>? 
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 	func intersectionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>? 
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
@@ -248,6 +246,10 @@ extension SDAI {
 
 		public func intersectionWith<U: SDAIBagType>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
+			if let sametype = rhs as? Self {
+				let result = self.rep.intersection(sametype.rep)
+				return SET(from: result, bound1: 0, bound2: _Infinity)
+			}
 			let result = self.intersectionWith(other: rhs)
 			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
@@ -266,6 +268,10 @@ extension SDAI {
 		
 		public func unionWith<U: SDAIBagType>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
+			if let sametype = rhs as? Self {
+				let result = self.rep.union(sametype.rep)
+				return SET(from: result, bound1: 0, bound2: _Infinity)
+			}
 			let result = self.unionWith(other: rhs)
 			return SET(from: result, bound1: 0, bound2: _Infinity)
 		}
@@ -278,12 +284,6 @@ extension SDAI {
 		where ELEMENT.FundamentalType == U.FundamentalType {
 			var result = self.rep
 			result.insert(ELEMENT.convert(from: rhs))
-//			if let rhs = rhs as? ELEMENT {
-//				result.insert(rhs)
-//			}
-//			else {
-//				result.insert(ELEMENT(fundamental: rhs.asFundamentalType))
-//			}
 			return SET(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>? {
@@ -324,6 +324,10 @@ extension SDAI {
 		public func differenceWith<U: SDAIBagType>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 		{
+			if let sametype = rhs as? Self {
+				let result = self.rep.subtracting(sametype.rep)
+				return SET(from: result, bound1: 0, bound2: _Infinity)
+			}
 			let result = self.differenceWith(other: rhs)
 			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}

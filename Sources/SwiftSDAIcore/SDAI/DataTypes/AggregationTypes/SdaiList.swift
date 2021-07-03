@@ -48,9 +48,6 @@ where Element == ELEMENT,
 
 
 extension SDAI {
-//	public typealias LIST_UNIQUE<ELEMENT> = LIST<ELEMENT> 
-//	where ELEMENT: SDAIGenericType
-
 	
 	public struct LIST<ELEMENT:SDAIGenericType>: SDAI__LIST__type
 	{
