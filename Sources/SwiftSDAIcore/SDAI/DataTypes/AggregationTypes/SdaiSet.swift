@@ -20,7 +20,9 @@ where Element == ELEMENT,
 			SwiftType == FundamentalType.SwiftType
 {
 	// Aggregation operator support
-	func intersectionWith<U: SDAIBagType>(rhs: U) -> SDAI.SET<ELEMENT>? 
+	func intersectionWith<U: SDAI__SET__type>(rhs: U) -> SDAI.SET<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+	func intersectionWith<U: SDAI__BAG__type>(rhs: U) -> SDAI.SET<ELEMENT>? 
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 	func intersectionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>? 
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
@@ -192,6 +194,18 @@ extension SDAI {
 		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, generic settype: T?) {
 			guard let settype = settype else { return nil }
 			self.init(bound1: bound1, bound2: bound2, [settype]){ELEMENT(fromGeneric: $0)}
+		}
+
+		// InitializableByGenericBag
+		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, generic bagtype: T?) {
+			guard let bagtype = bagtype else { return nil }
+			self.init(bound1: bound1, bound2: bound2, [bagtype]){ELEMENT(fromGeneric: $0)}
+		}
+		
+		// InitializableByGenericList
+		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, generic listtype: T?) {
+			guard let listtype = listtype else { return nil }
+			self.init(bound1: bound1, bound2: bound2, [listtype]){ELEMENT(fromGeneric: $0)}
 		}
 
 		// InitializableByEmptyListLiteral
