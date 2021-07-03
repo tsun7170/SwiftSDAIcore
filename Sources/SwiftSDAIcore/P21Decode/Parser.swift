@@ -16,7 +16,7 @@ extension P21Decode {
 		private let exchangeStructure: ExchangeStructure
 		
 		//MARK: constructor
-		public init<CHARSTREAM>(charStream: CHARSTREAM, monitor: ActivityMonitor?) 
+		public init<CHARSTREAM>(charStream: CHARSTREAM, monitor: ActivityMonitor? = nil) 
 		where CHARSTREAM: IteratorProtocol, CHARSTREAM.Element == Character
 		{
 			self.activityMonitor = monitor

@@ -13,7 +13,7 @@ import Foundation
 public protocol SDAIBagType: SDAIAggregationType, 
 														 SDAIUnderlyingType, SDAISwiftTypeRepresented, SwiftDictRepresentable,
 														 InitializableByEmptyListLiteral, InitializableBySwifttypeAsList,
-														 InitializableBySelecttypeAsList, InitializableByListLiteral, InitializableByGenericSet
+														 InitializableBySelecttypeAsList, InitializableByListLiteral, InitializableByGenericSet, InitializableByGenericList, InitializableByGenericBag
 {
 	//entity inverse attribute support
 	mutating func add(member: ELEMENT?)
@@ -50,7 +50,7 @@ where Self: SDAIBagType,
 }
 
 //MARK: - BAG type
-public protocol SDAI__BAG__type: SDAIBagType, InitializableByGenericBag
+public protocol SDAI__BAG__type: SDAIBagType
 where Element == ELEMENT,
 			FundamentalType == SDAI.BAG<ELEMENT>,
 			Value == FundamentalType.Value,
@@ -235,6 +235,12 @@ extension SDAI {
 		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, generic bagtype: T?) {
 			guard let bagtype = bagtype else { return nil }
 			self.init(bound1: bound1, bound2: bound2, [bagtype]){ELEMENT(fromGeneric: $0)}
+		}
+		
+		// InitializableByGenericList
+		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, generic listtype: T?) {
+			guard let listtype = listtype else { return nil }
+			self.init(bound1: bound1, bound2: bound2, [listtype]){ELEMENT(fromGeneric: $0)}
 		}
 
 		// InitializableByEmptyListLiteral

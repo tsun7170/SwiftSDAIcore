@@ -105,7 +105,7 @@ extension P21Decode {
 			error = P21Error(message: message, lineNumber: self.lineNumber)
 		}
 		
-		internal init(p21stream:P21CharacterStream, monitor: ActivityMonitor?) {
+		internal init(p21stream:P21CharacterStream, monitor: ActivityMonitor? = nil) {
 			self.p21stream = p21stream
 			self.activityMonitor = monitor
 		}

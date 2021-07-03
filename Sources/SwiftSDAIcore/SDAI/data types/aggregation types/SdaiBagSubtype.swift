@@ -57,6 +57,11 @@ public extension SDAI__BAG__subtype
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: bagtype))
 	}
 
+	// InitializableByGenericList
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, generic listtype: T?) {
+		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: listtype))
+	}
+
 	// InitializableByEmptyListLiteral
 	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, emptyLiteral) )

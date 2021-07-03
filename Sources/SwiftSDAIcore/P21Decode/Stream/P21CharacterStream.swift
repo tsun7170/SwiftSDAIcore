@@ -22,7 +22,7 @@ extension P21Decode {
 		
 		internal private(set) var lineNumber: Int = 1
 		
-		internal init<CHARSTREAM>(charStream: CHARSTREAM, monitor: ActivityMonitor?) 
+		internal init<CHARSTREAM>(charStream: CHARSTREAM, monitor: ActivityMonitor? = nil) 
 		where CHARSTREAM: IteratorProtocol, CHARSTREAM.Element == Character
 		{
 			self.charStream = AnyIterator(charStream)

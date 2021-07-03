@@ -10,14 +10,14 @@ import Foundation
 // abstruct superclass
 fileprivate class _AnyGenericBox: Hashable {
 	static func == (lhs: _AnyGenericBox, rhs: _AnyGenericBox) -> Bool {
-			return lhs.value == rhs.value
+			return lhs.base == rhs.base
 	}
 
 	func hash(into hasher: inout Hasher) {
-			hasher.combine(value)
+			hasher.combine(base)
 	}
 	
-	var base: Any { abstruct() }	// abstruct
+	var base: AnyHashable { abstruct() }	// abstruct
 	var value: SDAI.GenericValue { abstruct() }	// abstruct
 	var entityReference: SDAI.EntityReference? { abstruct() }	// abstruct
 	var stringValue: SDAI.STRING? { abstruct() }	// abstruct
@@ -44,10 +44,11 @@ fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {
 	private let _base: G
 	
 	init(_ base: G){
+		assert(type(of: base) != SDAI.GENERIC.self)
 		self._base = base
 	}
 	
-	override var base: Any { _base }
+	override var base: AnyHashable { _base }
 	override var value: SDAI.GenericValue { _base.value as SDAI.GenericValue }
 	override var entityReference: SDAI.EntityReference? { _base.entityReference }
 	override var stringValue: SDAI.STRING? { _base.stringValue }
@@ -99,14 +100,19 @@ extension SDAI {
 		}
 		
 		public init<G: SDAIGenericType>(_ generic: G) {
-			box = _GenericBox<G>(generic)
+			if let generic = generic as? GENERIC {
+				box = generic.box
+			}
+			else {
+				box = _GenericBox<G>(generic)
+			}
 //			let validation = self.entityReferences
 //			for item in validation {
 //				assert(item is SDAI.EntityReference)
 //			}
 		}
 		
-		public var base: Any { box.base }
+		public var base: AnyHashable { box.base }
 		
 		// InitializableByGenerictype
 		public init?<G: SDAIGenericType>(fromGeneric generic: G?){

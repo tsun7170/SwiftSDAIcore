@@ -115,17 +115,17 @@ extension SDAI {
 
 		// derived attribute value caching
 		private var derivedAttributeCache: [SDAIDictionarySchema.ExpressId:CachedValue] = [:]
-		private static var lookedup: Int = 0
-		private static var cacheHit: Int = 0
-		public static var cacheHitRate: Double? {
-			guard lookedup > 0 else { return nil }
-			return Double(cacheHit) / Double(lookedup)
-		}
+//		private static var lookedup: Int = 0
+//		private static var cacheHit: Int = 0
+//		public static var cacheHitRate: Double? {
+//			guard lookedup > 0 else { return nil }
+//			return Double(cacheHit) / Double(lookedup)
+//		}
 		
 		public func cachedValue(derivedAttributeName:SDAIDictionarySchema.ExpressId) -> CachedValue? {
 			let result = derivedAttributeCache[derivedAttributeName]
-			Self.lookedup += 1
-			if result != nil { Self.cacheHit += 1 }
+//			Self.lookedup += 1
+//			if result != nil { Self.cacheHit += 1 }
 			return result
 		}
 		

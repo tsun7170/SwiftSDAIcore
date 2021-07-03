@@ -27,7 +27,7 @@ extension P21Decode {
 		private let activityMonitor: ActivityMonitor?
 		
 		//MARK: - constructor
-		public init(monitor: ActivityMonitor?) {
+		public init(monitor: ActivityMonitor? = nil) {
 			self.activityMonitor = monitor
 		}
 		
@@ -54,9 +54,16 @@ extension P21Decode {
 			return true
 		}
 		
+		private func canonicalSchemaName(_ schemaName: SchemaName) -> SchemaName {
+			let wospace = schemaName.filter { !$0.isWhitespace }
+			let upper = wospace.uppercased()
+			return upper
+		}
+		
 		public func registrer(schemaName: SchemaName, schema: SDAISchema.Type) -> Bool {
-			if let old = shcemaRegistory.updateValue(schema, forKey: schemaName) {
-				self.error = "duplicated schema name(\(schemaName)) detected with definition(\(schema.schemaDefinition.name)), old definition = (\(old.schemaDefinition.name))"
+			let canon = canonicalSchemaName(schemaName)
+			if let old = shcemaRegistory.updateValue(schema, forKey: canon) {
+				self.error = "duplicated schema name(\(canon)) detected with definition(\(schema.schemaDefinition.name)), old definition = (\(old.schemaDefinition.name))"
 				return false
 			}
 			return true
@@ -64,7 +71,8 @@ extension P21Decode {
 		
 		//MARK: - resolve related
 		public func resolve(schemaName: SchemaName) -> SDAISchema.Type? {
-			return shcemaRegistory[schemaName]
+			let canon = canonicalSchemaName(schemaName)
+			return shcemaRegistory[canon]
 		}
 
 		public func resolve(constantEntityName: ConstantName) -> SDAI.EntityReference? {

@@ -110,4 +110,41 @@ final class SwiftSDAIcoreTests: XCTestCase {
 		let I1 = SDAI.INTEGER( N1 )
 		XCTAssertNotNil(I1)
 	}
+	
+	func testP21stream() {
+		let testDataFolder = ProcessInfo.processInfo.environment["TEST_DATA_FOLDER"]!
+		let url = URL(fileURLWithPath: testDataFolder + "NIST_CTC_STEP_PMI/nist_ctc_02_asme1_ap242-e2.stp")
+		let stepsource = try! String(contentsOf: url) 
+		let charstream = stepsource.makeIterator()
+
+		let p21stream = P21Decode.P21CharacterStream(charStream: charstream)
+
+		var output: String = ""
+		while p21stream.lineNumber < 10 {
+			print(p21stream.next() ?? "<nil>", terminator:"", to: &output)
+		}
+		
+		XCTAssertTrue(p21stream.lineNumber > 0)
+	}
+
+
+	func testParser() {
+		let testDataFolder = ProcessInfo.processInfo.environment["TEST_DATA_FOLDER"]!
+		let url = URL(fileURLWithPath: testDataFolder + "NIST_CTC_STEP_PMI/nist_ctc_02_asme1_ap242-e2.stp")
+		let stepsource = try! String(contentsOf: url) 
+		let charstream = stepsource.makeIterator()
+
+		let parser = P21Decode.ExchangeStructureParser(charStream: charstream)
+
+		let result = parser.parseExchangeStructure()
+
+		if result == nil {
+			print("parser error = ",parser.error ?? "unknown error")
+		}
+		else {
+			print("normal end of execution")
+		}
+		
+		XCTAssertNotNil(result)
+	}
 }

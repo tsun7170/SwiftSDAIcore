@@ -51,7 +51,7 @@ public enum SDAI {
 			var str = "WhereRuleValidationResult( result:\(result)\n"
 			for (entity, rec) in record {
 				for (label,whereResult) in rec {
-					str += "\(entity): \(label): \(whereResult)\n"
+					str += "\(entity):\n\t\(label): \(whereResult)\n"
 				}
 			} 
 			str += ")\n"
