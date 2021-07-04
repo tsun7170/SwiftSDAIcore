@@ -13,6 +13,36 @@ public protocol InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?)
 }
 
+public extension InitializableByGenerictype where Self: SDAIGenericType
+{
+	static func convert<G: SDAIGenericType>(fromGeneric generic: G?) -> Self? {
+		guard let generic = generic else { return nil }
+		if let sametype = generic as? Self {
+			return sametype
+		}
+		if !(generic is SDAI.EntityReference) {
+			if let sametype = generic.asFundamentalType as? Self {
+				return sametype
+			}
+			if let fundamental = generic as? FundamentalType {
+				return self.convert(from: fundamental)
+			}
+			if let fundamental = generic.asFundamentalType as? FundamentalType {
+				return self.convert(from: fundamental)
+			}
+		}
+		if let generic = generic as? SDAI.GENERIC {
+			if let sametype = generic.base as? Self {
+				return sametype
+			}
+			if let fundamental = generic.base as? FundamentalType, !(fundamental is SDAI.EntityReference) {
+				return self.convert(from: fundamental)
+			}
+		}
+		return self.init(fromGeneric: generic)
+	}
+	
+}
 
 //MARK: - from generic type list
 public protocol InitializableByGenericList

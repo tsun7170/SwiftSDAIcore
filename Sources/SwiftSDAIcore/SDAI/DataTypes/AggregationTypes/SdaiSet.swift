@@ -92,11 +92,11 @@ extension SDAI {
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
 
 		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {
-			return BAG<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM(fromGeneric: $0) }
+			return BAG<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM.convert(fromGeneric: $0) }
 		}
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {
 			if let value = self as? SET<ELEM> { return value }
-			return SET<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM(fromGeneric: $0) }
+			return SET<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM.convert(fromGeneric: $0) }
 		}
 
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
@@ -110,6 +110,8 @@ extension SDAI {
 		// SDAIGenericType \SDAIUnderlyingType\SDAIAggregationType\SDAI__BAG__type\SDAI__SET__type
 		public static var typeName: String { return "SET" }
 		public var asSwiftType: SwiftType { return rep }
+		
+		// SDAIGenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(from: fundamental.asSwiftType, bound1: fundamental.loBound, bound2: fundamental.hiBound)
@@ -191,19 +193,19 @@ extension SDAI {
 		// InitializableByGenericSet
 		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, generic settype: T?) {
 			guard let settype = settype else { return nil }
-			self.init(bound1: bound1, bound2: bound2, [settype]){ELEMENT(fromGeneric: $0)}
+			self.init(bound1: bound1, bound2: bound2, [settype]){ELEMENT.convert(fromGeneric: $0)}
 		}
 
 		// InitializableByGenericBag
 		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, generic bagtype: T?) {
 			guard let bagtype = bagtype else { return nil }
-			self.init(bound1: bound1, bound2: bound2, [bagtype]){ELEMENT(fromGeneric: $0)}
+			self.init(bound1: bound1, bound2: bound2, [bagtype]){ELEMENT.convert(fromGeneric: $0)}
 		}
 		
 		// InitializableByGenericList
 		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, generic listtype: T?) {
 			guard let listtype = listtype else { return nil }
-			self.init(bound1: bound1, bound2: bound2, [listtype]){ELEMENT(fromGeneric: $0)}
+			self.init(bound1: bound1, bound2: bound2, [listtype]){ELEMENT.convert(fromGeneric: $0)}
 		}
 
 		// InitializableByEmptyListLiteral
@@ -226,7 +228,7 @@ extension SDAI {
 
 		// InitializableByListLiteral
 		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E:SDAIGenericType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-			self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(fromGeneric: $0) }
+			self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT.convert(fromGeneric: $0) }
 		} 
 
 		//MARK: Aggregation operator support
@@ -262,7 +264,7 @@ extension SDAI {
 		// Union
 		private func unionWith<S: SDAIAggregationSequence>(other: S) -> SwiftType
 		where S.ELEMENT: SDAIGenericType, S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
-			let result = self.rep.union( other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0) } )
+			let result = self.rep.union( other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0.asFundamentalType) } )
 			return result
 		}
 		
@@ -283,7 +285,7 @@ extension SDAI {
 		public func unionWith<U: SDAIGenericType>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.FundamentalType {
 			var result = self.rep
-			result.insert(ELEMENT.convert(from: rhs))
+			result.insert(ELEMENT.convert(from: rhs.asFundamentalType))
 			return SET(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>? {
@@ -296,7 +298,7 @@ extension SDAI {
 			else if let rhs = rhs.bagValue(elementType: ELEMENT.self) {
 				return self.unionWith(rhs: rhs)
 			}
-			else if let rhs = ELEMENT(fromGeneric: rhs) {
+			else if let rhs = ELEMENT.convert(fromGeneric: rhs) {
 				return self.unionWith(rhs: rhs)
 			}
 			return nil
@@ -348,7 +350,7 @@ extension SDAI {
 			else if let rhs = rhs.bagValue(elementType: ELEMENT.self) {
 				return self.differenceWith(rhs: rhs)
 			}
-			else if let rhs = ELEMENT(fromGeneric: rhs) {
+			else if let rhs = ELEMENT.convert(fromGeneric: rhs) {
 				return self.differenceWith(rhs: rhs)
 			}
 			return nil

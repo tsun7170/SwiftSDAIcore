@@ -172,7 +172,7 @@ extension SDAI {
 	}
 	public static func TYPEOF<Generic: SDAIGenericType, T: SDAIGenericType>(_ V: Generic? , IS typename: T.Type) -> LOGICAL {
 		guard let V = V else { return UNKNOWN }
-		return LOGICAL( T(fromGeneric: V) != nil )
+		return LOGICAL( T.convert(fromGeneric: V) != nil )
 	}
 	
 

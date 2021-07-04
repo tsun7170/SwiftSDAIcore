@@ -132,8 +132,10 @@ extension SDAI {
 
 		// SDAIUnderlyingType\SDAISimpleType\SDAI__STRING__type
 		public static let typeName: String = "STRING"
-		public var asFundamentalType: FundamentalType { return self }
 		public var asSwiftType: SwiftType { return rep }
+		
+		// SDAIGenericType
+		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(fundamental.rep)
 		}

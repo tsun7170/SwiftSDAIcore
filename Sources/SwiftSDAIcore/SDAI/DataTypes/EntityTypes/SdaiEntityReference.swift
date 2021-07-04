@@ -151,6 +151,11 @@ extension SDAI {
 		// InitializableByP21Parameter
 		public static var bareTypeName: String { "GENERIC_ENTITY" }
 		
+		// SDAI entity instance operations
+		public var allAttributes: AttributeList {
+			return AttributeList(entity: self)
+		}
+		
 	}
 }
 

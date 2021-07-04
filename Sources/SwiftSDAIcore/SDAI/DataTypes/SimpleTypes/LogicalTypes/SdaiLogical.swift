@@ -111,6 +111,8 @@ extension SDAI {
 		// SDAIUnderlyingType \SDAISimpleType\SDAI__LOGICAL__type
 		public static let typeName: String = "LOGICAL"
 		public var asSwiftType: SwiftType { return rep }
+		
+		// SDAIGenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(fundamental.rep)

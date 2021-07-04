@@ -95,7 +95,7 @@ extension SDAI {
 		
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {
 			if let value = self as? LIST<ELEM> { return value }
-			return LIST<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM(fromGeneric: $0) }
+			return LIST<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM.convert(fromGeneric: $0) }
 		}
 		
 		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
@@ -110,6 +110,8 @@ extension SDAI {
 		// SDAIUnderlyingType
 		public static var typeName: String { return "LIST" }
 		public var asSwiftType: SwiftType { return rep }
+		
+		// SDAIGenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(from: fundamental.asSwiftType, bound1: fundamental.loBound, bound2: fundamental.hiBound)
@@ -177,7 +179,7 @@ extension SDAI {
 		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, generic listtype: T?) 
 		{
 			guard let listtype = listtype else { return nil }
-			self.init(bound1: bound1, bound2: bound2, [listtype]) { ELEMENT(fromGeneric: $0) }
+			self.init(bound1: bound1, bound2: bound2, [listtype]) { ELEMENT.convert(fromGeneric: $0) }
 		}
 		
 		// InitializableByEmptyListLiteral
@@ -200,7 +202,7 @@ extension SDAI {
 
 		// InitializableByListLiteral
 		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
-			self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(fromGeneric: $0) }
+			self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT.convert(fromGeneric: $0) }
 		} 
 
 		// Built-in procedure support
@@ -221,13 +223,13 @@ extension SDAI {
 		private func append<S: SDAIAggregationSequence>(other: S) -> SwiftType
 		where S.ELEMENT: SDAIGenericType, S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
 			var result = self.rep
-			result.append(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0) } )
+			result.append(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0.asFundamentalType) } )
 			return result
 		}
 		private func prepend<S: SDAIAggregationSequence>(other: S) -> SwiftType
 		where S.ELEMENT: SDAIGenericType, S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
 			var result = self.rep
-			result.insert(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0) }, at: 0 )
+			result.insert(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0.asFundamentalType) }, at: 0 )
 			return result
 		}
 		
@@ -239,20 +241,20 @@ extension SDAI {
 		public func unionWith<U: SDAIGenericType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.FundamentalType {
 			var result = self.rep
-			result.append(ELEMENT.convert(from: rhs))
+			result.append(ELEMENT.convert(from: rhs.asFundamentalType))
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func unionWith<U: SDAIGenericType>(lhs: U) -> SDAI.LIST<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.FundamentalType {
 			var result = self.rep
-			result.insert(ELEMENT.convert(from: lhs), at: 0 )
+			result.insert(ELEMENT.convert(from: lhs.asFundamentalType), at: 0 )
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>? {
 			if let rhs = rhs.listValue(elementType: ELEMENT.self) {
 				return self.unionWith(rhs: rhs)
 			}
-			else if let rhs = ELEMENT(fromGeneric: rhs) {
+			else if let rhs = ELEMENT.convert(fromGeneric: rhs) {
 				return self.unionWith(rhs: rhs)
 			}
 			return nil
@@ -262,7 +264,7 @@ extension SDAI {
 				let result = self.prepend(other: lhs)
 				return LIST(from: result, bound1: 0, bound2: _Infinity)
 			}
-			else if let lhs = ELEMENT(fromGeneric: lhs) {
+			else if let lhs = ELEMENT.convert(fromGeneric: lhs) {
 				return self.unionWith(lhs: lhs)
 			}
 			return nil

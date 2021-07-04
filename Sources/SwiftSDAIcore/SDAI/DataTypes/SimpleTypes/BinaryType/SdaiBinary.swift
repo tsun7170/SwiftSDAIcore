@@ -97,6 +97,8 @@ extension SDAI {
 		// SDAIUnderlyingType \SDAISimpleType\SDAI__BINARY__type
 		public static let typeName: String = "BINARY"
 		public var asSwiftType: SwiftType { return rep }
+		
+		// SDAIGenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(from: fundamental.rep)

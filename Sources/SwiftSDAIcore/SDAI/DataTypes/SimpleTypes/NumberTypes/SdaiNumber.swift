@@ -188,6 +188,8 @@ extension SDAI {
 		// SDAIUnderlyingType \SDAISimpleType\SDAI__NUMBER__type
 		public static let typeName: String = "NUMBER"
 		public var asSwiftType: SwiftType { return rep }
+		
+		// SDAIGenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(fundamental.rep)

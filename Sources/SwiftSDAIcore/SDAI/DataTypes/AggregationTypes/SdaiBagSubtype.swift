@@ -43,7 +43,7 @@ public extension SDAI__BAG__subtype
 
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
-		guard let fundamental = FundamentalType(fromGeneric: generic) else { return nil }
+		guard let fundamental = FundamentalType.convert(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
 	}
 	

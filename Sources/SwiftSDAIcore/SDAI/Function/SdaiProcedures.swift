@@ -12,7 +12,7 @@ import Foundation
 extension SDAI {
 	public static func INSERT<LISTTYPE: SDAIListType, GEN: SDAIGenericType, Integer: SwiftIntConvertible>( L: inout LISTTYPE?, E: GEN?, P: Integer? ) 
 	{
-		guard let E = LISTTYPE.ELEMENT(fromGeneric: E), let P = P?.possiblyAsSwiftInt else { return }
+		guard let E = LISTTYPE.ELEMENT.convert(fromGeneric: E), let P = P?.possiblyAsSwiftInt else { return }
 		L?.insert(element: E, at: P)
 	}
 	

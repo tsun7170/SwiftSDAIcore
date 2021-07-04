@@ -41,20 +41,7 @@ public protocol SDAIGenericType: Hashable, InitializableBySelecttype, Initializa
 
 public extension SDAIGenericType
 {
-	static func convert<T: SDAIGenericType>(from other: T) -> Self 
-	where T.FundamentalType == FundamentalType
-	{
-		if let other = other as? Self {
-			return other
-		}
-		else {
-			return Self(fundamental: other.asFundamentalType)
-		}
-	}
-
-	static func convert<T: SDAIGenericType>(from other: T) -> Self 
- where T == FundamentalType
- {
+	static func convert(from other: FundamentalType) -> Self {
 		if let other = other as? Self {
 			return other
 		}

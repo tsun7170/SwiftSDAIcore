@@ -69,13 +69,13 @@ extension SDAI {
 		
 		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {
 			return ARRAY_OPTIONAL<ELEM>(bound1: self.loIndex, bound2: self.hiIndex, [self]) {
-				guard let conv = ELEM(fromGeneric: $0) else { return (false,nil) }
+				guard let conv = ELEM.convert(fromGeneric: $0) else { return (false,nil) }
 				return (true, conv)
 			}
 		}
 		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {
 			if let value = self as? ARRAY<ELEM> { return value }
-			return ARRAY<ELEM>(bound1: self.loIndex, bound2: self.hiIndex, [self]) { ELEM(fromGeneric: $0) }
+			return ARRAY<ELEM>(bound1: self.loIndex, bound2: self.hiIndex, [self]) { ELEM.convert(fromGeneric: $0) }
 		}
 		
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
@@ -91,6 +91,8 @@ extension SDAI {
 		// SDAIUnderlyingType \SDAIAggregationType\SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY__type
 		public static var typeName: String { return "ARRAY" }
 		public var asSwiftType: SwiftType { return rep }
+		
+		// SDAIGenericType
 		public var asFundamentalType: FundamentalType { return self }
 		
 		public init(fundamental: FundamentalType) {
@@ -153,12 +155,6 @@ extension SDAI {
 			self.init(from: swiftValue, bound1: bound1, bound2: bound2)
 		}
 		
-//		// InitializableBySelecttype
-//		public init?<S: SDAISelectType>(possiblyFrom select: S?) {
-//			self.init(fromGeneric:select)
-////			guard let fundamental = select?.arrayValue(elementType: ELEMENT.self) else { return nil }
-////			self.init(fundamental: fundamental)
-//		}
 		// InitializableByGenerictype
 		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 			guard let fundamental = generic?.arrayValue(elementType: ELEMENT.self) else { return nil }
@@ -168,7 +164,7 @@ extension SDAI {
 		// InitializableByGenericArray
 		public init?<T: SDAI__ARRAY__type>(generic arraytype: T?) {
 			guard let arraytype = arraytype else { return nil }
-			self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { ELEMENT(fromGeneric: $0) }
+			self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { ELEMENT.convert(fromGeneric: $0) }
 		}
 		
 		
@@ -183,7 +179,7 @@ extension SDAI {
 		// InitializableByArrayLiteral
 		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E:SDAIGenericType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 
 		{
-			self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT(fromGeneric: $0) }
+			self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT.convert(fromGeneric: $0) }
 		} 
 		
 		// InitializableByP21Parameter

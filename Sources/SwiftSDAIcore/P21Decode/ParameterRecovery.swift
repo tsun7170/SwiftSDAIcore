@@ -21,7 +21,7 @@ extension P21Decode.ExchangeStructure {
 	}
 	
 	
-	public func recoverRequiredParameter<T: InitializableByP21Parameter>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T> {
+	public func recoverRequiredParameter<T: SDAIGenericType>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T> {
 		switch parameter {
 		case .typedParameter(let typedParam):
 			guard let recovered = T(p21typedParam: typedParam, from: self)
@@ -47,13 +47,13 @@ extension P21Decode.ExchangeStructure {
 			return .failure
 			
 		case .sdaiGeneric(let generic):
-			guard let recovered = T(fromGeneric: generic)
+			guard let recovered = T.convert(fromGeneric: generic)
 			else { self.error = "could not convert generic value(\(generic)) to type(\(T.self))"; return .failure }
 			return .success(recovered)
 		}
 	}
 	
-	public func recoverOmittableParameter<T: InitializableByP21Parameter>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T?> {
+	public func recoverOmittableParameter<T: SDAIGenericType>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T?> {
 		switch parameter {
 		case .typedParameter(let typedParam):
 			guard let recovered = T(p21typedParam: typedParam, from: self)
@@ -77,13 +77,13 @@ extension P21Decode.ExchangeStructure {
 			return .success(nil as T?)
 			
 		case .sdaiGeneric(let generic):
-			guard let recovered = T(fromGeneric: generic)
+			guard let recovered = T.convert(fromGeneric: generic)
 			else { self.error = "could not convert generic value(\(generic)) to type(\(T.self))"; return .failure }
 			return .success(recovered)
 		}
 	}
 
-	public func recoverOptionalParameter<T: InitializableByP21Parameter>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T?> {
+	public func recoverOptionalParameter<T: SDAIGenericType>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T?> {
 		switch parameter {
 		case .untypedParameter(let untyped):
 			if untyped == .noValue {
@@ -101,13 +101,13 @@ extension P21Decode.ExchangeStructure {
 			return .failure
 			
 		case .sdaiGeneric(let generic):
-			guard let recovered = T(fromGeneric: generic)
+			guard let recovered = T.convert(fromGeneric: generic)
 			else { self.error = "could not convert generic value(\(generic)) to type(\(T.self))"; return .failure }
 			return .success(recovered)
 		}
 	}
 	
-	public func recoverOmittableOptionalParameter<T: InitializableByP21Parameter>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T?> {
+	public func recoverOmittableOptionalParameter<T: SDAIGenericType>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T?> {
 		switch parameter {
 		case .typedParameter(_), .untypedParameter(_):
 			let recovered = T(p21param: parameter, from: self)
@@ -119,7 +119,7 @@ extension P21Decode.ExchangeStructure {
 			return .success(nil as T?)
 			
 		case .sdaiGeneric(let generic):
-			guard let recovered = T(fromGeneric: generic)
+			guard let recovered = T.convert(fromGeneric: generic)
 			else { self.error = "could not convert generic value(\(generic)) to type(\(T.self))"; return .failure }
 			return .success(recovered)
 		}

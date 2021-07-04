@@ -152,13 +152,6 @@ extension SDAI {
 		// SDAIObservableAggregateElement
 		public var entityReferences: AnySequence<SDAI.EntityReference> {
 			return box.entityReferences
-			
-//			if let base = self.base as? SDAIObservableAggregateElement {
-//				return base.entityReferences
-//			}
-//			else {
-//				return AnySequence<SDAI.EntityReference>([])
-//			}
 		}
 		
 		// InitializableByP21Parameter

@@ -84,7 +84,7 @@ public func .===. <T: SDAIBagType, U: SDAIBagType>(lhs: T?, rhs: U?) -> SDAI.LOG
 	let lhsDict = lhs.asSwiftDict
 	let rhsDict = rhs.asSwiftDict
 	for (elem,lhsCount) in lhsDict {
-		if let elem = U.ELEMENT.FundamentalType(fromGeneric: elem), let rhsCount = rhsDict[elem] {
+		if let elem = U.ELEMENT.FundamentalType.convert(fromGeneric: elem), let rhsCount = rhsDict[elem] {
 			if lhsCount != rhsCount { return SDAI.FALSE }
 		}
 		else { return SDAI.FALSE }
@@ -109,7 +109,7 @@ public func .===. <T: SDAIBagType, U: SDAIAggregationInitializer>(lhs: T?, rhs: 
 	let lhsDict = lhs.asSwiftDict
 	let rhsDict = rhs.asSwiftDict
 	for (elem,lhsCount) in lhsDict {
-		if let elem = U.ELEMENT.FundamentalType(fromGeneric: elem), let rhsCount = rhsDict[elem] {
+		if let elem = U.ELEMENT.FundamentalType.convert(fromGeneric: elem), let rhsCount = rhsDict[elem] {
 			if lhsCount != rhsCount { return SDAI.FALSE }
 		}
 		else { return SDAI.FALSE }

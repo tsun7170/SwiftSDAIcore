@@ -105,6 +105,8 @@ extension SDAI {
 		// SDAIUnderlyingType \SDAISimpleType\SDAI__NUMBER__type\SDAI__REAL__type
 		public static let typeName: String = "REAL"
 		public var asSwiftType: SwiftType { return rep }
+		
+		// SDAIGenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			rep = fundamental.rep
@@ -120,17 +122,6 @@ extension SDAI {
 			rep = SwiftType(value)
 		}
 		
-//		// InitializableByDefinedtype \SDAIDefinedType
-//		public init?<T: SDAIUnderlyingType>(possiblyFrom underlyingType: T?) {
-//			if let fundamental = underlyingType?.asFundamentalType as? FundamentalType {
-//				self.init(fundamental: fundamental)
-//			}
-//			else if let subtype = (underlyingType as Any) as? SDAIRealType {
-//				self.init(subtype)
-//			}
-//			return nil
-//		}
-
 		// SDAIValue
 		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
 		{
