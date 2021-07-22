@@ -49,18 +49,6 @@ extension SDAI {
 			for pe in entities {
 				pe.broadcast(addedToComplex: self)
 			}
-//			// for observed attribute setup
-//			for pe in entities {
-//				if var deferredTask = pe.deferredAttributeSetups {
-//					guard let entity = self.entityReference(type(of:pe).entityReferenceType) else { continue }
-//					repeat {
-//						deferredTask.apply(to: entity)
-//						guard let next = deferredTask.nextTask else { break }
-//						deferredTask = next
-//					}while true
-//					pe.deferredAttributeSetups = nil
-//				}
-//			}
 		}
 		public convenience init(entities:[PartialEntity]) {
 			let pe = entities.first!
@@ -161,6 +149,19 @@ extension SDAI {
 				}
 				return true
 			}
+		}
+		
+		//MARK: - partial complex entity access
+		public func partialComplexEntity<EREF:EntityReference>(_ erefType:EREF.Type) -> EREF? {
+			let entitydef = erefType.entityDefinition
+			var partials: [PartialEntity] = []
+			for supertype in entitydef.supertypes {
+				guard let pe = self.partialEntityInstance(supertype.partialEntityType) else { return nil }
+				partials.append(pe)
+			}
+			let pce = ComplexEntity(entities: partials)
+			guard let pceref = pce.entityReference(erefType) else { return nil }
+			return pceref
 		}
 		
 		//MARK: express built-in function support

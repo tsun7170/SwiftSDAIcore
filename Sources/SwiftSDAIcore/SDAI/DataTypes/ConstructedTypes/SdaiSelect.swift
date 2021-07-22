@@ -43,6 +43,13 @@ public extension SDAISelectType
 	// SwiftBoolConvertible
 	var possiblyAsSwiftBool: Bool? { self.logicalValue?.asSwiftType }
 	var asSwiftBool: Bool { SDAI.UNWRAP(self.possiblyAsSwiftBool) }	
+	
+	// group reference
+	func GROUP_REF<EREF:SDAI.EntityReference>(_ entity_ref: EREF.Type) -> EREF? {
+		guard let complex = self.entityReference?.complexEntity else { return nil }
+		return complex.partialComplexEntity(entity_ref)
+	} 
+	
 }
 
 public extension SDAIDefinedType where Self: SDAISelectType {

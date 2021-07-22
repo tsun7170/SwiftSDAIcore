@@ -134,15 +134,21 @@ extension SDAI {
 		open class var partialEntityType: PartialEntity.Type { abstruct() }	// abstruct
 		
 		public internal(set) var retainer: ComplexEntity? = nil // for temporary complex entity lifetime control
+
+		// group reference
+		public func GROUP_REF<EREF:EntityReference>(_ entity_ref: EREF.Type) -> EREF? {
+			let complex = self.complexEntity
+			return complex.partialComplexEntity(entity_ref)
+		} 
 		
+		// derived attribute value caching
 		public struct CachedValue {
 			public private(set) var value: Any?
 			fileprivate init(_ value: Any?) {
 				self.value = value
 			}
 		}
-
-		// derived attribute value caching
+		
 		private var derivedAttributeCache: [SDAIDictionarySchema.ExpressId:CachedValue] = [:]
 		
 		public func cachedValue(derivedAttributeName:SDAIDictionarySchema.ExpressId) -> CachedValue? {
