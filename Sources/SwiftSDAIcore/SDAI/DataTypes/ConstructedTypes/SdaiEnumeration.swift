@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  SdaiEnumeration.swift
 //  
 //
 //  Created by Yoshida on 2020/12/19.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -19,6 +20,7 @@ where Value == FundamentalType,
 public extension SDAIEnumerationType
 {
 	// SDAIGenericType
+	func copy() -> Self { return self }
 	var value: Value { self.asFundamentalType }
 }
 

@@ -1,21 +1,31 @@
 //
-//  File.swift
+//  SdaiGenericType.swift
 //  
 //
 //  Created by Yoshida on 2021/05/21.
+//  Copyright © 2021 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
 
+public protocol SDAIGenericTypeBase
+{
+//	associatedtype SelfType: SDAIGenericTypeBase
+	func copy() -> Self
+}
 
-public protocol SDAIGenericType: Hashable, InitializableBySelecttype, InitializableByP21Parameter 
+public protocol SDAIGenericType: SDAIGenericTypeBase, Hashable, InitializableBySelecttype, InitializableByP21Parameter 
+//where SelfType == Self
 {
 	associatedtype FundamentalType: SDAIGenericType
 	associatedtype Value: SDAIValue
 
+//	var copy: Self {get}
+
 	var asFundamentalType: FundamentalType {get}	
 	init(fundamental: FundamentalType)
 
+	static var typeName: String {get}
 	var typeMembers: Set<SDAI.STRING> {get}
 	var value: Value {get}
 	
@@ -39,21 +49,26 @@ public protocol SDAIGenericType: Hashable, InitializableBySelecttype, Initializa
 	static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL]
 }
 
-public extension SDAIGenericType
+public extension SDAIGenericType //where SelfType == Self
 {
 	static func convert(from other: FundamentalType) -> Self {
 		if let other = other as? Self {
-			return other
+			return other.copy()
 		}
-		else {
-			return Self(fundamental: other)
-		}
+		return self.init(fundamental: other)
 	}
 
 	init?(fundamental: FundamentalType?) {
 		guard let fundamental = fundamental else { return nil }
 		self.init(fundamental: fundamental)
 	}		
+}
+
+public extension SDAIGenericType where FundamentalType == Self//, SelfType == Self
+{
+	static func convert(from other: FundamentalType) -> Self {
+		return other.copy()
+	}
 }
 
 public extension SDAIGenericType where Self: SDAIDefinedType
@@ -111,10 +126,4 @@ public extension SDAIGenericType where Self: SDAIDefinedType
 	}
 }
 
-public extension SDAIGenericType where Self: SDAI.EntityReference
-{
-	init(fundamental: FundamentalType) {
-		self.init(complex: fundamental.complexEntity)!
-	}
-}
 

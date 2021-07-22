@@ -1,24 +1,26 @@
 //
-//  File.swift
+//  EntityAttributes.swift
 //  
 //
 //  Created by Yoshida on 2021/07/04.
+//  Copyright © 2021 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
 
 extension SDAI.EntityReference {
 	
-	public struct AttributeList: CustomStringConvertible {
+	public class AttributeList : CustomStringConvertible 
+	{
 		public var description: String {
 			var str = ""
-			for tuple in attributes {
-				print("\(tuple.definition.name) (\(tuple.definition.kind)): \(tuple.definition.domain) = ", to: &str)
+			for (i,tuple) in attributes.enumerated() {
+				print("[\(i)]\t\(tuple.definition.name) (\(tuple.definition.kind)): \(tuple.definition.domain) = ", terminator: "", to: &str)
 				if let value = tuple.value?.base {
-					print("\(value)\n", to: &str)
+					print("\(value)", to: &str)
 				}
 				else {
-					print("null\n", to: &str)
+					print("nil", to: &str)
 				}
 			}
 			return str

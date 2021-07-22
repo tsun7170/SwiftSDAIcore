@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  SdaiArrayUnique.swift
 //  
 //
 //  Created by Yoshida on 2021/06/16.
+//  Copyright © 2021 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -21,7 +22,7 @@ extension SDAI {
 		public typealias SwiftType = Supertype.SwiftType
 		public typealias ELEMENT = Supertype.ELEMENT
 		public func makeIterator() -> FundamentalType.Iterator { return self.asFundamentalType.makeIterator() }
-		public static var typeName: String { return "ARRAY_UNIQUE" }
+		public static var typeName: String { return "ARRAY" }
 		public static var bareTypeName: String { self.typeName }
 		public var rep: Supertype
 		

@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  SdaiLogical.swift
 //  
 //
 //  Created by Yoshida on 2020/09/09.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation

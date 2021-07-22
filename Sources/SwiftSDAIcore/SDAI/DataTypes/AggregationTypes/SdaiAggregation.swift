@@ -3,6 +3,7 @@
 //  
 //
 //  Created by Yoshida on 2020/09/13.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -71,7 +72,7 @@ public extension SDAIAggregationBehavior where Self: SDAIDefinedType, Supertype:
 //MARK: - aggregation sequence
 public protocol SDAIAggregationSequence
 {
-	associatedtype ELEMENT
+	associatedtype ELEMENT: SDAIGenericType
 	var asAggregationSequence: AnySequence<ELEMENT> {get}
 }
 
@@ -94,7 +95,7 @@ where Supertype: SwiftDictRepresentable, Self: SwiftDictRepresentable,
 //MARK: - Aggregation type (8.2)
 public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Sequence, SDAIAggregateIndexingGettable, SDAIAggregationBehavior, SDAIAggregationSequence
 {	
-	associatedtype ELEMENT
+//	associatedtype ELEMENT: SDAIGenericType
 	
 	var hiBound: Int? {get}
 	var hiIndex: Int {get}
@@ -106,10 +107,9 @@ public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Seq
 	
 	//MARK: Query expression (12.6.7)
 	associatedtype RESULT_AGGREGATE: SDAIAggregationType where RESULT_AGGREGATE.ELEMENT == ELEMENT
-	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> RESULT_AGGREGATE
+	func QUERY(logical_expression: @escaping (ELEMENT) -> SDAI.LOGICAL ) -> RESULT_AGGREGATE
 	
-	typealias EntityReferenceObserver = (_ removing: SDAI.EntityReference?, _ adding: SDAI.EntityReference?) -> Void
-	var _observer: EntityReferenceObserver? { get set }
+	var observer: SDAI.EntityReferenceObserver? { get set }
 }
 
 //MARK: - generic aggregate
@@ -179,20 +179,27 @@ where Self: SDAIAggregationType,
 	// Sequence \SDAIAggregationType
 	func makeIterator() -> Supertype.Iterator { return rep.makeIterator() }
 
+	// SDAIGenericTypeBase
+	func copy() -> Self {
+		var copied = self
+		copied.rep = rep.copy()
+		return copied
+	}
+	
 	// SDAIAggregationType
 	var hiBound: Int? { return rep.hiBound }
 	var hiIndex: Int { return rep.hiIndex }
 	var loBound: Int { return rep.loBound }
 	var loIndex: Int { return rep.loIndex }
 	var size: Int { return rep.size }
-	var _observer: EntityReferenceObserver? {
-		get { return rep._observer }
-		set { rep._observer = newValue }
+	var observer: SDAI.EntityReferenceObserver? {
+		get { return rep.observer }
+		set { rep.observer = newValue }
 	}
 	var asAggregationSequence: AnySequence<ELEMENT> { return rep.asAggregationSequence }
 
 	func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL { return rep.CONTAINS(elem: elem) }
-	func QUERY(logical_expression: (ELEMENT) -> SDAI.LOGICAL ) -> Supertype.RESULT_AGGREGATE {
+	func QUERY(logical_expression: @escaping (ELEMENT) -> SDAI.LOGICAL ) -> Supertype.RESULT_AGGREGATE {
 		return rep.QUERY(logical_expression: logical_expression)
 	}
 }

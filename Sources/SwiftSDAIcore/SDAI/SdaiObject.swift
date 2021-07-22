@@ -3,7 +3,7 @@
 //  SwiftSDAIcorePackage
 //
 //  Created by Yoshida on 2020/05/23.
-//  Copyright © 2020 Minokamo, Japan. All rights reserved.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -49,17 +49,17 @@ public enum SDAI {
 	public struct WhereRuleValidationResult: CustomStringConvertible {
 		public var description: String {
 			var str = "WhereRuleValidationResult( result:\(result)\n"
-			for (entity, rec) in record {
-				for (label,whereResult) in rec {
-					str += "\(entity):\n\t\(label): \(whereResult)\n"
+//			for (entity, rec) in record {
+			for (i,(label,whereResult)) in record.enumerated() {
+					str += "[\(i)]\t\(label): \(whereResult)\n"
 				}
-			} 
+//			} 
 			str += ")\n"
 			return str
 		}
 		
 		public var result: SDAI.LOGICAL
-		public var record: [SDAI.EntityReference:[SDAI.WhereLabel:SDAI.LOGICAL]]
+		public var record: [SDAI.WhereLabel:SDAI.LOGICAL]
 	}
 	
 	//MARK: - SDAI.Object	
@@ -118,6 +118,8 @@ public enum SDAI {
 			self.value = initialValue
 		}
 	}
+	
+	
+	
 }
-
 

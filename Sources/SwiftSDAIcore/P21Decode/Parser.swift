@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  Parser.swift
 //  
 //
 //  Created by Yoshida on 2021/04/26.
+//  Copyright © 2021 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation

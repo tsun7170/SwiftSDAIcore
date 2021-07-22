@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  AgregationInitializer.swift
 //  
 //
 //  Created by Yoshida on 2020/12/18.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation

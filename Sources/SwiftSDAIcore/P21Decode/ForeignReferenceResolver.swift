@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  ForeignReferenceResolver.swift
 //  
 //
 //  Created by Yoshida on 2021/05/13.
+//  Copyright © 2021 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation

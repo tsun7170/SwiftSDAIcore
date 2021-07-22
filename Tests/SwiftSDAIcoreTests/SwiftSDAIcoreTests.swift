@@ -92,7 +92,7 @@ final class SwiftSDAIcoreTests: XCTestCase {
 		let dictResult = dict[entity1def]
 		XCTAssertNotNil(dictResult)
 	}
-	
+		
 	func testOperator1() {
 		let R1 = SDAI.FORCE_OPTIONAL(SDAI.REAL(1))
 		let I1 = SDAI.FORCE_OPTIONAL(SDAI.INTEGER(0))

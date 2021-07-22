@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  SdaiGeneric.swift
 //  
 //
 //  Created by Yoshida on 2021/02/07.
+//  Copyright © 2021 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -17,31 +18,34 @@ fileprivate class _AnyGenericBox: Hashable {
 			hasher.combine(base)
 	}
 	
-	var base: AnyHashable { abstruct() }	// abstruct
-	var value: SDAI.GenericValue { abstruct() }	// abstruct
-	var entityReference: SDAI.EntityReference? { abstruct() }	// abstruct
-	var stringValue: SDAI.STRING? { abstruct() }	// abstruct
-	var binaryValue: SDAI.BINARY? { abstruct() }	// abstruct
-	var logicalValue: SDAI.LOGICAL? { abstruct() }	// abstruct
-	var booleanValue: SDAI.BOOLEAN? { abstruct() }	// abstruct
-	var numberValue: SDAI.NUMBER? { abstruct() }	// abstruct
-	var realValue: SDAI.REAL? { abstruct() }	// abstruct
-	var integerValue: SDAI.INTEGER? { abstruct() }	// abstruct
-	var genericEnumValue: SDAI.GenericEnumValue? { abstruct() }	// abstruct
-	var entityReferences: AnySequence<SDAI.EntityReference> { abstruct() } // abstruct
+	var base: AnyHashable { abstruct() }
+	func copy() -> AnyHashable { abstruct() }
+	var value: SDAI.GenericValue { abstruct() }
+	var entityReference: SDAI.EntityReference? { abstruct() }
+	var stringValue: SDAI.STRING? { abstruct() }
+	var binaryValue: SDAI.BINARY? { abstruct() }
+	var logicalValue: SDAI.LOGICAL? { abstruct() }
+	var booleanValue: SDAI.BOOLEAN? { abstruct() }
+	var numberValue: SDAI.NUMBER? { abstruct() }
+	var realValue: SDAI.REAL? { abstruct() }
+	var integerValue: SDAI.INTEGER? { abstruct() }
+	var genericEnumValue: SDAI.GenericEnumValue? { abstruct() }
+	var entityReferences: AnySequence<SDAI.EntityReference> { abstruct() }
+	func configure(with observer: SDAI.EntityReferenceObserver) { abstruct() }
+	func teardownObserver() { abstruct() }
 
-	func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? { abstruct() }	// abstruct
-	func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? { abstruct() }	// abstruct
-	func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? { abstruct() }	// abstruct
-	func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? { abstruct() }	// abstruct
-	func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? { abstruct() }	// abstruct
-	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { abstruct() }	// abstruct
+	func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? { abstruct() }
+	func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? { abstruct() }
+	func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? { abstruct() }
+	func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? { abstruct() }
+	func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? { abstruct() }
+	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { abstruct() }
 	
-	class func validateWhereRules(instance:_AnyGenericBox?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] { abstruct() }	// abstruct
+	class func validateWhereRules(instance:_AnyGenericBox?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] { abstruct() }
 }
 
 fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {
-	private let _base: G
+	private var _base: G
 	
 	init(_ base: G){
 		assert(type(of: base) != SDAI.GENERIC.self)
@@ -49,6 +53,7 @@ fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {
 	}
 	
 	override var base: AnyHashable { _base }
+	override func copy() -> AnyHashable { _base.copy() }
 	override var value: SDAI.GenericValue { _base.value as SDAI.GenericValue }
 	override var entityReference: SDAI.EntityReference? { _base.entityReference }
 	override var stringValue: SDAI.STRING? { _base.stringValue }
@@ -65,6 +70,18 @@ fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {
 		}
 		else {
 			return AnySequence<SDAI.EntityReference>([])
+		}
+	}
+	override func configure(with observer: SDAI.EntityReferenceObserver) { 
+		if var base = (self._base as Any) as? SDAIObservableAggregateElement {
+			base.configure(with: observer)
+			self._base = base as! G
+		}
+	}
+	override func teardownObserver() {
+		if var base = (self._base as Any) as? SDAIObservableAggregateElement {
+			base.teardownObserver()
+			self._base = base as! G
 		}
 	}
 
@@ -89,7 +106,7 @@ extension SDAI {
 	public struct GENERIC: SDAI__GENERIC__type, CustomStringConvertible {		
 		public typealias FundamentalType = Self
 		public typealias Value = GenericValue
-		private let box: _AnyGenericBox
+		private var box: _AnyGenericBox
 		
 		// CustomStringConvertible
 		public var description: String { "GENERIC(\(box.base))" }
@@ -104,7 +121,7 @@ extension SDAI {
 				box = generic.box
 			}
 			else {
-				box = _GenericBox<G>(generic)
+				box = _GenericBox<G>(generic.copy())
 			}
 //			let validation = self.entityReferences
 //			for item in validation {
@@ -120,11 +137,13 @@ extension SDAI {
 		}
 		
 		// SDAIGenericType
+		public func copy() -> SDAI.GENERIC { return self }
 		public var asFundamentalType: FundamentalType { return self }	
 		public init(fundamental: FundamentalType) {
 			box = fundamental.box
 		}
-		public var typeMembers: Set<SDAI.STRING> { return [SDAI.STRING("GENERIC")] }
+		public static var typeName: String { "GENERIC" }
+		public var typeMembers: Set<SDAI.STRING> { return [SDAI.STRING(Self.typeName)] }
 		public var value: Value { box.value }
 		
 		public var entityReference: SDAI.EntityReference? { box.entityReference }
@@ -154,6 +173,14 @@ extension SDAI {
 			return box.entityReferences
 		}
 		
+		public mutating func configure(with observer: SDAI.EntityReferenceObserver) {
+			box.configure(with: observer)
+		}
+		
+		public mutating func teardownObserver() {
+			box.teardownObserver()
+		}
+
 		// InitializableByP21Parameter
 		public static var bareTypeName: String = "GENERIC"
 		public init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {

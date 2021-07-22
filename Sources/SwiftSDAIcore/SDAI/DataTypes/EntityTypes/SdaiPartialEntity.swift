@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  SdaiPartialEntity.swift
 //  
 //
 //  Created by Yoshida on 2021/05/08.
+//  Copyright © 2021 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -72,6 +73,24 @@ extension SDAI {
 			return type(of: rhs) == Self.self
 		}
 		
+		// attribute observer support
+		private var _owners: Set<UnownedReference<ComplexEntity>> = []
+		public var owners: AnySequence<ComplexEntity> { AnySequence(_owners.lazy.map{$0.object}) }
+		
+		open func broadcast(addedToComplex complex: ComplexEntity) {
+			_owners.insert(UnownedReference(complex))
+		}
+		open func broadcast(removedFromComplex complex: ComplexEntity) {
+			_owners.remove(UnownedReference(complex))
+		}
+		
+//		// deferred setup of observed attributes
+//		internal var deferredAttributeSetups: GenericDeferredEntityReferenceApplication?
+//
+//		public final func add(deferredTask task: GenericDeferredEntityReferenceApplication) {
+//			task.nextTask = deferredAttributeSetups
+//			deferredAttributeSetups = task
+//		}
 	}
 	
 }

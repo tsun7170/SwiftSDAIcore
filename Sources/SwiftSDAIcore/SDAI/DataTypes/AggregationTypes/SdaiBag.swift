@@ -3,6 +3,7 @@
 //  
 //
 //  Created by Yoshida on 2020/10/10.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -132,8 +133,8 @@ extension SDAI {
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
 
 		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {
-			if let value = self as? BAG<ELEM> { return value }
-			return BAG<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM.convert(fromGeneric: $0) }
+			if let value = self as? BAG<ELEM> { return value.copy() }
+			return BAG<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM.convert(fromGeneric: $0.copy()) }
 		}
 
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
@@ -146,16 +147,24 @@ extension SDAI {
 		
 		// SDAIUnderlyingType \SDAIAggregationType\SDAI__BAG__type
 		public static var typeName: String { return "BAG" }
-		public var asSwiftType: SwiftType { return rep }
+		public var asSwiftType: SwiftType { return self.copy().rep }
 		
 		// SDAIGenericType
-		public var asFundamentalType: FundamentalType { return self }
+		public func copy() -> Self {
+			if var observable = self as? SDAIObservableAggregateElement {
+				observable.teardownObserver()
+				return (observable as Any) as! Self
+			}
+			return self 
+		}
+		
+		public var asFundamentalType: FundamentalType { return self.copy() }
 		public init(fundamental: FundamentalType) {
 			self.init(from: fundamental.asSwiftType, bound1: fundamental.loBound, bound2: fundamental.hiBound)
 		}
 
 		// Sequence \SDAIAggregationType\SDAI__BAG__type
-		public func makeIterator() -> SwiftType.Iterator { return rep.makeIterator() }
+		public func makeIterator() -> SwiftType.Iterator { return self.copy().rep.makeIterator() }
 
 		// SDAIAggregationType \SDAI__BAG__type
 		public var hiBound: Int? { return bound2 }
@@ -163,49 +172,70 @@ extension SDAI {
 		public var loBound: Int { return bound1 }
 		public var loIndex: Int { return 1 }
 		public var size: Int { return rep.count }
-		public var _observer: EntityReferenceObserver?
+		public var observer: EntityReferenceObserver?
 
 		public subscript(index: Int?) -> ELEMENT? {
 			get{
 				guard let index = index, index >= loIndex, index <= hiIndex else { return nil }
-				return rep[index - loIndex]
+				return rep[index - loIndex].copy()
 			}
 		}
 		
-		public var asAggregationSequence: AnySequence<ELEMENT> { return AnySequence(rep) }
+		public var asAggregationSequence: AnySequence<ELEMENT> { return AnySequence(self.copy().rep) }
 
 		public func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL {
 			guard let elem = elem else { return UNKNOWN }
 			return LOGICAL(rep.contains(elem))
 		}
 		
-		public func QUERY(logical_expression: (ELEMENT) -> LOGICAL ) -> BAG<ELEMENT> {
-			return BAG(from: rep.filter{ logical_expression($0).isTRUE }, bound1:self.loBound, bound2: self.hiBound)
+		public func QUERY(logical_expression: @escaping (ELEMENT) -> LOGICAL ) -> BAG<ELEMENT> {
+			return BAG(from: SwiftType(rep.lazy.filter{ logical_expression($0).isTRUE }.map{ $0.copy() }), 
+								 bound1:self.loBound, bound2: self.hiBound)
 		}
 		
 		// SDAIBagType
 		public mutating func add(member: ELEMENT?) {
-			guard let member = member else {return}
+			guard var member = member else {return}
+			
+			if let observer = self.observer, 
+				 var observableMember = member as? SDAIObservableAggregateElement 
+			{
+				observableMember.configure(with: observer)
+				member = observableMember as! ELEMENT
+			}
+			
 			rep.append(member)
 		}
 		
 		public mutating func remove(member: ELEMENT?) {
 			guard let member = member else {return}
 			if let index = rep.lastIndex(of: member) {
+				if let observer = self.observer,
+					 let observableMember = member as? SDAIObservableAggregateElement 
+				{
+					observer.observe(removing: observableMember.entityReferences, adding: [])
+				}
 				rep.remove(at: index)
 			}
 		}
 		
 		// SwiftDictRepresentable
 		public var asSwiftDict: Dictionary<ELEMENT.FundamentalType, Int> {
-			return Dictionary<ELEMENT.FundamentalType,Int>( self.lazy.map{($0.asFundamentalType, 1)} ){$0 + $1}
+			return Dictionary<ELEMENT.FundamentalType,Int>( self.lazy.map{($0.asFundamentalType, 1)},
+																											uniquingKeysWith: {$0 + $1} )
 		}
 
 		public var asValueDict: Dictionary<ELEMENT.Value,Int> {
-			return Dictionary<ELEMENT.Value,Int>( self.lazy.map{($0.value, 1)} ){$0 + $1}
+			return Dictionary<ELEMENT.Value,Int>( self.lazy.map{($0.value, 1)}, 
+																						uniquingKeysWith: {$0 + $1} )
 		}
 		
 		// BAG specific
+		public func map<T:SDAIGenericType>(_ transform: (ELEMENT) -> T ) -> BAG<T> {
+			let mapped = self.rep.map(transform)
+			return BAG<T>(from:mapped, bound1:self.bound1, bound2:self.bound2)
+		}
+		
 		internal init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(bound1: I1, bound2: I2?, _ elements: [S], conv: (S.Element) -> ELEMENT? )
 		{
 			var swiftValue = SwiftType()
@@ -273,6 +303,7 @@ extension SDAI {
 		// Intersection
 		private func intersectionWith<S: SwiftDictRepresentable>(other: S) -> [ELEMENT.FundamentalType] 
 		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			var result: [ELEMENT.FundamentalType] = []
 			let selfDict = self.asSwiftDict
 			let otherDict = other.asSwiftDict
@@ -302,7 +333,8 @@ extension SDAI {
 		
 		// Union
 		private func unionWith<S: SDAIAggregationSequence>(other: S) -> SwiftType
-		where S.ELEMENT: SDAIGenericType, S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
+		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			var result = self.rep
 			result.append(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0.asFundamentalType) } )
 			return result
@@ -348,6 +380,7 @@ extension SDAI {
 		// Difference
 		private func differenceWith<S: SwiftDictRepresentable>(other: S) -> [ELEMENT.FundamentalType] 
 		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			var result: [ELEMENT.FundamentalType] = []
 			let selfDict = self.asSwiftDict
 			let otherDict = other.asSwiftDict
@@ -449,40 +482,52 @@ extension SDAI {
 extension SDAI.BAG: SDAIObservableAggregate, SDAIObservableAggregateElement
 where ELEMENT: SDAIObservableAggregateElement
 {
-	public var observer: EntityReferenceObserver? {
-		get { 
-			return _observer
-		}
-		set {
-			_observer = newValue
-			if let entityObserver = newValue {
-				for elem in self.asAggregationSequence {
-					for entityRef in elem.entityReferences {
-						entityObserver( nil, entityRef )
-					}
-				}
-			}
-		}
-	}
+//	// SDAIObservableAggregate
+//	public var observer: SDAI.EntityReferenceObserver? {
+//		get { 
+//			return _observer
+//		}
+//		set {
+//			_observer = newValue
+//			if let entityObserver = newValue {
+//				for elem in self.asAggregationSequence {
+//					entityObserver.observe(
+//						removing: [], 
+//						adding: elem.entityReferences)
+//				}
+//			}
+//		}
+//	}
+//	
+//	public func teardown() {
+//		if let entityObserver = observer {
+//			for elem in self.asAggregationSequence {
+//				entityObserver.observe(
+//					removing: elem.entityReferences, 
+//					adding: [])
+//			}
+//		}
+//	}
 	
-	public func teardown() {
-		if let entityObserver = observer {
-			for elem in self.asAggregationSequence {
-				for entityRef in elem.entityReferences {
-					entityObserver( entityRef, nil )
-				}
-			}
-		}
-	}
-	
-	public mutating func resetObserver() {
-		_observer = nil
-	}	
-	
+	// SDAIObservableAggregateElement
 	public var entityReferences: AnySequence<SDAI.EntityReference> { 
 		AnySequence<SDAI.EntityReference>(self.lazy.flatMap { $0.entityReferences })
 	}
 	
+	public mutating func configure(with observer: SDAI.EntityReferenceObserver) {
+		self.observer = observer
+		for i in 0 ..< rep.count {
+			rep[i].configure(with: observer)
+		}
+	}
+
+	public mutating func teardownObserver() {
+		self.observer = nil
+		for i in 0 ..< rep.count {
+			rep[i].teardownObserver()
+		}
+	}
+
 }
 
 extension SDAI.BAG: InitializableBySelecttypeBag, InitializableBySelecttypeSet

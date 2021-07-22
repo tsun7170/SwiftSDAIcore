@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  SdaiFunctions.swift
 //  
 //
 //  Created by Yoshida on 2020/09/10.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -195,7 +196,7 @@ extension SDAI {
 	}
 	
 	public static func VALUE_IN<Aggregate: SDAIAggregationType, GEN1: SDAIGenericType>(C: Aggregate?, V: GEN1?) -> LOGICAL 
-	where Aggregate.Element == Aggregate.ELEMENT?, Aggregate.ELEMENT: SDAIGenericType 
+	where Aggregate.Element == Aggregate.ELEMENT? 
 	{
 		guard let C = C, let V = V else { return UNKNOWN }
 		var isin = false
@@ -211,7 +212,7 @@ extension SDAI {
 		return LOGICAL(isin)
 	}
 	public static func VALUE_IN<Aggregate: SDAIAggregationType, GEN1: SDAIGenericType>(C: Aggregate?, V: GEN1?) -> LOGICAL 
-	where Aggregate.Element == Aggregate.ELEMENT, Aggregate.ELEMENT: SDAIGenericType {
+	where Aggregate.Element == Aggregate.ELEMENT {
 		guard let C = C, let V = V else { return LOGICAL(nil) }
 		for element in C {
 			if element.value.isValueEqual(to: V.value) { return LOGICAL(true) }
@@ -220,14 +221,14 @@ extension SDAI {
 	}
 	
 	public static func VALUE_UNIQUE<Aggregate: SDAIAggregationType>(_ V: Aggregate?) -> LOGICAL 
-	where Aggregate.Element == Aggregate.ELEMENT?, Aggregate.ELEMENT: SDAIGenericType 
+	where Aggregate.Element == Aggregate.ELEMENT? 
 	{
 		guard let V = V, !V.contains(nil) else { return LOGICAL(nil) }
 		let unique = Set( V.map{ $0!.value } )
 		return LOGICAL(unique.count == V.size)
 	}
 	public static func VALUE_UNIQUE<Aggregate: SDAIAggregationType>(_ V: Aggregate?) -> LOGICAL 
-	where Aggregate.Element == Aggregate.ELEMENT, Aggregate.ELEMENT: SDAIGenericType 
+	where Aggregate.Element == Aggregate.ELEMENT 
 	{
 		guard let V = V else { return LOGICAL(nil) }
 		let unique = Set( V.map{ $0.value } )

@@ -3,6 +3,7 @@
 //  
 //
 //  Created by Yoshida on 2020/10/10.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -92,11 +93,11 @@ extension SDAI {
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
 
 		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {
-			return BAG<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM.convert(fromGeneric: $0) }
+			return BAG<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM.convert(fromGeneric: $0.copy()) }
 		}
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {
-			if let value = self as? SET<ELEM> { return value }
-			return SET<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM.convert(fromGeneric: $0) }
+			if let value = self as? SET<ELEM> { return value.copy() }
+			return SET<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM.convert(fromGeneric: $0.copy()) }
 		}
 
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
@@ -109,16 +110,25 @@ extension SDAI {
 
 		// SDAIGenericType \SDAIUnderlyingType\SDAIAggregationType\SDAI__BAG__type\SDAI__SET__type
 		public static var typeName: String { return "SET" }
-		public var asSwiftType: SwiftType { return rep }
+		public var asSwiftType: SwiftType { return self.copy().rep }
 		
 		// SDAIGenericType
-		public var asFundamentalType: FundamentalType { return self }
+		public func copy() -> Self {
+			if var observable = self as? SDAIObservableAggregateElement {
+				observable.teardownObserver()
+				return (observable as Any) as! Self
+			}
+			return self 
+		}
+		
+		public var asFundamentalType: FundamentalType { return self.copy() }
+
 		public init(fundamental: FundamentalType) {
 			self.init(from: fundamental.asSwiftType, bound1: fundamental.loBound, bound2: fundamental.hiBound)
 		}
 	
 		// Sequence \SDAIAggregationType\SDAI__BAG__type\SDAI__SET__type
-		public func makeIterator() -> SwiftType.Iterator { return rep.makeIterator() }
+		public func makeIterator() -> SwiftType.Iterator { return self.copy().rep.makeIterator() }
 
 		// SDAIAggregationType \SDAI__BAG__type\SDAI__SET__type
 		public var hiBound: Int? { return bound2 }
@@ -126,49 +136,72 @@ extension SDAI {
 		public var loBound: Int { return bound1 }
 		public var loIndex: Int { return 1 }
 		public var size: Int { return rep.count }
-		public var _observer: EntityReferenceObserver?
+		public var observer: EntityReferenceObserver?
 
 		public subscript(index: Int?) -> ELEMENT? {
 			get{
 				guard let index = index, index >= loIndex, index <= hiIndex else { return nil }
 				let setIndex = rep.index(rep.startIndex, offsetBy: index - loIndex)
-				return rep[setIndex]
+				return rep[setIndex].copy()
 			}
 		}
 		
-		public var asAggregationSequence: AnySequence<ELEMENT> { return AnySequence(rep) }
+		public var asAggregationSequence: AnySequence<ELEMENT> { return AnySequence(self.copy().rep) }
 
 		public func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL {
 			guard let elem = elem else { return UNKNOWN }
 			return LOGICAL(rep.contains(elem))
 		}
 		
-		public func QUERY(logical_expression: (ELEMENT) -> LOGICAL ) -> SET<ELEMENT> {
-			return SET(from: rep.filter{ logical_expression($0).isTRUE }, bound1:self.loBound, bound2: self.hiBound)
+		public func QUERY(logical_expression: @escaping (ELEMENT) -> LOGICAL ) -> SET<ELEMENT> {
+			return SET(from: SwiftType(rep.lazy.filter{ logical_expression($0).isTRUE }.map{ $0.copy() }), 
+								 bound1:self.loBound, bound2: self.hiBound)
 		}
 		
 		// SDAIBagType
 		public mutating func add(member: ELEMENT?) {
-			guard let member = member else {return}
+			guard var member = member else {return}
+			
+			if let observer = self.observer, 
+				 var observableMember = member as? SDAIObservableAggregateElement 
+			{
+				observableMember.configure(with: observer)
+				member = observableMember as! ELEMENT
+			}
+
 			rep.insert(member)
 		}
 		
 		public mutating func remove(member: ELEMENT?) {
-			guard let member = member else {return}
+			guard let member = member else { return }
+
+			if let observer = self.observer,
+				 let observableMember = member as? SDAIObservableAggregateElement 
+			{
+				observer.observe(removing: observableMember.entityReferences, adding: [])
+			}
+
 			rep.remove(member)
 		}
 		
 		// SwiftDictRepresentable
 		public var asSwiftDict: Dictionary<ELEMENT.FundamentalType, Int> {
-			return Dictionary<ELEMENT.FundamentalType, Int>(uniqueKeysWithValues: self.lazy.map{($0.asFundamentalType, 1)} )
+			return Dictionary<ELEMENT.FundamentalType, Int>(
+				uniqueKeysWithValues: self.lazy.map{($0.asFundamentalType, 1)} )
 		}
 
 		public var asValueDict: Dictionary<ELEMENT.Value,Int> {
-			return Dictionary<ELEMENT.Value,Int>( self.lazy.map{($0.value, 1)} ){$0 + $1}
+			return Dictionary<ELEMENT.Value,Int>( self.lazy.map{($0.value, 1)}, 
+																						uniquingKeysWith: {$0 + $1})
 		}
 
 		
 		// SET specific
+		public func map<T:SDAIGenericType>(_ transform: (ELEMENT) -> T ) -> SET<T> {
+			let mapped = Set<T>( self.rep.map(transform) )
+			return SET<T>(from: mapped, bound1: self.bound1, bound2: self.bound2)
+		}
+		
 		internal init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(bound1: I1, bound2: I2?, _ elements: [S], conv: (S.Element) -> ELEMENT? )
 		{
 			var swiftValue = SwiftType()
@@ -235,6 +268,7 @@ extension SDAI {
 		// Intersection
 		private func intersectionWith<S: SwiftDictRepresentable>(other: S) -> [ELEMENT.FundamentalType] 
 		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			var result: [ELEMENT.FundamentalType] = []
 			let selfDict = self.asSwiftDict
 			let otherDict = other.asSwiftDict
@@ -248,6 +282,7 @@ extension SDAI {
 
 		public func intersectionWith<U: SDAIBagType>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			if let sametype = rhs as? Self {
 				let result = self.rep.intersection(sametype.rep)
 				return SET(from: result, bound1: 0, bound2: _Infinity)
@@ -257,19 +292,22 @@ extension SDAI {
 		}
 		public func intersectionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			let result = self.intersectionWith(other: rhs)
 			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
 		
 		// Union
 		private func unionWith<S: SDAIAggregationSequence>(other: S) -> SwiftType
-		where S.ELEMENT: SDAIGenericType, S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
+		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			let result = self.rep.union( other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0.asFundamentalType) } )
 			return result
 		}
 		
 		public func unionWith<U: SDAIBagType>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			if let sametype = rhs as? Self {
 				let result = self.rep.union(sametype.rep)
 				return SET(from: result, bound1: 0, bound2: _Infinity)
@@ -279,16 +317,19 @@ extension SDAI {
 		}
 		public func unionWith<U: SDAIListType>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			let result = self.unionWith(other: rhs)
 			return SET(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func unionWith<U: SDAIGenericType>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.FundamentalType {
+			assert(self.observer == nil)
 			var result = self.rep
 			result.insert(ELEMENT.convert(from: rhs.asFundamentalType))
 			return SET(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>? {
+			assert(self.observer == nil)
 			if let rhs = rhs.listValue(elementType: ELEMENT.self) {
 				return self.unionWith(rhs: rhs)
 			}
@@ -305,6 +346,7 @@ extension SDAI {
 		}
 		public func unionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			let result = self.unionWith(other: rhs)
 			return SET(from: result, bound1: 0, bound2: _Infinity)
 		}
@@ -312,6 +354,7 @@ extension SDAI {
 		// Difference
 		private func differenceWith<S: SwiftDictRepresentable>(other: S) -> [ELEMENT.FundamentalType] 
 		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			var result: [ELEMENT.FundamentalType] = []
 			let selfDict = self.asSwiftDict
 			let otherDict = other.asSwiftDict
@@ -326,6 +369,7 @@ extension SDAI {
 		public func differenceWith<U: SDAIBagType>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 		{
+			assert(self.observer == nil)
 			if let sametype = rhs as? Self {
 				let result = self.rep.subtracting(sametype.rep)
 				return SET(from: result, bound1: 0, bound2: _Infinity)
@@ -335,6 +379,7 @@ extension SDAI {
 		}
 		public func differenceWith<U: SDAIGenericType>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.FundamentalType {
+			assert(self.observer == nil)
 			var selfDict = self.asSwiftDict
 			if selfDict[rhs.asFundamentalType] != nil {
 					selfDict[rhs.asFundamentalType] =  nil
@@ -344,6 +389,7 @@ extension SDAI {
 			) { ELEMENT.convert(from: $0) }
 		}
 		public func differenceWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>? {
+			assert(self.observer == nil)
 			if let rhs = rhs.setValue(elementType: ELEMENT.self) {
 				return self.differenceWith(rhs: rhs)
 			}
@@ -357,6 +403,7 @@ extension SDAI {
 		}
 		public func differenceWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			let result = self.differenceWith(other: rhs)
 			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
@@ -412,40 +459,58 @@ extension SDAI {
 extension SDAI.SET: SDAIObservableAggregate, SDAIObservableAggregateElement
 where ELEMENT: SDAIObservableAggregateElement
 {
-	public var observer: EntityReferenceObserver? {
-		get { 
-			return _observer
-		}
-		set {
-			_observer = newValue
-			if let entityObserver = newValue {
-				for elem in self.asAggregationSequence {
-					for entityRef in elem.entityReferences {
-						entityObserver( nil, entityRef )
-					}
-				}
-			}
-		}
-	}
-	
-	public func teardown() {
-		if let entityObserver = observer {
-			for elem in self.asAggregationSequence {
-				for entityRef in elem.entityReferences {
-					entityObserver( entityRef, nil )
-				}
-			}
-		}
-	}
-	
-	public mutating func resetObserver() {
-		_observer = nil
-	}	
-	
+//	// SDAIObservableAggregate
+//	public var observer: SDAI.EntityReferenceObserver? {
+//		get { 
+//			return _observer
+//		}
+//		set {
+//			_observer = newValue
+//			if let entityObserver = newValue {
+//				for elem in self.asAggregationSequence {
+//					entityObserver.observe(
+//						removing: [], 
+//						adding: elem.entityReferences)
+//				}
+//			}
+//		}
+//	}
+//	
+//	public func teardown() {
+//		if let entityObserver = observer {
+//			for elem in self.asAggregationSequence {
+//				entityObserver.observe(
+//					removing: elem.entityReferences, 
+//					adding: [])
+//			}
+//		}
+//	}
+		
+	// SDAIObservableAggregateElement
 	public var entityReferences: AnySequence<SDAI.EntityReference> { 
 		AnySequence<SDAI.EntityReference>(self.lazy.flatMap { $0.entityReferences })
 	}
 	
+	public mutating func configure(with observer: SDAI.EntityReferenceObserver) {
+		self.observer = observer
+		let configured = rep.lazy.map { (original) -> ELEMENT in
+			var elem = original
+			elem.configure(with: observer)
+			return elem
+		}
+		rep = SwiftType(configured)
+	}
+
+	public mutating func teardownObserver() {
+		self.observer = nil
+		let unconfigured = rep.lazy.map { (original) -> ELEMENT in
+			var elem = original
+			elem.teardownObserver()
+			return elem
+		}
+		rep = SwiftType(unconfigured)
+	}
+
 }
 
 extension SDAI.SET: InitializableBySelecttypeSet

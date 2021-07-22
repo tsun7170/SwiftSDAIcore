@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  SdaiComplexEntity.swift
 //  
 //
 //  Created by Yoshida on 2021/05/08.
+//  Copyright © 2021 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -28,6 +29,12 @@ extension SDAI {
 										ancestorRepresentation: .suppressed)
 		}
 		
+		deinit {
+			for (pe,_) in _partialEntities.values {
+				pe.broadcast(removedFromComplex: self)
+			}
+		}
+		
 		public init(entities:[PartialEntity], model:SDAIPopulationSchema.SdaiModel, name:P21Decode.EntityInstanceName) {
 			self.owningModel = model
 			self.p21name = name
@@ -39,6 +46,21 @@ extension SDAI {
 			for pe in entities {
 				_partialEntities[type(of: pe).typeIdentity] = (instance:pe, reference:.unknown)	
 			}
+			for pe in entities {
+				pe.broadcast(addedToComplex: self)
+			}
+//			// for observed attribute setup
+//			for pe in entities {
+//				if var deferredTask = pe.deferredAttributeSetups {
+//					guard let entity = self.entityReference(type(of:pe).entityReferenceType) else { continue }
+//					repeat {
+//						deferredTask.apply(to: entity)
+//						guard let next = deferredTask.nextTask else { break }
+//						deferredTask = next
+//					}while true
+//					pe.deferredAttributeSetups = nil
+//				}
+//			}
 		}
 		public convenience init(entities:[PartialEntity]) {
 			let pe = entities.first!
@@ -312,13 +334,14 @@ extension SDAI {
 		public func validateEntityWhereRules(prefix:SDAI.WhereLabel, 
 																				 round:ValidationRound, 
 																				 recording:SDAIPopulationSchema.SchemaInstance.ValidationRecordingOption) 
-		-> [SDAI.EntityReference:[SDAI.WhereLabel:SDAI.LOGICAL]] {
-			var result: [SDAI.EntityReference:[SDAI.WhereLabel:SDAI.LOGICAL]] = [:]
+		-> [SDAI.WhereLabel:SDAI.LOGICAL] {
+			let prefix2 = prefix + "(" + self.qualifiedName + ")"
+			var result: [SDAI.WhereLabel:SDAI.LOGICAL] = [:]
 			for tuple in _partialEntities.values {
 				let etype = type(of: tuple.instance).entityReferenceType
 				if let eref = self.entityReference(etype) {
 					var peResult = etype.validateWhereRules(instance:eref, 
-																									prefix: prefix + "\\" + tuple.instance.entityName, 
+																									prefix: prefix2 + "\\" + tuple.instance.entityName, 
 																									round: round)
 					switch recording {
 					case .recordFailureOnly:
@@ -333,7 +356,7 @@ extension SDAI {
 					}
 					
 					if !peResult.isEmpty {
-						result[eref] = peResult
+						result.merge(peResult) { $0 && $1 }
 					}
 				}
 			}

@@ -3,6 +3,7 @@
 //  
 //
 //  Created by Yoshida on 2020/10/04.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -15,7 +16,6 @@ import Foundation
 public protocol SDAIListType: SDAIAggregationType, SDAIAggregateIndexingSettable, 
 															SDAIUnderlyingType, SDAISwiftTypeRepresented,
 															InitializableByEmptyListLiteral, InitializableBySwifttypeAsList, InitializableBySelecttypeAsList, InitializableByListLiteral, InitializableByGenericList
-where ELEMENT: SDAIGenericType
 {
 	// Built-in procedure support
 	mutating func insert(element: ELEMENT, at position: Int)
@@ -94,8 +94,8 @@ extension SDAI {
 		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
 		
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {
-			if let value = self as? LIST<ELEM> { return value }
-			return LIST<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM.convert(fromGeneric: $0) }
+			if let value = self as? LIST<ELEM> { return value.copy() }
+			return LIST<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM.convert(fromGeneric: $0.copy()) }
 		}
 		
 		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
@@ -109,16 +109,25 @@ extension SDAI {
 
 		// SDAIUnderlyingType
 		public static var typeName: String { return "LIST" }
-		public var asSwiftType: SwiftType { return rep }
+		public var asSwiftType: SwiftType { return self.copy().rep }
 		
 		// SDAIGenericType
-		public var asFundamentalType: FundamentalType { return self }
+		public func copy() -> Self {
+			if var observable = self as? SDAIObservableAggregateElement {
+				observable.teardownObserver()
+				return (observable as Any) as! Self
+			}
+			return self 
+		}
+		
+		public var asFundamentalType: FundamentalType { return self.copy() }
+		
 		public init(fundamental: FundamentalType) {
 			self.init(from: fundamental.asSwiftType, bound1: fundamental.loBound, bound2: fundamental.hiBound)
 		}
 		
 		// Sequence \SDAIAggregationType
-		public func makeIterator() -> SwiftType.Iterator { return rep.makeIterator() }
+		public func makeIterator() -> SwiftType.Iterator { return self.copy().rep.makeIterator() }
 
 		// SDAIAggregationType
 		public var hiBound: Int? { return bound2 }
@@ -126,33 +135,50 @@ extension SDAI {
 		public var loBound: Int { return bound1 }
 		public var loIndex: Int { return 1 }
 		public var size: Int { return rep.count }
-		public var _observer: EntityReferenceObserver?
+		public var observer: EntityReferenceObserver?
 
 		public subscript(index: Int?) -> ELEMENT? {
 			get{
 				guard let index = index, index >= loIndex, index <= hiIndex else { return nil }
-				return rep[index - loIndex]
+				return rep[index - loIndex].copy()
 			}
 			set{
 				guard let index = index, index >= loIndex, index <= hiIndex else { return }
-				guard let newValue = newValue else { return }
+				guard var newValue = newValue else { return }
+				
+				if let observer = self.observer, 
+					 var newObservable = newValue as? SDAIObservableAggregateElement,
+					 var oldObservable = rep[index - loIndex] as? SDAIObservableAggregateElement
+				{
+					oldObservable.teardownObserver()
+					newObservable.configure(with: observer)
+					observer.observe(removing: oldObservable.entityReferences, adding: newObservable.entityReferences)
+					newValue = newObservable as! ELEMENT
+				}				
+				
 				rep[index - loIndex] = newValue
 			}
 		}
 
-		public var asAggregationSequence: AnySequence<ELEMENT> { return AnySequence(rep) }
+		public var asAggregationSequence: AnySequence<ELEMENT> { return AnySequence(self.copy().rep) }
 		
 		public func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL {
 			guard let elem = elem else { return UNKNOWN }
 			return LOGICAL(rep.contains(elem))
 		}
 
-		public func QUERY(logical_expression: (ELEMENT) -> LOGICAL ) -> LIST<ELEMENT> {
-			return LIST(from: rep.filter{ logical_expression($0).isTRUE }, bound1: self.loBound, bound2: self.hiBound)
+		public func QUERY(logical_expression: @escaping (ELEMENT) -> LOGICAL ) -> LIST<ELEMENT> {
+			return LIST(from: SwiftType(rep.lazy.filter{ logical_expression($0).isTRUE }.map{ $0.copy() }), 
+									bound1: self.loBound, bound2: self.hiBound)
 		}
 		
 		
 		// LIST specific
+		public func map<T:SDAIGenericType>(_ transform: (ELEMENT) -> T ) -> LIST<T> {
+			let mapped = self.rep.map(transform)
+			return LIST<T>(from:mapped, bound1:self.bound1, bound2:self.bound2)
+		}
+		
 		private init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(bound1: I1, bound2: I2?, _ elements: [S], conv: (S.Element) -> ELEMENT? )
 		{
 			var swiftValue = SwiftType()
@@ -207,27 +233,45 @@ extension SDAI {
 
 		// Built-in procedure support
 		public mutating func insert(element: ELEMENT, at position: Int) {
+			var element = element
 			assert(position >= 0)
 			assert(position <= self.size)
+
+			if let observer = self.observer, 
+				 var observableElement = element as? SDAIObservableAggregateElement 
+			{
+				observableElement.configure(with: observer)
+				element = observableElement as! ELEMENT
+			}
+
 			self.rep.insert(element, at: position)
 		}
 		
 		public mutating func remove(at position: Int) {
 			assert(position >= 1)
 			assert(position <= self.size)
+			
+			if let observer = self.observer,
+				 let observableElement = rep[position-1] as? SDAIObservableAggregateElement 
+			{
+				observer.observe(removing: observableElement.entityReferences, adding: [])
+			}
+
 			self.rep.remove(at: position-1)
 		}
 
 		//MARK: Aggregation operator support
 		// Union
 		private func append<S: SDAIAggregationSequence>(other: S) -> SwiftType
-		where S.ELEMENT: SDAIGenericType, S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
+		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			var result = self.rep
 			result.append(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0.asFundamentalType) } )
 			return result
 		}
 		private func prepend<S: SDAIAggregationSequence>(other: S) -> SwiftType
-		where S.ELEMENT: SDAIGenericType, S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
+		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			var result = self.rep
 			result.insert(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0.asFundamentalType) }, at: 0 )
 			return result
@@ -235,22 +279,26 @@ extension SDAI {
 		
 		public func unionWith<U: SDAIListType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			let result = self.append(other: rhs)
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func unionWith<U: SDAIGenericType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.FundamentalType {
+			assert(self.observer == nil)
 			var result = self.rep
 			result.append(ELEMENT.convert(from: rhs.asFundamentalType))
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func unionWith<U: SDAIGenericType>(lhs: U) -> SDAI.LIST<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.FundamentalType {
+			assert(self.observer == nil)
 			var result = self.rep
 			result.insert(ELEMENT.convert(from: lhs.asFundamentalType), at: 0 )
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>? {
+			assert(self.observer == nil)
 			if let rhs = rhs.listValue(elementType: ELEMENT.self) {
 				return self.unionWith(rhs: rhs)
 			}
@@ -260,6 +308,7 @@ extension SDAI {
 			return nil
 		}
 		public func unionWith<U: SDAI__GENERIC__type>(lhs: U) -> SDAI.LIST<ELEMENT>? {
+			assert(self.observer == nil)
 			if let lhs = lhs.listValue(elementType: ELEMENT.self) {
 				let result = self.prepend(other: lhs)
 				return LIST(from: result, bound1: 0, bound2: _Infinity)
@@ -271,11 +320,13 @@ extension SDAI {
 		}
 		public func unionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			let result = self.append(other: rhs)
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func unionWith<U: SDAIAggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
+			assert(self.observer == nil)
 			let result = self.prepend(other: lhs)
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
@@ -331,40 +382,51 @@ extension SDAI {
 extension SDAI.LIST: SDAIObservableAggregate, SDAIObservableAggregateElement
 where ELEMENT: SDAIObservableAggregateElement
 {
-	public var observer: EntityReferenceObserver? {
-		get { 
-			return _observer
-		}
-		set {
-			_observer = newValue
-			if let entityObserver = newValue {
-				for elem in self.asAggregationSequence {
-					for entityRef in elem.entityReferences {
-						entityObserver( nil, entityRef )
-					}
-				}
-			}
-		}
-	}
+//	// SDAIObservableAggregate
+//	public var observer: SDAI.EntityReferenceObserver? {
+//		get { 
+//			return _observer
+//		}
+//		set {
+//			_observer = newValue
+//			if let entityObserver = newValue {
+//				for elem in self.asAggregationSequence {
+//					entityObserver.observe(
+//						removing: [], 
+//						adding: elem.entityReferences)
+//				}
+//			}
+//		}
+//	}
+//	
+//	public func teardown() {
+//		if let entityObserver = observer {
+//			for elem in self.asAggregationSequence {
+//				entityObserver.observe(
+//					removing: elem.entityReferences, 
+//					adding: [])
+//			}
+//		}
+//	}
 	
-	public func teardown() {
-		if let entityObserver = observer {
-			for elem in self.asAggregationSequence {
-				for entityRef in elem.entityReferences {
-					entityObserver( entityRef, nil )
-				}
-			}
-		}
-	}
-	
-	public mutating func resetObserver() {
-		_observer = nil
-	}	
-	
+	// SDAIObservableAggregateElement
 	public var entityReferences: AnySequence<SDAI.EntityReference> { 
 		AnySequence<SDAI.EntityReference>(self.lazy.flatMap { $0.entityReferences })
 	}
-	
+		
+	public mutating func configure(with observer: SDAI.EntityReferenceObserver) {
+		self.observer = observer
+		for i in 0 ..< rep.count {
+			rep[i].configure(with: observer)
+		}
+	}
+
+	public mutating func teardownObserver() {
+		self.observer = nil
+		for i in 0 ..< rep.count {
+			rep[i].teardownObserver()
+		}
+	}
 }
 
 extension SDAI.LIST: InitializableBySelecttypeList

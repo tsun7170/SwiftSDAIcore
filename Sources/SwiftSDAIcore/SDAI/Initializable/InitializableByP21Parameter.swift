@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  InitializableByP21Parameter.swift
 //  
 //
 //  Created by Yoshida on 2021/05/04.
+//  Copyright © 2021 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation

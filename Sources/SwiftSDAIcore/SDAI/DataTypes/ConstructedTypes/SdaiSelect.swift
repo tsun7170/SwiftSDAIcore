@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  SdaiSelect.swift
 //  
 //
 //  Created by Yoshida on 2020/12/19.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -44,4 +45,12 @@ public extension SDAISelectType
 	var asSwiftBool: Bool { SDAI.UNWRAP(self.possiblyAsSwiftBool) }	
 }
 
+public extension SDAIDefinedType where Self: SDAISelectType {
+	// SDAIGenericTypeBase
+	func copy() -> Self {
+		var copied = self
+		copied.rep = rep.copy()
+		return copied
+	}
+}
 

@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  ValidationMonitor.swift
 //  
 //
 //  Created by Yoshida on 2021/06/19.
+//  Copyright © 2021 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -18,7 +19,7 @@ extension SDAIPopulationSchema {
 		
 		open func didValidateGlobalRule(for schemaInstance: SchemaInstance,  result: SDAI.GlobalRuleValidationResult) {}
 		open func didValidateUniquenessRule(for schemaInstance: SchemaInstance, result: SDAI.UniquenessRuleValidationResult) {}
-		open func didValidateWhereRule(for complexEntity: SDAI.ComplexEntity, result:[SDAI.EntityReference : [SDAI.WhereLabel : SDAI.LOGICAL]]) {}
+		open func didValidateWhereRule(for complexEntity: SDAI.ComplexEntity, result: [SDAI.WhereLabel : SDAI.LOGICAL]) {}
 		
 		open var terminateValidation: Bool { false }
 	}

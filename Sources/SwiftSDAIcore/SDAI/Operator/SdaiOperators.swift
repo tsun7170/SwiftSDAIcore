@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  SdaiOperators.swift
 //  
 //
 //  Created by Yoshida on 2020/11/04.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation

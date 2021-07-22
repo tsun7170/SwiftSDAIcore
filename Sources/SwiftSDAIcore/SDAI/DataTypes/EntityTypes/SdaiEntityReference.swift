@@ -1,12 +1,35 @@
 //
-//  SdaiEntity.swift
+//  SdaiEntityReference.swift
 //  
 //
 //  Created by Yoshida on 2020/10/18.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
 
+public protocol SDAIEntityReferenceType {
+//	var copy: Self {get}
+	var complexEntity: SDAI.ComplexEntity {get}
+	init?(complex complexEntity: SDAI.ComplexEntity?)
+}
+
+public extension SDAIEntityReferenceType {
+//	typealias SelfType = Self
+	func copy() -> Self { return self }
+	
+	typealias FundamentalType = Self
+	
+
+	var asFundamentalType: FundamentalType { 
+		return self 
+	}	
+
+	init(fundamental: FundamentalType) {
+		self.init(complex: fundamental.complexEntity)!
+	}
+
+}
 
 extension SDAI {	
 	public typealias EntityName = SDAIDictionarySchema.ExpressId
@@ -14,9 +37,17 @@ extension SDAI {
 	
 	//MARK: - EntityReference (8.3.1)
 	open class EntityReference: SDAI.UnownedReference<SDAI.ComplexEntity>, CustomStringConvertible,
-															SDAINamedType, SDAIGenericType, InitializableByEntity, SDAIObservableAggregateElement 
+															SDAINamedType, SDAIEntityReferenceType, SDAIGenericType, InitializableByEntity, SDAIObservableAggregateElement 
 	{		
+		// SDAIEntityReferenceType
 		public var complexEntity: ComplexEntity {self.object}
+		
+		public required init?(complex complexEntity: ComplexEntity?) {
+			guard let complexEntity = complexEntity else { return nil }
+			super.init(complexEntity)
+			assert(type(of:self) != EntityReference.self, "abstruct class instantiated")	
+			if !complexEntity.updateEntityReference(self) { return nil }
+		}
 		
 		//CustomStringConvertible
 		public var description: String {
@@ -41,12 +72,11 @@ extension SDAI {
 
 		// SDAIGenericType
 		public typealias Value = ComplexEntity.Value
-		public typealias FundamentalType = EntityReference
-		
-		public var asFundamentalType: FundamentalType { return self }	
 
+		public class var typeName: String { self.entityDefinition.name }
 		public var typeMembers: Set<STRING> { complexEntity.typeMembers }
 		public var value: ComplexEntity.Value { complexEntity.value }
+		public func copy() -> Self { return self }
 		
 		public var entityReference: SDAI.EntityReference? { self }	
 		public var stringValue: SDAI.STRING? {nil}
@@ -82,27 +112,26 @@ extension SDAI {
 			
 			for (attrname, attrdef) in type(of:instance).entityDefinition.attributes {
 				let attrval = attrdef.genericValue(for: instance)
-				let attrresult = SDAI.GENERIC.validateWhereRules(instance: attrval, prefix: prefix + "." + attrname, round: round)
+				let attrresult = SDAI.GENERIC.validateWhereRules(
+					instance: attrval, 
+					prefix: prefix + "." + attrname + "\\" + attrdef.bareTypeName, 
+					round: round)
 				result.merge(attrresult) { $0 && $1 }
 			}
 			return result
 		}
 
 		// SDAIObservableAggregateElement
-		public var entityReferences: AnySequence<SDAI.EntityReference> { 
+		public final var entityReferences: AnySequence<SDAI.EntityReference> { 
 			AnySequence<SDAI.EntityReference>(CollectionOfOne<SDAI.EntityReference>(self))
 		}
+
+		public final func configure(with observer: SDAI.EntityReferenceObserver) {}
+		public final func teardownObserver() {}
 
 		
 		// EntityReference specific
 		open class var partialEntityType: PartialEntity.Type { abstruct() }	// abstruct
-		
-		public required init?(complex complexEntity: ComplexEntity?) {
-			guard let complexEntity = complexEntity else { return nil }
-			super.init(complexEntity)
-			assert(type(of:self) != EntityReference.self, "abstruct class instantiated")	
-			if !complexEntity.updateEntityReference(self) { return nil }
-		}
 		
 		public internal(set) var retainer: ComplexEntity? = nil // for temporary complex entity lifetime control
 		
@@ -115,17 +144,9 @@ extension SDAI {
 
 		// derived attribute value caching
 		private var derivedAttributeCache: [SDAIDictionarySchema.ExpressId:CachedValue] = [:]
-//		private static var lookedup: Int = 0
-//		private static var cacheHit: Int = 0
-//		public static var cacheHitRate: Double? {
-//			guard lookedup > 0 else { return nil }
-//			return Double(cacheHit) / Double(lookedup)
-//		}
 		
 		public func cachedValue(derivedAttributeName:SDAIDictionarySchema.ExpressId) -> CachedValue? {
 			let result = derivedAttributeCache[derivedAttributeName]
-//			Self.lookedup += 1
-//			if result != nil { Self.cacheHit += 1 }
 			return result
 		}
 		
@@ -144,6 +165,18 @@ extension SDAI {
 			self.init(complex: entityRef.complexEntity)
 		}
 		
+		public class func convert<G: SDAIGenericType>(fromGeneric generic: G?) -> Self? {
+			guard let generic = generic else { return nil }
+			
+			if let entityref = generic.entityReference {
+				if let sametype = entityref as? Self {
+					return sametype
+				}
+				return self.cast(from: entityref)
+			}
+			return nil
+		}
+
 		public static func cast<EREF:EntityReference>( from source: EREF? ) -> Self? {
 			return source?.complexEntity.entityReference(self)
 		}

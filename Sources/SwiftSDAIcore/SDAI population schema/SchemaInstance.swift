@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  SchemaInstance.swift
 //  
 //
 //  Created by Yoshida on 2021/03/28.
+//  Copyright © 2021 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -25,7 +26,7 @@ extension SDAIPopulationSchema {
 			self.validationResult = SDAI.FALSE
 			self.mode = .readWrite
 			super.init()
-			self.add(model: SDAIPopulationSchema.SdaiModel.fallBackModel(for: schema))
+//			self.add(model: SDAIPopulationSchema.SdaiModel.fallBackModel(for: schema))
 		}
 		
 		//MARK: (10.6.1)
@@ -187,20 +188,20 @@ extension SDAIPopulationSchema {
 																	 monitor: ValidationMonitor = ValidationMonitor() ) 
 		-> SDAI.WhereRuleValidationResult {
 			validationRound += 1
-			var record:[SDAI.EntityReference:[SDAI.WhereLabel:SDAI.LOGICAL]] = [:]
+			var record:[SDAI.WhereLabel:SDAI.LOGICAL] = [:]
 			monitor.willValidateWhereRules(for: self.allComplexEntities)
 			
 			for complex in self.allComplexEntities {
 				if monitor.terminateValidation { return SDAI.WhereRuleValidationResult(result: SDAI.UNKNOWN, record: record) }
 				
-				let compResult = complex.validateEntityWhereRules(prefix: "#\(complex.p21name)", round: validationRound, recording: recording)
+				let compResult = complex.validateEntityWhereRules(prefix: complex.qualifiedName, round: validationRound, recording: recording)
 				monitor.didValidateWhereRule(for: complex, result: compResult)
 				
-				record.merge(compResult) { (tuple1:[SDAI.WhereLabel : SDAI.LOGICAL], tuple2:[SDAI.WhereLabel : SDAI.LOGICAL]) -> [SDAI.WhereLabel : SDAI.LOGICAL] in
-					tuple1.merging(tuple2) { $0 && $1 }
+				record.merge(compResult) { (tuple1:SDAI.LOGICAL, tuple2:SDAI.LOGICAL) ->  SDAI.LOGICAL in
+					tuple1 && tuple2
 				}
 			}
-			let result = record.lazy.map{ $1.lazy.map{ $1 } }.joined().reduce(SDAI.TRUE) { $0 && $1 }
+			let result = record.lazy.map{ $1 }.reduce(SDAI.TRUE) { $0 && $1 }
 			
 			return SDAI.WhereRuleValidationResult(result: result, record: record)
 		}

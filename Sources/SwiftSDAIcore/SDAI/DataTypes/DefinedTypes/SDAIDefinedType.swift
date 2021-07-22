@@ -3,6 +3,7 @@
 //  
 //
 //  Created by Yoshida on 2020/09/22.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -11,7 +12,7 @@ import Foundation
 public protocol SDAISelectCompatibleUnderlyingTypeBase: SDAIGenericType 
 where FundamentalType: SDAISelectCompatibleUnderlyingTypeBase
 {
-	static var typeName: String {get}
+//	static var typeName: String {get}
 }
 
 
@@ -20,7 +21,7 @@ where FundamentalType: SDAISelectCompatibleUnderlyingTypeBase
 public protocol SDAIUnderlyingType: SDAISelectCompatibleUnderlyingTypeBase, InitializableByDefinedtype 
 {}
 public extension SDAIUnderlyingType 
-{
+{	
 	init?<T: SDAIUnderlyingType>(possiblyFrom underlyingType: T?) 
 	{
 		if let fundamental = underlyingType?.asFundamentalType as? FundamentalType {

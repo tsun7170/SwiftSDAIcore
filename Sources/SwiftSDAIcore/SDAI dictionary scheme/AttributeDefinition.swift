@@ -3,7 +3,7 @@
 //  SwiftSDAIcorePackage
 //
 //  Created by Yoshida on 2020/05/24.
-//  Copyright © 2020 Minokamo, Japan. All rights reserved.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -11,6 +11,8 @@ import Foundation
 public protocol SDAIAttributeType {
 	var name: SDAIDictionarySchema.ExpressId { get }
 	var domain: Any.Type { get }
+	var typeName: String { get }
+	var bareTypeName: String { get }
 	var kind: SDAIDictionarySchema.AttirbuteKind { get }
 	var source: SDAIDictionarySchema.AttributeSource { get }
 	var mayYieldEntityReference: Bool { get }
@@ -54,6 +56,8 @@ extension SDAIDictionarySchema {
 		
 	//MARK: (6.4.13)
 		public var domain: Any.Type { BaseType.self }
+		public var typeName: String { BaseType.typeName }
+		public var bareTypeName: String { BaseType.bareTypeName }
 		public let name: ExpressId
 		public unowned let parentEntity: EntityDefinition
 		
@@ -114,32 +118,32 @@ extension SDAIDictionarySchema {
 	
 	
 //	public class ExplicitAttribute<ENT: SDAI.EntityReference, T: SDAIGenericType>: Attribute<ENT,T> {
-////		public var domain: BaseType
-////		public var redeclaring: ExplicitAttribute?
-////		public var optionalFlag: SDAI.BOOLEAN
+//		public var domain: BaseType
+//		public var redeclaring: ExplicitAttribute?
+//		public var optionalFlag: SDAI.BOOLEAN
 //		
 //	}
 //	
 //	public class DerivedAttribute<ENT: SDAI.EntityReference, T: SDAIGenericType>: Attribute<ENT,T> {
-////		public var domain: BaseType
-////		public var redeclaring: ExplicitOrDerived?
+//		public var domain: BaseType
+//		public var redeclaring: ExplicitOrDerived?
 //		
 //	}
 //	
 //	
-////	public enum ExplicitOrDerived//: SDAISelectType 
-////	{
-////		case explicitAttribute(ExplicitAttribute)
-////		case derivedAttribute(DerivedAttribute)
-////	}
+//	public enum ExplicitOrDerived//: SDAISelectType 
+//	{
+//		case explicitAttribute(ExplicitAttribute)
+//		case derivedAttribute(DerivedAttribute)
+//	}
 //
 //	public class InverseAttribute<ENT: SDAI.EntityReference, T: SDAIGenericType>: Attribute<ENT,T> {
-////		public var domain: EntityDefinition
-////		public var redeclaring: InverseAttribute?
-////		public var invertedAttr: ExplicitAttribute
-////		public var minCardinality: Bound?
-////		public var maxCardinality: Bound?
-////		public var duplicates: SDAI.BOOLEAN
+//		public var domain: EntityDefinition
+//		public var redeclaring: InverseAttribute?
+//		public var invertedAttr: ExplicitAttribute
+//		public var minCardinality: Bound?
+//		public var maxCardinality: Bound?
+//		public var duplicates: SDAI.BOOLEAN
 //	}
 //	
 

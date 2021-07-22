@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  SdaiArray.swift
 //  
 //
 //  Created by Yoshida on 2020/12/19.
+//  Copyright © 2020 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
 import Foundation
@@ -22,9 +23,6 @@ where Element == ELEMENT,
 {}
 
 extension SDAI {
-//	public typealias ARRAY_UNIQUE<ELEMENT> = ARRAY<ELEMENT> 
-//	where ELEMENT: SDAIGenericType
-
 	
 	public struct ARRAY<ELEMENT:SDAIGenericType>: SDAI__ARRAY__type
 	{
@@ -70,12 +68,12 @@ extension SDAI {
 		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {
 			return ARRAY_OPTIONAL<ELEM>(bound1: self.loIndex, bound2: self.hiIndex, [self]) {
 				guard let conv = ELEM.convert(fromGeneric: $0) else { return (false,nil) }
-				return (true, conv)
+				return (true, conv.copy())
 			}
 		}
 		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {
-			if let value = self as? ARRAY<ELEM> { return value }
-			return ARRAY<ELEM>(bound1: self.loIndex, bound2: self.hiIndex, [self]) { ELEM.convert(fromGeneric: $0) }
+			if let value = self as? ARRAY<ELEM> { return value.copy() }
+			return ARRAY<ELEM>(bound1: self.loIndex, bound2: self.hiIndex, [self]) { ELEM.convert(fromGeneric: $0.copy()) }
 		}
 		
 		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
@@ -90,17 +88,25 @@ extension SDAI {
 
 		// SDAIUnderlyingType \SDAIAggregationType\SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY__type
 		public static var typeName: String { return "ARRAY" }
-		public var asSwiftType: SwiftType { return rep }
+		public var asSwiftType: SwiftType { return self.copy().rep }
 		
 		// SDAIGenericType
-		public var asFundamentalType: FundamentalType { return self }
+		public func copy() -> Self {
+			if var observable = self as? SDAIObservableAggregateElement {
+				observable.teardownObserver()
+				return (observable as Any) as! Self
+			}
+			return self 
+		}
+		
+		public var asFundamentalType: FundamentalType { return self.copy() }
 		
 		public init(fundamental: FundamentalType) {
 			self.init(from: fundamental.asSwiftType, bound1: fundamental.loIndex, bound2: fundamental.hiIndex)
 		}
 		
 		// Sequence \SDAIAggregationType
-		public func makeIterator() -> SwiftType.Iterator { return rep.makeIterator() }
+		public func makeIterator() -> SwiftType.Iterator { return self.copy().rep.makeIterator() }
 
 		// SDAIAggregationType
 		public var hiBound: Int? { return bound2 }
@@ -108,21 +114,32 @@ extension SDAI {
 		public var loBound: Int { return bound1 }
 		public var loIndex: Int { return bound1 }
 		public var size: Int { return bound2 - bound1 + 1 }
-		public var _observer: EntityReferenceObserver?
+		public var observer: EntityReferenceObserver?
 		
 		public subscript(index: Int?) -> ELEMENT? {
 			get{
 				guard let index = index, index >= loIndex, index <= hiIndex else { return nil }
-				return rep[index - loIndex]
+				return rep[index - loIndex].copy()
 			}
 			set{
 				guard let index = index, index >= loIndex, index <= hiIndex else { return }
-				guard let newValue = newValue else { return }
+				guard var newValue = newValue else { return }
+				
+				if let observer = self.observer, 
+					 var newObservable = newValue as? SDAIObservableAggregateElement,
+					 var oldObservable = rep[index - loIndex] as? SDAIObservableAggregateElement
+				{
+					oldObservable.teardownObserver()
+					newObservable.configure(with: observer)
+					observer.observe(removing: oldObservable.entityReferences, adding: newObservable.entityReferences)
+					newValue = newObservable as! ELEMENT
+				}
+				
 				rep[index - loIndex] = newValue
 			}
 		}
 		
-		public var asAggregationSequence: AnySequence<ELEMENT> { return AnySequence(rep) }
+		public var asAggregationSequence: AnySequence<ELEMENT> { return AnySequence(self.copy().rep) }
 
 		public func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL {
 			guard let elem = elem else { return UNKNOWN }
@@ -131,7 +148,7 @@ extension SDAI {
 		
 		public func QUERY(logical_expression: (ELEMENT) -> LOGICAL ) -> ARRAY_OPTIONAL<ELEMENT> {
 			let filtered = rep.map { (elem) -> ELEMENT? in
-				if logical_expression(elem).isTRUE { return elem }
+				if logical_expression(elem).isTRUE { return elem.copy() }
 				else { return nil }
 			}
 			return ARRAY_OPTIONAL(from: filtered, bound1: self.loIndex ,bound2: self.hiIndex)
@@ -140,6 +157,11 @@ extension SDAI {
 
 	
 		// ARRAY specific
+		public func map<T:SDAIGenericType>(_ transform: (ELEMENT) -> T ) -> ARRAY<T> {
+			let mapped = self.rep.map(transform)
+			return ARRAY<T>(from:mapped, bound1:self.bound1, bound2:self.bound2)
+		}
+
 		private init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(bound1: I1, bound2: I2, _ elements: [S], conv: (S.Element) -> ELEMENT? )
 		{
 			var swiftValue = SwiftType()
@@ -232,41 +254,53 @@ extension SDAI {
 extension SDAI.ARRAY: SDAIObservableAggregate, SDAIObservableAggregateElement
 where ELEMENT: SDAIObservableAggregateElement
 {
-	public var observer: EntityReferenceObserver? {
-		get { 
-			return _observer
-		}
-		set {
-			_observer = newValue
-			if let entityObserver = newValue {
-				for elem in self.asAggregationSequence {
-					for entityRef in elem.entityReferences {
-						entityObserver( nil, entityRef )
-					}
-				}
-			}
-		}
-	}
+//	// SDAIObservableAggregate
+//	public var observer: SDAI.EntityReferenceObserver? {
+//		get { 
+//			return _observer
+//		}
+//		set {
+//			_observer = newValue
+//			if let entityObserver = newValue {
+//				for elem in self.asAggregationSequence {
+//					entityObserver.observe(
+//						removing: [], 
+//						adding: elem.entityReferences)
+//				}
+//			}
+//		}
+//	}
+//	
+//	public func teardown() {
+//		if let entityObserver = observer {
+//			for elem in self.asAggregationSequence {
+//				entityObserver.observe(
+//					removing: elem.entityReferences, 
+//					adding: [])
+//			}
+//		}
+//	}
 	
-	public func teardown() {
-		if let entityObserver = observer {
-			for elem in self.asAggregationSequence {
-				for entityRef in elem.entityReferences {
-					entityObserver( entityRef, nil )
-				}
-			}
-		}
-	}
-	
-	public mutating func resetObserver() {
-		_observer = nil
-	}	
-	
+	// SDAIObservableAggregateElement
 	public var entityReferences: AnySequence<SDAI.EntityReference> { 
 		AnySequence<SDAI.EntityReference>(self.lazy.flatMap { $0.entityReferences })
 	}
-}
+	
+	public mutating func configure(with observer: SDAI.EntityReferenceObserver) {
+		self.observer = observer
+		for i in 0 ..< rep.count {
+			rep[i].configure(with: observer)
+		}
+	}
 
+	public mutating func teardownObserver() {
+		self.observer = nil
+		for i in 0 ..< rep.count {
+			rep[i].teardownObserver()
+		}
+	}
+
+}
 
 
 extension SDAI.ARRAY: InitializableBySelecttypeArray
