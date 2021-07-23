@@ -69,19 +69,24 @@ extension SDAI.UnownedWrap: InitializableByP21Parameter where REF: Initializable
 	}
 }
 
-extension SDAI.UnownedWrap: SDAIGenericTypeBase where REF: SDAIGenericTypeBase {
-	public func copy() -> Self {
-		let obj = self.object.copy()
-		return Self(obj)
-	}
-
-}
+//extension SDAI.UnownedWrap: SDAIGenericTypeBase where REF: SDAIGenericTypeBase {
+//	public func copy() -> Self {
+//		let obj = self.object.copy()
+//		return Self(obj)
+//	}
+//
+//}
 
 extension SDAI.UnownedWrap: SDAIGenericType where REF: SDAIGenericType {
 	
 	public typealias FundamentalType = REF.FundamentalType
 	public typealias Value = REF.Value
 	
+	public func copy() -> Self {
+		let obj = self.object.copy()
+		return Self(obj)
+	}
+
 	public var asFundamentalType: FundamentalType { object.asFundamentalType	}
 	public init(fundamental: FundamentalType) {
 		self.object = REF.init(fundamental: fundamental)
@@ -120,8 +125,8 @@ extension SDAI.UnownedWrap: SDAIGenericType where REF: SDAIGenericType {
 		object.enumValue(enumType: enumType)
 	}
 	
-	public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
-		REF.validateWhereRules(instance: instance?.object, prefix: prefix, round: round)
+	public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+		REF.validateWhereRules(instance: instance?.object, prefix: prefix)
 	}
 	
 }

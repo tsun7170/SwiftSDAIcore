@@ -43,9 +43,9 @@ extension SDAI {
 			return SDAI.LOGICAL( unique.count == SELF.size )
 		}
 		
-		public static func validateWhereRules(instance: Self?, prefix: SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel : SDAI.LOGICAL] {
+		public static func validateWhereRules(instance: Self?, prefix: SDAI.WhereLabel) -> [SDAI.WhereLabel : SDAI.LOGICAL] {
 			let prefix2 = prefix + "\\\(typeName)"
-			var result = Supertype.validateWhereRules(instance:instance?.rep, prefix:prefix2, round: round)
+			var result = Supertype.validateWhereRules(instance:instance?.rep, prefix:prefix2)
 			
 			result[prefix2 + ".UNIQUENESS"] = UNIQUENESS(SELF: instance)
 			return result

@@ -333,7 +333,6 @@ extension SDAI {
 		
 		//MARK: where rule validation support
 		public func validateEntityWhereRules(prefix:SDAI.WhereLabel, 
-																				 round:ValidationRound, 
 																				 recording:SDAIPopulationSchema.SchemaInstance.ValidationRecordingOption) 
 		-> [SDAI.WhereLabel:SDAI.LOGICAL] {
 			let prefix2 = prefix + "(" + self.qualifiedName + ")"
@@ -341,9 +340,9 @@ extension SDAI {
 			for tuple in _partialEntities.values {
 				let etype = type(of: tuple.instance).entityReferenceType
 				if let eref = self.entityReference(etype) {
-					var peResult = etype.validateWhereRules(instance:eref, 
-																									prefix: prefix2 + "\\" + tuple.instance.entityName, 
-																									round: round)
+					var peResult = etype.validateWhereRules(
+						instance:eref, 
+						prefix: prefix2 + "\\" + tuple.instance.entityName)
 					switch recording {
 					case .recordFailureOnly:
 						var reduced: [SDAI.WhereLabel:SDAI.LOGICAL] = [:]

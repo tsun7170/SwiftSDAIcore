@@ -25,8 +25,8 @@ public enum SDAI {
 	public static let _Infinity:INTEGER? = nil;
 
 	//MARK: - validation related
-	public typealias ValidationRound = Int
-	public static let notValidatedYet: ValidationRound = 0
+//	public typealias ValidationRound = Int
+//	public static let notValidatedYet: ValidationRound = 0
 	
 	public typealias WhereLabel = SDAIDictionarySchema.ExpressId
 	

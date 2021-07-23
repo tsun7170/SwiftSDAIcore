@@ -183,18 +183,18 @@ extension SDAIPopulationSchema {
 			return uniquerec
 		}
 		
-		private var validationRound: SDAI.ValidationRound = SDAI.notValidatedYet		
+//		private var validationRound: SDAI.ValidationRound = SDAI.notValidatedYet		
 		public func validateWhereRules(recording: ValidationRecordingOption = .recordFailureOnly,
 																	 monitor: ValidationMonitor = ValidationMonitor() ) 
 		-> SDAI.WhereRuleValidationResult {
-			validationRound += 1
+//			validationRound += 1
 			var record:[SDAI.WhereLabel:SDAI.LOGICAL] = [:]
 			monitor.willValidateWhereRules(for: self.allComplexEntities)
 			
 			for complex in self.allComplexEntities {
 				if monitor.terminateValidation { return SDAI.WhereRuleValidationResult(result: SDAI.UNKNOWN, record: record) }
 				
-				let compResult = complex.validateEntityWhereRules(prefix: complex.qualifiedName, round: validationRound, recording: recording)
+				let compResult = complex.validateEntityWhereRules(prefix: complex.qualifiedName, recording: recording)
 				monitor.didValidateWhereRule(for: complex, result: compResult)
 				
 				record.merge(compResult) { (tuple1:SDAI.LOGICAL, tuple2:SDAI.LOGICAL) ->  SDAI.LOGICAL in

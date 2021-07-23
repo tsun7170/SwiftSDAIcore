@@ -8,19 +8,12 @@
 
 import Foundation
 
-public protocol SDAIGenericTypeBase
-{
-//	associatedtype SelfType: SDAIGenericTypeBase
-	func copy() -> Self
-}
-
-public protocol SDAIGenericType: SDAIGenericTypeBase, Hashable, InitializableBySelecttype, InitializableByP21Parameter 
-//where SelfType == Self
+public protocol SDAIGenericType: Hashable, InitializableBySelecttype, InitializableByP21Parameter 
 {
 	associatedtype FundamentalType: SDAIGenericType
 	associatedtype Value: SDAIValue
 
-//	var copy: Self {get}
+	func copy() -> Self
 
 	var asFundamentalType: FundamentalType {get}	
 	init(fundamental: FundamentalType)
@@ -46,10 +39,10 @@ public protocol SDAIGenericType: SDAIGenericTypeBase, Hashable, InitializableByS
 	func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>?
 	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM?
 	
-	static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL]
+	static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL]
 }
 
-public extension SDAIGenericType //where SelfType == Self
+public extension SDAIGenericType
 {
 	static func convert(from other: FundamentalType) -> Self {
 		if let other = other as? Self {
@@ -64,21 +57,20 @@ public extension SDAIGenericType //where SelfType == Self
 	}		
 }
 
-public extension SDAIGenericType where FundamentalType == Self//, SelfType == Self
+public extension SDAIGenericType where FundamentalType == Self
 {
 	static func convert(from other: FundamentalType) -> Self {
 		return other.copy()
 	}
 }
 
+//MARK: - for SDAIDefinedTYpe
 public extension SDAIGenericType where Self: SDAIDefinedType
 {
-	static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
-		return Supertype.validateWhereRules(instance:instance?.rep, prefix: prefix + "\\" + Supertype.typeName, round: round)
+	static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+		return Supertype.validateWhereRules(instance:instance?.rep, prefix: prefix + "\\" + Supertype.typeName)
 	}
 }
-
-
 
 public extension SDAIGenericType where Self: SDAIDefinedType
 {

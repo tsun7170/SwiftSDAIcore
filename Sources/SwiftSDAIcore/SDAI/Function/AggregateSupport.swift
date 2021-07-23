@@ -25,7 +25,7 @@ extension SDAI {
 		return agg.CONTAINS(elem: aggelem)
 	}
 	
-	public static func validateAggregateElementsWhereRules<AGG:SDAIAggregationType>(_ agg:AGG?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+	public static func validateAggregateElementsWhereRules<AGG:SDAIAggregationType>(_ agg:AGG?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
 		var result:[SDAI.WhereLabel:SDAI.LOGICAL] = [:]
 		guard let agg = agg else { return result }
 		
@@ -34,10 +34,12 @@ extension SDAI {
 		}
 		result[prefix + ".loBound(\(agg.loBound))"] = SDAI.LOGICAL(agg.hiIndex >= agg.loBound)
 		
+		if (AGG.ELEMENT.self as Any) is SDAI.EntityReference { return result }
+		
 		for idx in stride(from: agg.loIndex, through: agg.hiIndex, by: 1) {
 			let elemResult = AGG.ELEMENT.validateWhereRules(
-				instance:agg[idx], prefix: prefix + "[\(idx)]\\\(AGG.ELEMENT.typeName)", 
-				round: round) 
+				instance:agg[idx], 
+				prefix: prefix + "[\(idx)]\\\(AGG.ELEMENT.typeName)" ) 
 			result.merge(elemResult) { $0 && $1 }
 		}
 		return result

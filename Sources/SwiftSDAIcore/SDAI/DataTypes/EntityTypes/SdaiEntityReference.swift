@@ -9,17 +9,12 @@
 import Foundation
 
 public protocol SDAIEntityReferenceType {
-//	var copy: Self {get}
 	var complexEntity: SDAI.ComplexEntity {get}
 	init?(complex complexEntity: SDAI.ComplexEntity?)
 }
 
 public extension SDAIEntityReferenceType {
-//	typealias SelfType = Self
-	func copy() -> Self { return self }
-	
 	typealias FundamentalType = Self
-	
 
 	var asFundamentalType: FundamentalType { 
 		return self 
@@ -73,10 +68,10 @@ extension SDAI {
 		// SDAIGenericType
 		public typealias Value = ComplexEntity.Value
 
+		public func copy() -> Self { return self }
 		public class var typeName: String { self.entityDefinition.name }
 		public var typeMembers: Set<STRING> { complexEntity.typeMembers }
 		public var value: ComplexEntity.Value { complexEntity.value }
-		public func copy() -> Self { return self }
 		
 		public var entityReference: SDAI.EntityReference? { self }	
 		public var stringValue: SDAI.STRING? {nil}
@@ -96,26 +91,28 @@ extension SDAI {
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		// validation related
-		private var _validated = ValueReference(notValidatedYet)
-		public internal(set) var validated: ValidationRound {
-			get { _validated.value }
-			set { _validated.value = newValue }
-		}
+//		private var _validated = ValueReference(notValidatedYet)
+//		public internal(set) var validated: ValidationRound {
+//			get { _validated.value }
+//			set { _validated.value = newValue }
+//		}
 		internal func unify(with other:EntityReference) {
-			self._validated = other._validated
+//			self._validated = other._validated
 		}
 		
-		open class func validateWhereRules(instance:SDAI.EntityReference?, prefix:SDAI.WhereLabel, round: ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+		open class func validateWhereRules(instance:SDAI.EntityReference?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
 			var result: [SDAI.WhereLabel:SDAI.LOGICAL] = [:]
-			guard let instance = instance, instance.validated != round else { return result }
-			instance.validated = round
+			guard let instance = instance//, instance.validated != round 
+			else { return result }
+//			instance.validated = round
 			
 			for (attrname, attrdef) in type(of:instance).entityDefinition.attributes {
+				if (attrdef.domain as Any) is SDAI.EntityReference { continue }
+				
 				let attrval = attrdef.genericValue(for: instance)
 				let attrresult = SDAI.GENERIC.validateWhereRules(
 					instance: attrval, 
-					prefix: prefix + "." + attrname + "\\" + attrdef.bareTypeName, 
-					round: round)
+					prefix: prefix + "." + attrname + "\\" + attrdef.bareTypeName)
 				result.merge(attrresult) { $0 && $1 }
 			}
 			return result

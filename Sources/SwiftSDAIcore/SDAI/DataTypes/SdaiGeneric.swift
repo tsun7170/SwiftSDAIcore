@@ -41,7 +41,7 @@ fileprivate class _AnyGenericBox: Hashable {
 	func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? { abstruct() }
 	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { abstruct() }
 	
-	class func validateWhereRules(instance:_AnyGenericBox?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] { abstruct() }
+	class func validateWhereRules(instance:_AnyGenericBox?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] { abstruct() }
 }
 
 fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {
@@ -92,9 +92,9 @@ fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {
 	override func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? { _base.setValue(elementType: elementType) }
 	override func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { _base.enumValue(enumType: enumType) }
 	
-	override class func validateWhereRules(instance:_AnyGenericBox?, prefix:SDAI.WhereLabel, round: SDAI.ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+	override class func validateWhereRules(instance:_AnyGenericBox?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
 		guard let instance = instance as? Self else { return [:] } 
-		return G.validateWhereRules(instance:instance._base, prefix: prefix, round: round)
+		return G.validateWhereRules(instance:instance._base, prefix: prefix)
 	}
 
 }
@@ -163,9 +163,11 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? { box.setValue(elementType: elementType) }
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { box.enumValue(enumType: enumType) }
 		
-		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel, round: ValidationRound) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
 			guard let instance = instance else { return [:] }
-			return type(of: instance.box).validateWhereRules(instance:instance.box, prefix: prefix, round: round)
+			let basetype = type(of: instance.box)
+			if !((basetype as Any) is SDAI.EntityReference) { return [:] }
+			return basetype.validateWhereRules(instance:instance.box, prefix: prefix)
 		}
 
 		// SDAIObservableAggregateElement
