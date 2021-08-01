@@ -51,6 +51,7 @@ extension SDAI {
 		public class var qualifiedEntityName: EntityName { 
 			return self.entityReferenceType.entityDefinition.qualifiedEntityName 
 		}
+		public class var typeName: String { self.qualifiedEntityName }
 		
 		// instance properties
 		public var entityName: EntityName { 
@@ -59,6 +60,7 @@ extension SDAI {
 		public var qualifiedEntityName: EntityName { 
 			return type(of: self).qualifiedEntityName
 		}
+		open var typeMembers: Set<SDAI.STRING> { [] }
 
 		
 		open func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<ComplexEntity>) {
@@ -84,13 +86,8 @@ extension SDAI {
 			_owners.remove(UnownedReference(complex))
 		}
 		
-//		// deferred setup of observed attributes
-//		internal var deferredAttributeSetups: GenericDeferredEntityReferenceApplication?
-//
-//		public final func add(deferredTask task: GenericDeferredEntityReferenceApplication) {
-//			task.nextTask = deferredAttributeSetups
-//			deferredAttributeSetups = task
-//		}
+		// dynamic attribute support
+		open class func fixupPartialComplexEntityAttributes(partialComplex: SDAI.ComplexEntity, baseComplex: SDAI.ComplexEntity) {}
 	}
 	
 }

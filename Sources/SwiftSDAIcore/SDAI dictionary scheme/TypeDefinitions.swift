@@ -40,16 +40,16 @@ extension SDAIDictionarySchema {
 
 	
 //	public class EnumerationType: TypeDescriptor {
-////		public var elements: SDAI.LIST<ExpressId>
+//		public var elements: SDAI.LIST<ExpressId>
 //	}
 	
 //	public class SelectType: TypeDescriptor {
-////		public var selections: SDAI.SET<NamedType>
+//		public var selections: SDAI.SET<NamedType>
 //	}
 
 	
 //	public class AggregationType: TypeDescriptor {
-////		public var elementType: BaseType
+//		public var elementType: BaseType
 //	}
 	
 	
@@ -67,7 +67,7 @@ extension SDAIDictionarySchema {
 	
 	
 //	public class DefinedType : NamedType {
-////		public var domain: UnderlyingType
+//		public var domain: UnderlyingType
 //	}
 
 	

@@ -46,7 +46,7 @@ extension SDAI {
 		
 		//CustomStringConvertible
 		public var description: String {
-			let str = "\(self.definition.name)->\(self.complexEntity.qualifiedName)"
+			let str = "\(self.definition.name)-> \(self.complexEntity.qualifiedName)"
 			return str
 		}
 		
@@ -69,7 +69,7 @@ extension SDAI {
 		public typealias Value = ComplexEntity.Value
 
 		public func copy() -> Self { return self }
-		public class var typeName: String { self.entityDefinition.name }
+		public class var typeName: String { self.entityDefinition.qualifiedEntityName }
 		public var typeMembers: Set<STRING> { complexEntity.typeMembers }
 		public var value: ComplexEntity.Value { complexEntity.value }
 		
@@ -96,9 +96,6 @@ extension SDAI {
 //			get { _validated.value }
 //			set { _validated.value = newValue }
 //		}
-		internal func unify(with other:EntityReference) {
-//			self._validated = other._validated
-		}
 		
 		open class func validateWhereRules(instance:SDAI.EntityReference?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
 			var result: [SDAI.WhereLabel:SDAI.LOGICAL] = [:]
@@ -112,7 +109,7 @@ extension SDAI {
 				let attrval = attrdef.genericValue(for: instance)
 				let attrresult = SDAI.GENERIC.validateWhereRules(
 					instance: attrval, 
-					prefix: prefix + "." + attrname + "\\" + attrdef.bareTypeName)
+					prefix: prefix + " ." + attrname + "\\" + attrdef.bareTypeName)
 				result.merge(attrresult) { $0 && $1 }
 			}
 			return result
@@ -130,7 +127,12 @@ extension SDAI {
 		// EntityReference specific
 		open class var partialEntityType: PartialEntity.Type { abstruct() }	// abstruct
 		
-		public internal(set) var retainer: ComplexEntity? = nil // for temporary complex entity lifetime control
+		internal var retainer: ComplexEntity? = nil // for temporary complex entity lifetime control
+
+		internal func unify(with other:EntityReference) {
+//			self._validated = other._validated
+			self.derivedAttributeCache = other.derivedAttributeCache
+		}
 
 		// group reference
 		public func GROUP_REF<EREF:EntityReference>(_ entity_ref: EREF.Type) -> EREF? {
@@ -146,20 +148,20 @@ extension SDAI {
 			}
 		}
 		
-		private var derivedAttributeCache: [SDAIDictionarySchema.ExpressId:CachedValue] = [:]
+		private var derivedAttributeCache: ValueReference<[SDAIDictionarySchema.ExpressId:CachedValue]> = ValueReference([:])
 		
 		public func cachedValue(derivedAttributeName:SDAIDictionarySchema.ExpressId) -> CachedValue? {
-			let result = derivedAttributeCache[derivedAttributeName]
+			let result = derivedAttributeCache.value[derivedAttributeName]
 			return result
 		}
 		
 		public func updateCache(derivedAttributeName:SDAIDictionarySchema.ExpressId, value:Any?) {
 			guard self.complexEntity.owningModel.mode == .readOnly else { return }
-			derivedAttributeCache[derivedAttributeName] = CachedValue(value)
+			derivedAttributeCache.value[derivedAttributeName] = CachedValue(value)
 		}
 		
 		public func resetCache() {
-			derivedAttributeCache = [:]
+			derivedAttributeCache.value = [:]
 		}
 		
 		// InitializableByGenerictype
@@ -185,7 +187,7 @@ extension SDAI {
 		}
 		
 		// InitializableByP21Parameter
-		public static var bareTypeName: String { "GENERIC_ENTITY" }
+		public static var bareTypeName: String { self.entityDefinition.name }
 		
 		// SDAI entity instance operations
 		public var allAttributes: AttributeList {

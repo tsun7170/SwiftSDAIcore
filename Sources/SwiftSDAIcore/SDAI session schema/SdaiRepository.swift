@@ -37,11 +37,11 @@ extension SDAISessionSchema {
 		//swift language binding
 		public private(set) static var builtInRepository: SdaiRepository = SdaiRepository(name: "BUILTIN", description: "built-in repository")
 		
-		public func drainTemporaryPool() {
-			for model in self.contents.models.values {
-				model.drainTemporaryPool()
-			}
-		}
+//		public func drainTemporaryPool() {
+//			for model in self.contents.models.values {
+//				model.drainTemporaryPool()
+//			}
+//		}
 	} 
 	
 	//MARK: (7.4.4)

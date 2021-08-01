@@ -24,6 +24,7 @@ extension SDAI {
 		public func makeIterator() -> FundamentalType.Iterator { return self.asFundamentalType.makeIterator() }
 		public static var typeName: String { return "ARRAY" }
 		public static var bareTypeName: String { self.typeName }
+		public var typeMembers: Set<SDAI.STRING> { rep.typeMembers }
 		public var rep: Supertype
 		
 		public init(fundamental: FundamentalType) {

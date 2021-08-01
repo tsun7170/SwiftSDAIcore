@@ -17,10 +17,22 @@ public protocol SDAIBagType: SDAIAggregationType,
 														 InitializableBySelecttypeAsList, InitializableByListLiteral, InitializableByGenericSet, InitializableByGenericList, InitializableByGenericBag
 {
 	//entity inverse attribute support
+
 	mutating func add(member: ELEMENT?)
-	mutating func remove(member: ELEMENT?)
+
+	/// remove one instance of member from the collection
+	/// - Parameter member: member to remove
+	/// - Returns: true when operation is successful
+	mutating func remove(member: ELEMENT?) -> Bool
+
+	/// remove all instances of member from the collection
+	/// - Parameter member: member to remove
+	/// - Returns: true when operation is successful
+	@discardableResult
+	mutating func removeAll(member: ELEMENT?) -> Bool
 	
 	//aggregate superset operator support
+	@discardableResult
 	func isSuperset<BAG: SDAIBagType>(of other: BAG) -> Bool 
 	where ELEMENT.FundamentalType == BAG.ELEMENT.FundamentalType
 }
@@ -45,7 +57,10 @@ where Self: SDAIBagType,
 			ELEMENT == Supertype.ELEMENT
 {
 	mutating func add(member: ELEMENT?) { rep.add(member: member) }
-	mutating func remove(member: ELEMENT?) { rep.remove(member: member) }
+	@discardableResult
+	mutating func remove(member: ELEMENT?) -> Bool { return rep.remove(member: member) }
+	@discardableResult
+	mutating func removeAll(member: ELEMENT?) -> Bool { return rep.removeAll(member: member) }
 	func isSuperset<BAG: SDAIBagType>(of other: BAG) -> Bool
 	where ELEMENT.FundamentalType == BAG.ELEMENT.FundamentalType { rep.isSuperset(of: other) }
 }
@@ -207,8 +222,9 @@ extension SDAI {
 			rep.append(member)
 		}
 		
-		public mutating func remove(member: ELEMENT?) {
-			guard let member = member else {return}
+		@discardableResult
+		public mutating func remove(member: ELEMENT?) -> Bool {
+			guard let member = member else {return false}
 			if let index = rep.lastIndex(of: member) {
 				if let observer = self.observer,
 					 let observableMember = member as? SDAIObservableAggregateElement 
@@ -216,7 +232,23 @@ extension SDAI {
 					observer.observe(removing: observableMember.entityReferences, adding: [])
 				}
 				rep.remove(at: index)
+				return true
 			}
+			return false
+		}
+		
+		@discardableResult
+		public mutating func removeAll(member: ELEMENT?) -> Bool {
+			guard let member = member else {return false}
+			var result = false
+			rep.removeAll { 
+				if $0 == member {
+					result = true
+					return true
+				}
+				return false
+			}
+			return result
 		}
 		
 		// SwiftDictRepresentable
@@ -482,33 +514,6 @@ extension SDAI {
 extension SDAI.BAG: SDAIObservableAggregate, SDAIObservableAggregateElement
 where ELEMENT: SDAIObservableAggregateElement
 {
-//	// SDAIObservableAggregate
-//	public var observer: SDAI.EntityReferenceObserver? {
-//		get { 
-//			return _observer
-//		}
-//		set {
-//			_observer = newValue
-//			if let entityObserver = newValue {
-//				for elem in self.asAggregationSequence {
-//					entityObserver.observe(
-//						removing: [], 
-//						adding: elem.entityReferences)
-//				}
-//			}
-//		}
-//	}
-//	
-//	public func teardown() {
-//		if let entityObserver = observer {
-//			for elem in self.asAggregationSequence {
-//				entityObserver.observe(
-//					removing: elem.entityReferences, 
-//					adding: [])
-//			}
-//		}
-//	}
-	
 	// SDAIObservableAggregateElement
 	public var entityReferences: AnySequence<SDAI.EntityReference> { 
 		AnySequence<SDAI.EntityReference>(self.lazy.flatMap { $0.entityReferences })

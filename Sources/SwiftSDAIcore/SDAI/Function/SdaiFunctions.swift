@@ -171,9 +171,12 @@ extension SDAI {
 		guard let v = V else { return SET<STRING>() }
 		return SET<STRING>(from: v.typeMembers )
 	}
-	public static func TYPEOF<Generic: SDAIGenericType, T: SDAIGenericType>(_ V: Generic? , IS typename: T.Type) -> LOGICAL {
-		guard let V = V else { return UNKNOWN }
-		return LOGICAL( T.convert(fromGeneric: V) != nil )
+	public static func TYPEOF<Generic: SDAIGenericType, T: SDAIGenericType>(_ V: Generic? , IS target: T.Type) -> LOGICAL {
+		guard let v = V else { return UNKNOWN }
+		let typemembers = v.typeMembers
+		let typename = SDAI.STRING(target.typeName)
+		return LOGICAL( typemembers.contains(typename) )
+//		return LOGICAL( T.convert(fromGeneric: v) != nil )
 	}
 	
 

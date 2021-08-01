@@ -72,14 +72,14 @@ public extension SDAIGenericType where Self: SDAIDefinedType
 	}
 }
 
-public extension SDAIGenericType where Self: SDAIDefinedType
-{
-	var typeMembers: Set<SDAI.STRING> {
-		var members = rep.typeMembers
-		members.insert(SDAI.STRING(Self.typeName))
-		return members
-	}
-}
+//public extension SDAIGenericType where Self: SDAIDefinedType
+//{
+//	var typeMembers: Set<SDAI.STRING> {
+//		var members = rep.typeMembers
+//		members.insert(SDAI.STRING(Self.typeName))
+//		return members
+//	}
+//}
 
 public extension SDAIGenericType where Self: SDAIDefinedType
 {

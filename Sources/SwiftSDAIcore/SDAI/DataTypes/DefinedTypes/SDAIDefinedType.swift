@@ -11,9 +11,7 @@ import Foundation
 //MARK: - Underlying Type base (8.6.3)
 public protocol SDAISelectCompatibleUnderlyingTypeBase: SDAIGenericType 
 where FundamentalType: SDAISelectCompatibleUnderlyingTypeBase
-{
-//	static var typeName: String {get}
-}
+{}
 
 
 

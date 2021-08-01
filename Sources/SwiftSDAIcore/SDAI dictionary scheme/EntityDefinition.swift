@@ -25,9 +25,9 @@ extension SDAIDictionarySchema {
 		}
 
 		public private(set) var supertypes: [SDAI.EntityReference.Type] = [] // ending with self entity
-//		public var complex: SDAI.BOOLEAN
+		public var complex: SDAI.BOOLEAN { SDAI.BOOLEAN(supertypes.count > 1) }
 //		public var instantiable: SDAI.BOOLEAN
-//		public var independent: SDAI.BOOLEAN
+		public var independent: SDAI.BOOLEAN { SDAI.BOOLEAN(true) }
 		public private(set) var attributes: [ExpressId:SDAIAttributeType] = [:]
 		public private(set) var uniquenessRules: [ExpressId:UniquenessRule] = [:]
 //		public var globalRules: SDAI.SET<GlobalRule>

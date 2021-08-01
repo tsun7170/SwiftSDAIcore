@@ -10,9 +10,18 @@ import Foundation
 
 extension SDAI {
 	
+	//MARK: - PartialComplexEntity
+	public final class PartialCompexEntity: ComplexEntity
+	{
+		override fileprivate func broadcastEnterring() {}
+		
+		override fileprivate func broadcastLeaving() {}
+
+		override public var isPartial: Bool { true }
+	}
 	
 	//MARK: - ComplexEntity
-	public final class ComplexEntity: SDAI.Object, CustomReflectable
+	public class ComplexEntity: SDAI.Object, CustomReflectable
 	{
 		private enum EntityReferenceStatus {
 			case unknown
@@ -30,9 +39,7 @@ extension SDAI {
 		}
 		
 		deinit {
-			for (pe,_) in _partialEntities.values {
-				pe.broadcast(removedFromComplex: self)
-			}
+			broadcastLeaving()
 		}
 		
 		public init(entities:[PartialEntity], model:SDAIPopulationSchema.SdaiModel, name:P21Decode.EntityInstanceName) {
@@ -46,9 +53,7 @@ extension SDAI {
 			for pe in entities {
 				_partialEntities[type(of: pe).typeIdentity] = (instance:pe, reference:.unknown)	
 			}
-			for pe in entities {
-				pe.broadcast(addedToComplex: self)
-			}
+			broadcastEnterring()
 		}
 		public convenience init(entities:[PartialEntity]) {
 			let pe = entities.first!
@@ -56,6 +61,18 @@ extension SDAI {
 			let fallback = SDAIPopulationSchema.SdaiModel.fallBackModel(for: schema)
 			let name = fallback.uniqueName
 			self.init(entities:entities, model:fallback, name:name)
+		}
+		
+		fileprivate func broadcastEnterring() {
+			for (pe,_) in _partialEntities.values {
+				pe.broadcast(addedToComplex: self)
+			}
+		}
+		
+		fileprivate func broadcastLeaving() {
+			for (pe,_) in _partialEntities.values {
+				pe.broadcast(removedFromComplex: self)
+			}
 		}
 		
 		public unowned let owningModel: SDAIPopulationSchema.SdaiModel
@@ -87,7 +104,7 @@ extension SDAI {
 			return nil
 		}
 		
-		//MARK: entity reference access
+		//MARK: - entity reference access
 		public var entityReferences: [EntityReference] {
 			var result:[EntityReference] = []
 			
@@ -132,6 +149,10 @@ extension SDAI {
 			let typeid = type(of: eref).partialEntityType.typeIdentity
 			guard let tuple = _partialEntities[typeid] else { return false }
 			
+			if self.isTemporary {
+				eref.retainer = self
+			}
+
 			switch tuple.reference {
 			case .resolved(let registered):
 				eref.unify(with: registered)
@@ -141,17 +162,14 @@ extension SDAI {
 				return false
 				
 			case .unknown:
-				if self.isTemporary {
-					eref.retainer = self
-				}
-				else {
 					_partialEntities[typeid] = (instance:tuple.instance, reference:.resolved(eref))
-				}
 				return true
 			}
 		}
 		
 		//MARK: - partial complex entity access
+		open var isPartial: Bool { false }
+		
 		public func partialComplexEntity<EREF:EntityReference>(_ erefType:EREF.Type) -> EREF? {
 			let entitydef = erefType.entityDefinition
 			var partials: [PartialEntity] = []
@@ -159,18 +177,23 @@ extension SDAI {
 				guard let pe = self.partialEntityInstance(supertype.partialEntityType) else { return nil }
 				partials.append(pe)
 			}
-			let pce = ComplexEntity(entities: partials)
+			let pce = PartialCompexEntity(entities: partials, 
+																		model: self.owningModel, 
+																		name: self.owningModel.uniqueName)
 			guard let pceref = pce.entityReference(erefType) else { return nil }
+			
+			for pe in partials {
+				type(of: pe).fixupPartialComplexEntityAttributes(partialComplex: pce, baseComplex: self)
+			}
 			return pceref
 		}
 		
-		//MARK: express built-in function support
+		//MARK: - express built-in function support
 		private func findRoles(in entity: SDAI.EntityReference) -> [SDAIAttributeType] {
 			var roles:[SDAIAttributeType] = []
 			let entityDef = entity.definition
 			for attrDef in entityDef.attributes.values {
 				if !attrDef.mayYieldEntityReference { continue } 
-//				if attrDef.kind == .derived || attrDef.kind == .derivedRedeclaring { continue }
 				
 				guard let attrYieldingEntities = attrDef.genericValue(for: entity)?.entityReferences else { continue }
 				for attrEntity in attrYieldingEntities {
@@ -199,8 +222,10 @@ extension SDAI {
 		
 		
 		private var _usedInCache: [SDAIPopulationSchema.SchemaInstance:[EntityReference]] = [:]
-		public func resetCache(relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance) {
-			_usedInCache[schemaInstance] = nil
+		public func resetCache(relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance?) {
+			if let schemaInstance = schemaInstance {
+				_usedInCache[schemaInstance] = nil
+			}
 			for entity in self.entityReferences {
 				entity.resetCache()
 			}
@@ -280,7 +305,11 @@ extension SDAI {
 		}
 
 		public var typeMembers: Set<SDAI.STRING> { 
-			Set( _partialEntities.values.map{ (tuple) -> STRING in STRING(from: tuple.instance.qualifiedEntityName) } ) 
+			Set( _partialEntities.values
+						.lazy
+						.map{ (tuple) -> Set<STRING> in tuple.instance.typeMembers }
+						.joined() )
+			
 		}
 		
 		public typealias Value = _ComplexEntityValue
@@ -325,7 +354,9 @@ extension SDAI {
 			for (typeIdentity, ltuple) in self._partialEntities {
 				guard let rtuple = rhs._partialEntities[typeIdentity] else { return false }
 				if ltuple.instance === rtuple.instance { continue }
-				if let result = ltuple.instance.isValueEqualOptionally(to: rtuple.instance, visited: &comppairs), !result { return false }
+				if let result = ltuple.instance.isValueEqualOptionally(to: rtuple.instance, visited: &comppairs) {
+					if !result { return false }					
+				}
 				else { isequal = nil }
 			}
 			return isequal
@@ -335,14 +366,13 @@ extension SDAI {
 		public func validateEntityWhereRules(prefix:SDAI.WhereLabel, 
 																				 recording:SDAIPopulationSchema.SchemaInstance.ValidationRecordingOption) 
 		-> [SDAI.WhereLabel:SDAI.LOGICAL] {
-			let prefix2 = prefix + "(" + self.qualifiedName + ")"
 			var result: [SDAI.WhereLabel:SDAI.LOGICAL] = [:]
 			for tuple in _partialEntities.values {
 				let etype = type(of: tuple.instance).entityReferenceType
 				if let eref = self.entityReference(etype) {
-					var peResult = etype.validateWhereRules(
-						instance:eref, 
-						prefix: prefix2 + "\\" + tuple.instance.entityName)
+					var peResult = etype.validateWhereRules(instance: eref, 
+																									prefix: prefix)
+					
 					switch recording {
 					case .recordFailureOnly:
 						var reduced: [SDAI.WhereLabel:SDAI.LOGICAL] = [:]

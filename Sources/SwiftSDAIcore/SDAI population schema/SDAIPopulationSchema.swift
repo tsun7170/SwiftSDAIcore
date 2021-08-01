@@ -14,15 +14,4 @@ public enum SDAIPopulationSchema {
 	public typealias LOGICAL = SDAI.LOGICAL
 	public typealias INTEGER = Int
 
-	
-	
-	
-	
-//	public class EntityExtent: SDAI.Object {
-//		public var definition: SDAIDictionarySchema.EntityDefinition
-//		public var instances: AnySequence<SDAIParameterDataSchema.EntityInstance>
-//		public unowned var ownedBy: SdaiModelContents
-//	}
-	
 }
-

@@ -9,7 +9,11 @@
 import Foundation
 
 
-
+public protocol SdaiObjectReference: AnyObject{
+	associatedtype Object: AnyObject
+	var object: Object {get}
+	var objectId: ObjectIdentifier {get}
+}
 
 //MARK: - SDAI namespace
 public enum SDAI {
@@ -63,7 +67,7 @@ public enum SDAI {
 	}
 	
 	//MARK: - SDAI.Object	
-	open class Object: Hashable {
+	open class Object: Hashable {		
 		public static func == (lhs: SDAI.Object, rhs: SDAI.Object) -> Bool {
 			return lhs === rhs
 		}
@@ -74,38 +78,40 @@ public enum SDAI {
 	}
 	
 	//MARK: - SDAI.ObjectReference
-	open class ObjectReference<OBJ: Object>: Hashable {
-		internal let object: OBJ
+	open class ObjectReference<OBJ: Object>: SdaiObjectReference, Hashable {
+		public let object: OBJ
+		public var objectId: ObjectIdentifier { ObjectIdentifier(object) }
 		
 		public init(_ object: OBJ) {
 			self.object = object
 		}
 
 		public static func == (lhs: ObjectReference<OBJ>, rhs: ObjectReference<OBJ>) -> Bool {
-			return lhs.object === rhs.object // && type(of: lhs) == type(of: rhs)
+			return lhs.object == rhs.object
 		}
 		
 		public func hash(into hasher: inout Hasher) {
 			object.hash(into: &hasher)
-			// ObjectIdentifier(type(of: self)).hash(into: &hasher)
 		}
 		
 	}
 	
-	open class UnownedReference<OBJ: Object>: Hashable {
+	//MARK: - SDAI.UnownedReference
+	open class UnownedReference<OBJ: Object>: SdaiObjectReference, Hashable {
 		public unowned let object: OBJ
+		public let objectId: ObjectIdentifier
 		
 		public init(_ object: OBJ) {
 			self.object = object
+			objectId = ObjectIdentifier(object)
 		}
 		
 		public static func == (lhs: UnownedReference<OBJ>, rhs: UnownedReference<OBJ>) -> Bool {
-			return lhs.object === rhs.object //&& type(of: lhs) == type(of: rhs)
+			return lhs.objectId == rhs.objectId
 		}
 		
 		public func hash(into hasher: inout Hasher) {
-			object.hash(into: &hasher)
-			//ObjectIdentifier(type(of: self)).hash(into: &hasher)
+			objectId.hash(into: &hasher)
 		}
 	
 	}

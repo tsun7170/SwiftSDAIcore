@@ -28,28 +28,7 @@ where Self: SDAIObservableAggregateElement,
 //MARK: - observable aggregate
 public protocol SDAIObservableAggregate: SDAIAggregationType, SDAIObservableAggregateElement 
 where ELEMENT: SDAIObservableAggregateElement
-{
-//	var observer: SDAI.EntityReferenceObserver? {get set}
-//	func teardown()
-}
-
-//public extension SDAIDefinedType
-//where Self: SDAIObservableAggregate,
-//			Supertype: SDAIObservableAggregate
-//{
-//	var observer: SDAI.EntityReferenceObserver? {
-//		get { 
-//			return rep.observer
-//		}
-//		set {
-//			rep.observer = newValue
-//		}
-//	}
-//	
-//	func teardown() {
-//		rep.teardown()
-//	}	
-//}
+{}
 
 //MARK: - entity reference observer
 extension SDAI {
@@ -69,15 +48,6 @@ extension SDAI {
 		{
 			observerCode.observe(referencer: referencer, removing: removing, adding: adding)
 		}
-		
-//		public func observe(newReferencerOwner: SDAI.ComplexEntity) {
-//			observerCode.observe(newReferencerOwner: newReferencerOwner)
-//		}
-//		
-//		public func observe(leavingReferencerOwner: SDAI.ComplexEntity) {
-//			observerCode.observe(leavingReferencerOwner: leavingReferencerOwner)
-//		}
-
 		
 		open class ObserverCode {
 			public init(referencerType: SDAI.PartialEntity.Type) {

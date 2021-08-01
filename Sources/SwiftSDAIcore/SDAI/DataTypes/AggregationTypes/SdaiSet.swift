@@ -172,8 +172,9 @@ extension SDAI {
 			rep.insert(member)
 		}
 		
-		public mutating func remove(member: ELEMENT?) {
-			guard let member = member else { return }
+		@discardableResult
+		public mutating func remove(member: ELEMENT?) -> Bool {
+			guard let member = member else { return false }
 
 			if let observer = self.observer,
 				 let observableMember = member as? SDAIObservableAggregateElement 
@@ -181,9 +182,15 @@ extension SDAI {
 				observer.observe(removing: observableMember.entityReferences, adding: [])
 			}
 
-			rep.remove(member)
+			let result = rep.remove(member)
+			return result != nil
 		}
 		
+		@discardableResult
+		public mutating func removeAll(member: ELEMENT?) -> Bool {
+			return remove(member: member)
+		}
+
 		// SwiftDictRepresentable
 		public var asSwiftDict: Dictionary<ELEMENT.FundamentalType, Int> {
 			return Dictionary<ELEMENT.FundamentalType, Int>(
@@ -459,33 +466,6 @@ extension SDAI {
 extension SDAI.SET: SDAIObservableAggregate, SDAIObservableAggregateElement
 where ELEMENT: SDAIObservableAggregateElement
 {
-//	// SDAIObservableAggregate
-//	public var observer: SDAI.EntityReferenceObserver? {
-//		get { 
-//			return _observer
-//		}
-//		set {
-//			_observer = newValue
-//			if let entityObserver = newValue {
-//				for elem in self.asAggregationSequence {
-//					entityObserver.observe(
-//						removing: [], 
-//						adding: elem.entityReferences)
-//				}
-//			}
-//		}
-//	}
-//	
-//	public func teardown() {
-//		if let entityObserver = observer {
-//			for elem in self.asAggregationSequence {
-//				entityObserver.observe(
-//					removing: elem.entityReferences, 
-//					adding: [])
-//			}
-//		}
-//	}
-		
 	// SDAIObservableAggregateElement
 	public var entityReferences: AnySequence<SDAI.EntityReference> { 
 		AnySequence<SDAI.EntityReference>(self.lazy.flatMap { $0.entityReferences })

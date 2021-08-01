@@ -281,33 +281,6 @@ extension SDAI {
 extension SDAI.ARRAY_OPTIONAL: SDAIObservableAggregate, SDAIObservableAggregateElement
 where ELEMENT: SDAIObservableAggregateElement
 {
-//	// SDAIObservableAggregate
-//	public var observer: SDAI.EntityReferenceObserver? {
-//		get { 
-//			return _observer
-//		}
-//		set {
-//			_observer = newValue
-//			if let entityObserver = newValue {
-//				for elem in self.asAggregationSequence {
-//					entityObserver.observe(
-//						removing: [], 
-//						adding: elem.entityReferences)
-//				}
-//			}
-//		}
-//	}
-//	
-//	public func teardown() {
-//		if let entityObserver = observer {
-//			for elem in self.asAggregationSequence {
-//				entityObserver.observe(
-//					removing: elem.entityReferences, 
-//					adding: [])
-//			}
-//		}
-//	}
-	
 	// SDAIObservableAggregateElement
 	public var entityReferences: AnySequence<SDAI.EntityReference> { 
 		AnySequence<SDAI.EntityReference>(self.lazy.compactMap{$0}.flatMap { $0.entityReferences })

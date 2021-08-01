@@ -65,7 +65,12 @@ extension P21Decode {
 					return nil
 				}
 			}
-			
+			for schemaDef in Set(exchangeStructrure.shcemaRegistory.values.lazy.map{$0.schemaDefinition}) {
+				let fallback = SDAIPopulationSchema.SdaiModel.fallBackModel(for: schemaDef)
+				fallback.mode = .readWrite
+				fallback.contents.resetCache(relatedTo: nil)
+			}
+		
 			for (i,datasec) in exchangeStructrure.dataSection.enumerated() {
 				guard datasec.resolveSchema() else { 
 					exchangeStructrure.add(errorContext: "while resolving data section[\(i)]")
@@ -92,6 +97,10 @@ extension P21Decode {
 			for model in repository.contents.models.values {
 				model.updateChangeDate()
 				model.mode = .readOnly
+			}
+			for schemaDef in Set(exchangeStructrure.shcemaRegistory.values.lazy.map{$0.schemaDefinition}) {
+				let fallback = SDAIPopulationSchema.SdaiModel.fallBackModel(for: schemaDef)
+				fallback.mode = .readOnly
 			}
 			
 			return repository
