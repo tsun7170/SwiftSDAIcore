@@ -35,6 +35,10 @@ extension SDAI {
 			guard let repval = generic?.arrayOptionalValue(elementType: ELEMENT.self) else { return nil }
 			rep = repval
 		}
+
+		// SDAIArrayOptionalType
+		public static var uniqueFlag: SDAI.BOOLEAN { true }
+		public static var optionalFlag: SDAI.BOOLEAN { true }
 		
 		// uniqueness constraint
 		public static func UNIQUENESS(SELF: Self?) -> SDAI.LOGICAL {

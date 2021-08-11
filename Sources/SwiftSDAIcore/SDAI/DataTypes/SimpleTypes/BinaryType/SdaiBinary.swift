@@ -32,6 +32,8 @@ where FundamentalType == SDAI.BINARY,
 	init(_ string: String)
 	init?<T:SDAI__BINARY__type>(_ subtype: T?)
 	init<T:SDAI__BINARY__type>(_ subtype: T)
+	static var width: SDAIDictionarySchema.Bound? {get}
+	static var fixedWidth: SDAI.BOOLEAN {get}
 }
 public extension SDAI__BINARY__type
 {
@@ -49,6 +51,9 @@ public extension SDAI__BINARY__type
 	init<T:SDAI__BINARY__type>(_ subtype: T) {
 		self.init(from: subtype.asSwiftType)
 	}
+
+	static var width: SDAIDictionarySchema.Bound? {nil}
+	static var fixedWidth: SDAI.BOOLEAN {false}
 }
 
 

@@ -93,7 +93,7 @@ where Supertype: SwiftDictRepresentable, Self: SwiftDictRepresentable,
 }
 
 //MARK: - Aggregation type (8.2)
-public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Sequence, SDAIAggregateIndexingGettable, SDAIAggregationBehavior, SDAIAggregationSequence
+public protocol SDAIAggregationType: SDAIBaseType, SDAISelectCompatibleUnderlyingTypeBase, Sequence, SDAIAggregateIndexingGettable, SDAIAggregationBehavior, SDAIAggregationSequence
 {	
 //	associatedtype ELEMENT: SDAIGenericType
 	
@@ -103,6 +103,9 @@ public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Seq
 	var loIndex: Int {get}
 	var size: Int {get}
 	
+	static var lowerBound: SDAIDictionarySchema.Bound {get}	// ISO 10303-22 (6.4.31)
+	static var upperBound: SDAIDictionarySchema.Bound? {get}	// ISO 10303-22 (6.4.31)
+	
 	func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL	// Express membership operator 'IN' translation
 	
 	//MARK: Query expression (12.6.7)
@@ -110,6 +113,12 @@ public protocol SDAIAggregationType: SDAISelectCompatibleUnderlyingTypeBase, Seq
 	func QUERY(logical_expression: @escaping (ELEMENT) -> SDAI.LOGICAL ) -> RESULT_AGGREGATE
 	
 	var observer: SDAI.EntityReferenceObserver? { get set }
+}
+
+public extension SDAIAggregationType
+{
+	static var lowerBound: SDAIDictionarySchema.Bound { 0 }
+	static var upperBound: SDAIDictionarySchema.Bound? { nil }
 }
 
 //MARK: - generic aggregate

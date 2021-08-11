@@ -22,6 +22,7 @@ where FundamentalType == SDAI.REAL,
 	init(_ int: Int)
 	init?<T:SDAIRealType>(_ subtype: T?)
 	init<T:SDAIRealType>(_ subtype: T)
+	static var precision: SDAIDictionarySchema.Bound {get}
 }
 public extension SDAI__REAL__type
 {
@@ -117,6 +118,9 @@ extension SDAI {
 		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
+		
+		// SDAI__REAL__type
+		public static var precision: SDAIDictionarySchema.Bound { Int(Double(SwiftType.significandBitCount) * (log(2)/log(10))) }
 		
 		// ExpressibleByIntegerLiteral \SDAI__NUMBER__type\SDAI__REAL__type
 		public init(integerLiteral value: Int) {

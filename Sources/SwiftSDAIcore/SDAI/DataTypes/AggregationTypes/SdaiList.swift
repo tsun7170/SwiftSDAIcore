@@ -22,6 +22,15 @@ public protocol SDAIListType: SDAIAggregationType, SDAIAggregateIndexingSettable
 	mutating func remove(at position: Int)
 }
 
+extension SDAIListType {
+	public var isCachable: Bool {
+		for elem in self.asAggregationSequence {
+			if !elem.isCachable { return false }
+		}
+		return true
+	}	
+}
+
 
 //MARK: - LIST type
 public protocol SDAI__LIST__type: SDAIListType
@@ -30,6 +39,9 @@ where Element == ELEMENT,
 			Value == FundamentalType.Value,
 			SwiftType == FundamentalType.SwiftType
 {
+	// SDAIDictionarySchema support
+	static var uniqueFlag: SDAI.BOOLEAN {get}
+	
 	// Aggregation operator support
 	func unionWith<U: SDAIListType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
@@ -172,6 +184,8 @@ extension SDAI {
 									bound1: self.loBound, bound2: self.hiBound)
 		}
 		
+		// SDAI__LIST__type
+		public static var uniqueFlag: BOOLEAN {false}
 		
 		// LIST specific
 		public func map<T:SDAIGenericType>(_ transform: (ELEMENT) -> T ) -> LIST<T> {

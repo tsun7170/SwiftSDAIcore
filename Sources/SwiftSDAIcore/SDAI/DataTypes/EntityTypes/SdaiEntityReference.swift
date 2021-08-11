@@ -65,6 +65,15 @@ extension SDAI {
 			return "\(self.owningModel.name)#\(p21name)" 
 		}
 
+		// SdaiCachableSource
+		public var isCachable: Bool {
+			let complex = self.complexEntity
+			if complex.isTemporary { return false }
+	
+			let model = self.owningModel
+			return model.mode == .readOnly
+		}
+		
 		// SDAIGenericType
 		public typealias Value = ComplexEntity.Value
 

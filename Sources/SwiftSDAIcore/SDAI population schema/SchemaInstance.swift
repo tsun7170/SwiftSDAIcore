@@ -144,7 +144,17 @@ extension SDAIPopulationSchema {
 																						 record: record)
 		}
 		
-		//MARK: (10.6.6)
+		/// ISO 10303-22 (10.6.6) Validate uniqueness rule
+		///  
+		/// This operation determines whethe a uniqueness rule defined in a schema is satisfied by the population associated with a schema instance.
+		///  
+		/// The entity instances included in the validation are all entity instances of the entity type in which the rule was declared in all of the SDAI-models that are associated with the schema instance. 
+		///  
+		/// Entity instances within SDAI-models based upon an external schema are included in the validation if they are instances of entity types defined to be domain equivalent with entity types in the native schema by an instance of ExternalSchema. Entity instances so included shall be treated as instances of the native type as defined in DomainEquivalentType. If the external entity type lacks properties required to satisfy the rule then the ED-NVLD error results. 
+		///  
+		/// References to entity instances in SDA-models that are not associated with the schema instance shall as treated if they are unset.  
+		/// - Parameter uniquenessRule: The uniqueness rule to be validated.
+		/// - Returns: result of validation, including logical value indicating TRUE if the rule is satisfied, FALSE if the rule is not satisfied, and UNKNOWN if an optional explicit attribute ws unset, if a derived attribute value was indeterminate or UNKNOWN or if an inverse attribute had no value.
 		public func validate(uniquenessRule: SDAIDictionarySchema.UniquenessRule) 
 		-> SDAI.UniquenessRuleValidationResult {
 			let entityType = uniquenessRule.parentEntity.type
@@ -161,6 +171,49 @@ extension SDAIPopulationSchema {
 			return SDAI.UniquenessRuleValidationResult(uniquenessRule: uniquenessRule, 
 																								 result: result, 
 																								 record: (uniqueCount, instanceCount))
+		}
+		
+		/// ISO 10303-22 (10.6.8) Validate schema instance
+		///  
+		/// This operation determies whether the population associated with a schema instance conforms to all constraints specified within the schema upon which the scheme instance is based.
+		///  
+		/// This operation updates the validation information maintained within the schema instance.      
+		/// - Parameters:
+		///   - recording: mode of validation result recording.
+		///   - monitor: validation activity monitor object, with which the progress of the validation can be tracked.
+		/// - Returns: TRUE if all the constaints from the schema upon which SchemaInstance is based are met, FLASE if any constraint is violated, and UNKNOWN any constraint resulted in UNKNOWN.
+		public func validateAllConstraints(recording: ValidationRecordingOption = .recordFailureOnly,
+																			 monitor: ValidationMonitor = ValidationMonitor() ) 
+		-> SDAI.LOGICAL {
+			// global rule check
+			globalRuleValidationRecord = validateGlobalRules(recording: recording, monitor: monitor)
+			
+			// uniqueness rule check
+			uniquenessRuleValidationRecord = validateUniquenessRules(recording: recording, monitor: monitor)
+			
+			// where rule check
+			whereRuleValidationRecord = validateWhereRules(recording: recording, monitor: monitor)
+			
+			// post process
+			if monitor.terminateValidation { return SDAI.UNKNOWN }
+			validationDate = Date()
+			return currentValidationResult
+		}
+		public private(set) var globalRuleValidationRecord: [SDAI.GlobalRuleValidationResult]?		
+		public private(set) var uniquenessRuleValidationRecord: [SDAI.UniquenessRuleValidationResult]?
+		public private(set) var whereRuleValidationRecord: SDAI.WhereRuleValidationResult?
+		
+		
+		/// ISO 10303-22 (10.6.9) Is validation current
+		/// 
+		/// TRUE if SchemaInstance validation result is currently set to TRUE and no modification to SchemaInstance or member of SchemaInstance.associatedModels since the last validation was performed is found, otherwise FALSE.
+		///    
+		/// This operation determines whether complete validation of a schema instance may be required based on whether the SchemaInstance.validationResult has a value or based on whether any modification to a schema instance or any of the SDAI-models associated with the schema instance has been performed since the most recent Validate schema instance operation was performed.
+		///  
+		/// The validation result not being set or any modification found will result in the operation determining that validation is not current.    
+		public var isValidationCurrent: Bool { 
+			guard validationDate > changeDate else { return false }
+			return SDAI.IS_TRUE(currentValidationResult)
 		}
 		
 		//MARK: swift language binding
@@ -193,7 +246,6 @@ extension SDAIPopulationSchema {
 		}
 
 		
-		//MARK: swift specific
 		public enum ValidationRecordingOption {
 			case recordFailureOnly
 			case recordAll
@@ -243,11 +295,9 @@ extension SDAIPopulationSchema {
 			return uniquerec
 		}
 		
-//		private var validationRound: SDAI.ValidationRound = SDAI.notValidatedYet		
 		public func validateWhereRules(recording: ValidationRecordingOption = .recordFailureOnly,
 																	 monitor: ValidationMonitor = ValidationMonitor() ) 
 		-> SDAI.WhereRuleValidationResult {
-//			validationRound += 1
 			var record:[SDAI.WhereLabel:SDAI.LOGICAL] = [:]
 			monitor.willValidateWhereRules(for: self.allComplexEntities)
 			
@@ -266,46 +316,22 @@ extension SDAIPopulationSchema {
 			return SDAI.WhereRuleValidationResult(result: result, record: record)
 		}
 		
-		//MARK: (10.6.8)
-		public private(set) var globalRuleValidationRecord: [SDAI.GlobalRuleValidationResult]?
-		
-		public private(set) var uniquenessRuleValidationRecord: [SDAI.UniquenessRuleValidationResult]?
-		
-		public private(set) var whereRuleValidationRecord: SDAI.WhereRuleValidationResult?
-		
-		public func validateAllConstraints(recording: ValidationRecordingOption = .recordFailureOnly,
-																			 monitor: ValidationMonitor = ValidationMonitor() ) 
-		-> SDAI.LOGICAL {
-			// global rule check
-			globalRuleValidationRecord = validateGlobalRules(recording: recording, monitor: monitor)
-			
-			// uniqueness rule check
-			uniquenessRuleValidationRecord = validateUniquenessRules(recording: recording, monitor: monitor)
-			
-			// where rule check
-			whereRuleValidationRecord = validateWhereRules(recording: recording, monitor: monitor)
-			
-			// post process
-			if monitor.terminateValidation { return SDAI.UNKNOWN }
+		public var currentValidationResult: SDAI.LOGICAL {
 			var result = SDAI.TRUE
-			result = result && globalRuleValidationRecord?.lazy.reduce(SDAI.TRUE) { (result, globalRuleResult) in
+			
+			result = result && globalRuleValidationRecord?
+				.reduce(SDAI.TRUE) { (result, globalRuleResult) in
 				result && globalRuleResult.result
 			}
-			result = result && uniquenessRuleValidationRecord?.lazy.reduce(SDAI.TRUE) { (result, uniqueRuleResult) in
+			
+			result = result && uniquenessRuleValidationRecord?
+				.reduce(SDAI.TRUE) { (result, uniqueRuleResult) in
 				result && uniqueRuleResult.result
 			}
+			
 			result = result && whereRuleValidationRecord?.result
 			
-			validationDate = Date()
 			return result
-		}
-		
-		//MARK: (10.6.9)
-		public var isValidationCurrent: Bool { 
-			return validationDate > changeDate && 
-				globalRuleValidationRecord != nil &&
-				uniquenessRuleValidationRecord != nil &&
-				whereRuleValidationRecord != nil
 		}
 		
 		//MARK: temporary entity pool related

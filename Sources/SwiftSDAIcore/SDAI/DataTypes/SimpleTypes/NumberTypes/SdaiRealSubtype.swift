@@ -25,5 +25,8 @@ public extension SDAI__REAL__subtype
 	init(from swiftValue: SwiftType) {
 		self.init(fundamental: FundamentalType(from: swiftValue))
 	}
+	
+	// SDAI__REAL__type
+	static var precision: SDAIDictionarySchema.Bound { Supertype.precision }
 }
 

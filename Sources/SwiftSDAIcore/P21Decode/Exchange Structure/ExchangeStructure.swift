@@ -80,7 +80,7 @@ extension P21Decode {
 			guard let schema = self.resolve(schemaName: self.headerSection.fileSchema.SCHEMA_IDENTIFIERS[0]) 
 			else { self.add(errorContext: "while resolving constant entity name(\(constantEntityName))"); return nil }
 			
-			guard let const = schema.schemaDefinition.constants[constantEntityName]
+			guard let const = schema.schemaDefinition.constants[constantEntityName]?()
 			else { self.error = "constant entity name(\(constantEntityName)) not found in schema(\(schema.schemaDefinition.name))"; return nil }
 			
 			guard let entity = const.entityReference
@@ -94,7 +94,7 @@ extension P21Decode {
 			guard let schema = self.resolve(schemaName: self.headerSection.fileSchema.SCHEMA_IDENTIFIERS[0]) 
 			else { self.add(errorContext: "while resolving constant value name(\(constantValueName))"); return nil }
 			
-			guard let const = schema.schemaDefinition.constants[constantValueName]
+			guard let const = schema.schemaDefinition.constants[constantValueName]?()
 			else { self.error = "constant value name(\(constantValueName)) not found in schema(\(schema.schemaDefinition.name))"; return nil }
 
 			return const

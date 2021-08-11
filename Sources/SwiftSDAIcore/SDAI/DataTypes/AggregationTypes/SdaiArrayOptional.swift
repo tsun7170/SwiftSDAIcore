@@ -14,8 +14,20 @@ import Foundation
 public protocol SDAIArrayOptionalType: SDAIAggregationType, SDAIAggregateIndexingSettable,
 																			 SDAIUnderlyingType, SDAISwiftTypeRepresented,
 																			 InitializableBySwifttypeAsArray, InitializableByArrayLiteral, InitializableByGenericArray
-{}
+{
+	// SDAIDictionarySchema support
+	static var uniqueFlag: SDAI.BOOLEAN {get}
+	static var optionalFlag: SDAI.BOOLEAN {get}
+}
 
+extension SDAIArrayOptionalType {
+	public var isCachable: Bool {
+		for elem in self.asAggregationSequence {
+			if !elem.isCachable { return false }
+		}
+		return true
+	}	
+}
 
 //MARK: - ARRAY_OPTIONAL type
 public protocol SDAI__ARRAY_OPTIONAL__type: SDAIArrayOptionalType, InitializableByEmptyArrayLiteral, InitializableByGenericArrayOptional
@@ -157,7 +169,11 @@ extension SDAI {
 			}
 			return ARRAY_OPTIONAL(from: filtered, bound1: self.loIndex ,bound2: self.hiIndex)
 		}
-				
+
+		// SDAIArrayOptionalType
+		public static var uniqueFlag: SDAI.BOOLEAN { false }
+		public static var optionalFlag: SDAI.BOOLEAN { true }
+		
 		// ARRAY_OPTIONAL specific
 		public func map<T:SDAIGenericType>(_ transform: (ELEMENT) -> T ) -> ARRAY_OPTIONAL<T> {
 			let mapped = self.rep.map { (elem) -> T? in

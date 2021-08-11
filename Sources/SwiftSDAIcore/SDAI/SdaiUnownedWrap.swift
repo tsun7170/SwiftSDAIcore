@@ -78,7 +78,7 @@ extension SDAI.UnownedWrap: InitializableByP21Parameter where REF: Initializable
 }
 
 
-extension SDAI.UnownedWrap: SDAIGenericType where REF: SDAIGenericType {
+extension SDAI.UnownedWrap: SDAIGenericType, SdaiCachableSource where REF: SDAIGenericType {
 	
 	public typealias FundamentalType = REF.FundamentalType
 	public typealias Value = REF.Value
@@ -87,6 +87,8 @@ extension SDAI.UnownedWrap: SDAIGenericType where REF: SDAIGenericType {
 		let obj = self.reference.copy()
 		return Self(obj)
 	}
+	
+	public var isCachable: Bool { reference.isCachable }
 
 	public var asFundamentalType: FundamentalType { reference.asFundamentalType	}
 	public init(fundamental: FundamentalType) {

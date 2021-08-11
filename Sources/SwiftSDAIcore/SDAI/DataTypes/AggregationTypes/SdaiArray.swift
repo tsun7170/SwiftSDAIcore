@@ -154,7 +154,9 @@ extension SDAI {
 			return ARRAY_OPTIONAL(from: filtered, bound1: self.loIndex ,bound2: self.hiIndex)
 		}
 
-
+		// SDAIArrayOptionalType
+		public static var uniqueFlag: SDAI.BOOLEAN { false }
+		public static var optionalFlag: SDAI.BOOLEAN { false }
 	
 		// ARRAY specific
 		public func map<T:SDAIGenericType>(_ transform: (ELEMENT) -> T ) -> ARRAY<T> {

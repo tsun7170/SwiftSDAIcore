@@ -14,7 +14,10 @@ public protocol SDAI__LIST__subtype: SDAI__LIST__type, SDAIDefinedType
 where Supertype: SDAI__LIST__type
 {}
 public extension SDAI__LIST__subtype
-{
+{	
+	// SDAI__LIST__type
+	static var uniqueFlag: SDAI.BOOLEAN { Supertype.uniqueFlag }
+
 	// Built-in procedure support
 	mutating func insert(element: ELEMENT, at position: Int) { rep.insert(element: element, at: position) }
 	mutating func remove(at position: Int) { rep.remove(at: position) }

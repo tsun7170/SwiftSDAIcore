@@ -14,6 +14,10 @@ where Supertype: SDAI__ARRAY__type
 {}
 public extension SDAI__ARRAY__subtype
 {
+	// SDAIArrayOptionalType
+	static var uniqueFlag: SDAI.BOOLEAN { Supertype.uniqueFlag }
+	static var optionalFlag: SDAI.BOOLEAN { Supertype.optionalFlag }
+	
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType.convert(fromGeneric: generic) else { return nil }

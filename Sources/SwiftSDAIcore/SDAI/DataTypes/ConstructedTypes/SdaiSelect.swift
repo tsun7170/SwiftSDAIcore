@@ -20,6 +20,14 @@ where Value == FundamentalType,
 
 public extension SDAISelectType
 {
+	// SdaiCachableSource
+	var isCachable: Bool {
+		for elem in self.entityReferences {
+			if !elem.isCachable { return false }
+		}
+		return true
+	}
+	
 	// SDAIGenericType
 	var value: Value { self.asFundamentalType }
 	

@@ -26,7 +26,10 @@ extension SDAI {
 		public static var bareTypeName: String { self.typeName }
 		public var typeMembers: Set<SDAI.STRING> { rep.typeMembers }
 		public var rep: Supertype
-		
+				
+		// SDAI__LIST__type
+		public static var uniqueFlag: BOOLEAN {true}
+
 		public init(fundamental: FundamentalType) {
 			rep = Supertype(fundamental: fundamental)
 		}

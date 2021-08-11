@@ -24,6 +24,13 @@ final class SwiftSDAIcoreTests: XCTestCase {
 	
 	
 	struct StringSubType: SDAI__STRING__subtype, CustomStringConvertible {
+		public var typeMembers: Set<SDAI.STRING> {
+			var members = Set<SDAI.STRING>()
+			members.insert(SDAI.STRING(Self.typeName))
+			return members
+		}
+		
+		public var isCachable: Bool { false }
 		
 		public typealias Supertype = SDAI.STRING
 		public typealias FundamentalType = Supertype.FundamentalType
@@ -147,4 +154,42 @@ final class SwiftSDAIcoreTests: XCTestCase {
 		
 		XCTAssertNotNil(result)
 	}
+	
+	func testCachable() {
+		let A = StringSubType("")
+		let B = SDAI.INTEGER(1)
+		
+		let A1 = SDAI.FORCE_OPTIONAL(A)
+		let B1 = SDAI.FORCE_OPTIONAL(B)
+		
+		let A2 = nil as StringSubType?
+		let B2 = nil as SDAI.INTEGER?
+		
+		let params1 = SDAI.ParameterList(B)
+		XCTAssertTrue(params1.isCachable)
+
+		let params2 = SDAI.ParameterList(B1)
+		XCTAssertTrue(params2.isCachable)
+
+		let params3 = SDAI.ParameterList(B2)
+		XCTAssertTrue(params3.isCachable)
+
+		let params4 = SDAI.ParameterList(A)
+		XCTAssertTrue(!params4.isCachable)
+
+		let params5 = SDAI.ParameterList(A1)
+		XCTAssertTrue(!params5.isCachable)
+
+		let params6 = SDAI.ParameterList(A2)
+		XCTAssertTrue(params6.isCachable)
+
+		let params7 = SDAI.ParameterList(A,B,A1,B1,A2,B2)
+		XCTAssertTrue(!params7.isCachable)
+
+		let params8 = SDAI.ParameterList(B,B1,A2,B2)
+		XCTAssertTrue(params8.isCachable)
+
+	}
+	
+	
 }

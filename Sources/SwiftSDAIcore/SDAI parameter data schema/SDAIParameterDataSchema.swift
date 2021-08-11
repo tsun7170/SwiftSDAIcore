@@ -8,15 +8,9 @@
 
 import Foundation
 
-//MARK: (9.4.3)
-//public protocol SDAIAttributeValueType
-//{
-//	var genericValue: SDAI.GENERIC? { get }	
-//	var attributeDefinition: SDAIDictionarySchema.Attribute { get }
-//	var valueSet: Bool  { get }
-//	var owningEntity: EntityInstance { get }
-//}
-
+/// ISO 10303-22 (9) SDAI parameter data schema
+/// 
+/// The SDAI parameter data schema provides conceptual descriptions of the data that is passed as parameters or manipulated through the SDAI.   
 public enum SDAIParameterDataSchema {
 	
 	public typealias STRING = String
@@ -25,35 +19,11 @@ public enum SDAIParameterDataSchema {
 	public typealias Primitive = SDAIGenericType
 		
 	
-	//MARK: - (9.4.2)
+	/// ISO 10303-22 (9.4.2) entity_instance
 	public typealias EntityInstance = SDAI.EntityReference
-	
-//	open class EntityInstance: SDAI.ObjectReference<SDAI.ComplexEntity> {
-//		public unowned var owningModel: SDAIPopulationSchema.SdaiModel { return self.object.owningModel }
-//		public var definition: SDAIDictionarySchema.EntityDefinition { return Self.entityDefinition }
-//		public var values: [SDAIAttributeValueType]
-//		
-//		public static let entityDefinition: SDAIDictionarySchema.EntityDefinition = createEntityDefinition()
-//		open class func createEntityDefinition() -> SDAIDictionarySchema.EntityDefinition { abstruct() }	// abstruct
-//	}
 
 	
-	//MARK: - (9.4.3)
+	/// ISO 10303-22 (9.4.3) application_instance
 	public typealias ApplicationInstance = SDAI.EntityReference
 	
-//	open class ApplicationInstance: EntityInstance {
-//		public var persistentLabel: STRING? { 
-//			let p21name = self.object.p21name
-//			return "\(self.owningModel.name)#\(p21name)" 
-//		}
-//	}
-	
-//	//MARK: (9.4.7)
-//	public class AttributeValue<T: SDAIGenericType>: SDAI.Object, SDAIAttributeValueType {
-//		public var dataValue: T?
-//		public var attributeDefinition: SDAIDictionarySchema.Attribute
-//		public var valueSet: Bool  { dataValue != nil }
-//		
-//		public unowned var owningEntity: EntityInstance
-//	}
 }

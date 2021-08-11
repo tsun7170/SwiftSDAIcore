@@ -21,6 +21,7 @@ public extension SDAIEnumerationType
 {
 	// SDAIGenericType
 	func copy() -> Self { return self }
+	var isCachable: Bool { return true }
 	var value: Value { self.asFundamentalType }
 }
 

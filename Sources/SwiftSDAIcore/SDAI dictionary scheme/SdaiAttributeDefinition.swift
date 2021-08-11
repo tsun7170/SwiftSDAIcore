@@ -1,5 +1,5 @@
 //
-//  AttributeDefinition.swift
+//  SdaiAttributeDefinition.swift
 //  SwiftSDAIcorePackage
 //
 //  Created by Yoshida on 2020/05/24.
@@ -8,17 +8,43 @@
 
 import Foundation
 
+
+/// ISO 10303-22 (6.4.13) attribute
 public protocol SDAIAttributeType {
+	/// the name of the attribute. (6.4.13)
 	var name: SDAIDictionarySchema.ExpressId { get }
-	var domain: Any.Type { get }
-	var typeName: String { get }
-	var bareTypeName: String { get }
-	var kind: SDAIDictionarySchema.AttirbuteKind { get }
-	var source: SDAIDictionarySchema.AttributeSource { get }
-	var mayYieldEntityReference: Bool { get }
+
+	/// the entity type in which the attribute is declared. (6.4.13)
 	var parentEntity: SDAIDictionarySchema.EntityDefinition { get }
+	
+	/// the data type of the result of the attribute value derivation. (6.4.14)
+	/// the data type referenced by the attribute. (6.4.15)
+	/// the referencing entity type defining the forward relationship; the source of the relationship. (6.4.16) 
+	var domain: Any.Type { get }
+	
+	/// flag distinguishing the derived(6.4.14)/explicit(6.4.15)/inverse(6.4.16) attributes, redeclaring(6.4.14)(6.4.15), optional_flag(6.4.15)
+	var kind: SDAIDictionarySchema.AttirbuteKind { get }
+	
+	/// name of attribute domain, qualified with the originating schema.
+	var typeName: String { get }
+	/// name of attribute domain, without originating schema qualification.
+	var bareTypeName: String { get }
+	
+	/// flag distinguishing where the attribute is defined (super/this/sub)
+	var source: SDAIDictionarySchema.AttributeSource { get }
+	
+	/// flag indicating if the attribute value may yield entity reference.
+	var mayYieldEntityReference: Bool { get }
+	
+	/// attribute name fully qualified with originating schema and entity names.
 	var qualifiedAttributeName: SDAIDictionarySchema.ExpressId { get }
-	func genericValue(for entity: SDAI.EntityReference) -> SDAI.GENERIC?
+	
+	/// ISO 10303-22 (10.10.1) Get attribute
+	/// 
+	/// This operation returns the value of an attribute of an entityInstance. If no value exists for the attribute (because it has never been assigned or has been unset, whether or not the attribute is optional) the vallue returned is not defined by ISO 10303-22 and the VA-NSET error shall be generated.  
+	/// - Parameter entityInstance: The entity instance from which to obtain an attribute value.
+	/// - Returns: attribute value wrapped in SDAI.GENERIC
+	func genericValue(for entityInstance: SDAI.EntityReference) -> SDAI.GENERIC?
 }
 
 extension SDAIDictionarySchema {
@@ -38,6 +64,7 @@ extension SDAIDictionarySchema {
 		case subEntity
 	}
 	
+	//MARK: - implementation base class
 	public class Attribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: SDAI.Object, SDAIAttributeType, CustomStringConvertible {
 		// CustomStringConvertible
 		public var description: String {
@@ -54,14 +81,13 @@ extension SDAIDictionarySchema {
 			super.init()
 		}
 		
-	//MARK: (6.4.13)
+		//MARK: SDAIAttributeType
 		public var domain: Any.Type { BaseType.self }
 		public var typeName: String { BaseType.typeName }
 		public var bareTypeName: String { BaseType.bareTypeName }
 		public let name: ExpressId
 		public unowned let parentEntity: EntityDefinition
 		
-		//MARK: SDAIAttributeType
 		public var qualifiedAttributeName: SDAIDictionarySchema.ExpressId { parentEntity.qualifiedEntityName + "." + self.name }
 
 		private var invokedBy: Set<SDAI.EntityReference> = []
@@ -78,12 +104,11 @@ extension SDAIDictionarySchema {
 		public let source: AttributeSource
 		public let mayYieldEntityReference: Bool
 		
-		//MARK: swift binding support
 		open func value(for entity: ENT) -> BaseType? { abstruct() }	// abstruct
 	}
 	
 	
-	
+	//MARK: - specialization for optional attribute value type
 	public final class OptionalAttribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: Attribute<ENT,BaseType> {
 		public init(name: ExpressId, entityDef: EntityDefinition, keyPath: KeyPath<ENT,BaseType?>, 
 								kind: AttirbuteKind, source: AttributeSource, mayYieldEntityReference: Bool ) {
@@ -100,7 +125,7 @@ extension SDAIDictionarySchema {
 	}
 
 	
-	
+	//MARK: - specialization for non-optional attribute value type
 	public final class NonOptionalAttribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: Attribute<ENT,BaseType> {
 		public init(name: ExpressId, entityDef: EntityDefinition, keyPath: KeyPath<ENT,BaseType>, 
 								kind: AttirbuteKind, source: AttributeSource, mayYieldEntityReference: Bool ) {
@@ -110,45 +135,11 @@ extension SDAIDictionarySchema {
 		}
 		
 		public let keyPath: KeyPath<ENT,BaseType>
-
+		
 		public override func value(for entity: ENT) -> BaseType? { 
 			return entity[keyPath: self.keyPath]
 		}
-}
-	
-	
-//	public class ExplicitAttribute<ENT: SDAI.EntityReference, T: SDAIGenericType>: Attribute<ENT,T> {
-//		public var domain: BaseType
-//		public var redeclaring: ExplicitAttribute?
-//		public var optionalFlag: SDAI.BOOLEAN
-//		
-//	}
-//	
-//	public class DerivedAttribute<ENT: SDAI.EntityReference, T: SDAIGenericType>: Attribute<ENT,T> {
-//		public var domain: BaseType
-//		public var redeclaring: ExplicitOrDerived?
-//		
-//	}
-//	
-//	
-//	public enum ExplicitOrDerived//: SDAISelectType 
-//	{
-//		case explicitAttribute(ExplicitAttribute)
-//		case derivedAttribute(DerivedAttribute)
-//	}
-//
-//	public class InverseAttribute<ENT: SDAI.EntityReference, T: SDAIGenericType>: Attribute<ENT,T> {
-//		public var domain: EntityDefinition
-//		public var redeclaring: InverseAttribute?
-//		public var invertedAttr: ExplicitAttribute
-//		public var minCardinality: Bound?
-//		public var maxCardinality: Bound?
-//		public var duplicates: SDAI.BOOLEAN
-//	}
-//	
-
-	
-	
+	}
 	
 }
 

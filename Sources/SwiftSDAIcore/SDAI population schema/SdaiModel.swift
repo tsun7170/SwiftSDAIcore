@@ -34,7 +34,11 @@ extension SDAIPopulationSchema {
 		public internal(set) var changeDate: SDAISessionSchema.TimeStamp
 		
 		/// if present, the current access mode for the SdaiModel. If not present, the SdaiModel is not open.
-		public internal(set) var mode: SDAISessionSchema.AccessType
+		public internal(set) var mode: SDAISessionSchema.AccessType {
+			didSet {
+				self.underlyingSchema.notifyReadWriteModeChanged()
+			}
+		}
 		
 		/// the schema instances with which the SdaiModel has been associated.
 		public var associatedWith: AnySequence<SchemaInstance> {
@@ -73,8 +77,12 @@ extension SDAIPopulationSchema {
 			super.init()
 			self.contents.ownedBy = self
 			self.repository.contents.add(model:self)
+			self.underlyingSchema.addModel(populated: self)
 		}
 	
+		deinit {
+			self.underlyingSchema.removeModel(populated: self)
+		}
 		
 		//MARK: swift language binding
 		public func associate(with schemaInstance: SchemaInstance) {

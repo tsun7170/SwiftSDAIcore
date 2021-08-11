@@ -37,8 +37,8 @@ public protocol SDAIBagType: SDAIAggregationType,
 	where ELEMENT.FundamentalType == BAG.ELEMENT.FundamentalType
 }
 
-public extension SDAIBagType {
-	func isSuperset<B: SDAIBagType>(of other: B) -> Bool 
+extension SDAIBagType {
+	public func isSuperset<B: SDAIBagType>(of other: B) -> Bool 
 	where ELEMENT.FundamentalType == B.ELEMENT.FundamentalType {
 		let selfDict = self.asSwiftDict
 		let otherDict = other.asSwiftDict
@@ -48,6 +48,14 @@ public extension SDAIBagType {
 		}
 		return true
 	}
+	
+	public var isCachable: Bool {
+		for elem in self.asAggregationSequence {
+			if !elem.isCachable { return false }
+		}
+		return true
+	}	
+
 }
 
 //MARK: - bag subtypes

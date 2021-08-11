@@ -20,6 +20,7 @@ fileprivate class _AnyGenericBox: Hashable {
 	
 	var base: AnyHashable { abstruct() }
 	func copy() -> AnyHashable { abstruct() }
+	var isCachable: Bool { abstruct() }
 	var value: SDAI.GenericValue { abstruct() }
 	var entityReference: SDAI.EntityReference? { abstruct() }
 	var stringValue: SDAI.STRING? { abstruct() }
@@ -54,6 +55,7 @@ fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox {
 	
 	override var base: AnyHashable { _base }
 	override func copy() -> AnyHashable { _base.copy() }
+	override var isCachable: Bool { _base.isCachable }
 	override var value: SDAI.GenericValue { _base.value as SDAI.GenericValue }
 	override var entityReference: SDAI.EntityReference? { _base.entityReference }
 	override var stringValue: SDAI.STRING? { _base.stringValue }
@@ -135,6 +137,9 @@ extension SDAI {
 		public init?<G: SDAIGenericType>(fromGeneric generic: G?){
 			self.init(generic)
 		}
+		
+		// SdaiCachableSource
+		public var isCachable: Bool { box.isCachable }
 		
 		// SDAIGenericType
 		public func copy() -> SDAI.GENERIC { return self }

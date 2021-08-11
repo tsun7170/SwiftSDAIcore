@@ -9,6 +9,6 @@
 import Foundation
 
 
-public protocol SDAINamedType 
+public protocol SDAINamedType: SDAIBaseType 
 {}
 

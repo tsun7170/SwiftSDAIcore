@@ -28,10 +28,7 @@ public enum SDAI {
 	
 	public static let _Infinity:INTEGER? = nil;
 
-	//MARK: - validation related
-//	public typealias ValidationRound = Int
-//	public static let notValidatedYet: ValidationRound = 0
-	
+	//MARK: - validation related	
 	public typealias WhereLabel = SDAIDictionarySchema.ExpressId
 	
 	public typealias GlobalRuleSignature = (_ allComplexEntities: AnySequence<SDAI.ComplexEntity>) -> [SDAI.WhereLabel:SDAI.LOGICAL]
@@ -53,11 +50,11 @@ public enum SDAI {
 	public struct WhereRuleValidationResult: CustomStringConvertible {
 		public var description: String {
 			var str = "WhereRuleValidationResult( result:\(result)\n"
-//			for (entity, rec) in record {
-			for (i,(label,whereResult)) in record.enumerated() {
+			for (i,(label,whereResult)) in record
+				.sorted(by: { $0.key < $1.key })
+				.enumerated() {
 					str += "[\(i)]\t\(label): \(whereResult)\n"
 				}
-//			} 
 			str += ")\n"
 			return str
 		}
