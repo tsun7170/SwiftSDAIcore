@@ -72,7 +72,7 @@ extension SDAI {
 
 		// SDAIGenericType
 		public var typeMembers: Set<SDAI.STRING> {
-			return [SDAI.STRING(Self.typeName)]
+			return [SDAI.STRING(Self.typeName), SDAI.STRING(from: BAG<ELEMENT>.typeName)]
 		}
 		public var value: _BagValue<ELEMENT> {
 			return _BagValue(from: self)

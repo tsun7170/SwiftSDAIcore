@@ -46,7 +46,7 @@ extension P21Decode {
 		}
 		
 		//MARK: decoding operation
-		public func decode<CHARSTREAM>(input charStream: CHARSTREAM) -> SDAISessionSchema.SdaiRepository?
+		public func decode<CHARSTREAM>(input charStream: CHARSTREAM) -> [SDAIPopulationSchema.SdaiModel]?
 		where CHARSTREAM: IteratorProtocol, CHARSTREAM.Element == Character
 		{
 			let parser = ExchangeStructureParser(charStream: charStream, monitor: self.activityMonitor)
@@ -71,17 +71,19 @@ extension P21Decode {
 				fallback.contents.resetCache(relatedTo: nil)
 			}
 		
+			var createdModels: [SDAIPopulationSchema.SdaiModel] = []
 			for (i,datasec) in exchangeStructrure.dataSection.enumerated() {
 				guard datasec.resolveSchema() else { 
 					exchangeStructrure.add(errorContext: "while resolving data section[\(i)]")
 					error = .resolveError(exchangeStructrure.error ?? "<unknown schema resolution error>")
 					return nil
 				}
-				guard datasec.assignModel(filename: exchangeStructrure.headerSection.fileName.NAME) else {
+				guard let model = datasec.assignModel(filename: exchangeStructrure.headerSection.fileName.NAME) else {
 					exchangeStructrure.add(errorContext: "while setting up data section[\(i)]")
 					error = .resolveError(exchangeStructrure.error ?? "<unknown schema resolution error>")
 					return nil
 				}
+				createdModels.append(model)
 			}
 			
 			if let monitor = activityMonitor { monitor.startedResolvingEntityInstances() }
@@ -94,7 +96,7 @@ extension P21Decode {
 			}
 			if let monitor = activityMonitor { monitor.completedResolving() }
 			
-			for model in repository.contents.models.values {
+			for model in createdModels {
 				model.updateChangeDate()
 				model.mode = .readOnly
 			}
@@ -103,7 +105,7 @@ extension P21Decode {
 				fallback.mode = .readOnly
 			}
 			
-			return repository
+			return createdModels
 		}
 		
 		

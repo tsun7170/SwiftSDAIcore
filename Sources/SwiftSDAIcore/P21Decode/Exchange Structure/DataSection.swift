@@ -61,14 +61,14 @@ extension P21Decode.ExchangeStructure {
 			return true
 		}
 		
-		public func assignModel(filename: String) -> Bool {
+		public func assignModel(filename: String) -> SDAIPopulationSchema.SdaiModel? {
 			let modelname = self.name != "" ? filename + "." + self.name : filename
 			
 			guard let repository = exchangeStructure.repository, let schemaDef = schema?.schemaDefinition 
-			else { exchangeStructure.error = "internal error on assigning model to data section"; return false }
+			else { exchangeStructure.error = "internal error on assigning model to data section"; return nil }
 			
 			self.model = SDAIPopulationSchema.SdaiModel(repository: repository, modelName: modelname, schema: schemaDef)
-			return true
+			return self.model
 		}
 	}
 	

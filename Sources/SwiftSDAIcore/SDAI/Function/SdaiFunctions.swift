@@ -412,8 +412,16 @@ extension SDAI {
 	/// # NOTE 1 
 	/// The primary purpose of this function is to check whether a given value (variable or attribute value) can be used for a certain purpose, for example, to ensure assignment compatibility between two values. 
 	/// It may also be used if different subtypes or specializations of a given type have to be treated differently in some context.
-	/// - Parameter V: V is a value of any type.
+	/// # NOTE 2 
+	/// When the actual parameter to TypeOf was a formal parameter to some function being evaluated, the “type to which V belongs (by declaration)” is the type declared for the original actual parameter, or the result data type for the actual parameter expression as specified in clause 12, and not the type declared for any formal parameter for which it has been substituted.
+	/// # NOTE 4 
+	/// This function ends its work when it reaches an aggregation data type. It does not provide the information concerning the base type of the aggregate value. 
+	/// If needed, this information can be collected by applying typeof to legal elements of the aggregate value.
+	/// 
+ 	/// - Parameter V: V is a value of any type.
+	/// 
 	/// - Returns: The contents of the returned set of string values are the names (in upper case) of all types that the value V is a member of. Such names are qualified by the name of the schema that contains the definition of the type (’SCHEMA.TYPE’) if it is neither a simple data type nor an aggregation data type.
+	/// 	- If V evaluates to indeterminate (?), typeof returns an empty set. 
 	public static func TYPEOF<Generic: SDAIGenericType>(_ V: Generic?) -> SET<STRING>? {
 		guard let v = V else { return SET<STRING>() }
 		return SET<STRING>(from: v.typeMembers )

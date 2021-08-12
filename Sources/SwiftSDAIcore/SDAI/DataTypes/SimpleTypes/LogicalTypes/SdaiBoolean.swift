@@ -69,7 +69,7 @@ extension SDAI {
 		
 		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__LOGICAL__type\SDAI__BOOLEAN__type
 		public var typeMembers: Set<SDAI.STRING> {
-			return [SDAI.STRING(from: Self.typeName)]
+			return [SDAI.STRING(from: Self.typeName), SDAI.STRING(from: LOGICAL.typeName)]
 		}
 		public var value: FundamentalType { return self.asFundamentalType }
 		

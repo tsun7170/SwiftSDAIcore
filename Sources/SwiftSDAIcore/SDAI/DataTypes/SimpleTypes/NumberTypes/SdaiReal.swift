@@ -70,7 +70,7 @@ extension SDAI {
 		
 		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__Nfrom: UMBER__type\SDAI__REAL__type
 		public var typeMembers: Set<SDAI.STRING> {
-			return [SDAI.STRING(from: Self.typeName)]
+			return [SDAI.STRING(from: Self.typeName), SDAI.STRING(from: NUMBER.typeName)]
 		}
 		public var value: FundamentalType { return self.asFundamentalType }
 		
