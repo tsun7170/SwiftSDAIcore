@@ -67,7 +67,7 @@ extension P21Decode.ExchangeStructure {
 			guard let repository = exchangeStructure.repository, let schemaDef = schema?.schemaDefinition 
 			else { exchangeStructure.error = "internal error on assigning model to data section"; return nil }
 			
-			self.model = SDAIPopulationSchema.SdaiModel(repository: repository, modelName: modelname, schema: schemaDef)
+			self.model = repository.createSdaiModel(modelName: modelname, schema: schemaDef)
 			return self.model
 		}
 	}

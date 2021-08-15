@@ -15,7 +15,7 @@ public enum P21Decode {
 	public typealias SchemaName = ExchangeStructure.HeaderSection.FILE_SCHEMA.SCHEMA_NAME
 	public typealias SchemaList = KeyValuePairs<SchemaName,SDAISchema.Type>
 
-	public struct P21Error: Error {
+	public struct P21Error: Error, Equatable {
 		public let message: String
 		public let lineNumber: Int
 	}

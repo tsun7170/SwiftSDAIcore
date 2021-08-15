@@ -65,6 +65,8 @@ public enum SDAI {
 	
 	//MARK: - SDAI.Object	
 	open class Object: Hashable {		
+		public init() {}
+		
 		public static func == (lhs: SDAI.Object, rhs: SDAI.Object) -> Bool {
 			return lhs === rhs
 		}

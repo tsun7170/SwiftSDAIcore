@@ -16,45 +16,22 @@ extension P21Decode {
 		open func abortDecoder() -> Bool { return false }
 
 		// error detections
-		open func tokenStreamDidSet(error p21Error: P21Error) {
-		}
-		
-		open func parserDidSet(error p21Error: P21Error) {
-		}
-		
-		open func exchangeStructureDidSet(error exError: String) {
-		}
-		
-		open func decoderDidSet(error decoderError: Decoder.Error) {
-		}
+		open func tokenStreamDidSet(error p21Error: P21Error) {}
+		open func parserDidSet(error p21Error: P21Error) {}		
+		open func exchangeStructureDidSet(error exError: String) {}
+		open func decoderDidSet(error decoderError: Decoder.Error) {}
 		
 		// progress monitor
-		open func scannerDidDetectNewLine(lineNumber: Int) {
-		}
-		
-		open func decoderResolved(entiyInstanceName: ExchangeStructure.EntityInstanceName) {
-		}
+		open func scannerDidDetectNewLine(lineNumber: Int) {}
+		open func decoderResolved(entiyInstanceName: ExchangeStructure.EntityInstanceName) {}
 		
 		// phase change monitor
-		open func startedParsingHeaderSection() {
-		}
-		
-		open func startedParsingAnchorSection() {
-		}
-		
-		open func startedParsingReferenceSection() {
-		}
-		
-		open func startedParsingDataSection() {
-		}
-		
-		open func completedParsing() {
-		}
-		
-		open func startedResolvingEntityInstances() {
-		}
-		
-		open func completedResolving() {
-		}
+		open func startedParsingHeaderSection() {}		
+		open func startedParsingAnchorSection() {}		
+		open func startedParsingReferenceSection() {}		
+		open func startedParsingDataSection() {}		
+		open func completedParsing() {}		
+		open func startedResolvingEntityInstances() {}		
+		open func completedResolving() {}
 	}
 }

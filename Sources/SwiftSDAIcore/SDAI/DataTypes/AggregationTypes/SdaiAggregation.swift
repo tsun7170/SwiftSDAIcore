@@ -102,6 +102,7 @@ public protocol SDAIAggregationType: SDAIBaseType, SDAISelectCompatibleUnderlyin
 	var loBound: Int {get}
 	var loIndex: Int {get}
 	var size: Int {get}
+	var isEmpty: Bool {get}
 	
 	static var lowerBound: SDAIDictionarySchema.Bound {get}	// ISO 10303-22 (6.4.31)
 	static var upperBound: SDAIDictionarySchema.Bound? {get}	// ISO 10303-22 (6.4.31)
@@ -119,6 +120,7 @@ public extension SDAIAggregationType
 {
 	static var lowerBound: SDAIDictionarySchema.Bound { 0 }
 	static var upperBound: SDAIDictionarySchema.Bound? { nil }
+//	var isEmpty: Bool { self.size == 0 }
 }
 
 //MARK: - generic aggregate
@@ -201,6 +203,7 @@ where Self: SDAIAggregationType,
 	var loBound: Int { return rep.loBound }
 	var loIndex: Int { return rep.loIndex }
 	var size: Int { return rep.size }
+	var isEmpty: Bool { return rep.isEmpty }
 	var observer: SDAI.EntityReferenceObserver? {
 		get { return rep.observer }
 		set { rep.observer = newValue }

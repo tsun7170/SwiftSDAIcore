@@ -36,6 +36,7 @@ extension SDAIPopulationSchema {
 		/// if present, the current access mode for the SdaiModel. If not present, the SdaiModel is not open.
 		public internal(set) var mode: SDAISessionSchema.AccessType {
 			didSet {
+				if oldValue == .deleted { mode = .deleted }
 				self.underlyingSchema.notifyReadWriteModeChanged()
 			}
 		}
@@ -47,36 +48,18 @@ extension SDAIPopulationSchema {
 		private var _associatedWith: SET<SDAI.UnownedReference<SchemaInstance>> = []
 		
 		
-		/// ISO 10303-22 (10.5.1) Create SDAI-model
-		///  
-		/// This operation establishes a new SdaiModel within which entity instances can be created and accessed. The new created SdaiModel has no access mode assiciated with it.
-		/// - Parameters:
-		///   - repository: The repository in which the SdaiModel is to be created.
-		///   - modelName: The name of the new SdaiModel.
-		///   - schema: The schema upon which the SdaiModel shall be based.
-		/// - Returns: The newly created SdaiModel.
-		public convenience init(repository: SDAISessionSchema.SdaiRepository, 
-								modelName: STRING, 
-								schema: SDAIDictionarySchema.SchemaDefinition) {
-			self.init(repository: repository,
-								modelName: modelName,
-								schema: schema,
-								contents: SdaiModelContents())
-		}
-		
+		//MARK: swift language binding
 		internal init(repository: SDAISessionSchema.SdaiRepository, 
 								modelName: STRING, 
-								schema: SDAIDictionarySchema.SchemaDefinition,
-								contents: SdaiModelContents) {
+								schema: SDAIDictionarySchema.SchemaDefinition) {
 			self.repository = repository
 			self.name = modelName
 			self.underlyingSchema = schema
-			self.contents = contents
+			self.contents = SdaiModelContents()
 			self.changeDate = Date()
 			self.mode = .readWrite
 			super.init()
 			self.contents.ownedBy = self
-			self.repository.contents.add(model:self)
 			self.underlyingSchema.addModel(populated: self)
 		}
 	
@@ -84,7 +67,6 @@ extension SDAIPopulationSchema {
 			self.underlyingSchema.removeModel(populated: self)
 		}
 		
-		//MARK: swift language binding
 		public func associate(with schemaInstance: SchemaInstance) {
 			_associatedWith.insert(SDAI.UnownedReference(schemaInstance))
 		}
@@ -96,11 +78,7 @@ extension SDAIPopulationSchema {
 		public class func fallBackModel(for schema:SDAIDictionarySchema.SchemaDefinition) -> SdaiModel { 
 			if let model = _fallBackModels[schema] { return model }
 			
-			let model = SdaiModel(repository: SDAISessionSchema.SdaiRepository.builtInRepository, 
-														modelName: schema.name + ".fallback", 
-														schema: schema,
-														//contents: SdaiFallbackModelContents())
-														contents: SdaiModelContents())
+			let model = SDAISessionSchema.SdaiRepository.builtInRepository.createSdaiModel(modelName: schema.name + ".fallback", schema: schema)
 			_fallBackModels[schema] = model
 			return model
 		}
@@ -194,26 +172,8 @@ extension SDAIPopulationSchema {
 			}
 		}
 		
-//		public func drainTemporaryPool() {}
 	}
-	
-	//MARK: - fallback model contents with temporaly entity pool
-//	public final class SdaiFallbackModelContents: SdaiModelContents {
-//		public private(set) var temporaryEntityPool: [SDAI.ComplexEntity] = []
-//		
-//		public override func add(complex: SDAI.ComplexEntity) -> Bool {
-//			if super.add(complex: complex) { return true }
-//			guard complex.owningModel == self.ownedBy else { return false }
-//			temporaryEntityPool.append(complex)
-//			complex.isTemporary = true
-//			return true
-//		}
-//		
-//		public override func drainTemporaryPool() {
-//			temporaryEntityPool = []
-//		}
-//	}
-	
+		
 }
 
 //MARK: - Entity Extent

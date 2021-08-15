@@ -98,7 +98,7 @@ extension SDAIDictionarySchema {
 			if let cachable = _isCachable { return cachable }
 			
 			for modelRef in self.models {
-				if modelRef.object.mode == .readWrite { 
+				if modelRef.object.mode != .readOnly { 
 					_isCachable = false
 					self.resetCaches()
 					return false 

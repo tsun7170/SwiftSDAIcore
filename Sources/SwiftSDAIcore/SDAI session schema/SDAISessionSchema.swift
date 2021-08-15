@@ -33,7 +33,9 @@ public enum SDAISessionSchema {
 	/// 
 	/// An AccessType specifies either read-only or read-write access for an SdaiTranaction or SdaiModel. 
 	public enum AccessType {
-		case readOnly, readWrite	
+		case readOnly
+		case readWrite
+		case deleted
 	}
 	
 	/// ISO 10303-22 (7.3.3) time_stamp

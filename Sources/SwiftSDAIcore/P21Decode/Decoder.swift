@@ -11,7 +11,7 @@ import Foundation
 extension P21Decode {
 	
 	public final class Decoder {
-		public enum Error {
+		public enum Error: Equatable {
 			case decoderError(String)
 			case parserError(P21Error)
 			case resolveError(String)
@@ -29,7 +29,7 @@ extension P21Decode {
 		}
 		
 
-		private let repository: SDAISessionSchema.SdaiRepository
+		public let repository: SDAISessionSchema.SdaiRepository
 		private let schemaList: SchemaList
 		private let activityMonitor: ActivityMonitor?
 		private let foreginReferenceResolver: ForeignReferenceResolver

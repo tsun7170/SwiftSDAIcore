@@ -35,7 +35,12 @@ public extension InitializableByP21Parameter
 			self.init(p21typedParam: typedParam, from: exchangeStructure)
 			
 		case .untypedParameter(let untypedParam):
-			self.init(p21untypedParam: untypedParam, from: exchangeStructure)
+			switch untypedParam {
+				case .noValue:
+					return nil
+				default:
+					self.init(p21untypedParam: untypedParam, from: exchangeStructure)
+			}
 			
 		case .omittedParameter:
 			self.init(p21omittedParamfrom: exchangeStructure)

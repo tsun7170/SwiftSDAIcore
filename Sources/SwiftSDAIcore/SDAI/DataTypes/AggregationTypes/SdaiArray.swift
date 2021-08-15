@@ -114,6 +114,7 @@ extension SDAI {
 		public var loBound: Int { return bound1 }
 		public var loIndex: Int { return bound1 }
 		public var size: Int { return bound2 - bound1 + 1 }
+		public var isEmpty: Bool { return size <= 0 }
 		public var observer: EntityReferenceObserver?
 		
 		public subscript(index: Int?) -> ELEMENT? {

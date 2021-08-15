@@ -52,33 +52,10 @@ extension SDAIPopulationSchema {
 		/// the level of expression evaluation for validation of the implementation that performed the most recent Validate schema instance operation on the current schema instance (see 13.1.2).
 		public let validationLevel: INTEGER = 1
 
-		/// ISO 10303-22 (10.5.2) Create schema instance
-		///  
-		/// This operation establishes a new schema instance. 
-		/// - Parameters:
-		///   - repository: The repository in which the schema instance is to be created.
-		///   - name: The name of the new schema instance.
-		///   - schema: The schema upon which the schema instance shall be based.
-		/// - Returns: The newly created schema instance.
-		public init(repository: SDAISessionSchema.SdaiRepository, 
-								name: STRING, 
-								schema: SDAIDictionarySchema.SchemaDefinition) { 
-			self.repository = repository
-			self.name = name
-			self.nativeSchema = schema
-			let current = Date()
-			self.changeDate = current
-			self.validationDate = current
-			self.validationResult = SDAI.FALSE
-			self.mode = .readWrite
-			super.init()
-//			self.add(model: SDAIPopulationSchema.SdaiModel.fallBackModel(for: schema))
-		}
-
 		
 		/// ISO 10303-22 (10.6.3) Add SDAI-model
 		///  
-		/// This operation adds an SDAI-model to the awr od ASI-moswla that are associated with a schema instance.
+		/// This operation adds an SDAI-model to the set of SDAI-models that are associated with a schema instance.
 		/// 
 		/// This enables entity instances in the SDAI-model to reference and be referenced by entity instances in other SDAI-models associated with the schema instance.
 		///  
@@ -102,8 +79,9 @@ extension SDAIPopulationSchema {
 		/// If the SDAI-model no longer has a schema instance in common with another SDAI-model in the schema instance then all references between those two SDAI-models are invalid (see 10.10.7).    
 		/// - Parameter model: The SDAI-model that is to be removed from the schema instance.
 		/// - Returns: true indicating the success of the operation.
+		@discardableResult
 		public func remove(model: SdaiModel) -> Bool { 
-			guard mode == .readWrite else { return false }
+			guard mode != .readOnly else { return false }
 			self.associatedModels.remove(model)
 			model.dissociate(from: self)
 			return true
@@ -217,18 +195,49 @@ extension SDAIPopulationSchema {
 		}
 		
 		//MARK: swift language binding
+		internal init(repository: SDAISessionSchema.SdaiRepository, 
+								name: STRING, 
+								schema: SDAIDictionarySchema.SchemaDefinition) { 
+			self.repository = repository
+			self.name = name
+			self.nativeSchema = schema
+			let current = Date()
+			self.changeDate = current
+			self.validationDate = current
+			self.validationResult = SDAI.FALSE
+			self.mode = .readWrite
+			super.init()
+//			self.add(model: SDAIPopulationSchema.SdaiModel.fallBackModel(for: schema))
+		}
+
+		private func teardown() {
+			for model in associatedModels {
+				model.contents.resetCache(relatedTo: self)
+				self.remove(model: model)
+			}
+		}
+		
+		public func add<S: Sequence>(models: S) where S.Element == SdaiModel {
+			for model in models {
+				self.add(model: model)
+			}	
+		}
+		
 		public var mode: SDAISessionSchema.AccessType {
 			didSet {
-				if mode == .readOnly {
-					for model in associatedModels {
-						model.mode = .readOnly
-					}
-				}
-				else if mode == .readWrite {
-					for model in associatedModels {
-						model.contents.resetCache(relatedTo: self)
-						model.mode = .readWrite
-					}
+				if oldValue == .deleted { mode = .deleted }
+				switch mode {
+					case .readOnly:
+						for model in associatedModels {
+							model.mode = .readOnly
+						}
+					case .readWrite:
+						for model in associatedModels {
+							model.contents.resetCache(relatedTo: self)
+							model.mode = .readWrite
+						}
+					case .deleted:
+						self.teardown()
 				}
 			}
 		}
@@ -334,11 +343,5 @@ extension SDAIPopulationSchema {
 			return result
 		}
 		
-		//MARK: temporary entity pool related
-//		public func drainTemporaryPool() {
-//			for model in self.associatedModels {
-//				model.drainTemporaryPool()
-//			}
-//		}
 	}
 }
