@@ -118,6 +118,7 @@ final class SwiftSDAIcoreTests: XCTestCase {
 		XCTAssertNotNil(I1)
 	}
 	
+	
 	func testP21stream() {
 		let testDataFolder = ProcessInfo.processInfo.environment["TEST_DATA_FOLDER"]!
 		let url = URL(fileURLWithPath: testDataFolder + "NIST_CTC_STEP_PMI/nist_ctc_02_asme1_ap242-e2.stp")
