@@ -41,12 +41,18 @@ extension SDAI {
 			guard let complexEntity = complexEntity else { return nil }
 			super.init(complexEntity)
 			assert(type(of:self) != EntityReference.self, "abstruct class instantiated")	
-			if !complexEntity.updateEntityReference(self) { return nil }
+			if !complexEntity.registerEntityReference(self) { return nil }
 		}
 		
 		//CustomStringConvertible
 		public var description: String {
-			let str = "\(self.definition.name)-> \(self.complexEntity.qualifiedName)"
+			var str = "\(self.definition.name)-> \(self.complexEntity.qualifiedName)"
+			if self.complexEntity.isPartial {
+				str += "(partial)"
+			}
+			if self.complexEntity.isTemporary {
+				str += "(temporary)" 
+			}
 			return str
 		}
 		

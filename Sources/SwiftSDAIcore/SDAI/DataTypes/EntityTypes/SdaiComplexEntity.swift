@@ -21,7 +21,7 @@ extension SDAI {
 	}
 	
 	//MARK: - ComplexEntity
-	public class ComplexEntity: SDAI.Object, CustomReflectable
+	public class ComplexEntity: SDAI.Object, CustomStringConvertible
 	{
 		private enum EntityReferenceStatus {
 			case unknown
@@ -29,13 +29,22 @@ extension SDAI {
 			case invalid
 		}
 		private var _partialEntities: Dictionary<PartialEntity.TypeIdentity,(instance:PartialEntity,reference:EntityReferenceStatus)> = [:]
-		
-		public var customMirror: Mirror {
-			return Mirror(self, 
-										children: [	"name" : self.qualifiedName, 
-																 "partialEntities" : self.partialEntities], 
-										displayStyle: .struct, 
-										ancestorRepresentation: .suppressed)
+				
+		// CustomStringConvertible
+		public var description: String {
+			var str = "\(self.qualifiedName)"
+			if self.isPartial {
+				str += "(partial)"
+			}
+			if self.isTemporary {
+				str += "(temporary)" 
+			}
+			str += "\n"
+			
+			for (i,partial) in self.partialEntities.enumerated() {
+				str += " [\(i)]\t\(partial)\n"
+			}
+			return str
 		}
 		
 		deinit {
@@ -83,7 +92,7 @@ extension SDAI {
 		
 		public var qualifiedName: String { "\(self.owningModel.name)#\(self.p21name)\(isTemporary ? "(temporary)" : "")" }
 
-		//MARK: partial entity access
+		//MARK: - partial entity access
 		public var partialEntities: [PartialEntity] {
 			_partialEntities.values.map{ (tuple) in tuple.instance }
 		}
@@ -116,6 +125,20 @@ extension SDAI {
 			return result
 		}
 		
+		public var leafEntityReferences: [EntityReference] {
+			let allEntities = self.entityReferences
+			let entitydefs = Set(allEntities.map{$0.definition})
+			var leafdefs = entitydefs
+			for entitydef in entitydefs {
+				let superdefs = entitydef.supertypes.dropLast().map{ $0.entityDefinition }	// excluding leaf entity
+				leafdefs.subtract(superdefs)
+			}
+			assert(leafdefs.count > 0)
+			let leafs = allEntities.filter{ leafdefs.contains($0.definition) }
+			return leafs
+		}
+		
+		
 		public func entityReference<EREF:EntityReference>(_ erefType:EREF.Type) -> EREF? {
 			let typeid = erefType.partialEntityType.typeIdentity
 			if let tuple = _partialEntities[typeid] {
@@ -137,6 +160,7 @@ extension SDAI {
 						return eref
 					}
 					else {
+						// register the erefType as invalid
 						_partialEntities[typeid] = (instance:pe, reference:.invalid)
 						return nil
 					}
@@ -145,7 +169,10 @@ extension SDAI {
 			return nil
 		}
 		
-		internal func updateEntityReference(_ eref: EntityReference) -> Bool {
+		/// register the newly created entity reference into the registory
+		/// - Parameter eref: entity reference to register
+		/// - Returns: true when this is the valid entity reference
+		internal func registerEntityReference(_ eref: EntityReference) -> Bool {
 			let typeid = type(of: eref).partialEntityType.typeIdentity
 			guard let tuple = _partialEntities[typeid] else { return false }
 			

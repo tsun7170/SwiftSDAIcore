@@ -26,7 +26,7 @@ extension SDAI {
 		
 		// CustomStringConvertible
 		public var description: String {
-			var str = "\n\(self.qualifiedEntityName)\n"
+			var str = "\(self.qualifiedEntityName)\n"
 			
 			let mirror = Mirror(reflecting: self)
 			for child in mirror.children {
