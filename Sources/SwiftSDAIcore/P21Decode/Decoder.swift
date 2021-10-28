@@ -11,6 +11,8 @@ import Foundation
 extension P21Decode {
 	
 	public final class Decoder {
+		
+		/// consolidated error info from decoder's subsystems
 		public enum Error: Equatable {
 			case decoderError(String)
 			case parserError(P21Error)
@@ -35,6 +37,12 @@ extension P21Decode {
 		private let foreginReferenceResolver: ForeignReferenceResolver
 		
 		//MARK: constructor
+		/// p21 character stream decoder constructor
+		/// - Parameters:
+		///   - output: SDAI repository to which the decoded entities are stored
+		///   - schemaList: list of known STEP schema
+		///   - monitor: decoder activity monitor pulgin object
+		///   - foreginReferenceResolver: foreign reference resolver pulgin object
 		public init?(output: SDAISessionSchema.SdaiRepository, 
 								 schemaList: KeyValuePairs<SchemaName,SDAISchema.Type>,
 								 monitor: ActivityMonitor? = nil,
@@ -46,8 +54,11 @@ extension P21Decode {
 		}
 		
 		//MARK: decoding operation
+		/// decode a given character stream according to ISO 10303-21 and known STEP shcemas
+		/// - Parameter charStream: p21 character stream
+		/// - Returns: array of SDAI models decoded
 		public func decode<CHARSTREAM>(input charStream: CHARSTREAM) -> [SDAIPopulationSchema.SdaiModel]?
-		where CHARSTREAM: IteratorProtocol, CHARSTREAM.Element == Character
+		where CHARSTREAM: CharacterStream //IteratorProtocol, CHARSTREAM.Element == Character
 		{
 			let parser = ExchangeStructureParser(charStream: charStream, monitor: self.activityMonitor)
 			exchangeStructrure = parser.parseExchangeStructure()
@@ -72,7 +83,7 @@ extension P21Decode {
 			}
 		
 			var createdModels: [SDAIPopulationSchema.SdaiModel] = []
-			for (i,datasec) in exchangeStructrure.dataSection.enumerated() {
+			for (i,datasec) in exchangeStructrure.dataSections.enumerated() {
 				guard datasec.resolveSchema() else { 
 					exchangeStructrure.add(errorContext: "while resolving data section[\(i)]")
 					error = .resolveError(exchangeStructrure.error ?? "<unknown schema resolution error>")

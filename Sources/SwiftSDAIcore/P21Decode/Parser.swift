@@ -10,6 +10,7 @@ import Foundation
 
 extension P21Decode {
 	
+	/// STEP part21 exchange structure token stream perser
 	public final class ExchangeStructureParser {
 		
 		private let activityMonitor: ActivityMonitor?
@@ -18,7 +19,7 @@ extension P21Decode {
 		
 		//MARK: constructor
 		public init<CHARSTREAM>(charStream: CHARSTREAM, monitor: ActivityMonitor? = nil) 
-		where CHARSTREAM: IteratorProtocol, CHARSTREAM.Element == Character
+		where CHARSTREAM: CharacterStream //IteratorProtocol, CHARSTREAM.Element == Character
 		{
 			self.activityMonitor = monitor
 			
@@ -71,6 +72,12 @@ extension P21Decode {
 		}
 		
 		//MARK: - token check
+		/// confirm a next token from the token stream is the expected terminal token given
+		/// - Parameters:
+		///   - expected: expected terminal token
+		///   - context: context in which this token chek is performed
+		///   - lastToken: last obtained token when this check is called
+		/// - Returns: true when the next token from the stream equals the expected
 		private func confirm(nextToken expected: TerminalToken, context: String, lastToken: TerminalToken?) -> Bool {
 			guard let next = tokenStream.next() else {
 				setErrorEndOfTokenStream(lastToken: lastToken, context: context)
@@ -84,6 +91,8 @@ extension P21Decode {
 		}
 		
 		//MARK:- Exchange Structure
+		/// parse the whole STEP p21 exchange structure
+		/// - Returns: the parsed exchange strucuture data structure if successful
 		public func parseExchangeStructure() -> ExchangeStructure? {
 			guard tokenStream.confirm(specialToken: "ISO-10303-21;") else {
 				setErrorFromTokenStream(context: "while parsing the head of exchange structure")
@@ -137,6 +146,15 @@ extension P21Decode {
 		
 		
 		//MARK:- Header Section
+		/// parse header section
+		/// - Returns: true if parse succeeded
+		/// 
+		///  		HEADER_SECTION     =	
+		///  		"HEADER;"
+		/// 		HEADER_ENTITY HEADER_ENTITY HEADER_ENTITY
+		///  		[HEADER_ENTITY_LIST]
+		///  		"ENDSEC;"
+		///  															 
 		private func parseHeaderSection() -> Bool {
 			if !tokenStream.confirm(specialToken: "HEADER;") { setErrorFromTokenStream(context: "while parsing the head of header section"); return false }
 			
@@ -167,6 +185,13 @@ extension P21Decode {
 			return false
 		}
 		
+		/// parse one header entity
+		/// - Parameter keyword: header entity keyword
+		/// - Returns: header entity simple record
+		///
+		///			HEADER_ENTITY =
+		///			KEYWORD "(" [ PARAMETER_LIST ] ")" ";"
+		///			  
 		private func parseHeaderEntity(keyword: TerminalToken?) -> ExchangeStructure.SimpleRecord? {
 			guard let keyword = keyword else { setErrorEndOfTokenStream(lastToken: nil, context: "while expecting header entity keyword"); return nil }
 			guard let rec = parseSimpleRecord(keyword: keyword) else { add(errorContext: "while parsing header entity"); return nil }
@@ -176,6 +201,13 @@ extension P21Decode {
 		}
 		
 		//MARK:- Anchor Section
+		/// parse anchor section
+		/// - Parameter keyword: anchor section beginning keyword
+		/// - Returns: true if parse succeeded
+		/// 		
+		/// 		ANCHOR_SECTION =
+		/// 		"ANCHOR;" ANCHOR_LIST "ENDSEC;"
+		/// 		 
 		private func parseAnchorSection(beginWith keyword: TerminalToken) -> Bool {
 			if !confirm(nextToken: .spSEMICOLON, context: "while parsing head of anchor section", lastToken: keyword) { return false }
 			
@@ -199,6 +231,13 @@ extension P21Decode {
 			return false
 		}
 		
+		/// parse one anchor
+		/// - Parameter name: anchor name
+		/// - Returns: true if parse succeeded
+		/// 
+		/// 		ANCHOR =
+		/// 		ANCHOR_NAME "=" ANCHOR_ITEM { ANCHOR_TAG } ";"
+		/// 		  
 		private func parseAnchor(name: TerminalToken) -> Bool {
 			if !confirm(nextToken: .spEQUAL, context: "while parsing anchor", lastToken: name) { return false }
 			guard let item = parseAnchorItem(beginWith: tokenStream.next()) else { add(errorContext: "while parsing anchor"); return false }
@@ -225,6 +264,14 @@ extension P21Decode {
 			setErrorEndOfTokenStream(lastToken: name, context: "while parsing tail of anchor")
 			return false
 		}
+		
+		/// parse one anchor item
+		/// - Parameter token: starting token
+		/// - Returns: parsed anchor item if succeeded
+		///			
+		///			ANCHOR_ITEM =
+		///			"$" | INTEGER | REAL | STRING | ENUMERATION | BINARY 
+		///			| RHS_OCCURRENCE_NAME | RESOURCE | ANCHOR_ITEM_LIST 
 		
 		private func parseAnchorItem(beginWith token: TerminalToken?) -> ExchangeStructure.AnchorItem? {
 			guard let token = token else { setErrorEndOfTokenStream(lastToken: nil, context: "while parsing anchor item"); return nil }
@@ -272,6 +319,13 @@ extension P21Decode {
 			}
 		}
 		
+		/// parse one anchor item list
+		/// - Parameter endToken: ending token
+		/// - Returns: list of anchor items
+		/// 
+		/// 		ANCHOR_ITEM_LIST =
+		/// 		"(" [ ANCHOR_ITEM { "," ANCHOR_ITEM } ] ")" 
+		/// 		 
 		private func parseAnchorItemList(endingWith endToken: TerminalToken ) -> [ExchangeStructure.AnchorItem]? {
 			var list:[ExchangeStructure.AnchorItem] = []
 			var expectingComma = false
@@ -295,6 +349,13 @@ extension P21Decode {
 			return nil
 		}
 		
+		/// parse one anchor tag
+		/// - Parameter leftBrace: beginning token
+		/// - Returns: parsed anchr tag if succeeded
+		/// 
+		/// 		ANCHOR_TAG =
+		/// 		"{" TAG_NAME ":" ANCHOR_ITEM "}"
+		/// 		 
 		private func parseAnchorTag(beginWith leftBrace: TerminalToken) -> ExchangeStructure.AnchorTag? {
 			guard let tagName = tokenStream.next() else { setErrorEndOfTokenStream(lastToken: nil, context: "while parsing anchor tag"); return nil }
 			if !confirm(nextToken: .spCOLON, context: "while parsing anchor tag", lastToken: tagName) { return nil }
@@ -317,6 +378,13 @@ extension P21Decode {
 		
 		
 		//MARK:- Reference Section
+		/// parse reference section
+		/// - Parameter keyword: beginning keyword
+		/// - Returns: true if parse succeeded
+		///			
+		///			REFERENCE_SECTION =
+		///			"REFERENCE;" REFERENCE_LIST "ENDSEC;"
+		///			 
 		private func parseReferenceSection(beginWith keyword: TerminalToken) -> Bool {
 			if !confirm(nextToken: .spSEMICOLON, context: "while parsing head of reference section", lastToken: keyword) { return false }
 			
@@ -342,6 +410,13 @@ extension P21Decode {
 			return false
 		}
 		
+		/// parse one reference
+		/// - Parameter name: beginning token
+		/// - Returns: true if parse succeeded
+		/// 
+		/// 		REFERENCE =
+		/// 		LHS_OCCURRENCE_NAME "=" RESOURCE ";"
+		/// 		 
 		private func parseReference(beginWith name: TerminalToken) -> Bool {
 			if !confirm(nextToken: .spEQUAL, context: "while parsing reference", lastToken: name) { return false }
 			
@@ -373,11 +448,19 @@ extension P21Decode {
 		
 		
 		//MARK:- Data Section
+		/// parse data section
+		/// - Parameter keyword: beginning keyword
+		/// - Returns: true if parse succeeded
+		/// 
+		/// 		DATA_SECTION =
+		/// 		"DATA" [ "(" PARAMETER_LIST ")" ] ";"
+		/// 		ENTITY_INSTANCE_LIST "ENDSEC;"
+		/// 		 
 		private func parseDataSection(beginWith keyword: TerminalToken) -> Bool {
 			var lastToken: TerminalToken? = keyword
 			
 			guard let dataSection = parseDataSectionHeader() else { add(errorContext: "while parsing data section"); return false }
-			exchangeStructure.dataSection.append(dataSection)
+			exchangeStructure.dataSections.append(dataSection)
 			
 			while let name = tokenStream.next() {
 				switch name {
@@ -415,7 +498,13 @@ extension P21Decode {
 			setErrorEndOfTokenStream(lastToken: lastToken, context: "while parsing entity instance")
 			return false
 		}
-	
+		
+		/// parse data section header
+		/// - Returns: data section data structure if succeeded
+		/// 
+		/// 		data section header =
+		/// 		[ "(" PARAMETER_LIST ")" ] ";"
+		/// 		 
 		private func parseDataSectionHeader() -> ExchangeStructure.DataSection? {
 			var expectingParameterList = true
 			var dataSectionParameters: [ExchangeStructure.Parameter]? = nil
@@ -450,6 +539,13 @@ extension P21Decode {
 			return nil
 		}
 		
+		/// parse one simple record
+		/// - Parameter keyword: simple record keyword
+		/// - Returns: parsed simple record if succeeded
+		/// 
+		/// 		SIMPLE_RECORD =
+		/// 		KEYWORD "(" [ PARAMETER_LIST ] ")"
+		/// 		 
 		private func parseSimpleRecord(keyword: TerminalToken?) -> ExchangeStructure.SimpleRecord? {
 			guard let keyword = keyword else { setErrorEndOfTokenStream(lastToken: nil, context: "while parsing simple record"); return nil }
 			
@@ -468,6 +564,13 @@ extension P21Decode {
 			}
 		}
 		
+		/// parse one subsuper record
+		/// - Parameter paren: beginning token
+		/// - Returns: parsed subsuper record if succeeded
+		/// 
+		/// 		SUBSUPER_RECORD =
+		/// 		"(" SIMPLE_RECORD_LIST ")"
+		/// 		  
 		private func parseSubsuperRecord(beginWith paren: TerminalToken) -> ExchangeStructure.SubsuperRecord? {
 			guard let pe1 = parseSimpleRecord(keyword: tokenStream.next()) else { add(errorContext: "while parsing head of subsuper record"); return nil }
 			var subsuper: ExchangeStructure.SubsuperRecord = [pe1]
@@ -493,6 +596,13 @@ extension P21Decode {
 		
 		
 		//MARK:- non-terminal tokens
+		/// parse one parameter list
+		/// - Parameter endToken: ending token
+		/// - Returns: list of parameters if succeeded
+		/// 
+		/// 		PARAMETER_LIST =
+		/// 		PARAMETER { "," PARAMETER } 
+		/// 		 
 		private func parseParameterList(endingWith endToken: TerminalToken) -> [ExchangeStructure.Parameter]? {
 			var list: [ExchangeStructure.Parameter] = []
 			var expectingComma = false
@@ -516,6 +626,14 @@ extension P21Decode {
 			return nil
 		}
 		
+		/// parse one parameter
+		/// - Parameter firstToken: beginning token
+		/// - Returns: parsed parameter if succeeded
+		/// 
+		/// 		PARAMETER =
+		/// 		TYPED_PARAMETER |
+		///			UNTYPED_PARAMETER | OMITTED_PARAMETER
+		///			 
 		private func parseParameter(beginWith firstToken: TerminalToken?) -> ExchangeStructure.Parameter? {
 			guard let firstToken = firstToken else { setErrorEndOfTokenStream(lastToken: nil, context: "while parsing parameter"); return nil }
 			

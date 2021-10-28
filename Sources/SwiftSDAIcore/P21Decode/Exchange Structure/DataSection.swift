@@ -20,7 +20,9 @@ extension P21Decode.ExchangeStructure {
 		let rec = EntityInstanceRecord(subsuperRecord: subsuperRecord, dataSection: dataSection)
 		return self.register(entityInstanceName: entityInstanceName, record: rec)
 	}
-		
+	
+	/// 11.1 Data section structure;
+	/// ISO 10303-21 
 	public final class DataSection: CustomStringConvertible {
 		
 		public unowned let exchangeStructure: P21Decode.ExchangeStructure
@@ -34,7 +36,7 @@ extension P21Decode.ExchangeStructure {
 		}
 		
 		public init?(exchange: P21Decode.ExchangeStructure, name: String, schema: P21Decode.SchemaName) {
-			guard !exchange.dataSection.contains(where: { $0.name == name }) 
+			guard !exchange.dataSections.contains(where: { $0.name == name }) 
 			else { exchange.error = "duplicated data section name(\(name))"; return nil }
 
 			guard exchange.headerSection.fileSchema.SCHEMA_IDENTIFIERS.contains(schema)
@@ -75,7 +77,6 @@ extension P21Decode.ExchangeStructure {
 	public final class EntityInstanceRecord {
 		public var source: Source
 		public var resolved: SDAI.ComplexEntity? = nil
-//		public var historical: [Source] = []
 		
 		public init(reference: Resource) {
 			self.source = .reference(reference)
@@ -89,10 +90,13 @@ extension P21Decode.ExchangeStructure {
 			self.source = .subsuperRecord(subsuperRecord, dataSection)
 		}
 		
+		/// entity instance source type classification
+		/// 5.5 WSN of the exchange structure;
+		/// ISO 10303-21 
 		public enum Source {
-			case reference(Resource)
-			case simpleRecord(SimpleRecord, DataSection)
-			case subsuperRecord(SubsuperRecord, DataSection)
+			case reference(Resource)													// REFERENCE = LHS_OCCURENCE_NAME "=" RESOURCE ";"
+			case simpleRecord(SimpleRecord, DataSection)			// KEYWORD "(" [ PARAMETER_LIST ] ")"
+			case subsuperRecord(SubsuperRecord, DataSection)	// "(" SIMPLE_RECORD_LIST ")"
 		}
 	}
 	

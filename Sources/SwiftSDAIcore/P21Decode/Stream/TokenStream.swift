@@ -35,6 +35,11 @@ extension P21Decode {
 		case spRIGHT_BRACE
 		case spEQUAL
 		
+		/// check if the subject token is KEYWORD
+		/// 
+		/// 		KEYWORD =
+		/// 		USER_DEFINED_KEYWORD | STANDARD_KEYWORD
+		/// 		 
 		var isKEYWORD: Bool {
 			switch self {
 			case .USER_DEFINED_KEYWORD(_):
@@ -46,6 +51,11 @@ extension P21Decode {
 			}
 		}
 		
+		/// check if the subject token is LHS_OCCURRENCE_NAME
+		/// 
+		/// 		LHS_OCCURRENCE_NAME = 
+		/// 		( ENTITY_INSTANCE_NAME | VALUE_INSTANCE_NAME )
+		/// 		 
 		var isLHS_OCCURRENCE_NAME: Bool {
 			switch self {
 			case .ENTITY_INSTANCE_NAME(_):
@@ -56,6 +66,12 @@ extension P21Decode {
 				return false
 			}	
 		}
+		
+		/// check if the subject token is RHS_OCCURRENCE_NAME
+		/// 
+		/// 		RHS_OCCURRENCE_NAME =
+		/// 		( ENTITY_INSTANCE_NAME | VALUE_INSTANCE_NAME |
+		/// 		  CONSTANT_ENTITY_NAME | CONSTANT_VALUE_NAME) 
 		
 		var isRHS_OCCURRENCE_NAME: Bool {
 			switch self {
@@ -73,6 +89,15 @@ extension P21Decode {
 		}		
 	}
 	
+	/// part21 token stream
+	/// 
+	/// # Reference
+	/// 5.4 Definition of tokens;
+	/// 5.6 Token separators;
+	/// 6 Tokens
+	/// 
+	/// ISO 10303-21
+	///  
 	internal final class TokenStream: IteratorProtocol
 	{
 		internal typealias Element = TerminalToken
@@ -111,6 +136,10 @@ extension P21Decode {
 			self.activityMonitor = monitor
 		}
 		
+		/// confirm the next token is a given special token
+		/// - Parameter specialToken: special token
+		/// - Returns: true if the next token is the expected one
+		///
 		internal func confirm(specialToken: String) -> Bool {
 			for (i,sp) in specialToken.enumerated() {
 				guard let c = p21stream.next() else { setError("unexpected end of input stream after '\(specialToken.prefix(upTo: specialToken.index(specialToken.startIndex, offsetBy: i)))' while scanning special token(\(specialToken))"); return false }
@@ -119,6 +148,9 @@ extension P21Decode {
 			return true
 		}
 		
+		/// get next token from token stream
+		/// - Returns: obtained token if available
+		///  
 		internal func next() -> TerminalToken? {
 			while true {
 				if let monitor = activityMonitor, monitor.abortDecoder() {
@@ -197,6 +229,13 @@ extension P21Decode {
 			}
 		}
 		
+		/// scan one user defined keyword
+		/// - Parameter firstChar: beginnig character
+		/// - Returns: scanned token if succeeded
+		/// 
+		/// 		USER_DEFINED_KEYWORD =
+		/// 		"!" UPPER { UPPER | DIGIT }
+		/// 		 
 		private func scanUserDefinedKeyword(_ firstChar:Character ) -> TerminalToken? {
 			guard let c = p21stream.next() else { setError("unexpected end of input stream after '\(firstChar)' while scanning user defined keyword"); return nil }
 			guard c.is(Self.UPPER) else { setError("non-capital-letter(\(c)) is detected as the head of user defined keyword"); return nil }
@@ -214,6 +253,16 @@ extension P21Decode {
 			return .USER_DEFINED_KEYWORD(keyword)
 		}
 		
+		/// scan one standard keyword or tag name
+		/// - Parameter firstChar: beginning character
+		/// - Returns: scanned token if succeeded
+		/// 
+		/// 		STANDARD_KEYWORD =
+		/// 		UPPER { UPPER | DIGIT }
+		/// 		
+		/// 		TAG_NAME =
+		/// 		( UPPER | LOWER ) { UPPER | LOWER | DIGIT }
+		/// 		 
 		private func scanStandardKeyword_or_tagName(_ firstChar:Character ) -> TerminalToken? {
 			var isTag = firstChar.is(Self.LOWER)
 			var keyword = String(firstChar)
@@ -233,6 +282,17 @@ extension P21Decode {
 			return .STANDARD_KEYWORD(keyword)
 		}
 		
+		/// scan one integer or real
+		/// - Parameter firstChar: beginning character
+		/// - Returns: scanned token if succeeded
+		/// 
+		/// 		INTEGER = 
+		/// 		[SIGN] DIGIT {DIGIT}
+		/// 		
+		/// 		REAL =
+		/// 		[SIGN] DIGIT {DIGIT} "." {DIGIT}
+		/// 		[ "E" [ SIGN ] DIGIT { DIGIT } ]
+		/// 		 
 		private func scanInteger_or_real(_ firstChar:Character ) -> TerminalToken? {
 			var isValid = firstChar.is(Self.DIGIT)
 			var number = String(firstChar)
@@ -256,6 +316,14 @@ extension P21Decode {
 			return .INTEGER(value)
 		}
 		
+		/// scan one real following a seqence of number characters
+		/// - Parameter number: preceding number characters (i.e., [SIGN] DIGIT {DIGIT} ".")
+		/// - Returns: scanned token if succeeded
+		///  
+		/// 		REAL =
+		/// 		number {DIGIT}
+		/// 		[ "E" [ SIGN ] DIGIT { DIGIT } ]
+		/// 		 
 		private func scanReal(following number:String ) -> TerminalToken? {
 			var number = number
 			
@@ -277,6 +345,13 @@ extension P21Decode {
 			return .REAL(value)
 		}
 		
+		/// scan an exponent part of a real
+		/// - Parameter number: preceding number characters (i.e., )
+		/// - Returns: scanned token if succeeded
+		/// 
+		/// 		REAL =
+		/// 		number [ SIGN ] DIGIT { DIGIT } 
+		///  
 		private func scanRealExponent(following number:String ) -> TerminalToken? {
 			var number = number
 			
@@ -301,7 +376,17 @@ extension P21Decode {
 			guard let value = Double(number) else { setError("input steam(\(number)) could not be interpreted as REAL with exponent part"); return nil }
 			return .REAL(value)
 		}
-
+		
+		/// scan one string
+		/// - Parameter firstChar: beginning character
+		/// - Returns: scanned token if succeeded
+		/// 
+		/// 		STRING =
+		/// 		"'" { SPECIAL | DIGIT | SPACE | LOWER | UPPER |
+		/// 		HIGH_CODEPOINT |
+		///			APOSTROPHE APOSTROPHE |
+		///			REVERSE_SOLIDUS REVERSE_SOLIDUS | CONTROL_DIRECTIVE } "'"
+		///			 		
 		private func scanString(_ firstChar:Character ) -> TerminalToken? {
 			var str = ""
 			
@@ -329,16 +414,59 @@ extension P21Decode {
 			setError("unexpected end of input stream after '\(str)' while scanning STRING")
 			return nil			
 		}
-
+		
+		/// scan one string control directive
+		/// - Returns: control directive string if succeeded
+		/// 
+		/// 		CONTROL_DIRECTIVE = 
+		/// 		PAGE | ALPHABET | EXTENDED2 | EXTENDED4 | ARBITRARY
+		/// 		
+		/// 		PAGE = 
+		/// 		REVERSE_SOLIDUS "S" REVERSE_SOLIDUS LATIN_CODEPOINT
+		/// 		
+		/// 		ALPHABET = 
+		/// 		REVERSE_SOLIDUS "P" UPPER REVERSE_SOLIDUS
+		/// 		
+		/// 		EXTENDED2 = 
+		/// 		REVERSE_SOLIDUS "X2" REVERSE_SOLIDUS HEX_TWO { HEX_TWO } END_EXTENDED
+		/// 		
+		/// 		EXTENDED4 = 
+		/// 		REVERSE_SOLIDUS "X4" REVERSE_SOLIDUS HEX_FOUR { HEX_FOUR } END_EXTENDED
+		/// 		
+		/// 		END_EXTENDED = 
+		/// 		REVERSE_SOLIDUS "X0" REVERSE_SOLIDUS
+		/// 		
+		/// 		ARBITRARY = 
+		/// 		REVERSE_SOLIDUS "X" REVERSE_SOLIDUS HEX_ONE
+		/// 		
+		/// 		HEX_ONE = 
+		/// 		HEX HEX
+		/// 		
+		/// 		HEX_TOW = 
+		/// 		HEX_ONE HEX_ONE
+		/// 		
+		/// 		HEX_FOUR = 
+		/// 		HEX_TWO HEX_TWO
+		/// 		
+		/// # Reference
+		/// 6.4.3.1 String structure;
+		/// 6.4.3.2 Encoding ISO 8859 characters within a string;
+		/// 6.4.3.3 Encoding ISO 10646 characters within a string;
+		/// 6.4.3.4 Encoding U+0000 to U+00FF in a string;
+		/// 
+		/// ISO 10303-21
+		///  
 		private func scanStringControlDirective() -> String? {
 			guard let c = p21stream.next() else { setError("unexpected end of input stream after '\\' while scanning STRING control directive"); return nil }
-			if c == "\\" {
+			
+			if c == "\\" {	// REVERSE_SOLIDUS REVERSE_SOLIDUS
 				return "\\"
 			}
 			
-			else if c == "X" {
+			else if c == "X" {	// EXTENDED2 | EXTENDED4 | ARBITRARY
 				guard let c = p21stream.next() else { setError("unexpected end of input stream after '\\X' while scanning STRING control directive"); return nil }
-				if c == "\\" {
+				
+				if c == "\\" {	// ARBITRARY
 					guard let hex1 = p21stream.next() else { setError("unexpected end of input stream after '\\X\\' while scanning STRING control directive"); return nil }
 					guard hex1.is(Self.HEX) else { setError("non-hex-character(\(hex1)) is detected after '\\X\\' while scanning STRING control directive"); return nil }
 					guard let hex2 = p21stream.next() else { setError("unexpected end of input stream after '\\X\\\(hex1)' while scanning STRING control directive"); return nil}
@@ -348,10 +476,10 @@ extension P21Decode {
 					guard let unicode = Unicode.Scalar(hexval) else { setError("STRING control directive(\\X\\\(hex1)\(hex2)) could not be interpreted as valid unicode scalar"); return nil }
 					return String(Character(unicode))
 				}
-				else if c == "2" {
+				else if c == "2" {	// EXTENDED2
 					return scanStringControlDirectiveExtended(chunk: 2)
 				}
-				else if c == "4" {
+				else if c == "4" {	// EXTENDED4
 					return scanStringControlDirectiveExtended(chunk: 4)
 				}
 				else {
@@ -360,7 +488,7 @@ extension P21Decode {
 				}
 			} 
 			
-			else {
+			else {	// ISO 8859 characters encoding, including PAGE (minimal scanner support)
 				var str = "\\\(c)"
 				while let c = p21stream.next() {
 					str.append(c)
@@ -371,6 +499,33 @@ extension P21Decode {
 			}
 		}
 		
+		/// scan one ISO 10646 characters encoding as EXTENDED2 or EXTENDED4
+		/// - Parameter chunk: hex chunk size (2 or 4)
+		/// - Returns: scanned ISO 10646 characters if succeeded
+		///  
+		/// 		EXTENDED2 = 
+		/// 		REVERSE_SOLIDUS "X2" REVERSE_SOLIDUS HEX_TWO { HEX_TWO } END_EXTENDED
+		/// 		
+		/// 		EXTENDED4 = 
+		/// 		REVERSE_SOLIDUS "X4" REVERSE_SOLIDUS HEX_FOUR { HEX_FOUR } END_EXTENDED
+		/// 		
+		/// 		END_EXTENDED = 
+		/// 		REVERSE_SOLIDUS "X0" REVERSE_SOLIDUS
+		/// 		
+		/// 		HEX_ONE = 
+		/// 		HEX HEX
+		/// 		
+		/// 		HEX_TOW = 
+		/// 		HEX_ONE HEX_ONE
+		/// 		
+		/// 		HEX_FOUR = 
+		/// 		HEX_TWO HEX_TWO
+		/// 
+		/// # Reference
+		/// 6.4.3.3 Encoding ISO 10646 characters within a string;
+		/// 
+		/// ISO 10303-21
+		/// 		 
 		private func scanStringControlDirectiveExtended(chunk: Int) -> String? {
 			var str = ""
 			var hexseq: [Character] = []
@@ -409,6 +564,22 @@ extension P21Decode {
 			return nil
 		}
 		
+		/// scan one (entity or value) instance name or constant name
+		/// - Parameter firstChar: beginning character
+		/// - Returns: scanned token if succeeded
+		/// 
+		/// 		ENTITY_INSTANCE_NAME = 
+		/// 		"#" ( DIGIT ) { DIGIT }
+		/// 		
+		/// 		VALUE_INSTANCE_NAME =
+		/// 		"@" ( DIGIT ) { DIGIT }
+		/// 		
+		/// 		CONSTANT_ENTITY_NAME = 
+		/// 		"#" ( UPPER ) { UPPER | DIGIT }
+		/// 		
+		/// 		CONSTANT_VALUE_NAME =
+		/// 		"@" ( UPPER ) { UPPER | DIGIT }
+		/// 		 
 		private func scanInstanceName_or_constantName(_ firstChar: Character ) -> TerminalToken? {
 			guard let c = p21stream.next() else { setError("unexpected end of input stream after '\(firstChar)' while scanning INSTANCE NAME|CONSTANT NAME"); return nil }
 			if c.is(Self.DIGIT) { return scanInstanceName(first: firstChar, second: c) }
@@ -417,7 +588,19 @@ extension P21Decode {
 			return nil
 			
 		}
-
+		
+		/// scan one entity or value instance name
+		/// - Parameters:
+		///   - first: first character
+		///   - second: second character
+		/// - Returns: scanned token if succeeded
+		///  
+		/// 		ENTITY_INSTANCE_NAME = 
+		/// 		"#" ( DIGIT ) { DIGIT }
+		/// 		
+		/// 		VALUE_INSTANCE_NAME =
+		/// 		"@" ( DIGIT ) { DIGIT }
+		/// 		
 		private func scanInstanceName(first:Character, second:Character) -> TerminalToken? {
 			var number = String(second)
 			
@@ -443,7 +626,19 @@ extension P21Decode {
 				return nil
 			}
 		}		
-
+		
+		/// scan one entity or value constant name
+		/// - Parameters:
+		///   - first: first character
+		///   - second: second character
+		/// - Returns: scanned token if succeeded 
+		/// 		
+		/// 		CONSTANT_ENTITY_NAME = 
+		/// 		"#" ( UPPER ) { UPPER | DIGIT }
+		/// 		
+		/// 		CONSTANT_VALUE_NAME =
+		/// 		"@" ( UPPER ) { UPPER | DIGIT }
+		/// 		 
 		private func scanConstantName(first:Character, second:Character) -> TerminalToken? {
 			var name = String(second)
 			
@@ -468,6 +663,13 @@ extension P21Decode {
 			}
 		}		
 		
+		/// scan one resource
+		/// - Parameter firstChar: first character
+		/// - Returns: scanned token if succeeded
+		/// 
+		/// 		RESOURCE = 
+		/// 		"<" UNIVERSAL_RESOURCE_IDENTIFIER ">"
+		/// 		 
 		private func scanResource(_ firstChar:Character ) -> TerminalToken? {
 			var uri = ""
 			
@@ -481,6 +683,13 @@ extension P21Decode {
 			return nil
 		}
 		
+		/// scan one enumeration
+		/// - Parameter firstChar: first character
+		/// - Returns: scanned token if succeeded
+		/// 
+		/// 		ENUMERATION = 
+		/// 		"." UPPER { UPPER | DIGIT } "."
+		/// 		 
 		private func scanEnumeration(_ firstChar:Character ) -> TerminalToken? {
 			guard let c = p21stream.next(), c.is(Self.UPPER) else { setError("non-UPPER character is detected after '\(firstChar)' while scanning ENUMERATION value"); return nil }
 			var enumval = String(c)
@@ -503,6 +712,13 @@ extension P21Decode {
 			return nil
 		}
 		
+		/// scan one binary
+		/// - Parameter firstChar: first character
+		/// - Returns: scanned token if succeeded
+		/// 
+		/// 		BINARY = 
+		/// 		"""" ( "0" | "1" | "2" | "3" ) { HEX } """"
+		/// 		 
 		private func scanBinary(_ firstChar:Character ) -> TerminalToken? {
 			guard let nchar = p21stream.next() else { setError("unexpected end of input stream after '\(firstChar)' while scanning BINARY"); return nil }
 			guard nchar.is(Self.csBinaryHead) else { setError("character(\(nchar)) other than '0'|'1'|'2'|'3' is detected after '\(firstChar)' while scanning BINARY"); return nil }
@@ -542,6 +758,15 @@ extension P21Decode {
 			return nil		
 		}
 		
+		/// scan one consecutive token separator
+		/// - Parameter firstChar: first character
+		/// - Returns: true if scanning is successful
+		///
+		/// # Reference
+		/// 5.6 Token separators;
+		/// 
+		/// ISO 10303-21
+		///  
 		private func scanTokenSeparators(_ firstChar:Character ) -> Bool {
 			var c = firstChar
 			
@@ -566,6 +791,15 @@ extension P21Decode {
 			}			
 		}
 		
+		/// scan one comment
+		/// - Parameter firstChar: first character
+		/// - Returns: true if scanning is successful
+		///
+		/// # Reference
+		/// 5.6 Token separators;
+		/// 
+		/// ISO 10303-21
+		///  
 		private func scanComment(_ firstChar:Character ) -> Bool {
 			guard let aster = p21stream.next() else { setError("unexpected end of input stream after '/' while scanning comment"); return false }
 			guard aster == "*" else { setError("unexpected character(\(aster)) other than '*' is detected while scanning comment"); return false }
@@ -582,6 +816,14 @@ extension P21Decode {
 			return false
 		}
 		
+		/// scan one print control directive
+		/// - Parameter firstChar: first character
+		/// - Returns: true if scanning is successful
+		/// # Reference
+		/// 13 Printed representation of exchange structures;
+		/// 
+		/// ISO 10303-21
+		///  
 		private func scanPrintControlDirective(_ firstChar:Character ) -> Bool {
 			guard let code = p21stream.next() else { setError("unexpected end of input stream after '\\' while scanning print control directive"); return false }
 			guard let revSolidus = p21stream.next() else { setError("unexpected end of input stream after '\\\(code)' while scanning print control directive"); return false }

@@ -10,6 +10,7 @@ import Foundation
 
 extension P21Decode.ExchangeStructure {
 	
+	/// ISO 10303-21 9 Anchor section
 	public struct AnchorSection {
 		public private(set) var externalItems: [URIFragmentIdentifier:AnchorRecord] = [:]
 		

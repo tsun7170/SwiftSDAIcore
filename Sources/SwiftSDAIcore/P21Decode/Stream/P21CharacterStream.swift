@@ -8,12 +8,32 @@
 
 import Foundation
 
+public protocol CharacterStream: IteratorProtocol where Self.Element == Character {}
+
+extension String.Iterator : CharacterStream {}
+
+public typealias AnyCharacterStream = AnyIterator<Character>
+
+extension AnyIterator: CharacterStream where Element == Character {}
+
+
+
 extension P21Decode {
 	
+	
+	/// part21 basic alphabet character stream
+	/// 
+	/// # Reference
+	/// 5.2 Basic alphabet definition;
+	/// 5.6 Token separators;
+	/// 
+	/// ISO 10303-21
+	///  
 	internal final class P21CharacterStream: IteratorProtocol 
 	{
 		internal typealias Element = Character
 		
+		/// ref 5.2 Basic alphabet definition; ISO 10303-21
 		internal let basicAlphabet = 
 			CharacterSet(charactersIn: Unicode.Scalar(0x0020) ... Unicode.Scalar(0x007E)).union( 
 			CharacterSet(charactersIn: Unicode.Scalar(0x0080) ... Unicode.Scalar(0x10FFFF)!) )
@@ -24,7 +44,7 @@ extension P21Decode {
 		internal private(set) var lineNumber: Int = 1
 		
 		internal init<CHARSTREAM>(charStream: CHARSTREAM, monitor: ActivityMonitor? = nil) 
-		where CHARSTREAM: IteratorProtocol, CHARSTREAM.Element == Character
+		where CHARSTREAM: CharacterStream //IteratorProtocol, CHARSTREAM.Element == Character
 		{
 			self.charStream = AnyIterator(charStream)
 			self.activityMonitor = monitor

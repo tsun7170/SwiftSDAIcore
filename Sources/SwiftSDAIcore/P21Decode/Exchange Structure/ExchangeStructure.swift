@@ -10,10 +10,12 @@ import Foundation
 
 extension P21Decode {
 	
-	public final class ExchangeStructure {
+	/// 5.3 Exchange structure;
+	/// ISO 10303-21
+	public final class ExchangeStructure: SDAI.Object {
 		public internal(set) var headerSection = HeaderSection()
 		public internal(set) var anchorSection = AnchorSection()
-		public internal(set) var dataSection: [DataSection] = []
+		public internal(set) var dataSections: [DataSection] = []
 		
 		public internal(set) var foreignReferenceResolver: ForeignReferenceResolver? = nil
 		public internal(set) var repository: SDAISessionSchema.SdaiRepository? = nil
@@ -22,8 +24,10 @@ extension P21Decode {
 		public internal(set) var entityInstanceRegistory: [EntityInstanceName:EntityInstanceRecord] = [:]
 		public private(set) var shcemaRegistory: [SchemaName:SDAISchema.Type] = [:]
 		
-		public private(set) lazy var topLevelEntities = self.resolveTopLevelEntities()
-		
+		public var sdaiModels: AnySequence<SDAIPopulationSchema.SdaiModel> {
+			let models = dataSections.lazy.compactMap{ $0.model }
+			return AnySequence(models)
+		}
 		
 		private let activityMonitor: ActivityMonitor?
 		
@@ -46,7 +50,7 @@ extension P21Decode {
 		}
 
 
-		//MARK: - register related
+		//MARK: - registration related
 		internal func register(entityInstanceName: EntityInstanceName, record: EntityInstanceRecord) -> Bool {
 			if let old = entityInstanceRegistory.updateValue(record, forKey: entityInstanceName) {
 				self.error = "duplicated entity instance name(\(entityInstanceName)) detected with resource reference(\(record)), old reference = (\(old))"
@@ -70,7 +74,7 @@ extension P21Decode {
 			return true
 		}
 		
-		//MARK: - resolve related
+		//MARK: - resolution related
 		public func resolve(schemaName: SchemaName) -> SDAISchema.Type? {
 			let canon = canonicalSchemaName(schemaName)
 			return shcemaRegistory[canon]
