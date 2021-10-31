@@ -234,7 +234,7 @@ extension SDAI {
 	///   - V: V is an underlying type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is an expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAIUnderlyingType>(V: GEN1?, SUBSTITUTE: GEN1.FundamentalType?) -> GEN1? {
+	public static func NVL<GEN1: SDAIUnderlyingType>(V: GEN1?, SUBSTITUTE: GEN1.FundamentalType?) -> GEN1 {
 		return V ?? GEN1.convert(from: UNWRAP(SUBSTITUTE))
 	}
 	/// ISO 10303-11 (15.18) NVL - null value function
@@ -245,7 +245,7 @@ extension SDAI {
 	///   - V: V is an simple type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is an expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAISimpleType>(V: GEN1?, SUBSTITUTE: GEN1.SwiftType?) -> GEN1? {
+	public static func NVL<GEN1: SDAISimpleType>(V: GEN1?, SUBSTITUTE: GEN1.SwiftType?) -> GEN1 {
 		return V ?? GEN1(from: UNWRAP(SUBSTITUTE))
 	}
 	/// ISO 10303-11 (15.18) NVL - null value function
@@ -256,7 +256,7 @@ extension SDAI {
 	///   - V: V is an entity reference type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is an entity reference expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: SDAI.EntityReference?) -> GEN1? {
+	public static func NVL<GEN1: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: SDAI.EntityReference?) -> GEN1 {
 		return V ?? UNWRAP(GEN1.cast(from:SUBSTITUTE))
 	}
 	/// ISO 10303-11 (15.18) NVL - null value function
@@ -267,7 +267,7 @@ extension SDAI {
 	///   - V: V is an entity reference type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is a complex entity expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: SDAI.ComplexEntity?) -> GEN1? {
+	public static func NVL<GEN1: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: SDAI.ComplexEntity?) -> GEN1 {
 		return V ?? UNWRAP(GEN1(complex: SUBSTITUTE))
 	}
 	/// ISO 10303-11 (15.18) NVL - null value function
@@ -278,7 +278,7 @@ extension SDAI {
 	///   - V: V is an select type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is a complex entity expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAISelectType>(V: GEN1?, SUBSTITUTE: SDAI.ComplexEntity?) -> GEN1? {
+	public static func NVL<GEN1: SDAISelectType>(V: GEN1?, SUBSTITUTE: SDAI.ComplexEntity?) -> GEN1 {
 		return V ?? UNWRAP(GEN1(possiblyFrom: SUBSTITUTE))
 	}
 	/// ISO 10303-11 (15.18) NVL - null value function
@@ -289,7 +289,7 @@ extension SDAI {
 	///   - V: V is an select type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is an entity reference expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAISelectType, GEN2: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1? {
+	public static func NVL<GEN1: SDAISelectType, GEN2: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1 {
 		return V ?? UNWRAP(GEN1(possiblyFrom: SUBSTITUTE))
 	}
 	/// ISO 10303-11 (15.18) NVL - null value function
@@ -300,7 +300,7 @@ extension SDAI {
 	///   - V: V is an select type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is an underlying type expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAISelectType, GEN2: SDAIUnderlyingType>(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1? {
+	public static func NVL<GEN1: SDAISelectType, GEN2: SDAIUnderlyingType>(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1 {
 		return V ?? UNWRAP(GEN1(possiblyFrom: SUBSTITUTE))
 	}
 	/// ISO 10303-11 (15.18) NVL - null value function
@@ -311,7 +311,7 @@ extension SDAI {
 	///   - V: V is an select type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is a select type expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAISelectType, GEN2: SDAISelectType>(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1? {
+	public static func NVL<GEN1: SDAISelectType, GEN2: SDAISelectType>(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1 {
 		return V ?? UNWRAP(GEN1.convert(sibling: SUBSTITUTE))
 	}
 	
@@ -422,7 +422,7 @@ extension SDAI {
 	/// 
 	/// - Returns: The contents of the returned set of string values are the names (in upper case) of all types that the value V is a member of. Such names are qualified by the name of the schema that contains the definition of the type (’SCHEMA.TYPE’) if it is neither a simple data type nor an aggregation data type.
 	/// 	- If V evaluates to indeterminate (?), typeof returns an empty set. 
-	public static func TYPEOF<Generic: SDAIGenericType>(_ V: Generic?) -> SET<STRING>? {
+	public static func TYPEOF<Generic: SDAIGenericType>(_ V: Generic?) -> SET<STRING> {
 		guard let v = V else { return SET<STRING>() }
 		return SET<STRING>(from: v.typeMembers )
 	}
@@ -448,7 +448,7 @@ extension SDAI {
 	/// All relationships directed toward T are examined. 
 	/// Note that if T is not used, an empty bag is returned.
 	/// If either T is indeterminate (?), an empty bag is returned.
-	public static func USEDIN<GEN:SDAIGenericType>(T: GEN?) -> BAG<EntityReference>? {
+	public static func USEDIN<GEN:SDAIGenericType>(T: GEN?) -> BAG<EntityReference> {
 		guard let T = T?.entityReference else { return BAG<EntityReference>() }
 		return BAG( from: T.complexEntity.usedIn() )
 	}
@@ -462,7 +462,7 @@ extension SDAI {
 	/// When the relationship originates from an attribute with the name R, the entity instance containing that attribute is added to the result bag. 
 	/// Note that if T is not used, an empty bag is returned.
 	/// If either T or R are indeterminate (?), an empty bag is returned.
-	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference, R:SDAIGenericType>(T: GEN?, ROLE: KeyPath<ENT,R>) -> BAG<ENT>? {
+	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference, R:SDAIGenericType>(T: GEN?, ROLE: KeyPath<ENT,R>) -> BAG<ENT> {
 		guard let T = T?.entityReference else { return BAG<ENT>() }
 		return BAG(from: T.complexEntity.usedIn(as: ROLE))
 	}
@@ -476,7 +476,7 @@ extension SDAI {
 	/// When the relationship originates from an attribute with the name R, the entity instance containing that attribute is added to the result bag. 
 	/// Note that if T is not used, an empty bag is returned.
 	/// If either T or R are indeterminate (?), an empty bag is returned.
-	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference, R:SDAIGenericType>(T: GEN?, ROLE: KeyPath<ENT,R?>) -> BAG<ENT>? {
+	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference, R:SDAIGenericType>(T: GEN?, ROLE: KeyPath<ENT,R?>) -> BAG<ENT> {
 		guard let T = T?.entityReference else { return BAG<ENT>() }
 		return BAG(from: T.complexEntity.usedIn(as: ROLE))
 	}
