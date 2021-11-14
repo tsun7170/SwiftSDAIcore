@@ -30,6 +30,8 @@ public extension SDAI__BOOLEAN__type
 	var possiblyAsSwiftBool: Bool? { return self.asSwiftType }
 	var asSwiftBool: Bool { return self.asSwiftType }
 	var isTRUE: Bool { return self.asSwiftType }
+	var isFALSE: Bool { return !self.asSwiftType }
+	var isUNKNOWN: Bool { return false }
 
 	init(_ bool: Bool) {
 		self.init(from: bool)

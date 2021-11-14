@@ -19,13 +19,15 @@ public protocol SwiftBoolConvertible
 public protocol SDAILogicalType: SDAISimpleType, ExpressibleByBooleanLiteral, SwiftBoolConvertible
 {
 	var isTRUE: Bool {get}
-	var isnotTRUE: Bool {get}
+	var isFALSE: Bool {get}
+	var isUNKNOWN: Bool {get}
+//	var isnotTRUE: Bool {get}
 	var possiblyAsSwiftBool: Bool? {get}
 }
-public extension SDAILogicalType
-{
-	var isnotTRUE: Bool { return !self.isTRUE }
-}
+//public extension SDAILogicalType
+//{
+//	var isnotTRUE: Bool { return !self.isTRUE }
+//}
 
 public protocol SDAI__LOGICAL__type: SDAILogicalType, ExpressibleByNilLiteral 
 where FundamentalType == SDAI.LOGICAL,
@@ -41,6 +43,8 @@ public extension SDAI__LOGICAL__type
 	var possiblyAsSwiftBool: Bool? { return self.asSwiftType }
 	var asSwiftBool: Bool { return SDAI.UNWRAP(self.possiblyAsSwiftBool) }
 	var isTRUE: Bool { return self.asSwiftType ?? false }
+	var isFALSE: Bool { return !(self.asSwiftType ?? true) }
+	var isUNKNOWN: Bool { return self.asSwiftType == nil }
 
 	init(_ bool: Bool?) {
 		self.init(from: bool)

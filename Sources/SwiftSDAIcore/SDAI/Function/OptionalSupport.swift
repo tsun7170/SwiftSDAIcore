@@ -17,6 +17,8 @@ extension SDAI {
 	public static func FORCE_OPTIONAL<T>(_ val:T) -> T? { return val }
 	
 	public static func IS_TRUE<T: SDAILogicalType>(_ logical: T?) -> Bool { logical?.isTRUE ?? false }
+	public static func IS_FALSE<T: SDAILogicalType>(_ logical: T?) -> Bool { logical?.isFALSE ?? false }
+	public static func IS_UNKNOWN<T: SDAILogicalType>(_ logical: T?) -> Bool { logical?.isUNKNOWN ?? true }
 	
 	public static func UNWRAP<A:Sequence>(seq: A?) -> A 
 	where A: InitializableByVoid {
