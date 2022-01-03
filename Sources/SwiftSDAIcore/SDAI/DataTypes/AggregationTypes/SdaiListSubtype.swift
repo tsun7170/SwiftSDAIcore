@@ -23,18 +23,18 @@ public extension SDAI__LIST__subtype
 	mutating func remove(at position: Int) { rep.remove(at: position) }
 
 	// Aggregation operator support
-	func unionWith<U: SDAIListType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
-	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(rhs: rhs) }
-	func unionWith<U: SDAIGenericType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
-	where ELEMENT.FundamentalType == U.FundamentalType { rep.unionWith(rhs: rhs) }
-	func unionWith<U: SDAIGenericType>(lhs: U) -> SDAI.LIST<ELEMENT>? 
-	where ELEMENT.FundamentalType == U.FundamentalType { rep.unionWith(lhs: lhs) }
-	func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>? { rep.unionWith(rhs: rhs) }
-	func unionWith<U: SDAI__GENERIC__type>(lhs: U) -> SDAI.LIST<ELEMENT>? { rep.unionWith(lhs: lhs) }
-	func unionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>? 
-	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(rhs: rhs) }
-	func unionWith<U: SDAIAggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>? 
-	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(lhs: lhs) }
+	func appendWith<U: SDAIListType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.appendWith(rhs: rhs) }
+	func appendWith<U: SDAIGenericType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.FundamentalType { rep.appendWith(rhs: rhs) }
+	func prependWith<U: SDAIGenericType>(lhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.FundamentalType { rep.prependWith(lhs: lhs) }
+	func appendWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>? { rep.appendWith(rhs: rhs) }
+	func prependWith<U: SDAI__GENERIC__type>(lhs: U) -> SDAI.LIST<ELEMENT>? { rep.prependWith(lhs: lhs) }
+	func appendWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.appendWith(rhs: rhs) }
+	func prependWith<U: SDAIAggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>? 
+	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.prependWith(lhs: lhs) }
 	
 	// InitializableByGenerictype
 	init?<G: SDAIGenericType>(fromGeneric generic: G?) {

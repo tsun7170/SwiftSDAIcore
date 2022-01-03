@@ -93,13 +93,13 @@ public func .!==. <T: SDAISelectType,U: SDAIEnumerationType>(lhs: T?, rhs: U?) -
 //MARK: select vs. select
 public func .===. <T: SDAISelectType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
-	return SDAI.GENERIC(lhs) .===. rhs
+	return SDAI.GENERIC(lhs) .===. SDAI.GENERIC(rhs)
 }
 public func .!==. <T: SDAISelectType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
 
 
-//MARK: GENERIC vs. generic type
-public func .===. <T: SDAI__GENERIC__type, U: SDAIGenericType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL {
+//MARK: GENERIC vs. GENERIC
+public func .===. (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL {
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	
 	if let lhs = lhs.entityReference, let rhs = rhs.entityReference {
@@ -122,4 +122,4 @@ public func .===. <T: SDAI__GENERIC__type, U: SDAIGenericType>(lhs: T?, rhs: U?)
 	}
 	return lhs .==. rhs	
 }
-public func .!==. <T: SDAI__GENERIC__type, U: SDAI__GENERIC__type>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .===. rhs) }
+public func .!==. (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL { !(lhs .===. rhs) }

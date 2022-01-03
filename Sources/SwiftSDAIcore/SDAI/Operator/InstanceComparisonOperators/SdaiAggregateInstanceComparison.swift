@@ -18,7 +18,7 @@ public func .===. <T: SDAIArrayOptionalType, U: SDAIArrayOptionalType>(lhs: T?, 
 
 	var result = SDAI.TRUE
 	for idx in lhs.loIndex ... lhs.hiIndex {
-		let comp = SDAI.GENERIC(lhs[idx]) .===. rhs[idx]
+		let comp = SDAI.GENERIC(lhs[idx]) .===. SDAI.GENERIC(rhs[idx])
 		if comp == SDAI.FALSE { return SDAI.FALSE }
 		if comp == SDAI.UNKNOWN { result = SDAI.UNKNOWN }		
 	}
@@ -41,7 +41,7 @@ public func .===. <T: SDAIListType, U: SDAIListType>(lhs: T?, rhs: U?) -> SDAI.L
 
 	var result = SDAI.TRUE
 	for idx in lhs.loIndex ... lhs.hiIndex {
-		let comp = SDAI.GENERIC(lhs[idx]) .===. rhs[idx]
+		let comp = SDAI.GENERIC(lhs[idx]) .===. SDAI.GENERIC(rhs[idx])
 		if comp == SDAI.FALSE { return SDAI.FALSE }
 		if comp == SDAI.UNKNOWN { result = SDAI.UNKNOWN }		
 	}
@@ -56,7 +56,7 @@ public func .===. <T: SDAIListType, U: SDAIAggregationInitializer>(lhs: T?, rhs:
 
 	var result = SDAI.TRUE
 	for (i, rhsElem) in rhs.asAggregationSequence.enumerated() {
-		let comp = SDAI.GENERIC(lhs[i+1]) .===. rhsElem
+		let comp = SDAI.GENERIC(lhs[i+1]) .===. SDAI.GENERIC(rhsElem)
 		if comp == SDAI.FALSE { return SDAI.FALSE }
 		if comp == SDAI.UNKNOWN { result = SDAI.UNKNOWN }		
 	}

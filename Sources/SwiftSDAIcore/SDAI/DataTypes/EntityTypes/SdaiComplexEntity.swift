@@ -331,6 +331,29 @@ extension SDAI {
 			return result
 		}
 
+		public func usedIn(as role:String) -> [EntityReference] {
+			var result: [EntityReference] = []
+			let model = self.owningModel
+			let roleSpec = role.split(separator: ".", omittingEmptySubsequences: false)
+			guard roleSpec.count == 3 else { return result }
+			guard roleSpec[0] == model.underlyingSchema.name else { return result }
+			guard let entityDef = model.underlyingSchema.entities[String(roleSpec[1])] else { return result }
+			guard let attrType = entityDef.attributes[String(roleSpec[2])] else { return result }
+			
+			for schemaInstance in model.associatedWith {
+				for complex in schemaInstance.allComplexEntities {
+					guard let entity = complex.entityReference(entityDef.type) else { continue }
+					guard let attr = attrType.genericValue(for: entity) else { continue }
+					for attrEntity in attr.entityReferences {
+						if self === attrEntity.complexEntity {
+							result.append(entity)
+						}
+					}
+				}
+			}
+			return result
+		}
+		
 		public var typeMembers: Set<SDAI.STRING> { 
 			Set( _partialEntities.values
 						.lazy

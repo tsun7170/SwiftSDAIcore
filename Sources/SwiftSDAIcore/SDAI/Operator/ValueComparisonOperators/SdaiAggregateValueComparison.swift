@@ -38,7 +38,7 @@ public func .==. <T: SDAIListType, U: SDAIAggregationInitializer>(lhs: T?, rhs: 
 
 	var result = SDAI.TRUE
 	for (i, rhsElem) in rhs.asAggregationSequence.enumerated() {
-		let comp = SDAI.GENERIC(lhs[i+1]) .==. rhsElem
+		let comp = SDAI.GENERIC(lhs[i+1]) .==. SDAI.GENERIC(rhsElem)
 		if comp == SDAI.FALSE { return SDAI.FALSE }
 		if comp == SDAI.UNKNOWN { result = SDAI.UNKNOWN }		
 	}

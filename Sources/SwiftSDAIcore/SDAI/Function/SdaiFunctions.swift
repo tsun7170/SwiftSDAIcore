@@ -447,7 +447,7 @@ extension SDAI {
 	/// As ROLE is not specified, every usage of T is reported. 
 	/// All relationships directed toward T are examined. 
 	/// Note that if T is not used, an empty bag is returned.
-	/// If either T is indeterminate (?), an empty bag is returned.
+	/// If T is indeterminate (?), an empty bag is returned.
 	public static func USEDIN<GEN:SDAIGenericType>(T: GEN?) -> BAG<EntityReference> {
 		guard let T = T?.entityReference else { return BAG<EntityReference>() }
 		return BAG( from: T.complexEntity.usedIn() )
@@ -457,11 +457,11 @@ extension SDAI {
 	/// - Parameter T: T is any instance of any entity data type.
 	/// - Parameter ROLE: ROLE is a KeyPath expression that contains a fully qualified attribute (role) name. 
 	/// - Returns: Every entity instance that uses the specified instance in the specified role is returned in a bag.
-	/// An empty bag is returned if the instance T plays no roles or if the role R is not found.
+	/// An empty bag is returned if the instance T plays no roles or if the role ROLE is not found.
 	/// All relationships directed toward T are examined. 
-	/// When the relationship originates from an attribute with the name R, the entity instance containing that attribute is added to the result bag. 
+	/// When the relationship originates from an attribute with the name ROLE, the entity instance containing that attribute is added to the result bag. 
 	/// Note that if T is not used, an empty bag is returned.
-	/// If either T or R are indeterminate (?), an empty bag is returned.
+	/// If T is indeterminate (?), an empty bag is returned.
 	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference, R:SDAIGenericType>(T: GEN?, ROLE: KeyPath<ENT,R>) -> BAG<ENT> {
 		guard let T = T?.entityReference else { return BAG<ENT>() }
 		return BAG(from: T.complexEntity.usedIn(as: ROLE))
@@ -471,14 +471,28 @@ extension SDAI {
 	/// - Parameter T: T is any instance of any entity data type.
 	/// - Parameter ROLE: ROLE is a KeyPath expression that contains a fully qualified attribute (role) name. 
 	/// - Returns: Every entity instance that uses the specified instance in the specified role is returned in a bag.
+	/// An empty bag is returned if the instance T plays no roles or if the role ROLE is not found.
+	/// All relationships directed toward T are examined. 
+	/// When the relationship originates from an attribute with the name ROLE, the entity instance containing that attribute is added to the result bag. 
+	/// Note that if T is not used, an empty bag is returned.
+	/// If T is indeterminate (?), an empty bag is returned.
+	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference, R:SDAIGenericType>(T: GEN?, ROLE: KeyPath<ENT,R?>) -> BAG<ENT> {
+		guard let T = T?.entityReference else { return BAG<ENT>() }
+		return BAG(from: T.complexEntity.usedIn(as: ROLE))
+	}
+	/// ISO 10303-11 (15.26) UsedIn - general function
+	/// (variant with role specification in STRING) 
+	/// - Parameter T: T is any instance of any entity data type.
+	/// - Parameter R: R is a STRING that contains a fully qualified attribute (role) name as defined in 15.20. 
+	/// - Returns: Every entity instance that uses the specified instance in the specified role is returned in a bag.
 	/// An empty bag is returned if the instance T plays no roles or if the role R is not found.
 	/// All relationships directed toward T are examined. 
 	/// When the relationship originates from an attribute with the name R, the entity instance containing that attribute is added to the result bag. 
 	/// Note that if T is not used, an empty bag is returned.
 	/// If either T or R are indeterminate (?), an empty bag is returned.
-	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference, R:SDAIGenericType>(T: GEN?, ROLE: KeyPath<ENT,R?>) -> BAG<ENT> {
-		guard let T = T?.entityReference else { return BAG<ENT>() }
-		return BAG(from: T.complexEntity.usedIn(as: ROLE))
+	public static func USEDIN<GEN:SDAIGenericType>(T:GEN?, R:STRING?) -> BAG<EntityReference> {
+		guard let T = T?.entityReference, let R = R else { return BAG<EntityReference>() }
+		return BAG(from: T.complexEntity.usedIn(as: R.asSwiftType))
 	}
 	
 	/// ISO 10303-11 (15.27) Value - arithmetic function

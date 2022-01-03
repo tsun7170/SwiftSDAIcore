@@ -8,7 +8,7 @@
 
 import Foundation
 
-public func .==. <T: SDAI__GENERIC__type, U: SDAIGenericType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
+public func .==. (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL { 
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	if let lhs = lhs.entityReference, let rhs = rhs.entityReference {
 		return lhs .==. rhs
@@ -52,9 +52,9 @@ public func .==. <T: SDAI__GENERIC__type, U: SDAIGenericType>(lhs: T?, rhs: U?) 
 	return SDAI.UNKNOWN
 }
 
-public func .!=. <T: SDAI__GENERIC__type, U: SDAIGenericType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
+public func .!=. (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
 
-public func >    <T: SDAI__GENERIC__type, U: SDAIGenericType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
+public func >    (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL { 
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	if let lhs = lhs.stringValue, let rhs = rhs.stringValue {
 		return lhs > rhs
@@ -84,8 +84,9 @@ public func >    <T: SDAI__GENERIC__type, U: SDAIGenericType>(lhs: T?, rhs: U?) 
 	return SDAI.UNKNOWN
 }
 
-public func <    <T: SDAI__GENERIC__type, U: SDAIGenericType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { SDAI.GENERIC(rhs) > lhs }
+public func <    (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL { rhs > lhs }
 
-public func >=   <T: SDAI__GENERIC__type, U: SDAIGenericType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
+public func >=   (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
 
-public func <=   <T: SDAI__GENERIC__type, U: SDAIGenericType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+public func <=   (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+

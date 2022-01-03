@@ -43,8 +43,30 @@ where Element == ELEMENT,
 	func differenceWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>?
 	func differenceWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>? 
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
-	
 }
+public extension SDAI__SET__type 
+where ELEMENT: InitializableByEntity {
+	func unionWith(rhs: SDAI.ComplexEntity) -> SDAI.SET<ELEMENT>? {
+		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
+		return self.unionWith(rhs: rhs)
+	}
+	func differenceWith(rhs: SDAI.ComplexEntity) -> SDAI.SET<ELEMENT>? {
+		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
+		return self.differenceWith(rhs: rhs)
+	}
+}
+public extension SDAI__SET__type 
+where ELEMENT: SDAI.EntityReference {
+	func unionWith<U: SDAISelectType>(rhs: U) -> SDAI.SET<ELEMENT>? {
+		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
+		return self.unionWith(rhs: rhs)
+	}
+	func differenceWith<U: SDAISelectType>(rhs: U) -> SDAI.SET<ELEMENT>? {
+		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
+		return self.differenceWith(rhs: rhs)
+	}
+}
+
 
 extension SDAI {
 	public struct SET<ELEMENT:SDAIGenericType>: SDAI__SET__type
@@ -415,7 +437,7 @@ extension SDAI {
 			let result = self.differenceWith(other: rhs)
 			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
-		
+
 		// InitializableByP21Parameter
 		public static var bareTypeName: String { self.typeName }
 		

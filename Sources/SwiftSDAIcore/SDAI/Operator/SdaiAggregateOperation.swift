@@ -106,6 +106,16 @@ where T.ELEMENT: SDAI__LOGICAL__type,
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return lhs.unionWith(rhs: SDAI.LOGICAL(rhs))
 }
+public func + <T: SDAI__BAG__type>(lhs: T?, rhs: SDAI.ComplexEntity?) -> SDAI.BAG<T.ELEMENT>?
+where T.ELEMENT: InitializableByEntity {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return lhs.unionWith(rhs: rhs)
+}
+public func + <T: SDAI__BAG__type, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.BAG<T.ELEMENT>?
+where T.ELEMENT: SDAI.EntityReference {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return lhs.unionWith(rhs: rhs)
+}
 
 // Element + Bag = Bag
 public func + <T: SDAIGenericType, U: SDAI__BAG__type>(lhs: T?, rhs: U?) -> SDAI.BAG<U.ELEMENT>?					
@@ -134,6 +144,16 @@ where T: SDAIBooleanType,
 			U.ELEMENT: SDAI__LOGICAL__type { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return rhs.unionWith(rhs: SDAI.LOGICAL(lhs))
+}
+public func + <U: SDAI__BAG__type>(lhs: SDAI.ComplexEntity?, rhs: U?) -> SDAI.BAG<U.ELEMENT>?
+where U.ELEMENT: InitializableByEntity {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return rhs.unionWith(rhs: lhs)
+}
+public func + <T: SDAISelectType, U: SDAI__BAG__type>(lhs: T?, rhs: U?) -> SDAI.BAG<U.ELEMENT>?
+where U.ELEMENT: SDAI.EntityReference {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return rhs.unionWith(rhs: lhs)
 }
 
 // Set + Set = Set
@@ -179,6 +199,16 @@ where T.ELEMENT: SDAI__LOGICAL__type,
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return lhs.unionWith(rhs: SDAI.LOGICAL(rhs))
 }
+public func + <T: SDAI__SET__type>(lhs: T?, rhs: SDAI.ComplexEntity?) -> SDAI.SET<T.ELEMENT>?
+where T.ELEMENT: InitializableByEntity {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return lhs.unionWith(rhs: rhs)
+}
+public func + <T: SDAI__SET__type, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>?
+where T.ELEMENT: SDAI.EntityReference {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return lhs.unionWith(rhs: rhs)
+}
 
 // Element + Set = Set
 public func + <T: SDAIGenericType, U: SDAI__SET__type>(lhs: T?, rhs: U?) -> SDAI.SET<U.ELEMENT>?	
@@ -208,70 +238,100 @@ where T: SDAIBooleanType,
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return rhs.unionWith(rhs: SDAI.LOGICAL(lhs))
 }
+public func + <U: SDAI__SET__type>(lhs: SDAI.ComplexEntity?, rhs: U?) -> SDAI.SET<U.ELEMENT>?
+where U.ELEMENT: InitializableByEntity {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return rhs.unionWith(rhs: lhs)
+}
+public func + <T: SDAISelectType, U: SDAI__SET__type>(lhs: T?, rhs: U?) -> SDAI.SET<U.ELEMENT>?
+where U.ELEMENT: SDAI.EntityReference {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return rhs.unionWith(rhs: lhs)
+}
 
 // List + List = List
 public func + <T: SDAI__LIST__type, U: SDAIListType>(lhs: T?, rhs: U?) -> SDAI.LIST<T.ELEMENT>?	
 where T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.unionWith(rhs: rhs)
+	return lhs.appendWith(rhs: rhs)
 }
 
 // List + Element = List
 public func + <T: SDAI__LIST__type, U: SDAIGenericType>(lhs: T?, rhs: U?) -> SDAI.LIST<T.ELEMENT>?	
 where T.ELEMENT.FundamentalType == U.FundamentalType { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.unionWith(rhs: rhs)
+	return lhs.appendWith(rhs: rhs)
 }
 public func + <T: SDAI__LIST__type, U: SDAI__GENERIC__type>(lhs: T?, rhs: U?) -> SDAI.LIST<T.ELEMENT>? { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.unionWith(rhs: rhs)
+	return lhs.appendWith(rhs: rhs)
 }
 public func + <T: SDAI__LIST__type, U>(lhs: T?, rhs: U?) -> SDAI.LIST<T.ELEMENT>?	
 where T.ELEMENT: SDAI__NUMBER__type, 
 			U: SDAIRealType { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.unionWith(rhs: SDAI.NUMBER(rhs))
+	return lhs.appendWith(rhs: SDAI.NUMBER(rhs))
 }
 public func + <T: SDAI__LIST__type, U>(lhs: T?, rhs: U?) -> SDAI.LIST<T.ELEMENT>?	
 where T.ELEMENT: SDAI__REAL__type, 
 			U: SDAIIntegerType { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.unionWith(rhs: SDAI.REAL(rhs))
+	return lhs.appendWith(rhs: SDAI.REAL(rhs))
 }
 public func + <T: SDAI__LIST__type, U>(lhs: T?, rhs: U?) -> SDAI.LIST<T.ELEMENT>?	
 where T.ELEMENT: SDAI__LOGICAL__type, 
 			U: SDAIBooleanType { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.unionWith(rhs: SDAI.LOGICAL(rhs))
+	return lhs.appendWith(rhs: SDAI.LOGICAL(rhs))
+}
+public func + <T: SDAI__LIST__type>(lhs: T?, rhs: SDAI.ComplexEntity?) -> SDAI.LIST<T.ELEMENT>?
+where T.ELEMENT: InitializableByEntity {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return lhs.appendWith(rhs: rhs)
+}
+public func + <T: SDAI__LIST__type, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LIST<T.ELEMENT>?
+where T.ELEMENT: SDAI.EntityReference {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return lhs.appendWith(rhs: rhs)
 }
 
 // Element + List = List
 public func + <T: SDAIGenericType, U: SDAI__LIST__type>(lhs: T?, rhs: U?) -> SDAI.LIST<U.ELEMENT>?	
 where T.FundamentalType == U.ELEMENT.FundamentalType { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return rhs.unionWith(lhs: lhs)
+	return rhs.prependWith(lhs: lhs)
 }
 public func + <T: SDAI__GENERIC__type, U: SDAI__LIST__type>(lhs: T?, rhs: U?) -> SDAI.LIST<U.ELEMENT>? { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return rhs.unionWith(lhs: lhs)
+	return rhs.prependWith(lhs: lhs)
 }
 public func + <T, U: SDAI__LIST__type>(lhs: T?, rhs: U?) -> SDAI.LIST<U.ELEMENT>?	
 where T: SDAIRealType, 
 			U.ELEMENT: SDAI__NUMBER__type { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return rhs.unionWith(lhs: SDAI.NUMBER(lhs))
+	return rhs.prependWith(lhs: SDAI.NUMBER(lhs))
 }
 public func + <T, U: SDAI__LIST__type>(lhs: T?, rhs: U?) -> SDAI.LIST<U.ELEMENT>?		
 where T: SDAIIntegerType, 
 			U.ELEMENT: SDAI__REAL__type { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return rhs.unionWith(lhs: SDAI.REAL(lhs))
+	return rhs.prependWith(lhs: SDAI.REAL(lhs))
 }
 public func + <T, U: SDAI__LIST__type>(lhs: T?, rhs: U?) -> SDAI.LIST<U.ELEMENT>?	
 where T: SDAIBooleanType, 
 			U.ELEMENT: SDAI__LOGICAL__type { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return rhs.unionWith(lhs: SDAI.LOGICAL(lhs))
+	return rhs.prependWith(lhs: SDAI.LOGICAL(lhs))
+}
+public func + <U: SDAI__LIST__type>(lhs: SDAI.ComplexEntity?, rhs: U?) -> SDAI.LIST<U.ELEMENT>?
+where U.ELEMENT: InitializableByEntity {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return rhs.prependWith(lhs: lhs)
+}
+public func + <T: SDAISelectType, U: SDAI__LIST__type>(lhs: T?, rhs: U?) -> SDAI.LIST<U.ELEMENT>?
+where U.ELEMENT: SDAI.EntityReference {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return rhs.prependWith(lhs: lhs)
 }
 
 // Bag + Aggregate = Bag
@@ -306,14 +366,14 @@ where T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 public func + <T: SDAI__LIST__type, U: SDAIAggregationInitializer>(lhs: T?, rhs: U?) -> SDAI.LIST<T.ELEMENT>?	
 where T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.unionWith(rhs: rhs)
+	return lhs.appendWith(rhs: rhs)
 }
 
 // Aggregate + List = List
 public func + <T: SDAIAggregationInitializer, U: SDAI__LIST__type>(lhs: T?, rhs: U?) -> SDAI.LIST<U.ELEMENT>?	
 where T.ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return rhs.unionWith(lhs: lhs)
+	return rhs.prependWith(lhs: lhs)
 }
 
 
@@ -358,6 +418,16 @@ where T.ELEMENT: SDAI__LOGICAL__type,
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return lhs.differenceWith(rhs: SDAI.LOGICAL(rhs))
 }
+public func - <T: SDAI__BAG__type>(lhs: T?, rhs: SDAI.ComplexEntity?) -> SDAI.BAG<T.ELEMENT>?
+where T.ELEMENT: InitializableByEntity {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return lhs.differenceWith(rhs: rhs)
+}
+public func - <T: SDAI__BAG__type, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.BAG<T.ELEMENT>?
+where T.ELEMENT: SDAI.EntityReference {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return lhs.differenceWith(rhs: rhs)
+}
 
 // Set - Set = Set
 // Set - Bag = Set
@@ -394,6 +464,16 @@ where T.ELEMENT: SDAI__LOGICAL__type,
 			U: SDAIBooleanType { 
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return lhs.differenceWith(rhs: SDAI.LOGICAL(rhs))
+}
+public func - <T: SDAI__SET__type>(lhs: T?, rhs: SDAI.ComplexEntity?) -> SDAI.SET<T.ELEMENT>?
+where T.ELEMENT: InitializableByEntity {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return lhs.differenceWith(rhs: rhs)
+}
+public func - <T: SDAI__SET__type, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.SET<T.ELEMENT>?
+where T.ELEMENT: SDAI.EntityReference {
+	guard let lhs = lhs, let rhs = rhs else { return nil }
+	return lhs.differenceWith(rhs: rhs)
 }
 
 // Bag - Aggregate = Bag

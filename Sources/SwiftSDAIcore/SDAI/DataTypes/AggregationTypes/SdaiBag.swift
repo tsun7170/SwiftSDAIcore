@@ -105,9 +105,29 @@ where Element == ELEMENT,
 	func differenceWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	func differenceWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.BAG<ELEMENT>? 
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
-
 }
-
+public extension SDAI__BAG__type 
+where ELEMENT: InitializableByEntity {
+	func unionWith(rhs: SDAI.ComplexEntity) -> SDAI.BAG<ELEMENT>? {
+		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
+		return self.unionWith(rhs: rhs)
+	}
+	func differenceWith(rhs: SDAI.ComplexEntity) -> SDAI.BAG<ELEMENT>? {
+		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
+		return self.differenceWith(rhs: rhs)
+	}
+}
+public extension SDAI__BAG__type 
+where ELEMENT: SDAI.EntityReference {
+	func unionWith<U: SDAISelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
+		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
+		return self.unionWith(rhs: rhs)
+	}
+	func differenceWith<U: SDAISelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
+		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
+		return self.differenceWith(rhs: rhs)
+	}
+}
 
 extension SDAI {
 	public struct BAG<ELEMENT:SDAIGenericType>: SDAI__BAG__type
