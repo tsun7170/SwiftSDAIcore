@@ -216,6 +216,13 @@ extension SDAI {
 		}
 		
 		//MARK: - express built-in function support
+		public var usedInDomain: Set<SDAIPopulationSchema.SdaiModel> {
+			let parentModel = self.owningModel
+			var domain = Set(parentModel.associatedWith.lazy.flatMap{ $0.associatedModels })
+			domain.insert(parentModel)
+			return domain
+		}
+		
 		private func findRoles(in entity: SDAI.EntityReference) -> [SDAIAttributeType] {
 			var roles:[SDAIAttributeType] = []
 			let entityDef = entity.definition
@@ -234,9 +241,8 @@ extension SDAI {
 		
 		public var roles: Set<STRING> { 
 			var result: Set<STRING> = []
-			let model = self.owningModel
-			for schemaInstance in model.associatedWith {
-				for complex in schemaInstance.allComplexEntities {
+			for model in self.usedInDomain {
+				for complex in model.contents.allComplexEntities {
 					for entity in complex.entityReferences {
 						result.formUnion( self.findRoles(in: entity).lazy.map{ (attrDef) in
 							return STRING(from: attrDef.qualifiedAttributeName) 
@@ -248,10 +254,12 @@ extension SDAI {
 		}
 		
 		
-		private var _usedInCache: [SDAIPopulationSchema.SchemaInstance:[EntityReference]] = [:]
+		private var _usedInCache: [SDAIPopulationSchema.SdaiModel:[EntityReference]] = [:]
 		public func resetCache(relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance?) {
 			if let schemaInstance = schemaInstance {
-				_usedInCache[schemaInstance] = nil
+				for model in schemaInstance.associatedModels {
+					_usedInCache[model] = nil
+				}
 			}
 			for entity in self.entityReferences {
 				entity.resetCache()
@@ -260,14 +268,13 @@ extension SDAI {
 		
 		public func usedIn() -> [EntityReference] { 
 			var result: [EntityReference] = []
-			let model = self.owningModel
-			for schemaInstance in model.associatedWith {				
-				var schemaResult: [EntityReference] = []
-				if let cached = self._usedInCache[schemaInstance] {
-					schemaResult = cached
+			for model in self.usedInDomain {				
+				var modelResult: [EntityReference] = []
+				if let cached = self._usedInCache[model] {
+					modelResult = cached
 				}
 				else {
-					for complex in schemaInstance.allComplexEntities {
+					for complex in model.contents.allComplexEntities {
 						for entity in complex.entityReferences {
 							
 							let entityDef = entity.definition
@@ -280,28 +287,27 @@ extension SDAI {
 								let attrYieldingEntities = attrValue.entityReferences
 								for attrEntity in attrYieldingEntities {
 									if self === attrEntity.complexEntity {
-										schemaResult.append(entity)
+										modelResult.append(entity)
 									}
 								}
 							}
 							
 						}
 					}
-					if schemaInstance.mode == .readOnly {
-						_usedInCache[schemaInstance] = schemaResult
+					if model.mode == .readOnly {
+						_usedInCache[model] = modelResult
 					}
 				}
 				
-				result.append(contentsOf: schemaResult)
+				result.append(contentsOf: modelResult)
 			}
 			return result
 		}
 		
 		public func usedIn<ENT:EntityReference, R:SDAIGenericType>(as role: KeyPath<ENT,R>) -> [ENT] { 
 			var result: [ENT] = []
-			let model = self.owningModel
-			for schemaInstance in model.associatedWith {
-				for complex in schemaInstance.allComplexEntities {
+			for model in self.usedInDomain {
+				for complex in model.contents.allComplexEntities {
 					guard let entity = complex.entityReference(ENT.self) else { continue }
 					let attr = SDAI.GENERIC( entity[keyPath: role] )
 					for attrEntity in attr.entityReferences {
@@ -316,9 +322,8 @@ extension SDAI {
 		
 		public func usedIn<ENT:EntityReference, R:SDAIGenericType>(as role: KeyPath<ENT,R?>) -> [ENT] { 
 			var result: [ENT] = []
-			let model = self.owningModel
-			for schemaInstance in model.associatedWith {
-				for complex in schemaInstance.allComplexEntities {
+			for model in self.usedInDomain {
+				for complex in model.contents.allComplexEntities {
 					guard let entity = complex.entityReference(ENT.self) else { continue }
 					guard let attr = SDAI.GENERIC( entity[keyPath: role] ) else { continue }
 					for attrEntity in attr.entityReferences {
@@ -333,15 +338,15 @@ extension SDAI {
 
 		public func usedIn(as role:String) -> [EntityReference] {
 			var result: [EntityReference] = []
-			let model = self.owningModel
+			let parentModel = self.owningModel
 			let roleSpec = role.split(separator: ".", omittingEmptySubsequences: false)
 			guard roleSpec.count == 3 else { return result }
-			guard roleSpec[0] == model.underlyingSchema.name else { return result }
-			guard let entityDef = model.underlyingSchema.entities[String(roleSpec[1])] else { return result }
+			guard roleSpec[0] == parentModel.underlyingSchema.name else { return result }
+			guard let entityDef = parentModel.underlyingSchema.entities[String(roleSpec[1])] else { return result }
 			guard let attrType = entityDef.attributes[String(roleSpec[2])] else { return result }
 			
-			for schemaInstance in model.associatedWith {
-				for complex in schemaInstance.allComplexEntities {
+			for model in self.usedInDomain {
+				for complex in model.contents.allComplexEntities {
 					guard let entity = complex.entityReference(entityDef.type) else { continue }
 					guard let attr = attrType.genericValue(for: entity) else { continue }
 					for attrEntity in attr.entityReferences {
