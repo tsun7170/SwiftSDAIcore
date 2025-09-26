@@ -21,9 +21,9 @@ public protocol SDAIArrayOptionalType: SDAIAggregationType, SDAIAggregateIndexin
 }
 
 extension SDAIArrayOptionalType {
-	public var isCachable: Bool {
+	public var isCacheable: Bool {
 		for elem in self.asAggregationSequence {
-			if !elem.isCachable { return false }
+			if !elem.isCacheable { return false }
 		}
 		return true
 	}	
@@ -97,7 +97,7 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+		public static func validateWhereRules(instance:Self?, prefix:SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
 			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix)
 		}
 		
@@ -107,10 +107,10 @@ extension SDAI {
 		
 		// SDAIGenericType
 		public func copy() -> Self {
-			if var observable = self as? SDAIObservableAggregateElement {
-				observable.teardownObserver()
-				return (observable as Any) as! Self
-			}
+//			if var observable = self as? SDAIObservableAggregateElement {
+//				observable.teardownObserver()
+//				return (observable as Any) as! Self
+//			}
 			return self 
 		}
 		
@@ -130,7 +130,7 @@ extension SDAI {
 		public var loIndex: Int { return bound1 }
 		public var size: Int { return bound2 - bound1 + 1 }
 		public var isEmpty: Bool { return size <= 0 }
-		public var observer: EntityReferenceObserver?
+//		public var observer: EntityReferenceObserver?
 		
 		public subscript(index: Int?) -> ELEMENT? {
 			get{
@@ -140,18 +140,18 @@ extension SDAI {
 			set{
 				guard let index = index, index >= loIndex, index <= hiIndex else { return }
 				
-				if let observer = self.observer {
-					var newObservable = newValue as? SDAIObservableAggregateElement
-					var oldObservable = rep[index - loIndex] as? SDAIObservableAggregateElement
-					
-					oldObservable?.teardownObserver()
-					newObservable?.configure(with: observer)
-					observer.observe(removing: SDAI.UNWRAP(seq: oldObservable?.entityReferences), adding: SDAI.UNWRAP(seq: newObservable?.entityReferences))
-					rep[index - loIndex] = newObservable as? ELEMENT
-				}
-				else {
+//				if let observer = self.observer {
+//					var newObservable = newValue as? SDAIObservableAggregateElement
+//					var oldObservable = rep[index - loIndex] as? SDAIObservableAggregateElement
+//					
+//					oldObservable?.teardownObserver()
+//					newObservable?.configure(with: observer)
+//					observer.observe(removing: SDAI.UNWRAP(seq: oldObservable?.entityReferences), adding: SDAI.UNWRAP(seq: newObservable?.entityReferences))
+//					rep[index - loIndex] = newObservable as? ELEMENT
+//				}
+//				else {
 					rep[index - loIndex] = newValue
-				}
+//				}
 			}
 		}
 		
@@ -227,7 +227,7 @@ extension SDAI {
 		
 		
 		// InitializableByEmptyArrayLiteral
-		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
+		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE) {
 			self.init(from: SwiftType(repeating: nil, count: bound2.asSwiftInt - bound1.asSwiftInt + 1), bound1: bound1, bound2: bound2)
 		} 
 		
@@ -295,33 +295,53 @@ extension SDAI {
 }
 
 
-extension SDAI.ARRAY_OPTIONAL: SDAIObservableAggregate, SDAIObservableAggregateElement
-where ELEMENT: SDAIObservableAggregateElement
+//extension SDAI.ARRAY_OPTIONAL: SDAIObservableAggregate, SDAIObservableAggregateElement
+//where ELEMENT: SDAIObservableAggregateElement
+//{
+//	// SDAIObservableAggregateElement
+//	public var entityReferences: AnySequence<SDAI.EntityReference> { 
+//		AnySequence( self.lazy.compactMap{$0}.flatMap{ $0.entityReferences } )
+//	}
+//	
+//	public mutating func configure(with observer: SDAI.EntityReferenceObserver) {
+//		self.observer = observer
+//		for i in 0 ..< rep.count {
+//			rep[i]?.configure(with: observer)
+//		}
+//	}
+//	
+//	public mutating func teardownObserver() {
+//		self.observer = nil
+//		for i in 0 ..< rep.count {
+//			rep[i]?.teardownObserver()
+//		}
+//	}
+//
+//}
+
+
+extension SDAI.ARRAY_OPTIONAL: SDAIEntityReferenceYielding
+where ELEMENT: SDAIEntityReferenceYielding
 {
-	// SDAIObservableAggregateElement
-	public var entityReferences: AnySequence<SDAI.EntityReference> { 
-		AnySequence<SDAI.EntityReference>(self.lazy.compactMap{$0}.flatMap { $0.entityReferences })
-	}
-	
-	public mutating func configure(with observer: SDAI.EntityReferenceObserver) {
-		self.observer = observer
-		for i in 0 ..< rep.count {
-			rep[i]?.configure(with: observer)
-		}
-	}
-	
-	public mutating func teardownObserver() {
-		self.observer = nil
-		for i in 0 ..< rep.count {
-			rep[i]?.teardownObserver()
-		}
+	public var entityReferences: AnySequence<SDAI.EntityReference> {
+		AnySequence( self.lazy.compactMap{$0}.flatMap{ $0.entityReferences } )
 	}
 
+	public func isHolding(
+		entityReference: SDAI.EntityReference
+	) -> Bool
+	{
+		for elem in self {
+			guard let elem else { continue }
+			if elem.isHolding(entityReference: entityReference) { return true }
+		}
+		return false
+	}
 }
 
 
 extension SDAI.ARRAY_OPTIONAL: InitializableBySelecttypeArrayOptional, InitializableBySelecttypeArray
-where ELEMENT: InitializableBySelecttype
+where ELEMENT: InitializableBySelectType
 {
 	public init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAISelectType
@@ -375,7 +395,7 @@ where ELEMENT: InitializableByEntity
 
 
 extension SDAI.ARRAY_OPTIONAL: InitializableByDefinedtypeArrayOptional, InitializableByDefinedtypeArray
-where ELEMENT: InitializableByDefinedtype
+where ELEMENT: InitializableByDefinedType
 {
 	 public init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
 	 where T.ELEMENT: SDAIUnderlyingType

@@ -10,7 +10,15 @@ import Foundation
 
 extension SDAI {
 	//MARK: - support functions
-	public static func UNWRAP<T>(_ val:T?) -> T { return val! }
+	public static func UNWRAP<T>(_ val:T?) -> T {
+		guard let unwrapped = val
+		else {
+			SDAI.raiseErrorAndTrap(.VA_NEXS,
+				detail: "failed to unwrap \(T.self) optional value")
+		}
+		return unwrapped
+	}
+
 	public static func UNWRAP<T>(_ val:T) -> T { return val }
 	
 	public static func FORCE_OPTIONAL<T>(_ val:T?) -> T? { return val }

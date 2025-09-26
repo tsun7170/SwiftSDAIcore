@@ -11,6 +11,7 @@ import Foundation
 //MARK: - ISO 10303-11 (15) Built-in functions
 
 extension SDAI {
+	//MARK: ABS function
 	/// ISO 10303-11 (15.1) Abs - arithmetic function
 	/// 
 	/// The ABS function returns the absolute value of a number. 
@@ -30,6 +31,7 @@ extension SDAI {
 		return ABS(V?.numberValue)
 	}
 	
+	//MARK: ACOS function
 	/// ISO 10303-11 (15.2) ACos - arithmetic function
 	/// 
 	/// The ACOS function returns the angle given a cosine value. 
@@ -41,8 +43,9 @@ extension SDAI {
 		return REAL( acos(r) )
 	}
 	
+	//MARK: ASIN function
 	/// ISO 10303-11 (15.3) Asin - arithmetic function
-	/// 
+	///
 	/// The ASIN function returns the angle given a sine value. 
 	/// - Parameter V: V is a number which is the sine of an angle.
 	/// - Returns: The angle in radians (-π/2 ≤ result ≤ π/2) whose sine is V.
@@ -52,7 +55,8 @@ extension SDAI {
 		return REAL( asin(r) )
 	}
 	
-	/// ISO 10303-11 (15.4) ATan - arithmetic function 
+	//MARK: ATAN function
+	/// ISO 10303-11 (15.4) ATan - arithmetic function
 	/// 
 	/// The ATAN function returns the angle given a tangent value of V , where V is given by the expression V = V 1/V 2.
 	/// - Parameters:
@@ -66,6 +70,7 @@ extension SDAI {
 		return REAL( atan2(r1, r2) )
 	}
 	
+	//MARK: BLENGTH function
 	/// ISO 10303-11 (15.5) BLength - binary function
 	/// 
 	/// The BLENGTH function returns the number of bits in a binary. 
@@ -84,6 +89,7 @@ extension SDAI {
 		return BLENGTH(V?.binaryValue)
 	}
 	
+	//MARK: COS function
 	/// ISO 10303-11 (15.6) Cos - arithmetic function
 	/// 
 	/// The COS function returns the cosine of an angle. 
@@ -94,6 +100,7 @@ extension SDAI {
 		return REAL( cos(r) )
 	}
 	
+	//MARK: EXISTS function
 	/// ISO 10303-11 (15.7) Exists - general function
 	/// 
 	/// The EXISTS function returns true if a value exists for the input parameter, or false if no value exists for it. The exists function is useful for checking if values have been given to optional attributes, or if variables have been initialized. 
@@ -103,6 +110,7 @@ extension SDAI {
 		return BOOLEAN( V != nil )
 	}
 	
+	//MARK: EXP function
 	/// ISO 10303-11 (15.8) Exp - arithmetic function
 	/// 
 	/// The EXP function returns e (the base of the natural logarithm system) raised to the power V. 
@@ -114,6 +122,7 @@ extension SDAI {
 	}
 
 	
+	//MARK: FORMAT function
 	/// ISO 10303-11 (15.9) Format - general function
 	/// 
 	/// The FORMAT returns a formatted string representation of a number. 
@@ -140,6 +149,7 @@ extension SDAI {
 	}
 
 	
+	//MARK: HIBOUND function
 	/// ISO 10303-11 (15.10) HiBound - arithmetic function
 	/// 
 	/// The HIBOUND function returns the declared upper index of an array or the declared upper bound of a bag, list or set. 
@@ -151,6 +161,7 @@ extension SDAI {
 		return INTEGER(V?.aggregationHiBound)
 	}
 	
+	//MARK: HIINDEX function
 	/// ISO 10303-11 (15.11) HiIndex - arithmetic function
 	/// 
 	/// The HIINDEX function returns the upper index of an array or the number of elements in a bag, list or set. 
@@ -162,6 +173,7 @@ extension SDAI {
 		return INTEGER(V?.aggregationHiIndex)
 	}
 	
+	//MARK: LENGTH function
 	/// ISO 10303-11 (15.12) Length - string function
 	/// 
 	/// The LENGTH function returns the number of characters in a string. 
@@ -171,6 +183,7 @@ extension SDAI {
 		return INTEGER(V?.possiblyAsSwiftString?.count)
 	}
 	
+	//MARK: LOBOUND function
 	/// ISO 10303-11 (15.13) LoBound - arithmetic function
 	/// 
 	/// The LOBOUND function returns the declared lower index of an ARRAY, or the declared lower bound of a BAG, LIST or SET. 
@@ -182,6 +195,7 @@ extension SDAI {
 		return INTEGER(V?.aggregationLoBound)
 	}
 	
+	//MARK: LOG function
 	/// ISO 10303-11 (15.14) Log - arithmetic function
 	/// 
 	/// The LOG function returns the natural logarithm of a number. 
@@ -193,6 +207,7 @@ extension SDAI {
 		return REAL( log(r) )
 	}
 	
+	//MARK: LOG2 function
 	/// ISO 10303-11 915.15) Log2 - arithmetic function
 	/// 
 	/// The LOG2 function returns the base two logarithm of a number. 
@@ -204,6 +219,7 @@ extension SDAI {
 		return REAL( log(r)/log(2) )
 	}
 	
+	//MARK: LOG10 function
 	/// ISO 10303-11 (15.16) Log10 - arithmetic function
 	/// 
 	/// The LOG10 function returns the base ten logarithm of a number. 
@@ -214,7 +230,8 @@ extension SDAI {
 		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( log10(r) )
 	}
-	
+
+	//MARK: LOINDEX function
 	/// ISO 10303-11 (15.17) LoIndex - arithmetic function
 	/// 
 	/// The LOINDEX function returns the lower index of an aggregate value. 
@@ -225,7 +242,8 @@ extension SDAI {
 	public static func LOINDEX<Aggregate: SDAIAggregationBehavior>(_ V: Aggregate?) -> INTEGER? {
 		return INTEGER(V?.aggregationLoIndex)
 	}
-	
+
+	//MARK: NVL function (underlying type variant)
 	/// ISO 10303-11 (15.18) NVL - null value function
 	/// (underlying type variant) 
 	/// 
@@ -234,9 +252,15 @@ extension SDAI {
 	///   - V: V is an underlying type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is an expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAIUnderlyingType>(V: GEN1?, SUBSTITUTE: GEN1.FundamentalType?) -> GEN1 {
+
+	public static func NVL<GEN1: SDAIUnderlyingType>
+	(V: GEN1?, SUBSTITUTE: GEN1.FundamentalType?) -> GEN1
+	{
 		return V ?? GEN1.convert(from: UNWRAP(SUBSTITUTE))
 	}
+
+
+	//MARK: NVL (simple type variant)
 	/// ISO 10303-11 (15.18) NVL - null value function
 	/// (simple type variant) 
 	/// 
@@ -245,76 +269,102 @@ extension SDAI {
 	///   - V: V is an simple type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is an expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAISimpleType>(V: GEN1?, SUBSTITUTE: GEN1.SwiftType?) -> GEN1 {
+
+	public static func NVL<GEN1: SDAISimpleType>
+	(V: GEN1?, SUBSTITUTE: GEN1.SwiftType?) -> GEN1 {
 		return V ?? GEN1(from: UNWRAP(SUBSTITUTE))
 	}
+
+
+	//MARK: NVL (entity reference type variant)
 	/// ISO 10303-11 (15.18) NVL - null value function
-	/// (entity reference type variant) 
+	/// (entity reference type variant)
 	/// 
 	/// The NVL function returns either the input value or an alternate value in the case where the input has a indeterminate (?) value.  
 	/// - Parameters:
 	///   - V: V is an entity reference type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is an entity reference expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: SDAI.EntityReference?) -> GEN1 {
+
+	public static func NVL<GEN1: SDAI.EntityReference>
+	(V: GEN1?, SUBSTITUTE: SDAI.EntityReference?) -> GEN1 {
 		return V ?? UNWRAP(GEN1.cast(from:SUBSTITUTE))
 	}
+
 	/// ISO 10303-11 (15.18) NVL - null value function
-	/// (entity reference type variant) 
+	/// (entity reference type variant)
 	/// 
 	/// The NVL function returns either the input value or an alternate value in the case where the input has a indeterminate (?) value.  
 	/// - Parameters:
 	///   - V: V is an entity reference type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is a complex entity expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: SDAI.ComplexEntity?) -> GEN1 {
+
+	public static func NVL<GEN1: SDAI.EntityReference>
+	(V: GEN1?, SUBSTITUTE: SDAI.ComplexEntity?) -> GEN1 {
 		return V ?? UNWRAP(GEN1(complex: SUBSTITUTE))
 	}
+
+	//MARK: NVL (select type variant)
 	/// ISO 10303-11 (15.18) NVL - null value function
-	/// (select type variant) 
+	/// (select type variant)
 	/// 
 	/// The NVL function returns either the input value or an alternate value in the case where the input has a indeterminate (?) value.  
 	/// - Parameters:
 	///   - V: V is an select type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is a complex entity expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAISelectType>(V: GEN1?, SUBSTITUTE: SDAI.ComplexEntity?) -> GEN1 {
+
+	public static func NVL<GEN1: SDAISelectType>
+	(V: GEN1?, SUBSTITUTE: SDAI.ComplexEntity?) -> GEN1 {
 		return V ?? UNWRAP(GEN1(possiblyFrom: SUBSTITUTE))
 	}
+
 	/// ISO 10303-11 (15.18) NVL - null value function
-	/// (select type variant) 
+	/// (select type variant)
 	/// 
 	/// The NVL function returns either the input value or an alternate value in the case where the input has a indeterminate (?) value.  
 	/// - Parameters:
 	///   - V: V is an select type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is an entity reference expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAISelectType, GEN2: SDAI.EntityReference>(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1 {
+
+	public static func NVL<GEN1: SDAISelectType, GEN2: SDAI.EntityReference>
+	(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1 {
 		return V ?? UNWRAP(GEN1(possiblyFrom: SUBSTITUTE))
 	}
+
 	/// ISO 10303-11 (15.18) NVL - null value function
-	/// (select type variant) 
+	/// (select type variant)
 	/// 
 	/// The NVL function returns either the input value or an alternate value in the case where the input has a indeterminate (?) value.  
 	/// - Parameters:
 	///   - V: V is an select type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is an underlying type expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAISelectType, GEN2: SDAIUnderlyingType>(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1 {
+
+	public static func NVL<GEN1: SDAISelectType, GEN2: SDAIUnderlyingType>
+	(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1 {
 		return V ?? UNWRAP(GEN1(possiblyFrom: SUBSTITUTE))
 	}
+
 	/// ISO 10303-11 (15.18) NVL - null value function
-	/// (select type variant) 
+	/// (select type variant)
 	/// 
 	/// The NVL function returns either the input value or an alternate value in the case where the input has a indeterminate (?) value.  
 	/// - Parameters:
 	///   - V: V is an select type expression which is of any type.
 	///   - SUBSTITUTE: SUBSTITUTE is a select type expression which shall not evaluate to indeterminate (?).
 	/// - Returns: When V is not indeterminate (?), that value is returned. Otherwise, SUBSTITUTE is returned.
-	public static func NVL<GEN1: SDAISelectType, GEN2: SDAISelectType>(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1 {
+
+	public static func NVL<GEN1: SDAISelectType, GEN2: SDAISelectType>
+	(V: GEN1?, SUBSTITUTE: GEN2?) -> GEN1 {
 		return V ?? UNWRAP(GEN1.convert(sibling: SUBSTITUTE))
 	}
-	
+
+
+
+	//MARK: ODD function
 	/// ISO 10303-11 (15.19) Odd - arithmetic function
 	/// 
 	/// The ODD function returns true or false depending on whether a number is odd or even. 
@@ -325,7 +375,8 @@ extension SDAI {
 		guard let i = V?.asSwiftInt else { return UNKNOWN }
 		return LOGICAL( i % 2 == 1 )
 	}
-	
+
+	//MARK: ROLESOF function
 	/// ISO 10303-11 (15.20) RolesOf - general function
 	/// 
 	/// The ROLESOF function returns a set of strings containing the fully qualified names of the roles played by the specified entity instance. 
@@ -348,7 +399,8 @@ extension SDAI {
 	public static func ROLESOF<SEL:SDAISelectType>(_ V: SEL?) -> SET<STRING> {
 		return ROLESOF(V?.entityReference)
 	}
-	
+
+	//MARK: SIN function
 	/// ISO 10303-11 (15.21) Sin - arithmetic function
 	/// 
 	/// The SIN function returns the sine of an angle. 
@@ -358,7 +410,8 @@ extension SDAI {
 		guard let r = V?.asSwiftDouble else { return nil }
 		return REAL( sin(r) )
 	}
-	
+
+	//MARK: SIZEOF funciton
 	/// ISO 10303-11 (15.22) SizeOf - aggregate function
 	/// 
 	/// The SIZEOF function returns the number of elements in an aggregate value. 
@@ -383,7 +436,7 @@ extension SDAI {
 	}
 
 	
-	
+	//MARK: SQRT function
 	/// ISO 10303-11 (15.23) Sqrt - arithmetic function
 	/// 
 	/// The SQRT function returns the non-negative square root of a number.  
@@ -395,6 +448,7 @@ extension SDAI {
 		return REAL( sqrt(r) )
 	}
 	
+	//MARK: TAN function
 	/// ISO 10303-11 (15.24) Tan - arithmetic function
 	/// 
 	/// The TAN function returns the tangent of of an angle. 
@@ -405,6 +459,7 @@ extension SDAI {
 		return REAL( tan(r) )
 	}
 	
+	//MARK: TYPEOF function
 	/// ISO 10303-11 (15.25) TypeOf - general function
 	/// 
 	/// The TYPEOF function returns a set of string that contains the names of all the data types that the parameter is a member of. 
@@ -439,6 +494,7 @@ extension SDAI {
 	}
 	
 	
+	//MARK: USEDIN function
 	/// ISO 10303-11 (15.26) UsedIn - general function
 	/// (variant without role specification) 
 	/// - Parameter T: T is any instance of any entity data type.
@@ -495,6 +551,7 @@ extension SDAI {
 		return BAG(from: T.complexEntity.usedIn(as: R.asSwiftType))
 	}
 	
+	//MARK: VALUE function
 	/// ISO 10303-11 (15.27) Value - arithmetic function
 	/// 
 	/// The VALUE function returns the numeric representation of a string. 

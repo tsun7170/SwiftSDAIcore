@@ -42,8 +42,8 @@ extension P21Decode {
 		open func scannerDidDetectNewLine(lineNumber: Int) {}
 		
 		/// to notify the decoder resolved an entity instance name
-		/// - Parameter entiyInstanceName: entity instance name
-		open func decoderResolved(entiyInstanceName: ExchangeStructure.EntityInstanceName) {}
+		/// - Parameter entityInstanceName: entity instance name
+		open func decoderResolved(entityInstanceName: ExchangeStructure.EntityInstanceName) {}
 		
 		//MARK: phase change monitor
 		/// to notify the decoder started parsing the header section

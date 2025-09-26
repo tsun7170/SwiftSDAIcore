@@ -14,10 +14,10 @@ extension SDAI {
 	{
 		typealias ElementValue = ELEMENT.Value
 
-		var hiIndex: Int
+		let hiIndex: Int
 		var size: Int { hiIndex }
-		var elements: AnySequence<ElementValue>
-		
+		let elements: AnySequence<ElementValue>
+
 		// Equatable \Hashable\SDAIValue
 		public static func == (lhs: _ListValue<ELEMENT>, rhs: _ListValue<ELEMENT>) -> Bool {
 			return lhs.isValueEqual(to: rhs)

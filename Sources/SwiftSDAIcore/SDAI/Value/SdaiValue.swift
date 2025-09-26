@@ -8,29 +8,56 @@
 
 import Foundation
 
-public protocol SDAIValue: Hashable
+public protocol SDAIValue: Hashable//, Sendable
 {
-	func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool
-	func isValueEqualOptionally<T: SDAIValue>(to rhs: T?) -> Bool?
-	
-	func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<SDAI.ComplexEntity>)
-	func isValueEqual<T: SDAIValue>(to rhs: T, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool
-	func isValueEqualOptionally<T: SDAIValue>(to rhs: T?, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool?
+	func isValueEqual<T: SDAIValue>(
+		to rhs: T) -> Bool	// NEED TO IMPLEMENT
+
+	func isValueEqualOptionally<T: SDAIValue>(
+		to rhs: T?) -> Bool?
+
+
+
+	func hashAsValue(
+		into hasher: inout Hasher,
+		visited complexEntities: inout Set<SDAI.ComplexEntity>)
+
+	func isValueEqual<T: SDAIValue>(
+		to rhs: T,
+		visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool
+
+	func isValueEqualOptionally<T: SDAIValue>(
+		to rhs: T?,
+		visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool?
 }
+
 public extension SDAIValue
 {
-	func isValueEqualOptionally<T: SDAIValue>(to rhs: T?) -> Bool? {
+	func isValueEqualOptionally<T: SDAIValue>(
+		to rhs: T?) -> Bool?
+	{
 		guard let rhs = rhs else { return nil }
 		return self.isValueEqual(to: rhs)
 	}
 	
-	func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<SDAI.ComplexEntity>) {
+	func hashAsValue(
+		into hasher: inout Hasher,
+		visited complexEntities: inout Set<SDAI.ComplexEntity>)
+	{
 		self.hash(into: &hasher)
 	}
-	func isValueEqual<T: SDAIValue>(to rhs: T, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool {
+
+	func isValueEqual<T: SDAIValue>(
+		to rhs: T,
+		visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool
+	{
 		self.isValueEqual(to: rhs)
 	}
-	func isValueEqualOptionally<T: SDAIValue>(to rhs: T?, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool? {
+
+	func isValueEqualOptionally<T: SDAIValue>(
+		to rhs: T?,
+		visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool?
+	{
 		self.isValueEqualOptionally(to: rhs)
 	}
 
@@ -40,13 +67,16 @@ public extension SDAIValue
 //MARK: - Generic Value
 extension SDAI
 {
-	public typealias GenericValue = AnyHashable	
+	public typealias GenericValue = AnyHashable
 }
 
-extension SDAI.GenericValue: SDAIValue
+extension SDAI.GenericValue: SDAIValue //, @unchecked @retroactive Sendable
 {
 	public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool {
 		return self == rhs as AnyHashable
 	}
 
 }
+
+//MARK: - Swift Std Lib extensions
+//extension AnySequence: @retroactive @unchecked Sendable where Element: Sendable {}

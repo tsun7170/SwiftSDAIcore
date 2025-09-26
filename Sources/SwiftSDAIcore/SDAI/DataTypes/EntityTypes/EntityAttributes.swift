@@ -10,6 +10,8 @@ import Foundation
 
 extension SDAI.EntityReference {
 	
+	public typealias AttributeTuple = (definition: SDAIAttributeType, value: SDAI.GENERIC?)
+
 	public class AttributeList : CustomStringConvertible 
 	{
 		public var description: String {
@@ -25,8 +27,7 @@ extension SDAI.EntityReference {
 			}
 			return str
 		}
-		
-		public typealias AttributeTuple = (definition: SDAIAttributeType, value: SDAI.GENERIC?)
+
 		public private(set) var attributes: [AttributeTuple] = []
 		
 		internal init(entity: SDAI.EntityReference) {

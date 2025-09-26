@@ -10,7 +10,7 @@ import Foundation
 
 extension P21Decode {
 	
-	/// STEP part21 exchange structure token stream perser
+	/// STEP part21 exchange structure token stream parser
 	public final class ExchangeStructureParser {
 		
 		private let activityMonitor: ActivityMonitor?
@@ -92,7 +92,7 @@ extension P21Decode {
 		
 		//MARK:- Exchange Structure
 		/// parse the whole STEP p21 exchange structure
-		/// - Returns: the parsed exchange strucuture data structure if successful
+		/// - Returns: the parsed exchange structure data structure if successful
 		public func parseExchangeStructure() -> ExchangeStructure? {
 			guard tokenStream.confirm(specialToken: "ISO-10303-21;") else {
 				setErrorFromTokenStream(context: "while parsing the head of exchange structure")
@@ -302,17 +302,17 @@ extension P21Decode {
 				return .anchorItemList(list)
 				
 			case .ENTITY_INSTANCE_NAME(let name):
-				return .rhsOccurenceName(.entityInstanceName(name))
-				
+				return .rhsOccurrenceName(.entityInstanceName(name))
+
 			case .VALUE_INSTANCE_NAME(let name):
-				return .rhsOccurenceName(.valueInstanceName(name))
-				
+				return .rhsOccurrenceName(.valueInstanceName(name))
+
 			case .CONSTANT_ENTITY_NAME(let name):
-				return .rhsOccurenceName(.constantEntityName(name))
-				
+				return .rhsOccurrenceName(.constantEntityName(name))
+
 			case .CONSTANT_VALUE_NAME(let name):
-				return .rhsOccurenceName(.constantValueName(name))
-				
+				return .rhsOccurrenceName(.constantValueName(name))
+
 			default:
 				setError(unexpectedToken: token, context: "while parsing anchor item")
 				return nil
@@ -351,7 +351,7 @@ extension P21Decode {
 		
 		/// parse one anchor tag
 		/// - Parameter leftBrace: beginning token
-		/// - Returns: parsed anchr tag if succeeded
+		/// - Returns: parsed anchor tag if succeeded
 		/// 
 		/// 		ANCHOR_TAG =
 		/// 		"{" TAG_NAME ":" ANCHOR_ITEM "}"

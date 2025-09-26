@@ -12,18 +12,27 @@ extension SDAI {
 	
 	
 	//MARK: - PartialEntity
-	open class PartialEntity: SDAI.Object, CustomStringConvertible {
+	open class PartialEntity: SDAI.Object, CustomStringConvertible, @unchecked Sendable
+	{
 		public typealias TypeIdentity = SDAIDictionarySchema.EntityDefinition
 		
-		public init(asAbstructSuperclass:()) {
-			super.init()	
-			assert(type(of:self) != PartialEntity.self, "abstruct class instantiated")	
+		public init(asAbstractSuperclass:()) {
+			assert(type(of:self) != PartialEntity.self, "abstract class instantiated")
 		}
 		
-		public required convenience init?(parameters: [P21Decode.ExchangeStructure.Parameter], exchangeStructure: P21Decode.ExchangeStructure) {
-			self.init(asAbstructSuperclass:())
+		public required convenience init?(
+			parameters: [P21Decode.ExchangeStructure.Parameter],
+			exchangeStructure: P21Decode.ExchangeStructure)
+		{
+			self.init(asAbstractSuperclass:())
 		}
-		
+
+		public required convenience init(from original:SDAI.PartialEntity)
+		{
+//			let original = original as! Self
+			self.init(asAbstractSuperclass:())
+		}
+
 		// CustomStringConvertible
 		public var description: String {
 			var str = "\(self.qualifiedEntityName)\n"
@@ -37,7 +46,7 @@ extension SDAI {
 		}
 		
 		// class properties
-		open class var entityReferenceType: EntityReference.Type { abstruct() } // abstruct
+		open class var entityReferenceType: EntityReference.Type { abstract() } // abstruct
 		
 		public class var typeIdentity: TypeIdentity { 
 			return self.entityReferenceType.entityDefinition 
@@ -77,8 +86,8 @@ extension SDAI {
 		
 		// attribute observer support
 		private var _owners: Set<UnownedReference<ComplexEntity>> = []
-		public var owners: AnySequence<ComplexEntity> { AnySequence(_owners.lazy.map{$0.object}) }
-		
+		public var owners: some Collection<ComplexEntity> { _owners.lazy.map{$0.object} }
+
 		open func broadcast(addedToComplex complex: ComplexEntity) {
 			_owners.insert(UnownedReference(complex))
 		}

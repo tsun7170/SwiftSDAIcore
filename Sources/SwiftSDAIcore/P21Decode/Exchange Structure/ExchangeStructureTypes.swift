@@ -206,7 +206,7 @@ extension P21Decode.ExchangeStructure {
 		case integer(Int)
 		case real(Double)
 		case string(String)
-		case rhsOccurenceName(RHSOccurenceName)
+		case rhsOccurenceName(RHSOccurrenceName)
 		case enumeration(String)
 		case binary(String)	// sequence of "0" or "1"
 		case list([Parameter])
@@ -225,15 +225,15 @@ extension P21Decode.ExchangeStructure {
 		}
 	}
 	
-	//MARK: RHS Occurence Name
-	
+	//MARK: RHS Occurrence Name
+
 	/// RHS_OCCURRENCE_NAME =( ENTITY_INSTANCE_NAME | VALUE_INSTANCE_NAME | 
 	/// CONSTANT_ENTITY_NAME | CONSTANT_VALUE_NAME)
 	///
 	/// # Reference
 	/// 5.4 Definition of tokens;
 	/// ISO 10303-21
-	public enum RHSOccurenceName: Equatable, CustomStringConvertible {
+	public enum RHSOccurrenceName: Equatable, CustomStringConvertible {
 		case entityInstanceName(Int)
 		case valueInstanceName(Int)
 		case constantEntityName(String)
@@ -292,7 +292,7 @@ extension P21Decode.ExchangeStructure {
 		case string(String)
 		case enumeration(String)
 		case binary(String)
-		case rhsOccurenceName(RHSOccurenceName)
+		case rhsOccurrenceName(RHSOccurrenceName)
 		case resource(Resource)
 		case anchorItemList([AnchorItem])
 		
@@ -302,7 +302,7 @@ extension P21Decode.ExchangeStructure {
 			case .integer(let val):	return "INTEGER(\(val))"
 			case .real(let val): return "REAL(\(val))"
 			case .string(let val): return "STRING(\(val))"
-			case .rhsOccurenceName(let name): return "\(name)"
+			case .rhsOccurrenceName(let name): return "\(name)"
 			case .enumeration(let val): return ".\(val)."
 			case .binary(let val):	return "\"\(val)\""
 			case .anchorItemList(let val): return "\(val)"

@@ -95,7 +95,10 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] { return [:] }
+		public static func validateWhereRules(
+			instance:Self?,
+			prefix:SDAIPopulationSchema.WhereLabel
+		) -> SDAIPopulationSchema.WhereRuleValidationRecords { return [:] }
 
 		
 		// InitializableByGenerictype

@@ -7,13 +7,14 @@
 //
 
 import Foundation
+import Synchronization
 
-
-public protocol SdaiObjectReference: AnyObject{
-	associatedtype Object: AnyObject
+public protocol SdaiObjectReference: AnyObject, Sendable {
+	associatedtype Object: AnyObject & Sendable
 	var object: Object {get}
 	var objectId: ObjectIdentifier {get}
 }
+
 
 //MARK: - SDAI namespace
 public enum SDAI {
@@ -28,54 +29,12 @@ public enum SDAI {
 	
 	public static let _Infinity:INTEGER? = nil;
 
-	//MARK: - validation related	
-	public typealias WhereLabel = SDAIDictionarySchema.ExpressId
-	
-	public typealias GlobalRuleSignature = (_ allComplexEntities: AnySequence<SDAI.ComplexEntity>) -> [SDAI.WhereLabel:SDAI.LOGICAL]
-	
-	public struct GlobalRuleValidationResult {
-		public var globalRule: SDAIDictionarySchema.GlobalRule
-		public var result: SDAI.LOGICAL
-		public var record: [SDAI.WhereLabel:SDAI.LOGICAL]
-	}
-	
-	public typealias UniquenessRuleSignature = (_ entity: SDAI.EntityReference) -> AnyHashable?
-	
-	public struct UniquenessRuleValidationResult {
-		public var uniquenessRule: SDAIDictionarySchema.UniquenessRule
-		public var result: SDAI.LOGICAL
-		public var record: (uniqueCount:Int, instanceCount:Int)
-	}
-	
-	public struct WhereRuleValidationResult: CustomStringConvertible {
-		public var description: String {
-			var str = "WhereRuleValidationResult( result:\(result)\n"
-			for (i,(label,whereResult)) in record
-				.sorted(by: { $0.key < $1.key })
-				.enumerated() {
-					str += "[\(i)]\t\(label): \(whereResult)\n"
-				}
-			str += ")\n"
-			return str
-		}
-		
-		public var result: SDAI.LOGICAL
-		public var record: [SDAI.WhereLabel:SDAI.LOGICAL]
-	}
-	
-	//MARK: - SDAI.Object	
-	open class Object: Hashable {		
-		public init() {}
-		
-		public static func == (lhs: SDAI.Object, rhs: SDAI.Object) -> Bool {
-			return lhs === rhs
-		}
-		
-		public func hash(into hasher: inout Hasher) {
-			ObjectIdentifier(self).hash(into: &hasher)
-		}
-	}
-	
+
+
+	//MARK: - SDAI.Object
+	public protocol Object: AnyObject, Hashable {}
+
+
 	//MARK: - SDAI.ObjectReference
 	open class ObjectReference<OBJ: Object>: SdaiObjectReference, Hashable {
 		public let object: OBJ
@@ -94,7 +53,8 @@ public enum SDAI {
 		}
 		
 	}
-	
+
+
 	//MARK: - SDAI.UnownedReference
 	open class UnownedReference<OBJ: Object>: SdaiObjectReference, Hashable {
 		public unowned let object: OBJ
@@ -123,8 +83,54 @@ public enum SDAI {
 			self.value = initialValue
 		}
 	}
-	
-	
+
+	//MARK: - SDAI.MutexReference
+	public final class MutexReference<T: Sendable>: Object {
+		private let mutex: Mutex<T>
+
+		public init(_ initialValue:T) {
+			self.mutex = Mutex(initialValue)
+		}
+
+		public borrowing func withLock<Result, E>(
+			_ body: (inout sending T) throws(E) -> sending Result
+		) throws(E) -> sending Result
+		where E : Error, Result : ~Copyable
+		{
+			return try self.mutex.withLock(body)
+		}
+
+		public borrowing func withLockIfAvailable<Result, E>(
+			_ body: (inout sending T) throws(E) -> sending Result
+		) throws(E) -> sending Result?
+		where E : Error, Result : ~Copyable
+		{
+			return try self.mutex.withLockIfAvailable(body)
+		}
+	}
+
 	
 }
+
+//MARK: SDAI.Object implementation
+extension SDAI.Object {
+	public static func == (lhs: Self, rhs: some SDAI.Object) -> Bool {
+		return lhs === rhs
+	}
+
+	public func hash(into hasher: inout Hasher) {
+		ObjectIdentifier(self).hash(into: &hasher)
+	}
+}
+
+
+//MARK: Sendable conformances
+
+extension SDAI.ObjectReference: @unchecked Sendable
+where OBJ: Sendable
+{}
+
+extension SDAI.UnownedReference: @unchecked Sendable
+where OBJ: Sendable
+{}
 

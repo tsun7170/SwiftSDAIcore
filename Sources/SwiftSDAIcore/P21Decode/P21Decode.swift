@@ -27,8 +27,10 @@ public enum P21Decode {
 public extension Character {
 	
 	/// to check if the subject character is in a given character set
+	///
 	/// - Parameter charset: <#charset description#>
 	/// - Returns: <#description#>
+	/// 
 	func `is`(_ charset: CharacterSet) -> Bool {
 		let selfset = CharacterSet(charactersIn: String(self))
 		let result = !charset.isDisjoint(with: selfset)

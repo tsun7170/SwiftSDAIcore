@@ -49,9 +49,9 @@ extension SDAIBagType {
 		return true
 	}
 	
-	public var isCachable: Bool {
+	public var isCacheable: Bool {
 		for elem in self.asAggregationSequence {
-			if !elem.isCachable { return false }
+			if !elem.isCacheable { return false }
 		}
 		return true
 	}	
@@ -183,7 +183,7 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+		public static func validateWhereRules(instance:Self?, prefix:SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
 			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix)
 		}
 
@@ -194,10 +194,10 @@ extension SDAI {
 		
 		// SDAIGenericType
 		public func copy() -> Self {
-			if var observable = self as? SDAIObservableAggregateElement {
-				observable.teardownObserver()
-				return (observable as Any) as! Self
-			}
+//			if var observable = self as? SDAIObservableAggregateElement {
+//				observable.teardownObserver()
+//				return (observable as Any) as! Self
+//			}
 			return self 
 		}
 		
@@ -216,7 +216,7 @@ extension SDAI {
 		public var loIndex: Int { return 1 }
 		public var size: Int { return rep.count }
 		public var isEmpty: Bool { return rep.isEmpty }
-		public var observer: EntityReferenceObserver?
+//		public var observer: EntityReferenceObserver?
 
 		public subscript(index: Int?) -> ELEMENT? {
 			get{
@@ -239,14 +239,14 @@ extension SDAI {
 		
 		// SDAIBagType
 		public mutating func add(member: ELEMENT?) {
-			guard var member = member else {return}
+			guard let member = member else {return}
 			
-			if let observer = self.observer, 
-				 var observableMember = member as? SDAIObservableAggregateElement 
-			{
-				observableMember.configure(with: observer)
-				member = observableMember as! ELEMENT
-			}
+//			if let observer = self.observer, 
+//				 var observableMember = member as? SDAIObservableAggregateElement 
+//			{
+//				observableMember.configure(with: observer)
+//				member = observableMember as! ELEMENT
+//			}
 			
 			rep.append(member)
 		}
@@ -255,11 +255,11 @@ extension SDAI {
 		public mutating func remove(member: ELEMENT?) -> Bool {
 			guard let member = member else {return false}
 			if let index = rep.lastIndex(of: member) {
-				if let observer = self.observer,
-					 let observableMember = member as? SDAIObservableAggregateElement 
-				{
-					observer.observe(removing: observableMember.entityReferences, adding: [])
-				}
+//				if let observer = self.observer,
+//					 let observableMember = member as? SDAIObservableAggregateElement 
+//				{
+//					observer.observe(removing: observableMember.entityReferences, adding: [])
+//				}
 				rep.remove(at: index)
 				return true
 			}
@@ -337,7 +337,7 @@ extension SDAI {
 		}
 
 		// InitializableByEmptyListLiteral
-		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
+		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE) {
 			self.init(from: SwiftType(), bound1: bound1, bound2: bound2)
 		}
 
@@ -364,7 +364,7 @@ extension SDAI {
 		// Intersection
 		private func intersectionWith<S: SwiftDictRepresentable>(other: S) -> [ELEMENT.FundamentalType] 
 		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
-			assert(self.observer == nil)
+//			assert(self.observer == nil)
 			var result: [ELEMENT.FundamentalType] = []
 			let selfDict = self.asSwiftDict
 			let otherDict = other.asSwiftDict
@@ -395,7 +395,7 @@ extension SDAI {
 		// Union
 		private func unionWith<S: SDAIAggregationSequence>(other: S) -> SwiftType
 		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
-			assert(self.observer == nil)
+//			assert(self.observer == nil)
 			var result = self.rep
 			result.append(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0.asFundamentalType) } )
 			return result
@@ -441,7 +441,7 @@ extension SDAI {
 		// Difference
 		private func differenceWith<S: SwiftDictRepresentable>(other: S) -> [ELEMENT.FundamentalType] 
 		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
-			assert(self.observer == nil)
+//			assert(self.observer == nil)
 			var result: [ELEMENT.FundamentalType] = []
 			let selfDict = self.asSwiftDict
 			let otherDict = other.asSwiftDict
@@ -540,32 +540,52 @@ extension SDAI {
 }
 
 
-extension SDAI.BAG: SDAIObservableAggregate, SDAIObservableAggregateElement
-where ELEMENT: SDAIObservableAggregateElement
+//extension SDAI.BAG: SDAIObservableAggregate, SDAIObservableAggregateElement
+//where ELEMENT: SDAIObservableAggregateElement
+//{
+//	// SDAIObservableAggregateElement
+//	public var entityReferences: AnySequence<SDAI.EntityReference> { 
+//		AnySequence( self.lazy.flatMap{ $0.entityReferences } )
+//	}
+//	
+//	public mutating func configure(with observer: SDAI.EntityReferenceObserver) {
+//		self.observer = observer
+//		for i in 0 ..< rep.count {
+//			rep[i].configure(with: observer)
+//		}
+//	}
+//
+//	public mutating func teardownObserver() {
+//		self.observer = nil
+//		for i in 0 ..< rep.count {
+//			rep[i].teardownObserver()
+//		}
+//	}
+//
+//}
+
+
+extension SDAI.BAG: SDAIEntityReferenceYielding
+where ELEMENT: SDAIEntityReferenceYielding
 {
-	// SDAIObservableAggregateElement
-	public var entityReferences: AnySequence<SDAI.EntityReference> { 
-		AnySequence<SDAI.EntityReference>(self.lazy.flatMap { $0.entityReferences })
-	}
-	
-	public mutating func configure(with observer: SDAI.EntityReferenceObserver) {
-		self.observer = observer
-		for i in 0 ..< rep.count {
-			rep[i].configure(with: observer)
-		}
+	public var entityReferences: AnySequence<SDAI.EntityReference> {
+		AnySequence( self.lazy.flatMap{ $0.entityReferences } )
 	}
 
-	public mutating func teardownObserver() {
-		self.observer = nil
-		for i in 0 ..< rep.count {
-			rep[i].teardownObserver()
+	public func isHolding(
+		entityReference: SDAI.EntityReference
+	) -> Bool
+	{
+		for elem in self {
+			if elem.isHolding(entityReference: entityReference) { return true }
 		}
+		return false
 	}
-
 }
 
+
 extension SDAI.BAG: InitializableBySelecttypeBag, InitializableBySelecttypeSet
-where ELEMENT: InitializableBySelecttype
+where ELEMENT: InitializableBySelectType
 {
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
 	where T.ELEMENT: SDAISelectType
@@ -608,7 +628,7 @@ where ELEMENT: InitializableByEntity
 
 
 extension SDAI.BAG: InitializableByDefinedtypeBag, InitializableByDefinedtypeSet 
-where ELEMENT: InitializableByDefinedtype
+where ELEMENT: InitializableByDefinedType
 {
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType

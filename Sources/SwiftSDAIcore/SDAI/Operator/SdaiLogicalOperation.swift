@@ -27,7 +27,20 @@ public func && <T: SDAILogicalType, U: SDAILogicalType>(lhs: T , rhs: U?) -> SDA
 public func && <T: SDAILogicalType, U: SDAILogicalType>(lhs: T?, rhs: U ) -> SDAI.LOGICAL { 
 	return SDAI.LOGICAL(lhs) && rhs
 }
-public func && <T: SDAILogicalType, U: SDAILogicalType>(lhs: T , rhs: U ) -> SDAI.LOGICAL { 
+/// master _logical and_ operator for the SDAILogicalType
+/// - TRUE && TRUE -> TRUE
+/// - TRUE && UNKNOWN -> UNKNOWN
+/// - TRUE && FALSE -> FALSE
+/// - UNKNOWN && UNKNOWN -> UNKNOWN
+/// - UNKNOWN && FALSE -> FALSE
+/// - FALSE && FALSE -> FALSE
+///
+/// - Parameters:
+///   - lhs: logical value
+///   - rhs: logical value
+/// - Returns: lhs && rhs value
+///
+public func && <T: SDAILogicalType, U: SDAILogicalType>(lhs: T , rhs: U ) -> SDAI.LOGICAL {
 	let lhs = SDAI.cardinal(logical: lhs)
 	let rhs = SDAI.cardinal(logical: rhs)
 	return SDAI.LOGICAL(fromCardinal: min(lhs,rhs) )
@@ -43,7 +56,20 @@ public func || <T: SDAILogicalType, U: SDAILogicalType>(lhs: T , rhs: U?) -> SDA
 public func || <T: SDAILogicalType, U: SDAILogicalType>(lhs: T?, rhs: U ) -> SDAI.LOGICAL { 
 	return SDAI.LOGICAL(lhs) || rhs
 }
-public func || <T: SDAILogicalType, U: SDAILogicalType>(lhs: T , rhs: U ) -> SDAI.LOGICAL { 
+/// master _logical or_ operator for the SDAILogicalType
+/// - TRUE || TRUE -> TRUE
+/// - TRUE || UNKNOWN -> TRUE
+/// - TRUE || FALSE -> TRUE
+/// - UNKNOWN || UNKNOWN -> UNKNOWN
+/// - UNKNOWN || FALSE -> UNKNOWN
+/// - FALSE || FALSE -> FALSE
+///
+/// - Parameters:
+///   - lhs: logical value
+///   - rhs: logical value
+/// - Returns: lhs || rhs value
+/// 
+public func || <T: SDAILogicalType, U: SDAILogicalType>(lhs: T , rhs: U ) -> SDAI.LOGICAL {
 	let lhs = SDAI.cardinal(logical: lhs)
 	let rhs = SDAI.cardinal(logical: rhs)
 	return SDAI.LOGICAL(fromCardinal: max(lhs,rhs) )

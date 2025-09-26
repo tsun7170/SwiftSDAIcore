@@ -9,12 +9,12 @@
 import Foundation
 
 //MARK: - from select type scalar
-public protocol InitializableBySelecttype
+public protocol InitializableBySelectType
 {
 	init?<S: SDAISelectType>(possiblyFrom select: S?)
 }
 
-public extension InitializableBySelecttype
+public extension InitializableBySelectType
 {
 	init?<S: SDAISelectType>(_ select: S?) {
 		self.init(possiblyFrom: select)
@@ -30,8 +30,8 @@ public extension InitializableBySelecttype
 	}
 }
 
-public extension InitializableBySelecttype
-where Self: InitializableByGenerictype
+public extension InitializableBySelectType
+where Self: InitializableByGenericType
 {
 	init?<S: SDAISelectType>(possiblyFrom select: S?) {
 		self.init(fromGeneric: select)

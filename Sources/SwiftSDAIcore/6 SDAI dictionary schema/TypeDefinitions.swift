@@ -36,7 +36,7 @@ extension SDAIDictionarySchema {
 	/// ISO 10303-22 (6.3.6) express_id
 	/// 
 	/// An ExpressId is an EXPRESS identifier (see ISO 10303-11: 7.4) for an item declared in an EXPRESS schema.
-	/// Although ISO 10303-11 states that the case of letters is not significant for EXPRESS identifiers, lower case letters shall be used as the values of the attributes of the SDAI dictionary schema whose domain is defined by an express_id(NOT IMPLEMENTED; istead upper case letters are used which is more convenient in many situations). 
+	/// Although ISO 10303-11 states that the case of letters is not significant for EXPRESS identifiers, lower case letters shall be used as the values of the attributes of the SDAI dictionary schema whose domain is defined by an express_id (NOT IMPLEMENTED; instead upper case letters are used which is more convenient in many situations in the present implementation).
 	public typealias ExpressId = String
 
 
@@ -51,8 +51,8 @@ extension SDAIDictionarySchema {
 	/// ISO 10303-22 (6.4.10) named_type
 	/// 
 	/// A NamedType is an EXPRESS data type that has a name and that may have applicable domain rules. 
-	public class NamedType: SDAI.Object {
-		
+	public class NamedType: SDAI.Object, @unchecked Sendable
+	{
 		//MARK: Attribute definitions:
 		
 		/// the name of the data type.
@@ -61,13 +61,35 @@ extension SDAIDictionarySchema {
 //		public var whereRules: SDAI.LIST<WhereRule> = []
 		
 		/// the SchemaDefinition with which the NamedType is associated in the data dictionary.
-		public unowned var parentSchema: SchemaDefinition!
-		
+		public var parentSchema: SchemaDefinition { self._parentSchema! }
+
 		//MARK: swift language binding
 		public init(name: ExpressId) {
 			self.name = name
-			super.init()
-		}	
+//			super.init()
+		}
+//		public init(byFreezing proto: Prototype) {
+//			self.name = proto.name
+//			super.init()
+//		}
+
+		private unowned var _parentSchema: SchemaDefinition?
+
+		internal func fixup(parentSchema: SchemaDefinition) {
+			self._parentSchema = parentSchema
+		}
+
+
+//
+//		//MARK: prototype for instance construction
+//		public class Prototype
+//		{
+//			let name: ExpressId
+//
+//			public init(name: ExpressId) {
+//				self.name = name
+//			}
+//		}
 	}
 
 	
@@ -92,7 +114,7 @@ extension SDAIDictionarySchema {
 
 	/// ISO 10303-22 (6.4.22) integer_type
 	/// 
-	/// An IntegerType is a SImpleType that represents the EXPRESS INTEGER type.  
+	/// An IntegerType is a SimpleType that represents the EXPRESS INTEGER type.
 	public typealias IntegerType = SDAI.INTEGER
 
 
@@ -187,8 +209,8 @@ extension SDAIDictionarySchema {
 	
 	/// ISO 10303-22 (6.4.36) bound
 	/// 
-	/// A Bound is a limit on an EXPRESS aggregation, binary, string ro real type specified as an integer-valued numeric expression.
-	/// The value of the Bound may be based solely on the schema within which it is declared or may depend upon a population of that schema. 
+	/// A Bound is a limit on an EXPRESS aggregation, binary, string or real type specified as an integer-valued numeric expression.
+	/// The value of the Bound may be based solely on the schema within which it is declared or may depend upon a population of that schema.
 	public typealias Bound = Int
 
 

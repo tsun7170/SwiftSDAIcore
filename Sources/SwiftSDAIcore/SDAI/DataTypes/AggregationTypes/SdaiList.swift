@@ -23,9 +23,9 @@ public protocol SDAIListType: SDAIAggregationType, SDAIAggregateIndexingSettable
 }
 
 extension SDAIListType {
-	public var isCachable: Bool {
+	public var isCacheable: Bool {
 		for elem in self.asAggregationSequence {
-			if !elem.isCachable { return false }
+			if !elem.isCacheable { return false }
 		}
 		return true
 	}	
@@ -135,7 +135,7 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+		public static func validateWhereRules(instance:Self?, prefix:SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
 			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix)
 		}
 
@@ -146,10 +146,10 @@ extension SDAI {
 		
 		// SDAIGenericType
 		public func copy() -> Self {
-			if var observable = self as? SDAIObservableAggregateElement {
-				observable.teardownObserver()
-				return (observable as Any) as! Self
-			}
+//			if var observable = self as? SDAIObservableAggregateElement {
+//				observable.teardownObserver()
+//				return (observable as Any) as! Self
+//			}
 			return self 
 		}
 		
@@ -169,7 +169,7 @@ extension SDAI {
 		public var loIndex: Int { return 1 }
 		public var size: Int { return rep.count }
 		public var isEmpty: Bool { return rep.isEmpty }
-		public var observer: EntityReferenceObserver?
+//		public var observer: EntityReferenceObserver?
 
 		public subscript(index: Int?) -> ELEMENT? {
 			get{
@@ -178,17 +178,17 @@ extension SDAI {
 			}
 			set{
 				guard let index = index, index >= loIndex, index <= hiIndex else { return }
-				guard var newValue = newValue else { return }
-				
-				if let observer = self.observer, 
-					 var newObservable = newValue as? SDAIObservableAggregateElement,
-					 var oldObservable = rep[index - loIndex] as? SDAIObservableAggregateElement
-				{
-					oldObservable.teardownObserver()
-					newObservable.configure(with: observer)
-					observer.observe(removing: oldObservable.entityReferences, adding: newObservable.entityReferences)
-					newValue = newObservable as! ELEMENT
-				}				
+				guard let newValue = newValue else { return }
+
+//				if let observer = self.observer, 
+//					 var newObservable = newValue as? SDAIObservableAggregateElement,
+//					 var oldObservable = rep[index - loIndex] as? SDAIObservableAggregateElement
+//				{
+//					oldObservable.teardownObserver()
+//					newObservable.configure(with: observer)
+//					observer.observe(removing: oldObservable.entityReferences, adding: newObservable.entityReferences)
+//					newValue = newObservable as! ELEMENT
+//				}				
 				
 				rep[index - loIndex] = newValue
 			}
@@ -245,7 +245,7 @@ extension SDAI {
 		}
 		
 		// InitializableByEmptyListLiteral
-		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
+		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE) {
 			self.init(from: SwiftType(), bound1: bound1, bound2: bound2)
 		} 
 
@@ -269,16 +269,16 @@ extension SDAI {
 
 		// Built-in procedure support
 		public mutating func insert(element: ELEMENT, at position: Int) {
-			var element = element
+//			var element = element
 			assert(position >= 0)
 			assert(position <= self.size)
 
-			if let observer = self.observer, 
-				 var observableElement = element as? SDAIObservableAggregateElement 
-			{
-				observableElement.configure(with: observer)
-				element = observableElement as! ELEMENT
-			}
+//			if let observer = self.observer, 
+//				 var observableElement = element as? SDAIObservableAggregateElement 
+//			{
+//				observableElement.configure(with: observer)
+//				element = observableElement as! ELEMENT
+//			}
 
 			self.rep.insert(element, at: position)
 		}
@@ -287,11 +287,11 @@ extension SDAI {
 			assert(position >= 1)
 			assert(position <= self.size)
 			
-			if let observer = self.observer,
-				 let observableElement = rep[position-1] as? SDAIObservableAggregateElement 
-			{
-				observer.observe(removing: observableElement.entityReferences, adding: [])
-			}
+//			if let observer = self.observer,
+//				 let observableElement = rep[position-1] as? SDAIObservableAggregateElement 
+//			{
+//				observer.observe(removing: observableElement.entityReferences, adding: [])
+//			}
 
 			self.rep.remove(at: position-1)
 		}
@@ -300,14 +300,14 @@ extension SDAI {
 		// Union
 		private func append<S: SDAIAggregationSequence>(other: S) -> SwiftType
 		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
-			assert(self.observer == nil)
+//			assert(self.observer == nil)
 			var result = self.rep
 			result.append(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0.asFundamentalType) } )
 			return result
 		}
 		private func prepend<S: SDAIAggregationSequence>(other: S) -> SwiftType
 		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
-			assert(self.observer == nil)
+//			assert(self.observer == nil)
 			var result = self.rep
 			result.insert(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0.asFundamentalType) }, at: 0 )
 			return result
@@ -315,26 +315,26 @@ extension SDAI {
 		
 		public func appendWith<U: SDAIListType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
-			assert(self.observer == nil)
+//			assert(self.observer == nil)
 			let result = self.append(other: rhs)
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func appendWith<U: SDAIGenericType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.FundamentalType {
-			assert(self.observer == nil)
+//			assert(self.observer == nil)
 			var result = self.rep
 			result.append(ELEMENT.convert(from: rhs.asFundamentalType))
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func prependWith<U: SDAIGenericType>(lhs: U) -> SDAI.LIST<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.FundamentalType {
-			assert(self.observer == nil)
+//			assert(self.observer == nil)
 			var result = self.rep
 			result.insert(ELEMENT.convert(from: lhs.asFundamentalType), at: 0 )
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func appendWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>? {
-			assert(self.observer == nil)
+//			assert(self.observer == nil)
 			if let rhs = rhs.listValue(elementType: ELEMENT.self) {
 				return self.appendWith(rhs: rhs)
 			}
@@ -344,7 +344,7 @@ extension SDAI {
 			return nil
 		}
 		public func prependWith<U: SDAI__GENERIC__type>(lhs: U) -> SDAI.LIST<ELEMENT>? {
-			assert(self.observer == nil)
+//			assert(self.observer == nil)
 			if let lhs = lhs.listValue(elementType: ELEMENT.self) {
 				let result = self.prepend(other: lhs)
 				return LIST(from: result, bound1: 0, bound2: _Infinity)
@@ -356,13 +356,13 @@ extension SDAI {
 		}
 		public func appendWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
-			assert(self.observer == nil)
+//			assert(self.observer == nil)
 			let result = self.append(other: rhs)
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 		public func prependWith<U: SDAIAggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
-			assert(self.observer == nil)
+//			assert(self.observer == nil)
 			let result = self.prepend(other: lhs)
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
@@ -415,31 +415,51 @@ extension SDAI {
 }
 
 
-extension SDAI.LIST: SDAIObservableAggregate, SDAIObservableAggregateElement
-where ELEMENT: SDAIObservableAggregateElement
+//extension SDAI.LIST: SDAIObservableAggregate, SDAIObservableAggregateElement
+//where ELEMENT: SDAIObservableAggregateElement
+//{
+//	// SDAIObservableAggregateElement
+//	public var entityReferences: AnySequence<SDAI.EntityReference> { 
+//		AnySequence( self.lazy.flatMap{ $0.entityReferences } )
+//	}
+//		
+//	public mutating func configure(with observer: SDAI.EntityReferenceObserver) {
+//		self.observer = observer
+//		for i in 0 ..< rep.count {
+//			rep[i].configure(with: observer)
+//		}
+//	}
+//
+//	public mutating func teardownObserver() {
+//		self.observer = nil
+//		for i in 0 ..< rep.count {
+//			rep[i].teardownObserver()
+//		}
+//	}
+//}
+
+extension SDAI.LIST: SDAIEntityReferenceYielding
+where ELEMENT: SDAIEntityReferenceYielding
 {
-	// SDAIObservableAggregateElement
-	public var entityReferences: AnySequence<SDAI.EntityReference> { 
-		AnySequence<SDAI.EntityReference>(self.lazy.flatMap { $0.entityReferences })
-	}
-		
-	public mutating func configure(with observer: SDAI.EntityReferenceObserver) {
-		self.observer = observer
-		for i in 0 ..< rep.count {
-			rep[i].configure(with: observer)
-		}
+	public var entityReferences: AnySequence<SDAI.EntityReference> {
+		AnySequence( self.lazy.flatMap{ $0.entityReferences } )
 	}
 
-	public mutating func teardownObserver() {
-		self.observer = nil
-		for i in 0 ..< rep.count {
-			rep[i].teardownObserver()
+	public func isHolding(
+		entityReference: SDAI.EntityReference
+	) -> Bool
+	{
+		for elem in self {
+			if elem.isHolding(entityReference: entityReference) { return true }
 		}
+		return false
 	}
 }
 
+
+
 extension SDAI.LIST: InitializableBySelecttypeList
-where ELEMENT: InitializableBySelecttype
+where ELEMENT: InitializableBySelectType
 {	
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
 	where T.ELEMENT: SDAISelectType
@@ -465,7 +485,7 @@ where ELEMENT: InitializableByEntity
 
 
 extension SDAI.LIST: InitializableByDefinedtypeList
-where ELEMENT: InitializableByDefinedtype
+where ELEMENT: InitializableByDefinedType
 {
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType

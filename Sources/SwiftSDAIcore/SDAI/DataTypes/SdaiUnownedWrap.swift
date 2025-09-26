@@ -32,7 +32,7 @@ extension SDAI {
 }
 
 
-extension SDAI.UnownedWrap: InitializableBySelecttype where REF: InitializableBySelecttype {
+extension SDAI.UnownedWrap: InitializableBySelectType where REF: InitializableBySelectType {
 	public init?<S: SDAISelectType>(possiblyFrom select: S?) {
 		guard let obj = REF.init(possiblyFrom: select) else { return nil }
 		self.init(obj)
@@ -40,7 +40,7 @@ extension SDAI.UnownedWrap: InitializableBySelecttype where REF: InitializableBy
 
 }
 
-extension SDAI.UnownedWrap: InitializableByGenerictype where REF: InitializableByGenerictype {
+extension SDAI.UnownedWrap: InitializableByGenericType where REF: InitializableByGenericType {
 	public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 		guard let obj = REF.init(fromGeneric: generic) else { return nil }
 		self.init(obj)
@@ -78,8 +78,9 @@ extension SDAI.UnownedWrap: InitializableByP21Parameter where REF: Initializable
 }
 
 
-extension SDAI.UnownedWrap: SDAIGenericType, SdaiCachableSource where REF: SDAIGenericType {
-	
+extension SDAI.UnownedWrap: SDAIGenericType, SdaiCacheableSource, Sendable
+where REF: SDAIGenericType {
+
 	public typealias FundamentalType = REF.FundamentalType
 	public typealias Value = REF.Value
 	
@@ -88,7 +89,7 @@ extension SDAI.UnownedWrap: SDAIGenericType, SdaiCachableSource where REF: SDAIG
 		return Self(obj)
 	}
 	
-	public var isCachable: Bool { reference.isCachable }
+	public var isCacheable: Bool { reference.isCacheable }
 
 	public var asFundamentalType: FundamentalType { reference.asFundamentalType	}
 	public init(fundamental: FundamentalType) {
@@ -129,7 +130,11 @@ extension SDAI.UnownedWrap: SDAIGenericType, SdaiCachableSource where REF: SDAIG
 		reference.enumValue(enumType: enumType)
 	}
 	
-	public static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+	public static func validateWhereRules(
+		instance:Self?,
+		prefix:SDAIPopulationSchema.WhereLabel
+	) -> SDAIPopulationSchema.WhereRuleValidationRecords
+	{
 		REF.validateWhereRules(instance: instance?.reference, prefix: prefix)
 	}
 	

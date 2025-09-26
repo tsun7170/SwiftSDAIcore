@@ -9,6 +9,14 @@
 import Foundation
 
 extension SDAI {
+	/// gives cardinal representation for the SDAILogicalType
+	/// - TRUE: 2
+	/// - UNKNOWN: 1
+	/// - FALSE: 0
+	///
+	/// - Parameter logical: logical value
+	/// - Returns: cardinal integer
+	/// 
 	public static func cardinal<T:SDAILogicalType>(logical:T) -> Int {
 		if let bool = logical.possiblyAsSwiftBool {
 			switch bool {

@@ -45,7 +45,7 @@ public extension SDAI__ARRAY__subtype
 
 //MARK: - for select type element
 public extension SDAI__ARRAY__subtype
-where ELEMENT: InitializableBySelecttype
+where ELEMENT: InitializableBySelectType
 {
 	init?<T:SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAISelectType
@@ -70,7 +70,7 @@ where ELEMENT: InitializableByEntity
 
 //MARK: - for defined type element
 public extension SDAI__ARRAY__subtype
-where ELEMENT: InitializableByDefinedtype
+where ELEMENT: InitializableByDefinedType
 {
 	init?<T:SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType

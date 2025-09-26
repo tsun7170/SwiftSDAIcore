@@ -9,13 +9,13 @@
 import Foundation
 
 //MARK: - from generic type scalar
-public protocol InitializableByGenerictype
+public protocol InitializableByGenericType
 {
 	init?<G: SDAIGenericType>(fromGeneric generic: G?)
 	static func convert<G: SDAIGenericType>(fromGeneric generic: G?) -> Self?
 }
 
-public extension InitializableByGenerictype 
+public extension InitializableByGenericType 
 where Self: SDAIGenericType
 {
 	static func convert<G: SDAIGenericType>(fromGeneric generic: G?) -> Self? {
@@ -45,7 +45,7 @@ where Self: SDAIGenericType
 
 }
 
-public extension InitializableByGenerictype 
+public extension InitializableByGenericType 
 where Self: SDAIGenericType, FundamentalType == Self
 {
 	static func convert<G: SDAIGenericType>(fromGeneric generic: G?) -> Self? {

@@ -10,20 +10,23 @@ import Foundation
 
 //MARK: - SELECT TYPE base (8.4.2)
 
-public protocol SDAISelectType: SDAIConstructedType, InitializableByDefinedtype, InitializableByEntity,
-																SwiftDoubleConvertible, SwiftIntConvertible, SwiftStringConvertible, SwiftBoolConvertible, 
-																SDAIObservableAggregateElement, SDAIAggregationBehavior
-																
+public protocol SDAISelectType: SDAIConstructedType,
+																	InitializableByDefinedType, InitializableByEntity,
+																SwiftDoubleConvertible, SwiftIntConvertible, SwiftStringConvertible, SwiftBoolConvertible,
+																SDAIEntityReferenceYielding,
+//																SDAIObservableAggregateElement,
+																SDAIAggregationBehavior
+
 where Value == FundamentalType,
 			FundamentalType: SDAISelectType
 {}
 
 public extension SDAISelectType
 {
-	// SdaiCachableSource
-	var isCachable: Bool {
+	// SdaiCacheableSource
+	var isCacheable: Bool {
 		for elem in self.entityReferences {
-			if !elem.isCachable { return false }
+			if !elem.isCacheable { return false }
 		}
 		return true
 	}

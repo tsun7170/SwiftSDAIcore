@@ -9,13 +9,13 @@
 import Foundation
 
 //MARK: - from swift type scalar
-public protocol InitializableBySwifttype
+public protocol InitializableBySwiftType
 {
 	associatedtype SwiftType
 	
 	init(from swiftValue: SwiftType)
 }
-public extension InitializableBySwifttype
+public extension InitializableBySwiftType
 {
 	init?(from swiftValue: SwiftType?) {
 		guard let swiftvalue = swiftValue else { return nil }
@@ -29,7 +29,10 @@ public protocol InitializableBySwifttypeAsList
 {
 	associatedtype SwiftType
 	
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2?) 
+	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+		from swiftValue: SwiftType,
+		bound1: I1,
+		bound2: I2?)
 }
 public extension InitializableBySwifttypeAsList
 {
@@ -49,7 +52,10 @@ public protocol InitializableBySwifttypeAsArray
 {
 	associatedtype SwiftType
 	
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2) 
+	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+		from swiftValue: SwiftType,
+		bound1: I1,
+		bound2: I2)
 }
 
 

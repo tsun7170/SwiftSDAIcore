@@ -30,14 +30,14 @@ final class SwiftSDAIcoreTests: XCTestCase {
 			return members
 		}
 		
-		public var isCachable: Bool { false }
+		public var isCacheable: Bool { false }
 		
 		public typealias Supertype = SDAI.STRING
 		public typealias FundamentalType = Supertype.FundamentalType
 		public typealias Value = Supertype.Value
 		public typealias SwiftType = Supertype.SwiftType
-		public static var typeName: String = "StringSubType"
-		public static var bareTypeName: String = "StringSubType"
+		public static let typeName: String = "StringSubType"
+		public static let bareTypeName: String = "StringSubType"
 		public var rep: Supertype
 
 		public init(fundamental: FundamentalType) {
@@ -63,21 +63,23 @@ final class SwiftSDAIcoreTests: XCTestCase {
 	
 	
 	
-	class ENTITY1 : SDAI.EntityReference {
+	class ENTITY1 : SDAI.EntityReference, @unchecked Sendable {
 		public class override var entityDefinition: SDAIDictionarySchema.EntityDefinition { _entityDefinition }
+
 		private static let _entityDefinition: SDAIDictionarySchema.EntityDefinition = createEntityDefinition()
+
 		private static func createEntityDefinition() -> SDAIDictionarySchema.EntityDefinition {
-			let entityDef = SDAIDictionarySchema.EntityDefinition(name: "ENTITY1", type: self, explicitAttributeCount: 0)
-			return entityDef
+			let entityDef = SDAIDictionarySchema.EntityDefinition.Prototype(name: "ENTITY1", type: self, explicitAttributeCount: 0)
+			return entityDef.freeze()
 		}
 	}
 	
-	class ENTITY2 : SDAI.EntityReference {
+	class ENTITY2 : SDAI.EntityReference, @unchecked Sendable {
 		public class override var entityDefinition: SDAIDictionarySchema.EntityDefinition { _entityDefinition }
 		private static let _entityDefinition: SDAIDictionarySchema.EntityDefinition = createEntityDefinition()
 		private static func createEntityDefinition() -> SDAIDictionarySchema.EntityDefinition {
-			let entityDef = SDAIDictionarySchema.EntityDefinition(name: "ENTITY2", type: self, explicitAttributeCount: 0)
-			return entityDef
+			let entityDef = SDAIDictionarySchema.EntityDefinition.Prototype(name: "ENTITY2", type: self, explicitAttributeCount: 0)
+			return entityDef.freeze()
 		}
 	}
 
@@ -122,7 +124,7 @@ final class SwiftSDAIcoreTests: XCTestCase {
 	func testP21stream() {
 		let testDataFolder = ProcessInfo.processInfo.environment["TEST_DATA_FOLDER"]!
 		let url = URL(fileURLWithPath: testDataFolder + "NIST_CTC_STEP_PMI/nist_ctc_02_asme1_ap242-e2.stp")
-		let stepsource = try! String(contentsOf: url) 
+		let stepsource = try! String(contentsOf: url, encoding: .utf8)
 		let charstream = stepsource.makeIterator()
 
 		let p21stream = P21Decode.P21CharacterStream(charStream: charstream)
@@ -139,7 +141,7 @@ final class SwiftSDAIcoreTests: XCTestCase {
 	func testParser() {
 		let testDataFolder = ProcessInfo.processInfo.environment["TEST_DATA_FOLDER"]!
 		let url = URL(fileURLWithPath: testDataFolder + "NIST_CTC_STEP_PMI/nist_ctc_02_asme1_ap242-e2.stp")
-		let stepsource = try! String(contentsOf: url) 
+		let stepsource = try! String(contentsOf: url, encoding: .utf8) 
 		let charstream = stepsource.makeIterator()
 
 		let parser = P21Decode.ExchangeStructureParser(charStream: charstream)
@@ -167,28 +169,28 @@ final class SwiftSDAIcoreTests: XCTestCase {
 		let B2 = nil as SDAI.INTEGER?
 		
 		let params1 = SDAI.ParameterList(B)
-		XCTAssertTrue(params1.isCachable)
+		XCTAssertTrue(params1.isCacheable)
 
 		let params2 = SDAI.ParameterList(B1)
-		XCTAssertTrue(params2.isCachable)
+		XCTAssertTrue(params2.isCacheable)
 
 		let params3 = SDAI.ParameterList(B2)
-		XCTAssertTrue(params3.isCachable)
+		XCTAssertTrue(params3.isCacheable)
 
 		let params4 = SDAI.ParameterList(A)
-		XCTAssertTrue(!params4.isCachable)
+		XCTAssertTrue(!params4.isCacheable)
 
 		let params5 = SDAI.ParameterList(A1)
-		XCTAssertTrue(!params5.isCachable)
+		XCTAssertTrue(!params5.isCacheable)
 
 		let params6 = SDAI.ParameterList(A2)
-		XCTAssertTrue(params6.isCachable)
+		XCTAssertTrue(params6.isCacheable)
 
 		let params7 = SDAI.ParameterList(A,B,A1,B1,A2,B2)
-		XCTAssertTrue(!params7.isCachable)
+		XCTAssertTrue(!params7.isCacheable)
 
 		let params8 = SDAI.ParameterList(B,B1,A2,B2)
-		XCTAssertTrue(params8.isCachable)
+		XCTAssertTrue(params8.isCacheable)
 
 	}
 	

@@ -35,7 +35,7 @@ public extension SDAI__ARRAY_OPTIONAL__subtype
 	}
 	
 	// InitializableByEmptyArrayLiteral
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
+	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE) {
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, emptyLiteral) )
 	} 
 	
@@ -52,7 +52,7 @@ public extension SDAI__ARRAY_OPTIONAL__subtype
 
 //MARK: - for select type element
 public extension SDAI__ARRAY_OPTIONAL__subtype
-where ELEMENT: InitializableBySelecttype
+where ELEMENT: InitializableBySelectType
 {
 	init?<T:SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAISelectType
@@ -88,7 +88,7 @@ where ELEMENT: InitializableByEntity
 
 //MARK: - for defined type element
 public extension SDAI__ARRAY_OPTIONAL__subtype
-where ELEMENT: InitializableByDefinedtype
+where ELEMENT: InitializableByDefinedType
 {
 	init?<T:SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType

@@ -18,7 +18,7 @@ extension P21Decode.ExchangeStructure {
 		/// usage example of ParameterRecoveryResult type. this example demonstrate the usage of ParameterRecoveryResult to recover an expected REAL type value from a given parameter specification
 		/// - Parameters:
 		///   - parameter: parameter specification
-		///   - exchangeStructure: exchange strucuture to ask for the parameter recovery
+		///   - exchangeStructure: exchange structure to ask for the parameter recovery
 		/// - Returns: recovered REAL type value when recovery operation is successful
 		private static func usage(parameter: Parameter, exchangeStructure: P21Decode.ExchangeStructure) -> SDAI.REAL {
 			guard case .success(let recovered) = exchangeStructure.recoverRequiredParameter(as: SDAI.REAL.self, from: parameter)
@@ -32,7 +32,7 @@ extension P21Decode.ExchangeStructure {
 	/// - Parameters:
 	///   - type: type of entity attribute
 	///   - parameter: parameter specification
-	/// - Returns: recovered paramter value
+	/// - Returns: recovered parameter value
 	public func recoverRequiredParameter<T: SDAIGenericType>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T> {
 		switch parameter {
 		case .typedParameter(let typedParam):

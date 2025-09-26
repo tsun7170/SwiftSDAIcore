@@ -8,6 +8,11 @@
 
 import Foundation
 
-public func abstruct( file: StaticString = #file, line: UInt = #line) -> Never {
-	fatalError("abstruct called",file:file,line:line)
+import OSLog
+
+let logSubsystem = "SwiftSDAIcore"
+public let loggerSDAI = Logger(subsystem: logSubsystem, category: "SDAI")
+
+public func abstract( file: StaticString = #file, line: UInt = #line) -> Never {
+	fatalError("abstract called",file:file,line:line)
 }

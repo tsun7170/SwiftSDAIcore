@@ -13,9 +13,11 @@ extension SDAIDictionarySchema {
 	/// ISO 10303-22 (6.4.17) uniqueness_rule
 	/// 
 	/// A UniquenessRule is the representation of an EXPRESS UNIQUE rule.
-	/// It specifies a combination of attributes that are required to be unique within instances of the EntityDefinition whithin which the rule is declared.  
-	public final class UniquenessRule: SDAI.Object, CustomStringConvertible {
-		
+	/// It specifies a combination of attributes that are required to be unique within instances of the EntityDefinition within which the rule is declared.
+	///
+	public final class UniquenessRule: SDAI.Object, CustomStringConvertible, @unchecked Sendable
+	{
+
 		//MARK: Attribute definitions:
 		
 		/// if present, the name of the uniqueness rule.
@@ -24,19 +26,26 @@ extension SDAIDictionarySchema {
 		//public var attributes
 		
 		/// the entity type within which the rule is declared.
-		public unowned let parentEntity: EntityDefinition
+		public var parentEntity: EntityDefinition { self._parentEntity! }
 
 		//MARK: swift language binding
 		// CustomStringConvertible
 		public var description: String { "UniquenessRule(\(parentEntity.name).\(label))" }
 		
-		public init(label: ExpressId, rule: @escaping SDAI.UniquenessRuleSignature, entity: EntityDefinition) {
+		public init(label: ExpressId, rule: @escaping SDAI.UniquenessRuleSignature)
+		{
 			self.label = label
-			self.rule = rule
-			self.parentEntity = entity
-			super.init()
+			self.ruleBody = rule
+//			super.init()
 		}
-		
-		public let rule: SDAI.UniquenessRuleSignature
+
+
+		private unowned var _parentEntity: EntityDefinition?
+
+		internal func fixup(parentEntity: EntityDefinition) {
+			self._parentEntity = parentEntity
+		}
+
+		public let ruleBody: SDAI.UniquenessRuleSignature
 	}
 }

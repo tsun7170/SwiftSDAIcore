@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol InitializableByP21Parameter: InitializableByGenerictype
+public protocol InitializableByP21Parameter: InitializableByGenericType
 {
 	static var bareTypeName: String {get}
 	init?(p21param: P21Decode.ExchangeStructure.Parameter, from exchangeStructure: P21Decode.ExchangeStructure)

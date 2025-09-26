@@ -63,13 +63,22 @@ extension P21Decode.ExchangeStructure {
 			return true
 		}
 		
-		public func assignModel(filename: String) -> SDAIPopulationSchema.SdaiModel? {
+		public func assignModel(
+			filename: String,
+			repository: SDAISessionSchema.SdaiRepository,
+			transaction: SDAISessionSchema.SdaiTransactionRW
+		) -> SDAIPopulationSchema.SdaiModel?
+		{
 			let modelname = self.name != "" ? filename + "." + self.name : filename
 			
 			guard let repository = exchangeStructure.repository, let schemaDef = schema?.schemaDefinition 
 			else { exchangeStructure.error = "internal error on assigning model to data section"; return nil }
+
+			self.model = transaction.createSdaiModel(
+				repository: repository,
+				modelName: modelname,
+				schema: schemaDef)
 			
-			self.model = repository.createSdaiModel(modelName: modelname, schema: schemaDef)
 			return self.model
 		}
 	}

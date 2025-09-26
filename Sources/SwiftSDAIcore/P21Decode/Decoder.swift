@@ -20,7 +20,7 @@ extension P21Decode {
 		}
 		
 		
-		public private(set) var exchangeStructrure: ExchangeStructure?
+		public private(set) var exchangeStructure: ExchangeStructure?
 		
 		public private(set) var error: Error? {
 			didSet {
@@ -34,88 +34,109 @@ extension P21Decode {
 		public let repository: SDAISessionSchema.SdaiRepository
 		private let schemaList: SchemaList
 		private let activityMonitor: ActivityMonitor?
-		private let foreginReferenceResolver: ForeignReferenceResolver
+		private let foreignReferenceResolver: ForeignReferenceResolver
 		
 		//MARK: constructor
 		/// p21 character stream decoder constructor
+		/// 
 		/// - Parameters:
 		///   - output: SDAI repository to which the decoded entities are stored
 		///   - schemaList: list of known STEP schema
-		///   - monitor: decoder activity monitor pulgin object
-		///   - foreginReferenceResolver: foreign reference resolver pulgin object
-		public init?(output: SDAISessionSchema.SdaiRepository, 
+		///   - monitor: decoder activity monitor pulg-in object
+		///   - foreignReferenceResolver: foreign reference resolver pulg-in object
+		///
+		public init?(output: SDAISessionSchema.SdaiRepository,
 								 schemaList: KeyValuePairs<SchemaName,SDAISchema.Type>,
 								 monitor: ActivityMonitor? = nil,
-								 foreginReferenceResolver: ForeignReferenceResolver = ForeignReferenceResolver() ) {
+								 foreignReferenceResolver: ForeignReferenceResolver = ForeignReferenceResolver() ) {
 			self.repository = output
 			self.schemaList = schemaList
 			self.activityMonitor = monitor
-			self.foreginReferenceResolver = foreginReferenceResolver
+			self.foreignReferenceResolver = foreignReferenceResolver
 		}
 		
 		//MARK: decoding operation
-		/// decode a given character stream according to ISO 10303-21 and known STEP shcemas
+		/// decode a given character stream according to ISO 10303-21 and known STEP schemas
 		/// - Parameter charStream: p21 character stream
 		/// - Returns: array of SDAI models decoded
-		public func decode<CHARSTREAM>(input charStream: CHARSTREAM) -> [SDAIPopulationSchema.SdaiModel]?
+		///
+		public func decode<CHARSTREAM>(
+			input charStream: CHARSTREAM,
+			repository: SDAISessionSchema.SdaiRepository,
+			transaction: SDAISessionSchema.SdaiTransactionRW
+		) -> [SDAIPopulationSchema.SdaiModel]?
 		where CHARSTREAM: CharacterStream //IteratorProtocol, CHARSTREAM.Element == Character
 		{
+			guard let session = transaction.owningSession else {
+				SDAI.raiseErrorAndContinue(.TR_NAVL(transaction), detail: "transaction in invalid state")
+				return nil
+			}
+
 			let parser = ExchangeStructureParser(charStream: charStream, monitor: self.activityMonitor)
-			exchangeStructrure = parser.parseExchangeStructure()
-			guard let exchangeStructrure = exchangeStructrure else {
+			exchangeStructure = parser.parseExchangeStructure()
+			guard let exchangeStructure = exchangeStructure else {
 				error = .parserError(parser.error ?? P21Error(message: "<unknown parser error>", lineNumber: 0))
 				return nil
 			}
 			
-			exchangeStructrure.repository = self.repository
-			exchangeStructrure.foreignReferenceResolver = self.foreginReferenceResolver
+			exchangeStructure.repository = self.repository
+			exchangeStructure.foreignReferenceResolver = self.foreignReferenceResolver
 			
 			for (schemaName, schemaType) in self.schemaList {
-				guard exchangeStructrure.registrer(schemaName: schemaName, schema: schemaType) else {
-					error = .decoderError(exchangeStructrure.error ?? "<unknown schema registration error>")
+				guard exchangeStructure.register(schemaName: schemaName, schema: schemaType) else {
+					error = .decoderError(exchangeStructure.error ?? "<unknown schema registration error>")
 					return nil
 				}
 			}
-			for schemaDef in Set(exchangeStructrure.shcemaRegistory.values.lazy.map{$0.schemaDefinition}) {
-				let fallback = SDAIPopulationSchema.SdaiModel.fallBackModel(for: schemaDef)
-				fallback.mode = .readWrite
-				fallback.contents.resetCache(relatedTo: nil)
-			}
-		
+//			for schemaDef in Set(exchangeStructure.schemaRegistry.values.lazy.map{$0.schemaDefinition}) {
+//				let fallback = session.fallBackModel(for: schemaDef)
+//				fallback.contents.resetCache(relatedTo: nil)
+//			}
+			session.prepareFallBackModels(
+				for: exchangeStructure.schemaRegistry.values.lazy
+					.map{$0.schemaDefinition},
+				transaction: transaction)
+
 			var createdModels: [SDAIPopulationSchema.SdaiModel] = []
-			for (i,datasec) in exchangeStructrure.dataSections.enumerated() {
+			for (i,datasec) in exchangeStructure.dataSections.enumerated() {
 				guard datasec.resolveSchema() else { 
-					exchangeStructrure.add(errorContext: "while resolving data section[\(i)]")
-					error = .resolveError(exchangeStructrure.error ?? "<unknown schema resolution error>")
+					exchangeStructure.add(errorContext: "while resolving data section[\(i)]")
+					error = .resolveError(exchangeStructure.error ?? "<unknown schema resolution error>")
 					return nil
 				}
-				guard let model = datasec.assignModel(filename: exchangeStructrure.headerSection.fileName.NAME) else {
-					exchangeStructrure.add(errorContext: "while setting up data section[\(i)]")
-					error = .resolveError(exchangeStructrure.error ?? "<unknown schema resolution error>")
+				guard let model = datasec.assignModel(
+					filename: exchangeStructure.headerSection.fileName.NAME,
+				repository: repository,
+				transaction: transaction)
+				else {
+					exchangeStructure.add(errorContext: "while setting up data section[\(i)]")
+					error = .resolveError(exchangeStructure.error ?? "<unknown schema resolution error>")
 					return nil
 				}
-				createdModels.append(model)
+
+				guard let promoted = transaction.startReadWriteAccess(model: model)
+				else {
+					exchangeStructure.add(errorContext: "while setting up data section[\(i)]")
+					error = .resolveError("could not promote the created SDAI-model to read-write mode.")
+					return nil
+				}
+				createdModels.append(promoted)
 			}
 			
 			if let monitor = activityMonitor { monitor.startedResolvingEntityInstances() }
-			for instanceName in exchangeStructrure.entityInstanceRegistory.keys {
-				guard let _ = exchangeStructrure.resolve(entityInstanceName: instanceName) else {
-					error = .resolveError(exchangeStructrure.error ?? "<unknown entity instance resolution error>")
+
+			for instanceName in exchangeStructure.entityInstanceRegistry.keys {
+				guard let _ = exchangeStructure.resolve(
+					entityInstanceName: instanceName)
+				else {
+					error = .resolveError(exchangeStructure.error ?? "<unknown entity instance resolution error>")
 					return nil
 				}
-				if let monitor = activityMonitor { monitor.decoderResolved(entiyInstanceName: instanceName) }
+				if let monitor = activityMonitor { monitor.decoderResolved(entityInstanceName: instanceName) }
 			}
+
 			if let monitor = activityMonitor { monitor.completedResolving() }
-			
-			for model in createdModels {
-				model.updateChangeDate()
-				model.mode = .readOnly
-			}
-			for schemaDef in Set(exchangeStructrure.shcemaRegistory.values.lazy.map{$0.schemaDefinition}) {
-				let fallback = SDAIPopulationSchema.SdaiModel.fallBackModel(for: schemaDef)
-				fallback.mode = .readOnly
-			}
-			
+
 			return createdModels
 		}
 		

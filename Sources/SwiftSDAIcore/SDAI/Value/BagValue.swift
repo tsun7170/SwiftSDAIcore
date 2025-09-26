@@ -15,10 +15,10 @@ extension SDAI {
 		typealias ElementValue = ELEMENT.Value
 		typealias CountedSet = Dictionary<ElementValue,Int>
 
-		var hiIndex: Int
+		let hiIndex: Int
 		var size: Int { hiIndex }
-		var elements: AnySequence<ElementValue>
-		
+		let elements: AnySequence<ElementValue>
+
 		// Equatable \Hashable\SDAIValue
 		public static func == (lhs: _BagValue<ELEMENT>, rhs: _BagValue<ELEMENT>) -> Bool {
 			return lhs.isValueEqual(to: rhs)

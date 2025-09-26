@@ -20,13 +20,13 @@ extension P21Decode {
 		public internal(set) var foreignReferenceResolver: ForeignReferenceResolver? = nil
 		public internal(set) var repository: SDAISessionSchema.SdaiRepository? = nil
 
-		public internal(set) var valueInstanceRegistory: [ValueInstanceName:ValueInstanceRecord] = [:]
-		public internal(set) var entityInstanceRegistory: [EntityInstanceName:EntityInstanceRecord] = [:]
-		public private(set) var shcemaRegistory: [SchemaName:SDAISchema.Type] = [:]
+		public internal(set) var valueInstanceRegistry: [ValueInstanceName:ValueInstanceRecord] = [:]
+		public internal(set) var entityInstanceRegistry: [EntityInstanceName:EntityInstanceRecord] = [:]
+		public private(set) var schemaRegistry: [SchemaName:SDAISchema.Type] = [:]
 		
-		public var sdaiModels: AnySequence<SDAIPopulationSchema.SdaiModel> {
+		public var sdaiModels: some Collection<SDAIPopulationSchema.SdaiModel> {
 			let models = dataSections.lazy.compactMap{ $0.model }
-			return AnySequence(models)
+			return models
 		}
 		
 		private let activityMonitor: ActivityMonitor?
@@ -52,7 +52,7 @@ extension P21Decode {
 
 		//MARK: - registration related
 		internal func register(entityInstanceName: EntityInstanceName, record: EntityInstanceRecord) -> Bool {
-			if let old = entityInstanceRegistory.updateValue(record, forKey: entityInstanceName) {
+			if let old = entityInstanceRegistry.updateValue(record, forKey: entityInstanceName) {
 				self.error = "duplicated entity instance name(\(entityInstanceName)) detected with resource reference(\(record)), old reference = (\(old))"
 				return false
 			}
@@ -65,9 +65,9 @@ extension P21Decode {
 			return upper
 		}
 		
-		public func registrer(schemaName: SchemaName, schema: SDAISchema.Type) -> Bool {
+		public func register(schemaName: SchemaName, schema: SDAISchema.Type) -> Bool {
 			let canon = canonicalSchemaName(schemaName)
-			if let old = shcemaRegistory.updateValue(schema, forKey: canon) {
+			if let old = schemaRegistry.updateValue(schema, forKey: canon) {
 				self.error = "duplicated schema name(\(canon)) detected with definition(\(schema.schemaDefinition.name)), old definition = (\(old.schemaDefinition.name))"
 				return false
 			}
@@ -75,13 +75,19 @@ extension P21Decode {
 		}
 		
 		//MARK: - resolution related
-		public func resolve(schemaName: SchemaName) -> SDAISchema.Type? {
+		public func resolve(
+			schemaName: SchemaName
+		) -> SDAISchema.Type?
+		{
 			let canon = canonicalSchemaName(schemaName)
-			return shcemaRegistory[canon]
+			return schemaRegistry[canon]
 		}
 
-		public func resolve(constantEntityName: ConstantName) -> SDAI.EntityReference? {
-			guard let schema = self.resolve(schemaName: self.headerSection.fileSchema.SCHEMA_IDENTIFIERS[0]) 
+		public func resolve(
+			constantEntityName: ConstantName
+		) -> SDAI.EntityReference?
+		{
+			guard let schema = self.resolve(schemaName: self.headerSection.fileSchema.SCHEMA_IDENTIFIERS[0])
 			else { self.add(errorContext: "while resolving constant entity name(\(constantEntityName))"); return nil }
 			
 			guard let const = schema.schemaDefinition.constants[constantEntityName]?()
@@ -94,8 +100,11 @@ extension P21Decode {
 		}
 		
 		
-		public func resolve(constantValueName: ConstantName) -> SDAI.GENERIC? {
-			guard let schema = self.resolve(schemaName: self.headerSection.fileSchema.SCHEMA_IDENTIFIERS[0]) 
+		public func resolve(
+			constantValueName: ConstantName
+		) -> SDAI.GENERIC?
+		{
+			guard let schema = self.resolve(schemaName: self.headerSection.fileSchema.SCHEMA_IDENTIFIERS[0])
 			else { self.add(errorContext: "while resolving constant value name(\(constantValueName))"); return nil }
 			
 			guard let const = schema.schemaDefinition.constants[constantValueName]?()
@@ -104,8 +113,11 @@ extension P21Decode {
 			return const
 		}
 		
-		public func resolve(valueInstanceName: ValueInstanceName) -> Parameter? {
-			guard let virec = self.valueInstanceRegistory[valueInstanceName]
+		public func resolve(
+			valueInstanceName: ValueInstanceName
+		) -> Parameter?
+		{
+			guard let virec = self.valueInstanceRegistry[valueInstanceName]
 			else { self.error = "value instance name(\(valueInstanceName)) not found in reference section"; return nil }
 			
 			if let value = virec.resolved { return value }
@@ -116,8 +128,11 @@ extension P21Decode {
 			return resolved
 		}
 		
-		public func resolve(entityInstanceName: EntityInstanceName) -> SDAI.ComplexEntity? {
-			guard let eirec = self.entityInstanceRegistory[entityInstanceName]
+		public func resolve(
+			entityInstanceName: EntityInstanceName
+		) -> SDAI.ComplexEntity?
+		{
+			guard let eirec = self.entityInstanceRegistry[entityInstanceName]
 			else { self.error = "entity instance name #\(entityInstanceName) not found in data section or reference section"; return nil }
 			
 			if let complex = eirec.resolved { return complex }
@@ -136,7 +151,11 @@ extension P21Decode {
 				guard let partials = self.resolve(externalMapping: subsuper, dataSection: datasec)
 				else { self.add(errorContext: "while resolving entity instance simple record #\(entityInstanceName)"); return nil }
 				
-				let resolved = SDAI.ComplexEntity(entities: partials, model: datasec.model!, name: entityInstanceName)
+				let resolved = SDAI.ComplexEntity(
+					entities: partials,
+					model: datasec.model!,
+					name: entityInstanceName)
+
 				eirec.resolved = resolved
 				return resolved
 				
@@ -144,13 +163,20 @@ extension P21Decode {
 				guard let partials = self.resolve(externalMapping: subsuper, dataSection: datasec)
 				else { self.add(errorContext: "while resolving entity instance subsuper record #\(entityInstanceName)"); return nil }
 
-				let resolved = SDAI.ComplexEntity(entities: partials, model: datasec.model!, name: entityInstanceName)
+				let resolved = SDAI.ComplexEntity(
+					entities: partials,
+					model: datasec.model!,
+					name: entityInstanceName)
+
 				eirec.resolved = resolved
 				return resolved
 			}
 		}
 		
-		public func resolve(valueReference: ExchangeStructure.Resource) -> Parameter? {
+		public func resolve(
+			valueReference: ExchangeStructure.Resource
+		) -> Parameter?
+		{
 			if valueReference.fragment == nil {
 				return .untypedParameter(.noValue)
 			}
@@ -174,7 +200,10 @@ extension P21Decode {
 			return nil
 		}
 		
-		public func resolveValue(anchorItem: AnchorItem) -> Parameter? {
+		public func resolveValue(
+			anchorItem: AnchorItem
+		) -> Parameter?
+		{
 			switch anchorItem {
 			case .noValue:
 				return .untypedParameter(.noValue)
@@ -194,7 +223,7 @@ extension P21Decode {
 			case .binary(let value):
 				return .untypedParameter(.binary(value))
 				
-			case .rhsOccurenceName(let rhsname):
+			case .rhsOccurrenceName(let rhsname):
 				switch rhsname {
 				case .constantValueName(let name):
 					guard let generic = self.resolve(constantValueName: name)
@@ -227,7 +256,10 @@ extension P21Decode {
 			}
 		}
 		
-		public func resolve(entityReference: ExchangeStructure.Resource) -> ParameterRecoveryResult<SDAI.ComplexEntity?> {
+		public func resolve(
+			entityReference: ExchangeStructure.Resource
+		) -> ParameterRecoveryResult<SDAI.ComplexEntity?>
+		{
 			if entityReference.fragment == nil {
 				return .success(nil)
 			}
@@ -251,12 +283,15 @@ extension P21Decode {
 			return .failure			
 		}
 		
-		public func resolveInstance(anchorItem: AnchorItem) -> ParameterRecoveryResult<SDAI.ComplexEntity?> {
+		public func resolveInstance(
+			anchorItem: AnchorItem
+		) -> ParameterRecoveryResult<SDAI.ComplexEntity?>
+		{
 			switch anchorItem {
 			case .noValue:
 				return .success(nil)
 				
-			case .rhsOccurenceName(let rhsname):
+			case .rhsOccurrenceName(let rhsname):
 				switch rhsname {
 				case .constantEntityName(let name):
 					guard let resolved = self.resolve(constantEntityName: name)
@@ -284,7 +319,11 @@ extension P21Decode {
 			}
 		}
 		
-		public func resolve(externalMapping: SubsuperRecord, dataSection: DataSection) -> [SDAI.PartialEntity]? {
+		public func resolve(
+			externalMapping: SubsuperRecord,
+			dataSection: DataSection
+		) -> [SDAI.PartialEntity]?
+		{
 			guard let schemaDef = dataSection.schema?.schemaDefinition
 			else { self.error = "could not find schema definition dictionary for data section(\(dataSection))"; return nil }
 			
@@ -310,7 +349,11 @@ extension P21Decode {
 		
 		
 		
-		public func convertToExternalMapping(from internalMapping:SimpleRecord, dataSection: DataSection) -> SubsuperRecord? {
+		public func convertToExternalMapping(
+			from internalMapping:SimpleRecord,
+			dataSection: DataSection
+		) -> SubsuperRecord?
+		{
 			guard let schemaDef = dataSection.schema?.schemaDefinition
 			else { self.error = "could not find schema definition dictionary for data section(\(dataSection))"; return nil }
 
@@ -326,7 +369,7 @@ extension P21Decode {
 				for supertype in entityDef.supertypes {
 					let superPCount = supertype.entityDefinition.partialEntityExplicitAttributeCount
 					guard remain - superPCount >= 0
-					else { self.error = "supplied number of parameters(\(params.count)) are smaller than required(\(entityDef.totalExplicitAttribureCounts)) for entity(\(keyword))"; self.add(errorContext: "while converting internal mapping to external mapping"); return nil }
+					else { self.error = "supplied number of parameters(\(params.count)) are smaller than required(\(entityDef.totalExplicitAttributeCounts)) for entity(\(keyword))"; self.add(errorContext: "while converting internal mapping to external mapping"); return nil }
 					let superParams = Array(params[j ..< j+superPCount])
 					j += superPCount
 					remain -= superPCount

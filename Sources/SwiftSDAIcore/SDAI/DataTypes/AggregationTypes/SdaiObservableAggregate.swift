@@ -6,6 +6,7 @@
 //  Copyright © 2021 Tsutomu Yoshida, Minokamo, Japan. All rights reserved.
 //
 
+/*
 import Foundation
 
 //MARK: - observable element
@@ -32,7 +33,7 @@ where ELEMENT: SDAIObservableAggregateElement
 
 //MARK: - entity reference observer
 extension SDAI {
-	public struct EntityReferenceObserver {
+	public struct EntityReferenceObserver: Sendable {
 		let referencer: SDAI.PartialEntity
 		let observerCode: ObserverCode.Type
 		
@@ -83,3 +84,5 @@ extension SDAI {
 	}
 	
 }
+
+*/

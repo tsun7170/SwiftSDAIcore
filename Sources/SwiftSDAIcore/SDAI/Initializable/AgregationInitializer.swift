@@ -10,8 +10,8 @@ import Foundation
 
 //MARK: - empty aggregation literal
 extension SDAI {
-	public struct EmptyAggregateLiteral {}
-	public static let EMPLY_AGGREGATE = EmptyAggregateLiteral()
+	public struct EmptyAggregateLiteral: Sendable {}
+	public static let EMPTY_AGGREGATE = EmptyAggregateLiteral()
 }
 
 //MARK: - from empty list (with optional bounds)
@@ -21,7 +21,7 @@ public protocol InitializableByEmptyListLiteral
 }
 public extension InitializableByEmptyListLiteral
 {
-	init(_ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPLY_AGGREGATE) {
+	init(_ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE) {
 		self.init(bound1: 0, bound2: nil as Int?, emptyLiteral)
 	}
 }
@@ -126,7 +126,7 @@ public extension SDAIAggregationInitializer
 
 //MARK: - extension per ELEMENT type
 public extension SDAIAggregationInitializer 
-where ELEMENT: InitializableBySelecttype
+where ELEMENT: InitializableBySelectType
 {
 	func CONTAINS<T: SDAISelectType>(_ elem: T?) -> SDAI.LOGICAL {
 		return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))
@@ -147,7 +147,7 @@ where ELEMENT: InitializableByEntity
 }
 
 public extension SDAIAggregationInitializer 
-where ELEMENT: InitializableByDefinedtype
+where ELEMENT: InitializableByDefinedType
 {
 	func CONTAINS<T: SDAIUnderlyingType>(_ elem: T?) -> SDAI.LOGICAL {
 		return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))
@@ -155,7 +155,7 @@ where ELEMENT: InitializableByDefinedtype
 }
 
 public extension SDAIAggregationInitializer 
-where ELEMENT: InitializableBySwifttype
+where ELEMENT: InitializableBySwiftType
 {
 	func CONTAINS<T>(_ elem: T?) -> SDAI.LOGICAL 
 	where T == ELEMENT.SwiftType

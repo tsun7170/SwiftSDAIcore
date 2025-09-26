@@ -48,7 +48,7 @@ extension SDAI {
 			return SDAI.LOGICAL( unique.count == SELF.size )
 		}
 		
-		public static func validateWhereRules(instance: Self?, prefix: SDAI.WhereLabel) -> [SDAI.WhereLabel : SDAI.LOGICAL] {
+		public static func validateWhereRules(instance: Self?, prefix: SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
 			let prefix2 = prefix + "\\\(typeName)"
 			var result = Supertype.validateWhereRules(instance:instance?.rep, prefix:prefix2)
 			
@@ -59,6 +59,10 @@ extension SDAI {
 	
 }
 
-extension SDAI.ARRAY_UNIQUE: SDAIObservableAggregate, SDAIObservableAggregateElement
-where ELEMENT: SDAIObservableAggregateElement
+//extension SDAI.ARRAY_UNIQUE: SDAIObservableAggregate, SDAIObservableAggregateElement
+//where ELEMENT: SDAIObservableAggregateElement
+//{}
+
+extension SDAI.ARRAY_UNIQUE: SDAIEntityReferenceYielding
+where ELEMENT: SDAIEntityReferenceYielding
 {}

@@ -10,7 +10,7 @@ import Foundation
 
 
 //MARK: - schema
-public protocol SDAISchema {
+public protocol SDAISchema: Sendable {
 	static var schemaDefinition: SDAIDictionarySchema.SchemaDefinition {get}
 }
 

@@ -7,7 +7,9 @@
 //
 
 import Foundation
+import Synchronization
 
+//MARK: - SDAIEntityReferenceType
 public protocol SDAIEntityReferenceType {
 	var complexEntity: SDAI.ComplexEntity {get}
 	init?(complex complexEntity: SDAI.ComplexEntity?)
@@ -26,21 +28,32 @@ public extension SDAIEntityReferenceType {
 
 }
 
-extension SDAI {	
-	public typealias EntityName = SDAIDictionarySchema.ExpressId
 
-	
-	//MARK: - EntityReference (8.3.1)
-	open class EntityReference: SDAI.UnownedReference<SDAI.ComplexEntity>, CustomStringConvertible,
-															SDAINamedType, SDAIEntityReferenceType, SDAIGenericType, InitializableByEntity, SDAIObservableAggregateElement 
-	{		
+
+
+
+extension SDAI {
+	public typealias EntityName = SDAIDictionarySchema.ExpressId
+	public typealias AttributeName = SDAIDictionarySchema.ExpressId
+
+
+	//MARK: - EntityReference (8.3.1, ISO 10303-11)
+	open class EntityReference: SDAI.UnownedReference<SDAI.ComplexEntity>,
+															SDAINamedType, SDAIEntityReferenceType, SDAIGenericType,
+															InitializableByEntity,
+//															SDAIObservableAggregateElement,
+															SDAIEntityReferenceYielding,
+															SdaiCacheHolder,
+															CustomStringConvertible,
+															@unchecked Sendable
+	{
 		// SDAIEntityReferenceType
 		public var complexEntity: ComplexEntity {self.object}
 		
 		public required init?(complex complexEntity: ComplexEntity?) {
 			guard let complexEntity = complexEntity else { return nil }
 			super.init(complexEntity)
-			assert(type(of:self) != EntityReference.self, "abstruct class instantiated")	
+			assert(type(of:self) != EntityReference.self, "abstract class instantiated")
 			if !complexEntity.registerEntityReference(self) { return nil }
 		}
 		
@@ -57,22 +70,23 @@ extension SDAI {
 		}
 		
 		
-		//MARK: - (9.4.2)
+		//MARK: - (9.4.2, ISO 10303-22)
 		public unowned var owningModel: SDAIPopulationSchema.SdaiModel { return self.object.owningModel }
+
 		public var definition: SDAIDictionarySchema.EntityDefinition { return type(of: self).entityDefinition }
 		
 		open class var entityDefinition: SDAIDictionarySchema.EntityDefinition {
-			abstruct()
+			abstract()
 		}
 
-		//MARK: - (9.4.3)
-		public var persistentLabel: SDAIParameterDataSchema.STRING { 
+		//MARK: - (9.4.3, ISO 10303-22)
+		public var persistentLabel: SDAIParameterDataSchema.StringValue {
 			let p21name = self.object.p21name
 			return "\(self.owningModel.name)#\(p21name)" 
 		}
 
 		// SdaiCachableSource
-		public var isCachable: Bool {
+		public var isCacheable: Bool {
 			let complex = self.complexEntity
 			if complex.isTemporary { return false }
 	
@@ -105,19 +119,17 @@ extension SDAI {
 		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
+
 		// validation related
-//		private var _validated = ValueReference(notValidatedYet)
-//		public internal(set) var validated: ValidationRound {
-//			get { _validated.value }
-//			set { _validated.value = newValue }
-//		}
-		
-		open class func validateWhereRules(instance:SDAI.EntityReference?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
-			var result: [SDAI.WhereLabel:SDAI.LOGICAL] = [:]
-			guard let instance = instance//, instance.validated != round 
+		open class func validateWhereRules(
+			instance:SDAI.EntityReference?,
+			prefix:SDAIPopulationSchema.WhereLabel
+		) -> SDAIPopulationSchema.WhereRuleValidationRecords
+		{
+			var result: SDAIPopulationSchema.WhereRuleValidationRecords = [:]
+			guard let instance = instance
 			else { return result }
-//			instance.validated = round
-			
+
 			for (attrname, attrdef) in type(of:instance).entityDefinition.attributes {
 				if (attrdef.domain as Any) is SDAI.EntityReference { continue }
 				
@@ -130,56 +142,239 @@ extension SDAI {
 			return result
 		}
 
-		// SDAIObservableAggregateElement
-		public final var entityReferences: AnySequence<SDAI.EntityReference> { 
-			AnySequence<SDAI.EntityReference>(CollectionOfOne<SDAI.EntityReference>(self))
+		// SDAIObservableAggregateElement, SDAIEntityReferenceYielding
+		public final var entityReferences: AnySequence<SDAI.EntityReference> {
+			AnySequence( CollectionOfOne<SDAI.EntityReference>(self) )
 		}
 
-		public final func configure(with observer: SDAI.EntityReferenceObserver) {}
-		public final func teardownObserver() {}
+//		public final func configure(with observer: SDAI.EntityReferenceObserver) {}
+//		public final func teardownObserver() {}
 
-		
+		public final func isHolding(
+			entityReference: SDAI.EntityReference
+		) -> Bool
+		{
+			return self == entityReference
+		}
+
 		// EntityReference specific
-		open class var partialEntityType: PartialEntity.Type { abstruct() }	// abstruct
-		
+		open class var partialEntityType: PartialEntity.Type { abstract() }	// abstract
+
+		nonisolated(unsafe)
 		internal var retainer: ComplexEntity? = nil // for temporary complex entity lifetime control
 
-		internal func unify(with other:EntityReference) {
-//			self._validated = other._validated
+		internal func unify(
+			with other:EntityReference
+		)
+		{
 			self.derivedAttributeCache = other.derivedAttributeCache
 		}
 
 		// group reference
-		public func GROUP_REF<EREF:EntityReference>(_ entity_ref: EREF.Type) -> EREF? {
+		public func GROUP_REF<EREF:EntityReference>(
+			_ entity_ref: EREF.Type
+		) -> EREF?
+		{
 			let complex = self.complexEntity
 			return complex.partialComplexEntity(entity_ref)
 		} 
-		
+
+		//MARK: inverse attribute support
+		public func referencingEntities<SourceEntity,AttributeValue>(
+			for attribute: KeyPath<SourceEntity,AttributeValue>
+		) -> some Collection<SourceEntity>
+		where SourceEntity: EntityReference,
+					AttributeValue: SDAIEntityReferenceYielding
+		{
+			guard let session = SDAISessionSchema.activeSession else {
+				SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
+				return []
+			}
+
+			let activeInstances = Set(session.activeSchemaInstances)
+			let associatedInstances = self.complexEntity.owningModel.associatedWith
+
+			for schemaInstance in associatedInstances {
+				guard activeInstances.contains(schemaInstance)
+				else { continue }
+
+				let sources = schemaInstance.entityExtent(type: SourceEntity.self)
+
+				let referencing = sources.flatMap{ source in
+					let attributeValue = source[keyPath: attribute]
+
+					return attributeValue.entityReferences.compactMap{
+						if $0.complexEntity == self.complexEntity { return source }
+						else { return nil }
+					}
+				}
+
+				if !referencing.isEmpty { return referencing }
+			}
+
+			return []
+		}
+
+
+		public func referencingEntities<SourceEntity,AttributeValue>(
+			for attribute: KeyPath<SourceEntity,AttributeValue?>
+		) -> some Collection<SourceEntity>
+		where SourceEntity: EntityReference,
+					AttributeValue: SDAIEntityReferenceYielding
+		{
+			guard let session = SDAISessionSchema.activeSession else {
+				SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
+				return []
+			}
+
+			let activeInstances = Set(session.activeSchemaInstances)
+			let associatedInstances = self.complexEntity.owningModel.associatedWith
+
+			for schemaInstance in associatedInstances {
+				guard activeInstances.contains(schemaInstance)
+				else { continue }
+
+				let sources = schemaInstance.entityExtent(type: SourceEntity.self)
+
+				let referencing = sources.flatMap{ source in
+					guard let attributeValue = source[keyPath: attribute]
+					else { return Array<SourceEntity>() }
+
+					return attributeValue.entityReferences.compactMap{
+						if $0.complexEntity == self.complexEntity { return source }
+						else { return nil }
+					}
+				}
+
+				if !referencing.isEmpty { return referencing }
+			}
+
+			return []
+		}
+
+		public func referencingEntity<SourceEntity,AttributeValue>(
+			for attribute: KeyPath<SourceEntity,AttributeValue>
+		) -> SourceEntity?
+		where SourceEntity: EntityReference,
+					AttributeValue: SDAIEntityReferenceYielding
+		{
+			guard let session = SDAISessionSchema.activeSession else {
+				SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
+				return nil
+			}
+
+			let activeInstances = Set(session.activeSchemaInstances)
+			let associatedInstances = self.complexEntity.owningModel.associatedWith
+
+			for schemaInstance in associatedInstances {
+				guard activeInstances.contains(schemaInstance)
+				else { continue }
+
+				let sources = schemaInstance.entityExtent(type: SourceEntity.self)
+
+				for source in sources {
+					let attributeValue = source[keyPath: attribute]
+					
+					if Set( attributeValue
+						.entityReferences.map{$0.complexEntity} )
+						.contains(self.complexEntity)
+					{
+						return source
+					}
+				}
+			}
+
+			return nil
+		}
+
+		public func referencingEntity<SourceEntity,AttributeValue>(
+			for attribute: KeyPath<SourceEntity,AttributeValue?>
+		) -> SourceEntity?
+		where SourceEntity: EntityReference,
+					AttributeValue: SDAIEntityReferenceYielding
+		{
+			guard let session = SDAISessionSchema.activeSession else {
+				SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
+				return nil
+			}
+
+			let activeInstances = Set(session.activeSchemaInstances)
+			let associatedInstances = self.complexEntity.owningModel.associatedWith
+
+			for schemaInstance in associatedInstances {
+				guard activeInstances.contains(schemaInstance)
+				else { continue }
+
+				let sources = schemaInstance.entityExtent(type: SourceEntity.self)
+
+				for source in sources {
+					guard let attributeValue = source[keyPath: attribute]
+					else { continue }
+					
+					if Set( attributeValue
+						.entityReferences.map{$0.complexEntity} )
+						.contains(self.complexEntity)
+					{
+						return source
+					}
+				}
+			}
+
+			return nil
+		}
+
+		//MARK: SdaiCacheHolder related
+		public func notifyApplicationDomainChanged(
+			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance
+		)
+		{
+			self.resetCache()
+		}
+
+		public func notifyReadWriteModeChanged(
+			sdaiModel: SDAIPopulationSchema.SdaiModel
+		)
+		{
+			//NOOP
+		}
+
+
 		// derived attribute value caching
-		public struct CachedValue {
-			public private(set) var value: Any?
-			fileprivate init(_ value: Any?) {
+		public struct CachedValue: Sendable {
+			public let value: (any Sendable)?
+
+			fileprivate init(_ value: (some Sendable)?) {
 				self.value = value
 			}
 		}
-		
-		private var derivedAttributeCache: ValueReference<[SDAIDictionarySchema.ExpressId:CachedValue]> = ValueReference([:])
-		
-		public func cachedValue(derivedAttributeName:SDAIDictionarySchema.ExpressId) -> CachedValue? {
-			let result = derivedAttributeCache.value[derivedAttributeName]
+
+		nonisolated(unsafe)
+		private var derivedAttributeCache: MutexReference<[AttributeName:CachedValue]> = MutexReference([:])
+
+		public func cachedValue(
+			derivedAttributeName: AttributeName
+		) -> CachedValue?
+		{
+			let result = derivedAttributeCache.withLock{ $0[derivedAttributeName] }
 			return result
 		}
 		
-		public func updateCache(derivedAttributeName:SDAIDictionarySchema.ExpressId, value:Any?) {
+		public func updateCache(
+			derivedAttributeName: AttributeName,
+			value: (some Sendable)?
+		)
+		{
 			guard self.complexEntity.owningModel.mode == .readOnly else { return }
-			derivedAttributeCache.value[derivedAttributeName] = CachedValue(value)
+
+			derivedAttributeCache.withLock{ $0[derivedAttributeName] = CachedValue(value) }
 		}
 		
-		public func resetCache() {
-			derivedAttributeCache.value = [:]
+		public func resetCache()
+		{
+			derivedAttributeCache.withLock{ $0 = [:] }
 		}
 		
-		// InitializableByGenerictype
+		// InitializableByGenericType
 		required public convenience init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 			guard let entityRef = generic?.entityReference else { return nil }
 			self.init(complex: entityRef.complexEntity)
@@ -197,7 +392,10 @@ extension SDAI {
 			return nil
 		}
 
-		public static func cast<EREF:EntityReference>( from source: EREF? ) -> Self? {
+		public static func cast<EREF:EntityReference>(
+			from source: EREF?
+		) -> Self?
+		{
 			return source?.complexEntity.entityReference(self)
 		}
 		

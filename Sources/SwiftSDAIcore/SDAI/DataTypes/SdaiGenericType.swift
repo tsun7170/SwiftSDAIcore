@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol SDAIGenericType: Hashable, InitializableBySelecttype, InitializableByP21Parameter, SdaiCachableSource 
+public protocol SDAIGenericType: Hashable, InitializableBySelectType, InitializableByP21Parameter, SdaiCacheableSource, Sendable
 {
 	associatedtype FundamentalType: SDAIGenericType
 	associatedtype Value: SDAIValue
@@ -39,7 +39,10 @@ public protocol SDAIGenericType: Hashable, InitializableBySelecttype, Initializa
 	func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>?
 	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM?
 	
-	static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL]
+	static func validateWhereRules(
+		instance:Self?,
+		prefix:SDAIPopulationSchema.WhereLabel
+	) -> SDAIPopulationSchema.WhereRuleValidationRecords
 }
 
 public extension SDAIGenericType
@@ -54,7 +57,16 @@ public extension SDAIGenericType
 	init?(fundamental: FundamentalType?) {
 		guard let fundamental = fundamental else { return nil }
 		self.init(fundamental: fundamental)
-	}		
+	}
+
+	func isEqual(to another:(any SDAIGenericType)?) -> Bool {
+		guard let another = another as? Self else { return false }
+		return self == another
+	}
+
+	func hash_(into hasher: inout Hasher) {
+		hasher.combine(self)
+	}
 }
 
 public extension SDAIGenericType where FundamentalType == Self
@@ -67,7 +79,7 @@ public extension SDAIGenericType where FundamentalType == Self
 //MARK: - for SDAIDefinedTYpe
 public extension SDAIGenericType where Self: SDAIDefinedType
 {
-	static func validateWhereRules(instance:Self?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+	static func validateWhereRules(instance:Self?, prefix:SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
 		return Supertype.validateWhereRules(instance:instance?.rep, prefix: prefix + "\\" + Supertype.typeName)
 	}
 }
