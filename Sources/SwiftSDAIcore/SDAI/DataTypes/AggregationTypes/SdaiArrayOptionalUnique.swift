@@ -12,6 +12,7 @@ public protocol SDAI__ARRAY_OPTIONAL_UNIQUE__type: SDAI__ARRAY_OPTIONAL__subtype
 
 public protocol SDAI__ARRAY_OPTIONAL_UNIQUE__subtype: SDAI__ARRAY_OPTIONAL_UNIQUE__type {}
 
+//MARK: - SDAI.ARRAY_OPTIONAL_UNIQUE
 extension SDAI {
 	public struct ARRAY_OPTIONAL_UNIQUE<ELEMENT:SDAIGenericType>: SDAI__ARRAY_OPTIONAL_UNIQUE__type
 	{
@@ -59,10 +60,11 @@ extension SDAI {
 	
 }
 
-//extension SDAI.ARRAY_OPTIONAL_UNIQUE: SDAIObservableAggregate, SDAIObservableAggregateElement
-//where ELEMENT: SDAIObservableAggregateElement
-//{}
-
 extension SDAI.ARRAY_OPTIONAL_UNIQUE: SDAIEntityReferenceYielding
 where ELEMENT: SDAIEntityReferenceYielding
 {}
+
+extension SDAI.ARRAY_OPTIONAL_UNIQUE: SDAIDualModeReference
+where ELEMENT: SDAIDualModeReference
+{}
+

@@ -11,8 +11,12 @@ import Foundation
 //MARK: - Rule (9.6) Implicit declaration
 
 extension SDAI {
-	public static func POPULATION<ENTITY: SDAI.EntityReference>(OF entityType: ENTITY.Type, FROM complexEntities: AnySequence<SDAI.ComplexEntity>) -> SDAI.SET<ENTITY> {
-		let filtered = complexEntities.lazy.compactMap { $0.entityReference(entityType) }
+	public static func POPULATION<ENTITY: SDAI.EntityReference & SDAIDualModeReference>(
+		OF entityType: ENTITY.Type,
+		FROM complexEntities: AnySequence<SDAI.ComplexEntity>
+	) -> SDAI.SET<ENTITY.PRef>
+	{
+		let filtered = complexEntities.lazy.compactMap { $0.entityReference(entityType)?.pRef }
 		return SET(from: Set(filtered))
 	}
 }

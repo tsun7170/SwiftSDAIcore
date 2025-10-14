@@ -58,10 +58,11 @@ extension SDAI {
 	
 }
 
-//extension SDAI.LIST_UNIQUE: SDAIObservableAggregate, SDAIObservableAggregateElement
-//where ELEMENT: SDAIObservableAggregateElement
-//{}
 
 extension SDAI.LIST_UNIQUE: SDAIEntityReferenceYielding
 where ELEMENT: SDAIEntityReferenceYielding
+{}
+
+extension SDAI.LIST_UNIQUE: SDAIDualModeReference
+where ELEMENT: SDAIDualModeReference
 {}

@@ -94,7 +94,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	///  If the SDAI-model is not based upon the same schema as the schema instance but is based upon an external schema, then an entity instance in the SDAI-model shall be considered associated with the schema instance only if its entity type is defined as being domain equivalent with and entity type from the native schema upon which the schema instance is based (see A.2). If domain equivalence is not supported and the SDAI-model being added is based upon an external schema, the FN-NAVL error shall result.
 	/// 
 	/// - Parameters:
-	///   - instance: The schema instance with which the SDAI-model is to be associated.
+	///   - schemaInstance: The schema instance with which the SDAI-model is to be associated.
 	///   - model: The SDAI-model that is to be associated with the schema instance.
 	/// - Returns: new references to the modified schema instance and SDAI-model if the operation is successful.
 	///
@@ -137,14 +137,16 @@ extension SDAISessionSchema.SdaiTransactionRW {
 
 
 	/// ISO 10303-22 (10.6.4) Remove SDAI-model
-	///
+	/// 
 	/// This operation removes an SDAI-model from the set of SDAI-models that are associated with a schema instance.
+	/// 
+	/// If the SDAI-model no longer has a schema instance in common with another
 	///
-	/// If the SDAI-model no longer has a schema instance in common with another SDAI-model in the schema instance then all references between those two SDAI-models are invalid (see 10.10.7).
-	///
+	///  SDAI-model in the schema instance then all references between those two SDAI-models are invalid (see 10.10.7).
+	/// - Parameter instance: schema instance
 	/// - Parameter model: The SDAI-model that is to be removed from the schema instance.
 	/// - Returns: true indicating the success of the operation.
-	///
+	/// 
 	public func removeSdaiModel(
 		instance: SDAIPopulationSchema.SchemaInstance,
 		model: SDAIPopulationSchema.SdaiModel

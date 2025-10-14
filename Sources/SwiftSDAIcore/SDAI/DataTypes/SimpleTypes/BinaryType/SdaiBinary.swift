@@ -175,7 +175,7 @@ extension SDAI {
 				})
 				self.init(from: swiftval)
 				
-			case .rhsOccurenceName(let rhsname):
+			case .rhsOccurrenceName(let rhsname):
 				switch rhsname {
 				case .constantValueName(let name):
 					guard let generic = exchangeStructure.resolve(constantValueName: name) else {exchangeStructure.add(errorContext: "while resolving \(Self.bareTypeName) value"); return nil }

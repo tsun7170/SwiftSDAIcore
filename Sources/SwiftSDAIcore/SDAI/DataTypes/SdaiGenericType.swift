@@ -32,13 +32,24 @@ public protocol SDAIGenericType: Hashable, InitializableBySelectType, Initializa
 	var integerValue: SDAI.INTEGER? {get}
 	var genericEnumValue: SDAI.GenericEnumValue? {get}
 	
-	func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>?
-	func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>?
-	func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>?
-	func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>?
-	func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>?
-	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM?
-	
+	func arrayOptionalValue<ELEM:SDAIGenericType>(
+		elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>?
+
+	func arrayValue<ELEM:SDAIGenericType>(
+		elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>?
+
+	func listValue<ELEM:SDAIGenericType>(
+		elementType:ELEM.Type) -> SDAI.LIST<ELEM>?
+
+	func bagValue<ELEM:SDAIGenericType>(
+		elementType:ELEM.Type) -> SDAI.BAG<ELEM>?
+
+	func setValue<ELEM:SDAIGenericType>(
+		elementType:ELEM.Type) -> SDAI.SET<ELEM>?
+
+	func enumValue<ENUM:SDAIEnumerationType>(
+		enumType:ENUM.Type) -> ENUM?
+
 	static func validateWhereRules(
 		instance:Self?,
 		prefix:SDAIPopulationSchema.WhereLabel
@@ -82,25 +93,10 @@ public extension SDAIGenericType where Self: SDAIDefinedType
 	static func validateWhereRules(instance:Self?, prefix:SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
 		return Supertype.validateWhereRules(instance:instance?.rep, prefix: prefix + "\\" + Supertype.typeName)
 	}
-}
 
-//public extension SDAIGenericType where Self: SDAIDefinedType
-//{
-//	var typeMembers: Set<SDAI.STRING> {
-//		var members = rep.typeMembers
-//		members.insert(SDAI.STRING(Self.typeName))
-//		return members
-//	}
-//}
+	var value: Value {rep.value}
 
-public extension SDAIGenericType where Self: SDAIDefinedType
-{
-	var value: Value {rep.value}	
-}
-
-public extension SDAIGenericType where Self: SDAIDefinedType
-{
-	var entityReference: SDAI.EntityReference? {rep.entityReference}	
+	var entityReference: SDAI.EntityReference? {rep.entityReference}
 	var stringValue: SDAI.STRING? {rep.stringValue}
 	var binaryValue: SDAI.BINARY? {rep.binaryValue}
 	var logicalValue: SDAI.LOGICAL? {rep.logicalValue}
@@ -110,24 +106,22 @@ public extension SDAIGenericType where Self: SDAIDefinedType
 	var integerValue: SDAI.INTEGER? {rep.integerValue}
 	var genericEnumValue: SDAI.GenericEnumValue? {rep.genericEnumValue}
 	
-	func arrayOptionalValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.ARRAY_OPTIONAL<ELEMENT>? {
-		rep.arrayOptionalValue(elementType: elementType)
-	}
-	func arrayValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.ARRAY<ELEMENT>? {
-		rep.arrayValue(elementType: elementType)
-	}
-	func listValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.LIST<ELEMENT>? {
-		rep.listValue(elementType: elementType)
-	}
-	func bagValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.BAG<ELEMENT>? {
-		rep.bagValue(elementType: elementType)
-	}
-	func setValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.SET<ELEMENT>? {
-		rep.setValue(elementType: elementType)
-	}
-	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {
-		rep.enumValue(enumType: enumType)
-	}
+	func arrayOptionalValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.ARRAY_OPTIONAL<ELEMENT>?
+	{ rep.arrayOptionalValue(elementType: elementType) }
+
+	func arrayValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.ARRAY<ELEMENT>?
+	{ rep.arrayValue(elementType: elementType) }
+
+	func listValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.LIST<ELEMENT>?
+	{ rep.listValue(elementType: elementType) }
+
+	func bagValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.BAG<ELEMENT>?
+	{ rep.bagValue(elementType: elementType) }
+
+	func setValue<ELEMENT:SDAIGenericType>(elementType:ELEMENT.Type) -> SDAI.SET<ELEMENT>?
+	{ rep.setValue(elementType: elementType) }
+
+	func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { rep.enumValue(enumType: enumType) }
 }
 
 

@@ -35,17 +35,23 @@ public extension SDAI__ARRAY_OPTIONAL__subtype
 	}
 	
 	// InitializableByEmptyArrayLiteral
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE) {
+	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+		bound1: I1, bound2: I2, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE)
+	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, emptyLiteral) )
 	} 
 	
 	// InitializableBySwifttypeAsArray
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2) {
+	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+		from swiftValue: SwiftType, bound1: I1, bound2: I2)
+	{
 		self.init(fundamental: FundamentalType(from: swiftValue, bound1: bound1, bound2: bound2) )
 	} 
 	
 	// InitializableByArrayLiteral
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) {
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(
+		bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
+	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements))
 	} 
 }
@@ -70,7 +76,7 @@ where ELEMENT: InitializableBySelectType
 
 //MARK: - for entity type element
 public extension SDAI__ARRAY_OPTIONAL__subtype
-where ELEMENT: InitializableByEntity
+where ELEMENT: InitializableByComplexEntity
 {
 	init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
@@ -83,6 +89,21 @@ where ELEMENT: InitializableByEntity
 	{
 		self.init(fundamental: FundamentalType(arraytype) )
 	}	
+
+
+	init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?)
+	where T.ELEMENT: SDAIPersistentReference,
+	T.ELEMENT.ARef: SDAI.EntityReference
+	{
+		self.init(fundamental: FundamentalType(arraytype) )
+	}
+
+	init?<T: SDAI__ARRAY__type>(_ arraytype: T?)
+	where T.ELEMENT: SDAIPersistentReference,
+	T.ELEMENT.ARef: SDAI.EntityReference
+	{
+		self.init(fundamental: FundamentalType(arraytype) )
+	}
 }
 
 

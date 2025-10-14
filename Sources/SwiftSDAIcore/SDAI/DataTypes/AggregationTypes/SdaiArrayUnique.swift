@@ -12,10 +12,10 @@ public protocol SDAI__ARRAY_UNIQUE__type: SDAI__ARRAY__subtype {}
 
 public protocol SDAI__ARRAY_UNIQUE__subtype: SDAI__ARRAY_UNIQUE__type {}
 
+//MARK: - SDAI.ARRAY_UNIQUE
 extension SDAI {
 	public struct ARRAY_UNIQUE<ELEMENT:SDAIGenericType>: SDAI__ARRAY_UNIQUE__type
 	{
-		
 		public typealias Supertype = SDAI.ARRAY<ELEMENT>
 		public typealias FundamentalType = Supertype.FundamentalType
 		public typealias Value = Supertype.Value
@@ -59,10 +59,10 @@ extension SDAI {
 	
 }
 
-//extension SDAI.ARRAY_UNIQUE: SDAIObservableAggregate, SDAIObservableAggregateElement
-//where ELEMENT: SDAIObservableAggregateElement
-//{}
-
 extension SDAI.ARRAY_UNIQUE: SDAIEntityReferenceYielding
 where ELEMENT: SDAIEntityReferenceYielding
+{}
+
+extension SDAI.ARRAY_UNIQUE: SDAIDualModeReference
+where ELEMENT: SDAIDualModeReference
 {}

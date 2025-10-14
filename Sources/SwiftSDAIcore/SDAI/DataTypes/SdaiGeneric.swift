@@ -37,6 +37,10 @@ fileprivate class _AnyGenericBox: Hashable, @unchecked Sendable {
 //	func configure(with observer: SDAI.EntityReferenceObserver) { abstract() }
 //	func teardownObserver() { abstract() }
 
+	var pRef: SDAI.GENERIC { abstract() }
+	var aRef: SDAI.GENERIC { abstract() }
+	var optionalARef: SDAI.GENERIC? { abstract() }
+
 	func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? { abstract() }
 	func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? { abstract() }
 	func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? { abstract() }
@@ -53,7 +57,8 @@ fileprivate class _AnyGenericBox: Hashable, @unchecked Sendable {
 fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox, @unchecked Sendable
 {
 	private var _base: G
-	
+	private var anyBase: Any { self._base as Any }
+
 	init(_ base: G){
 		assert(type(of: base) != SDAI.GENERIC.self)
 		self._base = base
@@ -74,48 +79,76 @@ fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox, @unchec
 	override var genericEnumValue: SDAI.GenericEnumValue? { _base.genericEnumValue }
 
 	override var entityReferences: AnySequence<SDAI.EntityReference> {
-//		if let base = (self._base as Any) as? SDAIObservableAggregateElement {
-//			return base.entityReferences
-//		}
-//		else
-		if let base = (self._base as Any) as? SDAIEntityReferenceYielding {
+		if let base = self.anyBase as? SDAIEntityReferenceYielding {
 			return base.entityReferences
 		}
 		else {
 			return AnySequence<SDAI.EntityReference>([])
 		}
 	}
-	override func isHolding(
-		entityReference: SDAI.EntityReference
-	) -> Bool
+	override func isHolding( entityReference: SDAI.EntityReference ) -> Bool
 	{
-		if let base = (self._base as Any) as? SDAIEntityReferenceYielding {
+		if let base = self.anyBase as? SDAIEntityReferenceYielding {
 			return base.isHolding(entityReference: entityReference)
 		}
 		else {
 			return false
 		}
 	}
-//	override func configure(with observer: SDAI.EntityReferenceObserver) {
-//		if var base = (self._base as Any) as? SDAIObservableAggregateElement {
-//			base.configure(with: observer)
-//			self._base = base as! G
-//		}
-//	}
-//	override func teardownObserver() {
-//		if var base = (self._base as Any) as? SDAIObservableAggregateElement {
-//			base.teardownObserver()
-//			self._base = base as! G
-//		}
-//	}
 
-	override func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? { _base.arrayOptionalValue(elementType: elementType) }
-	override func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? { _base.arrayValue(elementType: elementType) }
-	override func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? { _base.listValue(elementType: elementType) }
-	override func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? { _base.bagValue(elementType: elementType) }
-	override func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? { _base.setValue(elementType: elementType) }
-	override func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { _base.enumValue(enumType: enumType) }
-	
+
+	override var pRef: SDAI.GENERIC {
+		if let base = self.anyBase as? (any SDAIDualModeReference) {
+			return SDAI.GENERIC(base.pRef)
+		}
+		else {
+			return SDAI.GENERIC(box:self)
+		}
+	}
+
+	override var aRef: SDAI.GENERIC {
+		if let base = self.anyBase as? (any SDAIPersistentReference) {
+			return SDAI.GENERIC(base.aRef)
+		}
+		else {
+			return SDAI.GENERIC(box:self)
+		}
+	}
+
+	override var optionalARef: SDAI.GENERIC? {
+		if let base = self.anyBase as? (any SDAIPersistentReference) {
+			guard let aRef = base.optionalARef else { return nil }
+			return SDAI.GENERIC(aRef)
+		}
+		else {
+			return SDAI.GENERIC(box:self)
+		}
+	}
+
+	override func arrayOptionalValue<ELEM:SDAIGenericType>(
+		elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>?
+	{ _base.arrayOptionalValue(elementType: elementType) }
+
+	override func arrayValue<ELEM:SDAIGenericType>(
+		elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>?
+	{ _base.arrayValue(elementType: elementType) }
+
+	override func listValue<ELEM:SDAIGenericType>(
+		elementType:ELEM.Type) -> SDAI.LIST<ELEM>?
+	{ _base.listValue(elementType: elementType) }
+
+	override func bagValue<ELEM:SDAIGenericType>(
+		elementType:ELEM.Type) -> SDAI.BAG<ELEM>?
+	{ _base.bagValue(elementType: elementType) }
+
+	override func setValue<ELEM:SDAIGenericType>(
+		elementType:ELEM.Type) -> SDAI.SET<ELEM>?
+	{ _base.setValue(elementType: elementType) }
+
+	override func enumValue<ENUM:SDAIEnumerationType>(
+		enumType:ENUM.Type) -> ENUM?
+	{ _base.enumValue(enumType: enumType) }
+
 	override class func validateWhereRules(
 		instance:_AnyGenericBox?,
 		prefix:SDAIPopulationSchema.WhereLabel
@@ -127,13 +160,16 @@ fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox, @unchec
 
 }
 
-public protocol SDAI__GENERIC__type: SDAIGenericType,
-//																		 SDAIObservableAggregateElement,
-																		 SDAIEntityReferenceYielding
+public protocol SDAI__GENERIC__type:
+	SDAIGenericType,
+	SDAIEntityReferenceYielding,
+	SDAIDualModeReference,
+	SDAIPersistentReference
 {}
 
 extension SDAI {
-	public struct GENERIC: SDAI__GENERIC__type, CustomStringConvertible {		
+	public struct GENERIC: SDAI__GENERIC__type, CustomStringConvertible
+	{
 		public typealias FundamentalType = Self
 		public typealias Value = GenericValue
 		private var box: _AnyGenericBox
@@ -153,20 +189,20 @@ extension SDAI {
 			else {
 				box = _GenericBox<G>(generic.copy())
 			}
-//			let validation = self.entityReferences
-//			for item in validation {
-//				assert(item is SDAI.EntityReference)
-//			}
 		}
-		
+
+		fileprivate init(box: _AnyGenericBox) {
+			self.box = box
+		}
+
 		public var base: AnyHashable { box.base }
 		
-		// InitializableByGenerictype
+		// InitializableByGenericType
 		public init?<G: SDAIGenericType>(fromGeneric generic: G?){
 			self.init(generic)
 		}
 		
-		// SdaiCachableSource
+		// SdaiCacheableSource
 		public var isCacheable: Bool { box.isCacheable }
 		
 		// SDAIGenericType
@@ -189,13 +225,24 @@ extension SDAI {
 		public var integerValue: SDAI.INTEGER? { box.integerValue }
 		public var genericEnumValue: SDAI.GenericEnumValue? { box.genericEnumValue }
 
-		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? { box.arrayOptionalValue(elementType: elementType) }
-		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? { box.arrayValue(elementType: elementType) }
-		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? { box.listValue(elementType: elementType) }
-		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? { box.bagValue(elementType: elementType) }
-		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? { box.setValue(elementType: elementType) }
-		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? { box.enumValue(enumType: enumType) }
-		
+		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>?
+		{ box.arrayOptionalValue(elementType: elementType) }
+
+		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>?
+		{ box.arrayValue(elementType: elementType) }
+
+		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>?
+		{ box.listValue(elementType: elementType) }
+
+		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>?
+		{ box.bagValue(elementType: elementType) }
+
+		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>?
+		{ box.setValue(elementType: elementType) }
+
+		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM?
+		{ box.enumValue(enumType: enumType) }
+
 		public static func validateWhereRules(
 			instance:Self?,
 			prefix:SDAIPopulationSchema.WhereLabel
@@ -207,7 +254,7 @@ extension SDAI {
 			return basetype.validateWhereRules(instance:instance.box, prefix: prefix)
 		}
 
-		// SDAIObservableAggregateElement, SDAIEntityReferenceYielding
+		// SDAIEntityReferenceYielding
 		public var entityReferences: AnySequence<SDAI.EntityReference> {
 			return box.entityReferences
 		}
@@ -216,18 +263,28 @@ extension SDAI {
 			return box.isHolding(entityReference: entityReference)
 		}
 
-//		public mutating func configure(with observer: SDAI.EntityReferenceObserver) {
-//			box.configure(with: observer)
-//		}
-//		
-//		public mutating func teardownObserver() {
-//			box.teardownObserver()
-//		}
+		// SDAIDualModeReference
+		public var pRef: GENERIC {
+			return box.pRef
+		}
+
+		//SDAIPersistentReference
+		public var aRef: GENERIC {
+			return box.aRef
+		}
+
+		public var optionalARef: GENERIC? {
+			return box.optionalARef
+		}
 
 		// InitializableByP21Parameter
 		public static let bareTypeName: String = "GENERIC"
-		public init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {
-			abstract()	
+
+		public init?(
+			p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter,
+			from exchangeStructure: P21Decode.ExchangeStructure)
+		{
+			abstract()
 		}
 		public init?(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
 			abstract()

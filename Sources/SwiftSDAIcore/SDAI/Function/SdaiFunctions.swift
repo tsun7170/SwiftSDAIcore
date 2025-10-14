@@ -504,10 +504,14 @@ extension SDAI {
 	/// All relationships directed toward T are examined. 
 	/// Note that if T is not used, an empty bag is returned.
 	/// If T is indeterminate (?), an empty bag is returned.
-	public static func USEDIN<GEN:SDAIGenericType>(T: GEN?) -> BAG<EntityReference> {
+	///
+	public static func USEDIN<GEN>(T: GEN?) -> BAG<EntityReference>
+	where GEN: SDAIGenericType
+	{
 		guard let T = T?.entityReference else { return BAG<EntityReference>() }
 		return BAG( from: T.complexEntity.usedIn() )
 	}
+
 	/// ISO 10303-11 (15.26) UsedIn - general function
 	/// (variant with role specification returning non-optional value) 
 	/// - Parameter T: T is any instance of any entity data type.
@@ -518,10 +522,19 @@ extension SDAI {
 	/// When the relationship originates from an attribute with the name ROLE, the entity instance containing that attribute is added to the result bag. 
 	/// Note that if T is not used, an empty bag is returned.
 	/// If T is indeterminate (?), an empty bag is returned.
-	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference, R:SDAIGenericType>(T: GEN?, ROLE: KeyPath<ENT,R>) -> BAG<ENT> {
-		guard let T = T?.entityReference else { return BAG<ENT>() }
+	///
+	public static func USEDIN<GEN, ENT, R>(
+		T: GEN?,
+		ROLE: KeyPath<ENT,R>
+	) -> BAG<ENT.PRef>
+	where GEN: SDAIGenericType,
+				ENT: EntityReference & SDAIDualModeReference,
+				R:   SDAIGenericType
+	{
+		guard let T = T?.entityReference else { return BAG<ENT.PRef>() }
 		return BAG(from: T.complexEntity.usedIn(as: ROLE))
 	}
+
 	/// ISO 10303-11 (15.26) UsedIn - general function
 	/// (variant with role specification returning optional value) 
 	/// - Parameter T: T is any instance of any entity data type.
@@ -532,10 +545,19 @@ extension SDAI {
 	/// When the relationship originates from an attribute with the name ROLE, the entity instance containing that attribute is added to the result bag. 
 	/// Note that if T is not used, an empty bag is returned.
 	/// If T is indeterminate (?), an empty bag is returned.
-	public static func USEDIN<GEN:SDAIGenericType, ENT:EntityReference, R:SDAIGenericType>(T: GEN?, ROLE: KeyPath<ENT,R?>) -> BAG<ENT> {
-		guard let T = T?.entityReference else { return BAG<ENT>() }
+	///
+	public static func USEDIN<GEN, ENT, R>(
+		T: GEN?,
+		ROLE: KeyPath<ENT,R?>
+	) -> BAG<ENT.PRef>
+	where GEN: SDAIGenericType,
+				ENT: EntityReference & SDAIDualModeReference,
+				R:   SDAIGenericType
+	{
+		guard let T = T?.entityReference else { return BAG<ENT.PRef>() }
 		return BAG(from: T.complexEntity.usedIn(as: ROLE))
 	}
+
 	/// ISO 10303-11 (15.26) UsedIn - general function
 	/// (variant with role specification in STRING) 
 	/// - Parameter T: T is any instance of any entity data type.
@@ -546,7 +568,12 @@ extension SDAI {
 	/// When the relationship originates from an attribute with the name R, the entity instance containing that attribute is added to the result bag. 
 	/// Note that if T is not used, an empty bag is returned.
 	/// If either T or R are indeterminate (?), an empty bag is returned.
-	public static func USEDIN<GEN:SDAIGenericType>(T:GEN?, R:STRING?) -> BAG<EntityReference> {
+	///
+	public static func USEDIN<GEN:SDAIGenericType>(
+		T:GEN?,
+		R:STRING?
+	) -> BAG<EntityReference>
+	{
 		guard let T = T?.entityReference, let R = R else { return BAG<EntityReference>() }
 		return BAG(from: T.complexEntity.usedIn(as: R.asSwiftType))
 	}
@@ -614,7 +641,7 @@ extension SDAI {
 	/// ISO 10303-11 (15.29) Value unique - uniqueness function
 	/// (optional element aggregation variant)
   /// 
-	/// The VALUE)UNIQUE function returns a logical value depending on whether or not the elements of an aggregation are value unique. 
+	/// The VALUE_UNIQUE function returns a logical value depending on whether or not the elements of an aggregation are value unique.
 	/// - Parameter V: V is an aggregation of any type.
 	/// - Returns: 
 	/// 	- a) If V is indeterminate (?), unknown is returned.
@@ -631,7 +658,7 @@ extension SDAI {
 	/// ISO 10303-11 (15.29) Value unique - uniqueness function
 	/// (non-optional element aggregation variant)
 	/// 
-	/// The VALUE)UNIQUE function returns a logical value depending on whether or not the elements of an aggregation are value unique. 
+	/// The VALUE_UNIQUE function returns a logical value depending on whether or not the elements of an aggregation are value unique. 
 	/// - Parameter V: V is an aggregation of any type.
 	/// - Returns: 
 	/// 	- a) If V is indeterminate (?), unknown is returned.

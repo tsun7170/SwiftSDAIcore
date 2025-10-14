@@ -41,9 +41,11 @@ public protocol SDAIAttributeType: Sendable {
 	
 	/// ISO 10303-22 (10.10.1) Get attribute
 	/// 
-	/// This operation returns the value of an attribute of an entityInstance. If no value exists for the attribute (because it has never been assigned or has been unset, whether or not the attribute is optional) the vallue returned is not defined by ISO 10303-22 and the VA-NSET error shall be generated.  
+	/// This operation returns the value of an attribute of an entityInstance. If no value exists for the attribute (because it has never been assigned or has been unset, whether or not the attribute is optional) the value returned is not defined by ISO 10303-22 and the VA-NSET error shall be generated.
+	///
 	/// - Parameter entityInstance: The entity instance from which to obtain an attribute value.
 	/// - Returns: attribute value wrapped in SDAI.GENERIC
+	///
 	func genericValue(for entityInstance: SDAI.EntityReference) -> SDAI.GENERIC?
 }
 
@@ -109,9 +111,10 @@ extension SDAIDictionarySchema {
 		public var qualifiedAttributeName: SDAIDictionarySchema.ExpressId { parentEntity.qualifiedEntityName + "." + self.name }
 
 //		private var invokedBy: Set<SDAI.EntityReference> = []
-		public func genericValue(for entity: SDAI.EntityReference) -> SDAI.GENERIC?
+		
+		public func genericValue(for entityInstance: SDAI.EntityReference) -> SDAI.GENERIC?
 		{
-			guard let entity = entity as? ENT else { return nil }
+			guard let entity = entityInstance as? ENT else { return nil }
 //			if invokedBy.contains(entity) { return nil }	// to prevent infinite invocation loop
 //			invokedBy.insert(entity)
 			let value = SDAI.GENERIC(self.value(for: entity))

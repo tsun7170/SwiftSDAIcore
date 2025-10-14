@@ -14,6 +14,7 @@ public protocol SDAIEntityReferenceYielding
 	func isHolding(entityReference: SDAI.EntityReference) -> Bool
 }
 
+//MARK: - SDAIDefinedType extension
 public extension SDAIDefinedType
 where Self: SDAIEntityReferenceYielding,
 			Supertype: SDAIEntityReferenceYielding

@@ -88,6 +88,15 @@ extension SDAIPopulationSchema {
 
 
 		//MARK: swift language binding
+		internal typealias ComplexEntityID = P21Decode.EntityInstanceName
+		internal typealias SDAIModelID = UUID
+
+		internal let modelID: SDAIModelID	// for this SdaiModel
+
+		internal static let nilModelID: SDAIModelID = SDAIModelID()
+		internal static let nilComplexID: ComplexEntityID = 0
+
+
 		internal init(
 			repository: SDAISessionSchema.SdaiRepository,
 			modelName: STRING,
@@ -150,45 +159,9 @@ extension SDAIPopulationSchema {
 			self.contents.notifyReadWriteModeChanged(sdaiModel: sdaiModel)
 		}
 
-		//MARK: - persistent entity reference
-		public struct PersistentEntityReference<EREF:SDAI.EntityReference>: Sendable
-		{
-			let complexID: ComplexEntityID
-			let modelID: SDAIModelID
 
-			public init(_ entityRef: EREF?) {
-				guard let entityRef else {
-					self.complexID = SdaiModel.nilComplexID
-					self.modelID = SdaiModel.nilModelID
-					return
-				}
 
-				let complexEntity = entityRef.complexEntity
-				let owningModel = complexEntity.owningModel
 
-				self.complexID = complexEntity.p21name
-				self.modelID = owningModel.modelID
-			}
-
-			public var instance: EREF? {
-				guard
-					let session = SDAISessionSchema.activeSession,
-					let model = session.findAndActivateSdaiModel(modelID: self.modelID),
-					let complex = model.contents.complexEntity(named: self.complexID)
-				else { return nil }
-
-				let eref = complex.entityReference(EREF.self)
-				return eref
-			}
-		}
-
-		internal typealias ComplexEntityID = P21Decode.EntityInstanceName
-		internal typealias SDAIModelID = UUID
-
-		internal let modelID: SDAIModelID	// for this SdaiModel
-
-		private static let nilModelID: SDAIModelID = SDAIModelID()
-		private static let nilComplexID: ComplexEntityID = 0
 	}//class
 
 	//MARK: - SdaiModelContents

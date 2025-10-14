@@ -21,8 +21,9 @@ extension SDAI {
 	}
 	
 	//MARK: - ComplexEntity
-	public class ComplexEntity: SDAI.Object, SdaiCacheHolder,
-															CustomStringConvertible, @unchecked Sendable
+	public class ComplexEntity:
+		SDAI.Object, SdaiCacheHolder,
+		CustomStringConvertible, @unchecked Sendable
 	{
 		private enum EntityReferenceStatus {
 			case unknown
@@ -359,8 +360,9 @@ extension SDAI {
 			return Array(result)
 		}
 		
-		public func usedIn<ENT:EntityReference, R:SDAIGenericType>(
-			as role: KeyPath<ENT,R>) -> Array<ENT>
+		public func usedIn<ENT, R>( as role: KeyPath<ENT,R> ) -> Array<ENT.PRef>
+		where ENT: EntityReference & SDAIDualModeReference,
+					R:   SDAIGenericType
 		{
 			var result: Set<ENT> = []
 
@@ -380,11 +382,12 @@ extension SDAI {
 					}//attrEntity
 				}//complex
 			}//model
-			return Array(result)
+			return  result.map{ $0.pRef }
 		}
 		
-		public func usedIn<ENT:EntityReference, R:SDAIGenericType>(
-			as role: KeyPath<ENT,R?>) -> Array<ENT>
+		public func usedIn<ENT, R>( as role: KeyPath<ENT,R?> ) -> Array<ENT.PRef>
+		where ENT: EntityReference & SDAIDualModeReference,
+					R:   SDAIGenericType
 		{
 			var result: Set<ENT> = []
 
@@ -403,7 +406,7 @@ extension SDAI {
 					}//attrEntity
 				}//complex
 			}//model
-			return Array(result)
+			return result.map{ $0.pRef }
 		}
 
 		public func usedIn(as role:String) -> Array<EntityReference>
@@ -441,7 +444,6 @@ extension SDAI {
 						.lazy
 						.map{ (tuple) -> Set<STRING> in tuple.instance.typeMembers }
 						.joined() )
-			
 		}
 		
 		public typealias Value = _ComplexEntityValue

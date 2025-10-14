@@ -22,6 +22,7 @@ where Element == ELEMENT,
 			SwiftType == FundamentalType.SwiftType
 {}
 
+//MARK: - SDAI.ARRAY
 extension SDAI {
 	
 	public struct ARRAY<ELEMENT:SDAIGenericType>: SDAI__ARRAY__type
@@ -92,11 +93,7 @@ extension SDAI {
 		
 		// SDAIGenericType
 		public func copy() -> Self {
-//			if var observable = self as? SDAIObservableAggregateElement {
-//				observable.teardownObserver()
-//				return (observable as Any) as! Self
-//			}
-			return self 
+			return self
 		}
 		
 		public var asFundamentalType: FundamentalType { return self.copy() }
@@ -115,8 +112,7 @@ extension SDAI {
 		public var loIndex: Int { return bound1 }
 		public var size: Int { return bound2 - bound1 + 1 }
 		public var isEmpty: Bool { return size <= 0 }
-//		public var observer: EntityReferenceObserver?
-		
+
 		public subscript(index: Int?) -> ELEMENT? {
 			get{
 				guard let index = index, index >= loIndex, index <= hiIndex else { return nil }
@@ -125,17 +121,6 @@ extension SDAI {
 			set{
 				guard let index = index, index >= loIndex, index <= hiIndex else { return }
 				guard let newValue = newValue else { return }
-
-//				if let observer = self.observer, 
-//					 var newObservable = newValue as? SDAIObservableAggregateElement,
-//					 var oldObservable = rep[index - loIndex] as? SDAIObservableAggregateElement
-//				{
-//					oldObservable.teardownObserver()
-//					newObservable.configure(with: observer)
-//					observer.observe(removing: oldObservable.entityReferences, adding: newObservable.entityReferences)
-//					newValue = newObservable as! ELEMENT
-//				}
-				
 				rep[index - loIndex] = newValue
 			}
 		}
@@ -165,7 +150,9 @@ extension SDAI {
 			return ARRAY<T>(from:mapped, bound1:self.bound1, bound2:self.bound2)
 		}
 
-		private init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(bound1: I1, bound2: I2, _ elements: [S], conv: (S.Element) -> ELEMENT? )
+		private init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(
+			bound1: I1, bound2: I2,
+			_ elements: [S], conv: (S.Element) -> ELEMENT? )
 		{
 			var swiftValue = SwiftType()
 			if let b2 = bound2.possiblyAsSwiftInt, let b1 = bound1.possiblyAsSwiftInt {
@@ -194,7 +181,9 @@ extension SDAI {
 		
 		
 		// InitializableBySwifttypeAsArray
-		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2) {
+		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+			from swiftValue: SwiftType, bound1: I1, bound2: I2)
+		{
 			self.bound1 = bound1.asSwiftInt
 			self.bound2 = bound2.asSwiftInt
 			self.rep = swiftValue
@@ -202,7 +191,8 @@ extension SDAI {
 		} 
 
 		// InitializableByArrayLiteral
-		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E:SDAIGenericType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 
+		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E:SDAIGenericType>(
+			bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
 		{
 			self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT.convert(fromGeneric: $0) }
 		} 
@@ -210,7 +200,10 @@ extension SDAI {
 		// InitializableByP21Parameter
 		public static var bareTypeName: String { self.typeName }
 		
-		public init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {
+		public init?(
+			p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter,
+			from exchangeStructure: P21Decode.ExchangeStructure)
+		{
 			switch p21untypedParam {
 			case .list(let listval):
 				var array: SwiftType = []
@@ -220,7 +213,7 @@ extension SDAI {
 				}
 				self.init(from: array, bound1: 1, bound2: array.count)
 				
-			case .rhsOccurenceName(let rhsname):
+			case .rhsOccurrenceName(let rhsname):
 				switch rhsname {
 				case .constantValueName(let name):
 					guard let generic = exchangeStructure.resolve(constantValueName: name) else {exchangeStructure.add(errorContext: "while resolving \(Self.bareTypeName) value"); return nil }
@@ -254,30 +247,6 @@ extension SDAI {
 	}
 }
 
-//extension SDAI.ARRAY: SDAIObservableAggregate, SDAIObservableAggregateElement
-//where ELEMENT: SDAIObservableAggregateElement
-//{
-//	// SDAIObservableAggregateElement
-//	public var entityReferences: AnySequence<SDAI.EntityReference> { 
-//		AnySequence(self.lazy.flatMap{ $0.entityReferences })
-//	}
-//	
-//	public mutating func configure(with observer: SDAI.EntityReferenceObserver) {
-//		self.observer = observer
-//		for i in 0 ..< rep.count {
-//			rep[i].configure(with: observer)
-//		}
-//	}
-//
-//	public mutating func teardownObserver() {
-//		self.observer = nil
-//		for i in 0 ..< rep.count {
-//			rep[i].teardownObserver()
-//		}
-//	}
-//
-//}
-
 
 extension SDAI.ARRAY: SDAIEntityReferenceYielding
 where ELEMENT: SDAIEntityReferenceYielding
@@ -286,14 +255,37 @@ where ELEMENT: SDAIEntityReferenceYielding
 		AnySequence( self.lazy.flatMap{ $0.entityReferences } )
 	}
 
-	public func isHolding(
-		entityReference: SDAI.EntityReference
-	) -> Bool
+	public func isHolding( entityReference: SDAI.EntityReference ) -> Bool
 	{
 		for elem in self {
 			if elem.isHolding(entityReference: entityReference) { return true }
 		}
 		return false
+	}
+}
+
+
+extension SDAI.ARRAY: SDAIDualModeReference
+where ELEMENT: SDAIDualModeReference
+{
+	public var pRef: SDAI.ARRAY<ELEMENT.PRef> {
+		let converted = self.map{ $0.pRef }
+		return converted
+	}
+}
+
+extension SDAI.ARRAY: SDAIPersistentReference
+where ELEMENT: SDAIPersistentReference
+{
+	public var aRef: SDAI.ARRAY<ELEMENT.ARef> {
+		let converted = self.map{ $0.aRef }
+		return converted
+	}
+
+	public var optionalARef: SDAI.ARRAY<ELEMENT.ARef>? {
+		let converted = self.compactMap{ $0.optionalARef }
+		guard converted.count == self.size else { return nil }
+		return SDAI.ARRAY(from: converted, bound1: self.bound1, bound2: self.bound2)
 	}
 }
 
@@ -312,7 +304,7 @@ where ELEMENT: InitializableBySelectType
 
 
 extension SDAI.ARRAY: InitializableByEntityArray
-where ELEMENT: InitializableByEntity
+where ELEMENT: InitializableByComplexEntity
 {
 	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAI.EntityReference

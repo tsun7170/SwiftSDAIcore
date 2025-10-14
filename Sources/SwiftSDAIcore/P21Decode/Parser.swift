@@ -671,16 +671,16 @@ extension P21Decode {
 					return .untypedParameter(.list(list))
 					
 				case .ENTITY_INSTANCE_NAME(let name):
-					return .untypedParameter(.rhsOccurenceName(.entityInstanceName(name)))
+					return .untypedParameter(.rhsOccurrenceName(.entityInstanceName(name)))
 					
 				case .VALUE_INSTANCE_NAME(let name):
-					return .untypedParameter(.rhsOccurenceName(.valueInstanceName(name)))
+					return .untypedParameter(.rhsOccurrenceName(.valueInstanceName(name)))
 					
 				case .CONSTANT_ENTITY_NAME(let name):
-					return .untypedParameter(.rhsOccurenceName(.constantEntityName(name)))
+					return .untypedParameter(.rhsOccurrenceName(.constantEntityName(name)))
 					
 				case .CONSTANT_VALUE_NAME(let name):
-					return .untypedParameter(.rhsOccurenceName(.constantValueName(name)))
+					return .untypedParameter(.rhsOccurrenceName(.constantValueName(name)))
 					
 				default:
 					break

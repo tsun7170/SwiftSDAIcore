@@ -17,7 +17,8 @@ extension SDAI {
 //MARK: - from empty list (with optional bounds)
 public protocol InitializableByEmptyListLiteral
 {
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral) 
+	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+		bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral)
 }
 public extension InitializableByEmptyListLiteral
 {
@@ -29,7 +30,8 @@ public extension InitializableByEmptyListLiteral
 //MARK: - from empty array (with required bounds)
 public protocol InitializableByEmptyArrayLiteral
 {
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2, _ emptyLiteral: SDAI.EmptyAggregateLiteral) 
+	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+		bound1: I1, bound2: I2, _ emptyLiteral: SDAI.EmptyAggregateLiteral)
 }
 
 
@@ -134,7 +136,7 @@ where ELEMENT: InitializableBySelectType
 }
 
 public extension SDAIAggregationInitializer 
-where ELEMENT: InitializableByEntity
+where ELEMENT: InitializableByComplexEntity
 {
 	func CONTAINS(_ elem: SDAI.EntityReference?) -> SDAI.LOGICAL {
 		if let elem = elem as? ELEMENT {
@@ -178,7 +180,8 @@ where ELEMENT: SDAISwiftType
 //MARK: - from list literal (with optional bounds)
 public protocol InitializableByListLiteral
 {
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) 
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(
+		bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
 }
 public extension InitializableByListLiteral
 {
@@ -191,5 +194,6 @@ public extension InitializableByListLiteral
 //MARK: - from array literal (with required bounds)
 public protocol InitializableByArrayLiteral
 {
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>]) 	
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(
+		bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
 }

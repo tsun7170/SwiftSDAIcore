@@ -12,27 +12,43 @@ import Foundation
 //MARK: - Complex entity instance construction operator (12.10)
 
 //MARK: partial vs. xxx
-public func .||. (lhs: SDAI.PartialEntity, rhs: SDAI.PartialEntity) -> SDAI.ComplexEntity  { 
+public func .||. (
+	lhs: SDAI.PartialEntity, rhs: SDAI.PartialEntity) -> SDAI.ComplexEntity
+{
 	return SDAI.ComplexEntity(entities: [lhs,rhs])
 }
 
-public func .||. (lhs: SDAI.PartialEntity, rhs: SDAI.EntityReference?) -> SDAI.ComplexEntity  { 
+public func .||. (
+	lhs: SDAI.PartialEntity, rhs: SDAI.EntityReference?) -> SDAI.ComplexEntity
+{
 	if let complex = rhs?.complexEntity {
 		return lhs .||. complex
 	}
 	return SDAI.ComplexEntity(entities: [lhs])
 }
 
-public func .||. (lhs: SDAI.PartialEntity, rhs: SDAI.ComplexEntity) -> SDAI.ComplexEntity  { 
+public func .||. (
+	lhs: SDAI.PartialEntity, rhs: SDAI.ComplexEntity) -> SDAI.ComplexEntity
+{
 	var pes = rhs.partialEntities
 	pes.append(lhs)
 	return SDAI.ComplexEntity(entities: pes)
 }
 
-//MARK: entity ref vs. xxx
-public func .||. (lhs: SDAI.EntityReference?, rhs: SDAI.PartialEntity) -> SDAI.ComplexEntity  { rhs .||. lhs }
+public func .||. <R> (
+	lhs: SDAI.PartialEntity, rhs: SDAI.PersistentEntityReference<R>?) -> SDAI.ComplexEntity
+{ rhs .||. lhs }
 
-public func .||. (lhs: SDAI.EntityReference?, rhs: SDAI.EntityReference?) -> SDAI.ComplexEntity  { 
+
+
+//MARK: entity ref vs. xxx
+public func .||. (
+	lhs: SDAI.EntityReference?, rhs: SDAI.PartialEntity) -> SDAI.ComplexEntity
+{ rhs .||. lhs }
+
+public func .||. (
+	lhs: SDAI.EntityReference?, rhs: SDAI.EntityReference?) -> SDAI.ComplexEntity
+{
 	var pes: [SDAI.PartialEntity] = []
 	if let pe = lhs?.complexEntity.partialEntities {
 		pes = pe
@@ -43,7 +59,9 @@ public func .||. (lhs: SDAI.EntityReference?, rhs: SDAI.EntityReference?) -> SDA
 	return SDAI.ComplexEntity(entities: pes)
 }
 
-public func .||. (lhs: SDAI.EntityReference?, rhs: SDAI.ComplexEntity) -> SDAI.ComplexEntity  { 
+public func .||. (
+	lhs: SDAI.EntityReference?, rhs: SDAI.ComplexEntity) -> SDAI.ComplexEntity
+{
 	var pes = rhs.partialEntities
 	if let pe = lhs?.complexEntity.partialEntities {
 		pes.append(contentsOf: pe)
@@ -51,13 +69,49 @@ public func .||. (lhs: SDAI.EntityReference?, rhs: SDAI.ComplexEntity) -> SDAI.C
 	return SDAI.ComplexEntity(entities: pes)
 }
 
+public func .||. <R> (
+	lhs: SDAI.EntityReference?, rhs: SDAI.PersistentEntityReference<R>?) -> SDAI.ComplexEntity
+{ rhs .||. lhs }
+
+
+
 //MARK: complex vs. xxx
-public func .||. (lhs: SDAI.ComplexEntity, rhs: SDAI.PartialEntity) -> SDAI.ComplexEntity  { rhs .||. lhs }
+public func .||. (
+	lhs: SDAI.ComplexEntity, rhs: SDAI.PartialEntity) -> SDAI.ComplexEntity
+{ rhs .||. lhs }
 
-public func .||. (lhs: SDAI.ComplexEntity, rhs: SDAI.EntityReference?) -> SDAI.ComplexEntity  { rhs .||. lhs }
+public func .||. (
+	lhs: SDAI.ComplexEntity, rhs: SDAI.EntityReference?) -> SDAI.ComplexEntity
+{ rhs .||. lhs }
 
-public func .||. (lhs: SDAI.ComplexEntity, rhs: SDAI.ComplexEntity) -> SDAI.ComplexEntity  { 
+public func .||. (
+	lhs: SDAI.ComplexEntity, rhs: SDAI.ComplexEntity) -> SDAI.ComplexEntity
+{
 	let pes = lhs.partialEntities + rhs.partialEntities
 	return SDAI.ComplexEntity(entities: pes)
 }
+
+public func .||. <R> (
+	lhs: SDAI.ComplexEntity, rhs: SDAI.PersistentEntityReference<R>?) -> SDAI.ComplexEntity
+{ rhs .||. lhs }
+
+
+
+//MARK: persistent reference vs. xxx
+public func .||. <L> (
+	lhs: SDAI.PersistentEntityReference<L>?, rhs: SDAI.PartialEntity) -> SDAI.ComplexEntity
+{ lhs?.eval .||. rhs }
+
+public func .||. <L> (
+	lhs: SDAI.PersistentEntityReference<L>?, rhs: SDAI.EntityReference?) -> SDAI.ComplexEntity
+{ lhs?.eval .||. rhs }
+
+
+public func .||. <L> (
+	lhs: SDAI.PersistentEntityReference<L>?, rhs: SDAI.ComplexEntity) -> SDAI.ComplexEntity
+{ lhs?.eval .||. rhs }
+
+public func .||. <L,R> (
+	lhs: SDAI.PersistentEntityReference<L>?, rhs: SDAI.PersistentEntityReference<R>) -> SDAI.ComplexEntity
+{ lhs?.eval .||. rhs.eval }
 

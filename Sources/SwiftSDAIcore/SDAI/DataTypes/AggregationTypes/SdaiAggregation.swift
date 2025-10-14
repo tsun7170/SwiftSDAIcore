@@ -93,11 +93,11 @@ where Supertype: SwiftDictRepresentable, Self: SwiftDictRepresentable,
 }
 
 //MARK: - Aggregation type (8.2)
-public protocol SDAIAggregationType: SDAIBaseType, SDAISelectCompatibleUnderlyingTypeBase, Sequence, SDAIAggregateIndexingGettable, SDAIAggregationBehavior, SDAIAggregationSequence,
-Sendable
+public protocol SDAIAggregationType:
+	SDAIBaseType, SDAISelectCompatibleUnderlyingTypeBase, Sequence,
+	SDAIAggregateIndexingGettable, SDAIAggregationBehavior, SDAIAggregationSequence,
+	Sendable
 {
-//	associatedtype ELEMENT: SDAIGenericType
-	
 	var hiBound: Int? {get}
 	var hiIndex: Int {get}
 	var loBound: Int {get}
@@ -111,17 +111,16 @@ Sendable
 	func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL	// Express membership operator 'IN' translation
 	
 	//MARK: Query expression (12.6.7)
-	associatedtype RESULT_AGGREGATE: SDAIAggregationType where RESULT_AGGREGATE.ELEMENT == ELEMENT
+	associatedtype RESULT_AGGREGATE: SDAIAggregationType
+	where RESULT_AGGREGATE.ELEMENT == ELEMENT
+
 	func QUERY(logical_expression: @escaping (ELEMENT) -> SDAI.LOGICAL ) -> RESULT_AGGREGATE
-	
-//	var observer: SDAI.EntityReferenceObserver? { get set }
 }
 
 public extension SDAIAggregationType
 {
 	static var lowerBound: SDAIDictionarySchema.Bound { 0 }
 	static var upperBound: SDAIDictionarySchema.Bound? { nil }
-//	var isEmpty: Bool { self.size == 0 }
 }
 
 //MARK: - generic aggregate
@@ -149,14 +148,27 @@ where ELEMENT: InitializableBySelectType
 }
 
 public extension SDAIAggregationType
-where ELEMENT: InitializableByEntity
+where ELEMENT: InitializableByComplexEntity
 {
-	func CONTAINS(_ elem: SDAI.EntityReference?) -> SDAI.LOGICAL {
+	func CONTAINS(_ elem: SDAI.EntityReference?) -> SDAI.LOGICAL
+	{
 		if let elem = elem as? ELEMENT {
 			return self.CONTAINS(elem: elem )
 		}
 		else {
 			return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))
+		}
+	}
+
+	func CONTAINS<PREF>(_ pref:PREF?) -> SDAI.LOGICAL
+	where PREF: SDAIPersistentReference,
+				PREF.ARef: SDAI.EntityReference
+	{
+		if let elem = pref?.aRef as? ELEMENT {
+			return self.CONTAINS(elem: elem )
+		}
+		else {
+			return self.CONTAINS(elem: ELEMENT.convert(sibling: pref))
 		}
 	}
 }
@@ -205,10 +217,7 @@ where Self: SDAIAggregationType,
 	var loIndex: Int { return rep.loIndex }
 	var size: Int { return rep.size }
 	var isEmpty: Bool { return rep.isEmpty }
-//	var observer: SDAI.EntityReferenceObserver? {
-//		get { return rep.observer }
-//		set { rep.observer = newValue }
-//	}
+
 	var asAggregationSequence: AnySequence<ELEMENT> { return rep.asAggregationSequence }
 
 	func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL { return rep.CONTAINS(elem: elem) }

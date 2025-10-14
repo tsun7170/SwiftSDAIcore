@@ -235,7 +235,7 @@ extension SDAI {
 			case .string(let strval):
 				self.init(strval)
 				
-			case .rhsOccurenceName(let rhsname):
+			case .rhsOccurrenceName(let rhsname):
 				switch rhsname {
 				case .constantValueName(let name):
 					guard let generic = exchangeStructure.resolve(constantValueName: name) else {exchangeStructure.add(errorContext: "while resolving \(Self.bareTypeName) value"); return nil }

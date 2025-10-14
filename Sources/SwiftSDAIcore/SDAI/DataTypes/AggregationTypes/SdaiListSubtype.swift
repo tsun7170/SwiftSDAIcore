@@ -25,15 +25,21 @@ public extension SDAI__LIST__subtype
 	// Aggregation operator support
 	func appendWith<U: SDAIListType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.appendWith(rhs: rhs) }
-	func appendWith<U: SDAIGenericType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+
+	func appendWith<U: SDAIGenericType>(rhs: U) -> SDAI.LIST<ELEMENT>?
 	where ELEMENT.FundamentalType == U.FundamentalType { rep.appendWith(rhs: rhs) }
-	func prependWith<U: SDAIGenericType>(lhs: U) -> SDAI.LIST<ELEMENT>? 
+
+	func prependWith<U: SDAIGenericType>(lhs: U) -> SDAI.LIST<ELEMENT>?
 	where ELEMENT.FundamentalType == U.FundamentalType { rep.prependWith(lhs: lhs) }
+
 	func appendWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>? { rep.appendWith(rhs: rhs) }
+
 	func prependWith<U: SDAI__GENERIC__type>(lhs: U) -> SDAI.LIST<ELEMENT>? { rep.prependWith(lhs: lhs) }
-	func appendWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+
+	func appendWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.appendWith(rhs: rhs) }
-	func prependWith<U: SDAIAggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>? 
+
+	func prependWith<U: SDAIAggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.prependWith(lhs: lhs) }
 	
 	// InitializableByGenerictype
@@ -43,29 +49,38 @@ public extension SDAI__LIST__subtype
 	}
 	
 	// InitializableByGenericList
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, generic listtype: T?) 
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
+		bound1: I1, bound2: I2?, generic listtype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: listtype))
 	}
 
 	
 	// InitializableByEmptyListLiteral
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE) {
+	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+		bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE)
+	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, emptyLiteral) )
 	} 
 
 	// InitializableBySwifttypeAsList
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2?) {
+	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+		from swiftValue: SwiftType, bound1: I1, bound2: I2?)
+	{
 		self.init(fundamental: FundamentalType(from: swiftValue, bound1: bound1, bound2: bound2) )
 	} 
 	
 	// InitializableBySelecttypeAsList
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S: SDAISelectType>(bound1: I1, bound2: I2?, _ select: S?) {
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S: SDAISelectType>(
+		bound1: I1, bound2: I2?, _ select: S?)
+	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, select) )
 	}
 
 	// InitializableByListLiteral
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(
+		bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
+	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
 	 } 
 }
@@ -75,7 +90,8 @@ public extension SDAI__LIST__subtype
 public extension SDAI__LIST__subtype
 where ELEMENT: InitializableBySelectType
 {
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T:SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T:SDAI__LIST__type>(
+		bound1: I1, bound2: I2?, _ listtype: T?) 
 	where T.ELEMENT: SDAISelectType//, T.ELEMENT == T.Element
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, listtype) )
@@ -85,13 +101,24 @@ where ELEMENT: InitializableBySelectType
 
 //MARK: - for entity type element
 public extension SDAI__LIST__subtype
-where ELEMENT: InitializableByEntity
+where ELEMENT: InitializableByComplexEntity
 {
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
+		bound1: I1, bound2: I2?, _ listtype: T? )
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, listtype) )
-	}	
+	}
+
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
+		bound1: I1, bound2: I2?, _ listtype: T? )
+	where T.ELEMENT: SDAIPersistentReference,
+	T.ELEMENT.ARef: SDAI.EntityReference
+	{
+		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, listtype) )
+	}
+
+
 }
 
 
@@ -99,7 +126,8 @@ where ELEMENT: InitializableByEntity
 public extension SDAI__LIST__subtype
 where ELEMENT: InitializableByDefinedType
 {
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T:SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
+	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T:SDAI__LIST__type>(
+		bound1: I1, bound2: I2?, _ listtype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, listtype) )

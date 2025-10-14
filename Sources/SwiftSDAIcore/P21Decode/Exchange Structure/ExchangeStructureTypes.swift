@@ -150,19 +150,19 @@ extension P21Decode.ExchangeStructure {
 			return listOfString
 		}
 		public var asEntityInstanceName: Int? {
-			guard case .untypedParameter(.rhsOccurenceName(.entityInstanceName(let val))) = self else { return nil }
+			guard case .untypedParameter(.rhsOccurrenceName(.entityInstanceName(let val))) = self else { return nil }
 			return val
 		}
 		public var asValueInstanceName: Int? {
-			guard case .untypedParameter(.rhsOccurenceName(.valueInstanceName(let val))) = self else { return nil }
+			guard case .untypedParameter(.rhsOccurrenceName(.valueInstanceName(let val))) = self else { return nil }
 			return val
 		}
 		public var asConstantEntityName: String? {
-			guard case .untypedParameter(.rhsOccurenceName(.constantEntityName(let val))) = self else { return nil }
+			guard case .untypedParameter(.rhsOccurrenceName(.constantEntityName(let val))) = self else { return nil }
 			return val
 		}
 		public var asConstantValueName: String? {
-			guard case .untypedParameter(.rhsOccurenceName(.constantValueName(let val))) = self else { return nil }
+			guard case .untypedParameter(.rhsOccurrenceName(.constantValueName(let val))) = self else { return nil }
 			return val
 		}
 	}
@@ -206,7 +206,7 @@ extension P21Decode.ExchangeStructure {
 		case integer(Int)
 		case real(Double)
 		case string(String)
-		case rhsOccurenceName(RHSOccurrenceName)
+		case rhsOccurrenceName(RHSOccurrenceName)
 		case enumeration(String)
 		case binary(String)	// sequence of "0" or "1"
 		case list([Parameter])
@@ -217,7 +217,7 @@ extension P21Decode.ExchangeStructure {
 			case .integer(let val):	return "INTEGER(\(val))"
 			case .real(let val): return "REAL(\(val))"
 			case .string(let val): return "STRING(\(val))"
-			case .rhsOccurenceName(let name): return "\(name)"
+			case .rhsOccurrenceName(let name): return "\(name)"
 			case .enumeration(let val): return ".\(val)."
 			case .binary(let val):	return "\"\(val)\""
 			case .list(let val): return "\(val)"

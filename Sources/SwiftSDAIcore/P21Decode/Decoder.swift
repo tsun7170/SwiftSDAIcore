@@ -58,8 +58,10 @@ extension P21Decode {
 		//MARK: decoding operation
 		/// decode a given character stream according to ISO 10303-21 and known STEP schemas
 		/// - Parameter charStream: p21 character stream
+		/// - Parameter repository: <#repository description#>
+		/// - Parameter transaction: <#transaction description#>
 		/// - Returns: array of SDAI models decoded
-		///
+		/// 
 		public func decode<CHARSTREAM>(
 			input charStream: CHARSTREAM,
 			repository: SDAISessionSchema.SdaiRepository,

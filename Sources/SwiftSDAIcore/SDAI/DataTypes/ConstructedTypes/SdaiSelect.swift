@@ -10,13 +10,12 @@ import Foundation
 
 //MARK: - SELECT TYPE base (8.4.2)
 
-public protocol SDAISelectType: SDAIConstructedType,
-																	InitializableByDefinedType, InitializableByEntity,
-																SwiftDoubleConvertible, SwiftIntConvertible, SwiftStringConvertible, SwiftBoolConvertible,
-																SDAIEntityReferenceYielding,
-//																SDAIObservableAggregateElement,
-																SDAIAggregationBehavior
-
+public protocol SDAISelectType:
+	SDAIConstructedType,
+	InitializableByDefinedType, InitializableByComplexEntity,
+	SwiftDoubleConvertible, SwiftIntConvertible, SwiftStringConvertible, SwiftBoolConvertible,
+	SDAIEntityReferenceYielding,
+	SDAIAggregationBehavior
 where Value == FundamentalType,
 			FundamentalType: SDAISelectType
 {}
@@ -38,7 +37,15 @@ public extension SDAISelectType
 		guard let generic = generic else { return nil }
 		self.init(possiblyFrom: generic)
 	}
-	
+
+	init?<PREF>(_ pref: PREF?)
+	where PREF: SDAIPersistentReference,
+	PREF.ARef: SDAI.EntityReference
+	{
+		self.init(pref?.optionalARef)
+	}
+
+
 	// SwiftDoubleConvertible
 	var possiblyAsSwiftDouble: Double? { self.realValue?.asSwiftType }
 	var asSwiftDouble: Double { SDAI.UNWRAP(self.possiblyAsSwiftDouble) }
@@ -56,10 +63,12 @@ public extension SDAISelectType
 	var asSwiftBool: Bool { SDAI.UNWRAP(self.possiblyAsSwiftBool) }	
 	
 	// group reference
-	func GROUP_REF<EREF:SDAI.EntityReference>(_ entity_ref: EREF.Type) -> EREF? {
+	func GROUP_REF<SUPER:SDAI.EntityReference & SDAIDualModeReference>(
+		_ entity_ref: SUPER.Type) -> SUPER.PRef?
+	{
 		guard let complex = self.entityReference?.complexEntity else { return nil }
-		return complex.partialComplexEntity(entity_ref)
-	} 
+		return complex.partialComplexEntity(entity_ref)?.pRef
+	}
 	
 }
 
