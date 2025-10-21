@@ -397,13 +397,18 @@ extension SDAI {
 			return nil
 		}
 
-		public static func cast<EREF:EntityReference>(
-			from source: EREF?
-		) -> Self?
+		public static func cast<EREF:EntityReference>(from source: EREF?) -> Self?
 		{
 			return source?.complexEntity.entityReference(self)
 		}
-		
+
+		public static func cast<PREF>(from source: PREF?) -> Self?
+		where PREF: SDAIPersistentReference,
+					PREF.ARef: EntityReference
+		{
+			return self.cast(from: source?.aRef)
+		}
+
 		// InitializableByP21Parameter
 		public static var bareTypeName: String { self.entityDefinition.name }
 		

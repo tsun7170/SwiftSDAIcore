@@ -196,6 +196,8 @@ extension SDAI {
 		case SI_DUP(SDAIPopulationSchema.SchemaInstance)
 		case SI_NEXS
 
+		case SX_NRW(SDAIPopulationSchema.SchemaInstance)	// extension
+
 		case EI_NEXS
 		case EI_NAVL(SDAIParameterDataSchema.ApplicationInstance)
 		case EI_NVLD(SDAIParameterDataSchema.EntityInstance)
@@ -227,50 +229,68 @@ extension SDAI {
 				case .SS_OPN: 	return "Session open"
 				case .SS_NAVL:	return "Session not available"
 				case .SS_NOPN:	return "Session is not open"
+
 				case .RP_NEXS:	return "Repository does not exist"
 				case .RP_NAVL:	return "Repository not available"
 				case .RP_OPN: 	return "Repository open"
 				case .RP_NOPN:	return "Repository is not open"
+
 				case .TR_EAB: 	return "Transaction ended abnormally"
 				case .TR_EXS: 	return "Transaction exists"
 				case .TR_NAVL:	return "Transaction currently not available"
 				case .TR_RW:  	return "Transaction read-write"
 				case .TR_NRW: 	return "Transaction not read-write"
 				case .TR_NEXS:	return "Transaction does not exist"
+
 				case .MO_NDEQ:	return "SDAl-model not domain equivalent"
 				case .MO_NEXS:	return "SDAI-model does not exist"
 				case .MO_NVLD:	return "SDAI-model invalid"
 				case .MO_DUP: 	return "SDAI-model duplicate"
+
 				case .MX_NRW: 	return "SDAI-model access not read-write"
 				case .MX_NDEF:	return "SDAI-model access not defined"
 				case .MX_RW:  	return "SDAI-model access read-write"
 				case .MX_RO:  	return "SDAI-model access read-only"
+
 				case .SD_NDEF:	return "Schema definition not defined"
+
 				case .ED_NDEF:	return "Entity definition not defined"
 				case .ED_NDEQ:	return "Entity definition not domain equivalent"
 				case .ED_NVLD:	return "Entity definition invalid"
+
 				case .RU_NDEF:	return "Rule not defined."
+
 				case .EX_NSUP:	return "Expression evaluation not supported"
+
 				case .AT_NVLD:	return "Attribute invalid"
 				case .AT_NDEF:	return "Attribute not defined"
+
 				case .SI_DUP: 	return "Schema instance duplicate"
 				case .SI_NEXS:	return "Schema instance does not exist"
+
+				case .SX_NRW: 	return "Schema instance access not read-write"	//extension
+
 				case .EI_NEXS:	return "Entity instance does not exist"
 				case .EI_NAVL:	return "Entity instance not available"
 				case .EI_NVLD:	return "Entity instance invalid"
 				case .EI_NEXP:	return "Entity instance not exported"
+
 				case .SC_NEXS:	return "Scope does not exist"
 				case .SC_EXS: 	return "Scope exists"
+
 				case .AI_NEXS:	return "Aggregate instance does not exist"
 				case .AI_NVLD:	return "Aggregate instance invalid"
 				case .AI_NSET:	return "Aggregate instance is empty"
+
 				case .VA_NVLD:	return "Value invalid"
 				case .VA_NEXS:	return "Value does not exist"
 				case .VA_NSET:	return "Value not set"
 				case .VT_NVLD:	return "Value type invalid"
+
 				case .IR_NEXS:	return "Iterator does not exist"
 				case .IR_NSET:	return "Current member is not defined"
 				case .IX_NVLD:	return "Index invalid"
+
 				case .ER_NSET:	return "Event recording not set"
 				case .OP_NVLD:	return "Operator invalid"
 				case .FN_NAVL:	return "Function not available"
@@ -311,6 +331,7 @@ extension SDAI {
 				case .AT_NDEF:	return 290
 				case .SI_DUP: 	return 300
 				case .SI_NEXS:	return 310
+				case .SX_NRW: 	return 311	//extension
 				case .EI_NEXS:	return 320
 				case .EI_NAVL:	return 330
 				case .EI_NVLD:	return 340
@@ -398,6 +419,8 @@ extension SDAI {
 					return .entityInstance(.sdaiSchemaInstance(schemaInstance))
 				case .SI_NEXS:
 					return nil
+				case .SX_NRW(let schemaInstance):
+					return .entityInstance(.sdaiSchemaInstance(schemaInstance))
 				case .EI_NEXS:
 					return nil
 				case .EI_NAVL(let applicationInstance):

@@ -8,6 +8,35 @@
 import Foundation
 
 extension SDAISessionSchema.SdaiTransactionRW {
+	
+	/// EXTENSION to ISO 10303-22 (10.6) Promote schema instance to read-write
+	///
+	/// This operation allows read-write access to a schema instance. The subject schema instance may already be in read-write access in which case the operation is no-op.
+	///
+	/// - Parameter instance: The schema instance to which read-write access is to be allowed.
+	/// - Returns: updated reference to the schema instance promoted to RW if operation is successful.
+	///
+	public func promoteSchemaInstanceToReadWrite(
+		instance: SDAIPopulationSchema.SchemaInstance,
+	) -> SDAIPopulationSchema.SchemaInstance?
+	{
+		guard let session = self.owningSession else {
+			SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
+			return nil
+		}
+		guard session.checkRepositoriesOpen(relatedTo: instance) else {
+			return nil
+		}
+		guard let activeSI = session.findAndActivateSchemaInstance(schemaInstanceID: instance.schemaInstanceID),
+					activeSI == instance else {
+			SDAI.raiseErrorAndContinue(.SI_NEXS, detail: "The schema instance does not exist or already been deleted within the transaction.")
+			return nil
+		}
+
+		let promoted = session.promoteSchemaInstanceToRW(schemaInstanceID: instance.schemaInstanceID)
+
+		return promoted
+	}
 
 
 	/// ISO 10303-22 (10.6.1) Delete schema instance
@@ -15,7 +44,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	/// This operation deletes a schema instance.
 	/// If references between two SDAI-models associated with the schema instance existed and there is not another schema instance with both SDAI-models are associated, then the references between the entity instances in those two SDAI-models are invalid (see 10.10.7).
 	///
-	/// - Parameter instance: The schema instance to be deleted.
+	/// - Parameter instance: The schema instance (in RW mode) to be deleted.
 	/// - Returns: true if operation is successful.
 	///
 	@discardableResult
@@ -35,10 +64,14 @@ extension SDAISessionSchema.SdaiTransactionRW {
 			SDAI.raiseErrorAndContinue(.SI_NEXS, detail: "The schema instance does not exist or already been deleted within the transaction.")
 			return false
 		}
+		guard session.activeSchemaInstanceInfo(for: instance.schemaInstanceID)?.mode == .readWrite else {
+			SDAI.raiseErrorAndContinue(.SX_NRW(instance), detail: "The schema instance is not in read-write mode.")
+			return false
+		}
 
-		let promoted = self.notifyApplicationDomainChanged(relatedTo: instance)
-		promoted.teardown()
-		session.deleteSchemaInstance(schemaInstanceID: promoted.schemaInstanceID)
+		self.notifyApplicationDomainChanged(relatedTo: instance)
+		instance.teardown()
+		session.deleteSchemaInstance(schemaInstanceID: instance.schemaInstanceID)
 		return true
 	}
 
@@ -94,44 +127,45 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	///  If the SDAI-model is not based upon the same schema as the schema instance but is based upon an external schema, then an entity instance in the SDAI-model shall be considered associated with the schema instance only if its entity type is defined as being domain equivalent with and entity type from the native schema upon which the schema instance is based (see A.2). If domain equivalence is not supported and the SDAI-model being added is based upon an external schema, the FN-NAVL error shall result.
 	/// 
 	/// - Parameters:
-	///   - schemaInstance: The schema instance with which the SDAI-model is to be associated.
+	///   - schemaInstance: The schema instance (in RW mode) with which the SDAI-model is to be associated.
 	///   - model: The SDAI-model that is to be associated with the schema instance.
-	/// - Returns: new references to the modified schema instance and SDAI-model if the operation is successful.
+	/// - Returns: true when operation is successful
 	///
 	public func addSdaiModel(
 		instance schemaInstance: SDAIPopulationSchema.SchemaInstance,
 		model: SDAIPopulationSchema.SdaiModel
-	) -> SDAIPopulationSchema.SchemaInstance?
+	) -> Bool
 	{
 		guard let session = self.owningSession else {
 			SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
-			return nil
+			return false
 		}
 		guard session.checkRepositoriesOpen(relatedTo: schemaInstance) else {
-			return nil
+			return false
 		}
 		guard let activeSI = session.findAndActivateSchemaInstance(schemaInstanceID: schemaInstance.schemaInstanceID),
 					activeSI == schemaInstance else {
 			SDAI.raiseErrorAndContinue(.SI_NEXS, detail: "The schema instance does not exist or already been deleted within the transaction.")
-			return nil
+			return false
+		}
+		guard session.activeSchemaInstanceInfo(for: schemaInstance.schemaInstanceID)?.mode == .readWrite else {
+			SDAI.raiseErrorAndContinue(.SX_NRW(schemaInstance), detail: "The schema instance is not in read-write mode.")
+			return false
 		}
 		guard model.underlyingSchema == schemaInstance.nativeSchema else {
 			SDAI.raiseErrorAndContinue(.MO_NDEQ(model), detail: "The SDAI-model is not domain equivalent with the schema instance.")
 			SDAI.raiseErrorAndContinue(.FN_NAVL, detail: "Domain equivalence is not supported by this implementation.")
-			return nil
+			return false
 		}
 
 		if schemaInstance.isAssociatedWith(modelWithID: model.modelID) {
-			return schemaInstance
+			return true
 		}
 
-//		let promotedModel = session.promoteSdaiModelToRW(modelID: model.modelID)
-		let promotedSI = session.promoteSchemaInstanceToRW(schemaInstanceID: schemaInstance.schemaInstanceID)
+		schemaInstance.associate(with: model)
 
-//		promotedModel.associate(with: promotedSI)
-		promotedSI.associate(with: model)
-
-		return self.notifyApplicationDomainChanged(relatedTo: promotedSI)
+		self.notifyApplicationDomainChanged(relatedTo: schemaInstance)
+		return true
 	}
 
 
@@ -143,44 +177,45 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	/// If the SDAI-model no longer has a schema instance in common with another
 	///
 	///  SDAI-model in the schema instance then all references between those two SDAI-models are invalid (see 10.10.7).
-	/// - Parameter instance: schema instance
+	/// - Parameter instance: schema instance in RW mode.
 	/// - Parameter model: The SDAI-model that is to be removed from the schema instance.
 	/// - Returns: true indicating the success of the operation.
 	/// 
 	public func removeSdaiModel(
 		instance: SDAIPopulationSchema.SchemaInstance,
 		model: SDAIPopulationSchema.SdaiModel
-	) -> SDAIPopulationSchema.SchemaInstance?
+	) -> Bool
 	{
 		guard let session = self.owningSession else {
 			SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
-			return nil
+			return false
 		}
 		guard session.checkRepositoriesOpen(relatedTo: instance) else {
-			return nil
+			return false
 		}
 		guard let activeSI = session.findAndActivateSchemaInstance(schemaInstanceID: instance.schemaInstanceID),
 					activeSI == instance else {
 			SDAI.raiseErrorAndContinue(.SI_NEXS, detail: "The schema instance does not exist or already been deleted within the transaction.")
-			return nil
+			return false
+		}
+		guard session.activeSchemaInstanceInfo(for: instance.schemaInstanceID)?.mode == .readWrite else {
+			SDAI.raiseErrorAndContinue(.SX_NRW(instance), detail: "The schema instance is not in read-write mode.")
+			return false
 		}
 		guard model.underlyingSchema == instance.nativeSchema else {
 			SDAI.raiseErrorAndContinue(.MO_NDEQ(model), detail: "The SDAI-model is not domain equivalent with the schema instance.")
 			SDAI.raiseErrorAndContinue(.FN_NAVL, detail: "Domain equivalence is not supported by this implementation.")
-			return nil
+			return false
 		}
 
 		if !instance.isAssociatedWith(modelWithID: model.modelID) {
-			return instance
+			return true
 		}
 
-//		let promotedModel = session.promoteSdaiModelToRW(modelID: model.modelID)
-		let promotedSI = session.promoteSchemaInstanceToRW(schemaInstanceID: instance.schemaInstanceID)
+		instance.dissociate(from: model)
 
-//		promotedModel.dissociate(from: promotedSI)
-		promotedSI.dissociate(from: model)
-
-		return self.notifyApplicationDomainChanged(relatedTo: promotedSI)
+		self.notifyApplicationDomainChanged(relatedTo: instance)
+		return true
 	}
 
 
@@ -310,7 +345,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	/// This operation updates the validation information maintained within the schema instance.
 	/// 
 	/// - Parameters:
-	///   - instance: The schema instance bounding the test.
+	///   - instance: The schema instance (in RW mode) bounding the test.
 	///   - option: mode of validation result recording.
 	///   - monitor: validation activity monitor object, with which the progress of the validation can be tracked.
 	/// - Returns: TRUE if all the constraints from the schema upon which SchemaInstance is based are met, FLASE if any constraint is violated, and UNKNOWN any constraint resulted in UNKNOWN.
@@ -333,22 +368,24 @@ extension SDAISessionSchema.SdaiTransactionRW {
 			SDAI.raiseErrorAndContinue(.SI_NEXS, detail: "The schema instance does not exist or already been deleted within the transaction.")
 			return nil
 		}
-
-		let promotedSI = session.promoteSchemaInstanceToRW(schemaInstanceID: instance.schemaInstanceID)
+		guard session.activeSchemaInstanceInfo(for: instance.schemaInstanceID)?.mode == .readWrite else {
+			SDAI.raiseErrorAndContinue(.SX_NRW(instance), detail: "The schema instance is not in read-write mode.")
+			return false
+		}
 
 		// instance reference domain check
-		promotedSI.performValidateAllInstanceReferenceDomain(recording: option, monitor: monitor)
+		instance.performValidateAllInstanceReferenceDomain(recording: option, monitor: monitor)
 
 		// global rule check
-		promotedSI.performValidateGlobalRules(recording: option, monitor: monitor)
+		instance.performValidateGlobalRules(recording: option, monitor: monitor)
 
 		// uniqueness rule check
-		promotedSI.performValidateUniquenessRules(recording: option, monitor: monitor)
+		instance.performValidateUniquenessRules(recording: option, monitor: monitor)
 
 		// where rule check
-		promotedSI.performValidateAllWhereRules(recording: option, monitor: monitor)
+		instance.performValidateAllWhereRules(recording: option, monitor: monitor)
 
-		return promotedSI.validationResult
+		return instance.validationResult
 	}
 
 }//SdaiTransactionRW

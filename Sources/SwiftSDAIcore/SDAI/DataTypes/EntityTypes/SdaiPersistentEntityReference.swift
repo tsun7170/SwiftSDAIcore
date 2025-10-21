@@ -8,16 +8,24 @@
 import Foundation
 
 extension SDAI {
-
-
 	//MARK: - persistent entity reference
 	@dynamicMemberLookup
 	public final class PersistentEntityReference<EREF>:
-		SDAIGenericType,
+		SDAIPersistentReference,
 		InitializableByComplexEntity,
 		SDAIEntityReferenceYielding
 	where EREF: SDAI.EntityReference & SDAIDualModeReference
 	{
+		// SDAIPersistentReference
+		public typealias ARef = EREF
+
+		public var aRef: EREF { self.instance }
+
+		public var optionalARef: EREF? { self.optionalInstance }
+
+
+
+
 		private typealias ComplexEntityID = SDAIPopulationSchema.SdaiModel.ComplexEntityID
 		private typealias SDAIModelID = SDAIPopulationSchema.SdaiModel.SDAIModelID
 
@@ -56,6 +64,15 @@ extension SDAI {
 			let complex = genericERef?.complexEntity
 			self.init(complex)
 		}
+
+
+		public static func cast<OTHER>(
+			from source: PersistentEntityReference<OTHER>?) -> Self?
+		where OTHER: EntityReference & SDAIDualModeReference
+		{
+			Self.init(source)
+		}
+
 
 
 		public var eval: EREF? { self.optionalInstance }

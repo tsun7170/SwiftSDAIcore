@@ -9,6 +9,8 @@
 import Foundation
 
 extension P21Decode.ExchangeStructure {
+
+	//MARK: - HeaderSection
 	
 	/// ISO 10303-21 8 Header section
 	public struct HeaderSection {

@@ -58,13 +58,13 @@ extension P21Decode {
 		//MARK: decoding operation
 		/// decode a given character stream according to ISO 10303-21 and known STEP schemas
 		/// - Parameter charStream: p21 character stream
-		/// - Parameter repository: <#repository description#>
-		/// - Parameter transaction: <#transaction description#>
+		/// - Parameter repository: repository to which decoded models are stored
+		/// - Parameter transaction: RW transaction for decoding action
 		/// - Returns: array of SDAI models decoded
 		/// 
 		public func decode<CHARSTREAM>(
 			input charStream: CHARSTREAM,
-			repository: SDAISessionSchema.SdaiRepository,
+//			repository: SDAISessionSchema.SdaiRepository,
 			transaction: SDAISessionSchema.SdaiTransactionRW
 		) -> [SDAIPopulationSchema.SdaiModel]?
 		where CHARSTREAM: CharacterStream //IteratorProtocol, CHARSTREAM.Element == Character
@@ -90,14 +90,11 @@ extension P21Decode {
 					return nil
 				}
 			}
-//			for schemaDef in Set(exchangeStructure.schemaRegistry.values.lazy.map{$0.schemaDefinition}) {
-//				let fallback = session.fallBackModel(for: schemaDef)
-//				fallback.contents.resetCache(relatedTo: nil)
-//			}
+
 			session.prepareFallBackModels(
-				for: exchangeStructure.schemaRegistry.values.lazy
-					.map{$0.schemaDefinition},
-				transaction: transaction)
+				for: exchangeStructure.schemaRegistry.values.lazy.map{$0.schemaDefinition},
+				transaction: transaction
+			)
 
 			var createdModels: [SDAIPopulationSchema.SdaiModel] = []
 			for (i,datasec) in exchangeStructure.dataSections.enumerated() {
@@ -106,23 +103,19 @@ extension P21Decode {
 					error = .resolveError(exchangeStructure.error ?? "<unknown schema resolution error>")
 					return nil
 				}
-				guard let model = datasec.assignModel(
-					filename: exchangeStructure.headerSection.fileName.NAME,
-				repository: repository,
-				transaction: transaction)
+				guard let rwmodel = datasec
+					.assignModel(
+						filename: exchangeStructure.headerSection.fileName.NAME,
+						repository: repository,
+						transaction: transaction
+					)
 				else {
 					exchangeStructure.add(errorContext: "while setting up data section[\(i)]")
 					error = .resolveError(exchangeStructure.error ?? "<unknown schema resolution error>")
 					return nil
 				}
 
-				guard let promoted = transaction.startReadWriteAccess(model: model)
-				else {
-					exchangeStructure.add(errorContext: "while setting up data section[\(i)]")
-					error = .resolveError("could not promote the created SDAI-model to read-write mode.")
-					return nil
-				}
-				createdModels.append(promoted)
+				createdModels.append(rwmodel)
 			}
 			
 			if let monitor = activityMonitor { monitor.startedResolvingEntityInstances() }

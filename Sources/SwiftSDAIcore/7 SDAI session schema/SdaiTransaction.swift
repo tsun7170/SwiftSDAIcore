@@ -82,22 +82,23 @@ extension SDAISessionSchema {
 		public override var mode: AccessType { .readWrite }
 
 		public func notifyApplicationDomainChanged(
-			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance
-		) -> SDAIPopulationSchema.SchemaInstance
+			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance	// in RW mode
+		) 
 		{
 			guard let session = self.owningSession else {
 				SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
-				return schemaInstance
+				return //schemaInstance
 			}
 
-			let promotedSI = session.promoteSchemaInstanceToRW(
-				schemaInstanceID: schemaInstance.schemaInstanceID)
-
-			for model in promotedSI.associatedModels {
-				model.notifyApplicationDomainChanged(relatedTo: promotedSI)
+			guard session.activeSchemaInstanceInfo(for: schemaInstance.schemaInstanceID)?.mode == .readWrite else {
+				SDAI.raiseErrorAndContinue(.SX_NRW(schemaInstance), detail: "The schema instance is not in read-write mode.")
+				return
 			}
-			promotedSI.resetValidationRecords()
-			return promotedSI
+
+			for model in schemaInstance.associatedModels {
+				model.notifyApplicationDomainChanged(relatedTo: schemaInstance)
+			}
+			schemaInstance.resetValidationRecords()
 		}
 
 		internal override func performCommit(closingAccesses: Bool) {

@@ -106,7 +106,7 @@ extension SDAISessionSchema {
 			self.modelTable.withLock{ $0[modelID] }
 		}
 
-		internal func findSdaiModel(
+		public func findSdaiModel(
 			named target: SDAIPopulationSchema.STRING
 		) -> SdaiModel?
 		{
@@ -147,7 +147,7 @@ extension SDAISessionSchema {
 			self.schemaInstanceTable.withLock{ $0[siID] }
 		}
 
-		internal func findSchemaInstance(
+		public func findSchemaInstance(
 			named target: SDAIPopulationSchema.STRING
 		) -> SchemaInstance?
 		{

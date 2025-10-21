@@ -260,7 +260,8 @@ extension SDAISessionSchema {
 			guard self.activeSchemaInstanceInfo(for: schemaInstanceID) == nil
 			else { fatalError("internal logic error") }
 
-			self.activeSchemaInstanceTable.withLock{ $0[schemaInstanceID] = SchemaInstanceInfo(instance: schemaInstance, mode: .readWrite) }
+			self.activeSchemaInstanceTable.withLock{ $0[schemaInstanceID] =
+				SchemaInstanceInfo(instance: schemaInstance, mode: .readWrite) }
 		}
 
 		public func findLatestEdition(
@@ -634,8 +635,6 @@ extension SDAISessionSchema {
 			else { fatalError("internal logic error") }
 
 			self.deletedModels.withLock{ $0.insert(modelID); return }
-
-//			modelInfo.instance.underlyingSchema.notifyApplicationDomainChanged(relatedTo: nil)
 		}
 
 		internal func commitToDeleteAllModels()
@@ -643,6 +642,13 @@ extension SDAISessionSchema {
 			for modelID in self.deletedModels.withLock({ $0 }) {
 				guard let modelInfo = self.activeModelInfo(for:modelID)
 				else { fatalError("internal logic error") }
+
+				for schemaInstance in modelInfo.instance.associatedWith {
+					let promoted = self.promoteSchemaInstanceToRW(
+						schemaInstanceID: schemaInstance.schemaInstanceID)
+
+					promoted.dissociate(from: modelInfo.instance)
+				}
 
 				let repo = modelInfo.instance.repository
 				repo.contents.remove(model: modelInfo.instance)

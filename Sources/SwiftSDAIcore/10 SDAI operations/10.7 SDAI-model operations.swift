@@ -33,15 +33,12 @@ extension SDAISessionSchema.SdaiTransactionRW {
 			return false
 		}
 
-		for schemaInstance in model.associatedWith {
-			let promoted = session.promoteSchemaInstanceToRW(
-				schemaInstanceID: schemaInstance.schemaInstanceID)
+		session.deleteSdaiModel(modelID: model.modelID)
 
-			promoted.dissociate(from: model)
-			let _ = self.notifyApplicationDomainChanged(relatedTo: promoted)
+		for schemaInstance in model.associatedWith {
+			let _ = self.notifyApplicationDomainChanged(relatedTo: schemaInstance)
 		}
 
-		session.deleteSdaiModel(modelID: model.modelID)
 		return true
 	}
 
@@ -92,22 +89,22 @@ extension SDAISessionSchema.SdaiTransaction {
 	/// 
 	/// - Parameter model: The sdai_model to access as read-only.
 	///
-	/// - Returns: updated reference to the sdai_model promoted to RO if operation is successful.
+	/// - Returns: true if operation is successful.
 	///
 	public func startReadOnlyAccess(
 		model: SDAIPopulationSchema.SdaiModel
-	) -> SDAIPopulationSchema.SdaiModel?
+	) -> Bool
 	{
 		guard let session = self.owningSession else {
 			SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
-			return nil
+			return false
 		}
 		guard let _ = session.checkRepositoryOpen(relatedTo: model) else {
-			return nil
+			return false
 		}
 		if session.isDeleted(modelWithID: model.modelID) {
 			SDAI.raiseErrorAndContinue(.MO_NEXS, detail: "The SDAI-model does not exist.")
-			return nil
+			return false
 		}
 		if let mode = session.activeModelInfo(for:model.modelID)?.mode {
 			switch mode {
@@ -116,11 +113,11 @@ extension SDAISessionSchema.SdaiTransaction {
 				case .readWrite:
 					SDAI.raiseErrorAndContinue(.MX_RW(model), detail: "The SDAI-model access is read-write.")
 			}
-			return nil
+			return false
 		}
 
 		session.startReadOnlyAccess(model: model)
-		return model
+		return true
 	}
 
 }//SdaiTransaction
@@ -132,7 +129,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	///
 	/// This operation allows read-write access to instances within an sdai _model to which the Start read-only access operation had been applied or that had been automatically started with read-only access as the result of a reference to an entity instance within the SDAI-model.
 	///
-	/// - Parameter model: The sda_model to which read-write access is to be allowed.
+	/// - Parameter model: The sdai_model to which read-write access is to be allowed.
 	///
 	/// - Returns: updated reference to the sdai_model promoted to RW if operation is successful.
 	///

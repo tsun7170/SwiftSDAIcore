@@ -33,6 +33,13 @@ extension SDAI {
 		if let seq = seq { return seq }
 		return A()
 	}
+
+	public static func UNWRAP<EREF>(_ pref:PersistentEntityReference<EREF>?) -> PersistentEntityReference<EREF>
+	where EREF: EntityReference & SDAIDualModeReference
+	{
+		if let pref = pref { return pref }
+		return PersistentEntityReference(nil)
+	}
 }
 
 public protocol InitializableByVoid {

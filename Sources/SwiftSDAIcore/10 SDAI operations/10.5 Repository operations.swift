@@ -58,8 +58,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	///   - name: The name of the new schema instance.
 	///   - schema: The schema upon which the schema instance shall be based.
 	///
-	/// - Returns: The newly created schema instance.
-	/// 
+	/// - Returns: The newly created schema instance with RW mode.
+	///
 	public func createSchemaInstance(
 		repository: SDAISessionSchema.SdaiRepository,
 		name: SDAISessionSchema.STRING,

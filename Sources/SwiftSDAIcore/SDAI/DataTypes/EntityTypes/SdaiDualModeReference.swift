@@ -21,19 +21,10 @@ public protocol SDAIPersistentReference: SDAIGenericType
 	var aRef: ARef { get }
 
 	var optionalARef: ARef? { get }
+
 }
 
 
-//MARK: - PersistentEntityReference extension
-extension SDAI.PersistentEntityReference: SDAIPersistentReference
-where EREF: SDAIDualModeReference
-{
-	public typealias ARef = EREF
-
-	public var aRef: EREF { self.instance }
-
-	public var optionalARef: EREF? { self.optionalInstance }
-}
 
 
 //MARK: - SDAIDefinedType extension
