@@ -12,9 +12,10 @@ extension P21Decode {
 	
 	/// 5.3 Exchange structure;
 	/// ISO 10303-21
-	public final class ExchangeStructure: SDAI.Object {
-		public internal(set) var headerSection = HeaderSection()
-		public internal(set) var anchorSection = AnchorSection()
+	public final class ExchangeStructure: SDAI.Object, Sendable {
+		public let headerSection = HeaderSection()
+		public let anchorSection = AnchorSection()
+		nonisolated(unsafe)
 		public internal(set) var dataSections: [DataSection] = []
 		
 		public internal(set) var foreignReferenceResolver: ForeignReferenceResolver? = nil
