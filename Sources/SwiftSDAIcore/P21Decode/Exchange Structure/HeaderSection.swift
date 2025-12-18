@@ -70,6 +70,27 @@ extension P21Decode.ExchangeStructure.HeaderSection {
 			guard let p1 = headerEntity.parameterList[0].asString else { return "<not a string>" }
 			return p1
 		}
+    public var shortName: String {
+      guard let p1 = headerEntity.parameterList[0].asString else { return "<n/a>" }
+
+      let index0 = p1.lastIndex(where: { char in
+        switch char {
+          case
+            Character("/"),
+            Character("\\"),
+            Character(":"): return true
+          default: return false
+        }
+      })
+
+      if let index0 {
+        let index1 = p1.index(after:index0)
+        if index1 < p1.endIndex {
+          return String( p1.suffix(from: index1) )
+        }
+      }
+      return p1
+    }
 		public var TIME_STAMP: TIME_STAMP_TEXT {
 			guard let p2 = headerEntity.parameterList[1].asString else { return "<not a string>" }
 			return p2

@@ -30,9 +30,25 @@ extension SDAI {
     private typealias SDAIModelID = SDAIPopulationSchema.SdaiModel.SDAIModelID
 
 
-		private enum ComplexEntityReference: Hashable {
+		private enum ComplexEntityReference: Hashable, CustomStringConvertible
+    {
       case persistent(complexID: ComplexEntityID, modelID: SDAIModelID)
 			case temporary(EREF?)
+
+      var description: String {
+        switch self {
+          case .persistent(let complexID, let modelID):
+            return "#\(complexID)_m\(modelID)"
+            
+          case .temporary(let eREF):
+            if let eREF {
+              return "\(eREF.complexEntity.qualifiedName)(temporary)"
+            }
+            else {
+              return "(nil)"
+            }
+        }
+      }
 		}
 
 		private let complexReference: ComplexEntityReference
@@ -375,3 +391,11 @@ where EREF: InitializableByVoid
     self.init(eref)
   }
 }
+
+extension SDAI.PersistentEntityReference: CustomStringConvertible
+{
+  public var description: String {
+    return "\(EREF.entityDefinition.name).PRef=> \(self.complexReference)"
+  }
+}
+

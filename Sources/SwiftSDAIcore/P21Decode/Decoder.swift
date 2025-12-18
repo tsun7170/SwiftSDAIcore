@@ -129,7 +129,7 @@ extension P21Decode {
 				}
 				guard let rwmodel = datasec
 					.assignModel(
-						filename: exchangeStructure.headerSection.fileName.NAME,
+						filename: exchangeStructure.headerSection.fileName.shortName,
 						repository: repository,
 						transaction: transaction
 					)
