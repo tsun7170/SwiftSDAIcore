@@ -58,17 +58,19 @@ public protocol SDAIGenericType: Hashable, InitializableBySelectType, Initializa
 
 public extension SDAIGenericType
 {
-	static func convert(from other: FundamentalType) -> Self {
-		if let other = other as? Self {
-			return other.copy()
-		}
-		return self.init(fundamental: other)
-	}
+  static func convert(from other: FundamentalType) -> Self {
+    if let other = other as? Self {
+      return other.copy()
+    }
+//    debugPrint("\(#function): Self:\(Self.self), FundamentalType: \(FundamentalType.self)")
+    return self.init(fundamental: other)
+  }
 
-	init?(fundamental: FundamentalType?) {
-		guard let fundamental = fundamental else { return nil }
-		self.init(fundamental: fundamental)
-	}
+  init?(fundamental: FundamentalType?) {
+    guard let fundamental = fundamental else { return nil }
+//    debugPrint("\(#function): Self:\(Self.self), FundamentalType: \(FundamentalType.self)")
+    self.init(fundamental: fundamental)
+  }
 
 	func isEqual(to another:(any SDAIGenericType)?) -> Bool {
 		guard let another = another as? Self else { return false }

@@ -10,17 +10,41 @@ import Foundation
 
 extension SDAI {
 	//MARK: - support functions
-	public static func UNWRAP<T>(_ val:T?) -> T {
-		guard let unwrapped = val
-		else {
-			SDAI.raiseErrorAndTrap(.VA_NEXS,
-				detail: "failed to unwrap \(T.self) optional value")
-		}
-		return unwrapped
-	}
+  public static func UNWRAP<T>(
+    _ val:T?,
+    file: StaticString = #fileID,
+    line: UInt = #line,
+    functionID: StaticString = #function
+  ) -> T
+  {
+    guard let unwrapped = val
+    else {
+      SDAI.raiseErrorAndTrap(.VA_NEXS,
+                             detail: "failed to unwrap \(T.self) optional value",
+                             file: file, line: line, functionID: functionID)
+    }
+    return unwrapped
+  }
 
-	public static func UNWRAP<T>(_ val:T) -> T { return val }
-	
+  public static func UNWRAP<T: InitializableBySwiftType> (
+    _ val:T?,
+    file: StaticString = #fileID,
+    line: UInt = #line,
+    functionID: StaticString = #function
+  ) -> T
+  where T.SwiftType: InitializableByVoid
+  {
+    if let unwrapped = val { return unwrapped }
+
+    let fallback = T()
+    SDAI.raiseErrorAndContinue(.VA_NEXS,
+                               detail: "failed to unwrap \(T.self) optional value; fall back to the default value[\(fallback)]",
+                               file: file, line: line, functionID: functionID)
+    return fallback
+  }
+
+  public static func UNWRAP<T:SDAIBaseType>(_ val:T) -> T { return val }
+
 	public static func FORCE_OPTIONAL<T>(_ val:T?) -> T? { return val }
 	public static func FORCE_OPTIONAL<T>(_ val:T) -> T? { return val }
 	
@@ -39,15 +63,5 @@ extension SDAI {
 	{
 		if let pref = pref { return pref }
 		return PersistentEntityReference(nil)
-	}
-}
-
-public protocol InitializableByVoid {
-	init()
-}
-
-extension AnySequence: InitializableByVoid {
-	public init() {
-		self.init([Element]())
 	}
 }

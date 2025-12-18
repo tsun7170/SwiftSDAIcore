@@ -13,19 +13,26 @@ extension P21Decode.ExchangeStructure {
 	//MARK: - HeaderSection
 	
 	/// ISO 10303-21 8 Header section
-	public struct HeaderSection {
-		
+	public struct HeaderSection: Sendable {
+
 		/// ISO 10303-21 8.1 Header section structure
+		nonisolated(unsafe)
 		public internal(set) var headerEntityList: [SimpleRecord] = []
 		
 		/// ISO 10303-21 8.2.2 file_description
-		public lazy var fileDescription = FILE_DESCRIPTION(headerEntityList[0])
-		
+		public var fileDescription: FILE_DESCRIPTION {
+			FILE_DESCRIPTION(headerEntityList[0])
+		}
+
 		/// ISO 10303-21 8.2.3 file_name
-		public lazy var fileName = FILE_NAME(headerEntityList[1])
-		
+		public var fileName: FILE_NAME {
+			FILE_NAME(headerEntityList[1])
+		}
+
 		/// ISO 10303-21 8.2.4 file_schema
-		public lazy var fileSchema = FILE_SCHEMA(headerEntityList[2])
+		public var fileSchema: FILE_SCHEMA {
+			FILE_SCHEMA(headerEntityList[2])
+		}
 	}
 	
 }

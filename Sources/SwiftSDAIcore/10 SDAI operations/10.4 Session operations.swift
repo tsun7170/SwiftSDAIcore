@@ -29,7 +29,7 @@ extension SDAISessionSchema.SdaiSession {
 
 		self.append(errorEvent: errorEvent)
 		self.errorEventCallback?(errorEvent, #isolation)
-		loggerSDAI.error("\(errorEvent.description)")
+    loggerSDAI.error("\(errorEvent.description)")
 	}
 
 
@@ -107,16 +107,18 @@ extension SDAISessionSchema.SdaiSession {
 	 ///
 	 /// (10.4.11) This operation ends the sequence of operations started by the Start transaction read-write access or Start transaction read-only access operation. The implementation shall behave as if the Abort operation is performed before ending the transaction access. Further operations accessing entity instances within the session may be processed only after a subsequent Start transaction read-write access or Start transaction read-only access operation.
 	 ///
-	 public func performTransactionRW(
-		action:(_ transaction: SDAISessionSchema.SdaiTransactionRW) async -> Disposition ) async
+	@discardableResult
+	public func performTransactionRW<Output: Sendable>(
+		output: Output.Type = Void.self,
+		action:@Sendable @escaping (_ transaction: SDAISessionSchema.SdaiTransactionRW) async -> Disposition<Output> ) async -> Disposition<Output>
 	 {
 		 if let activeTransaction = self.activeTransaction {
 			 SDAI.raiseErrorAndContinue(.TR_EXS(activeTransaction), detail: "A transaction has already been started.")
-			 return
+			 return .abort
 		 }
 
 		 let transaction = SDAISessionSchema.SdaiTransactionRW(owningSession: self)
-		 await self.perform(transaction: transaction, async: action)
+		 return await self.perform(transaction: transaction, async: action)
 	 }
 
 
@@ -130,17 +132,43 @@ extension SDAISessionSchema.SdaiSession {
 	 ///
 	 /// (10.4.11) This operation ends the sequence of operations started by the Start transaction read-write access or Start transaction read-only access operation. The implementation shall behave as if the Abort operation is performed before ending the transaction access. Further operations accessing entity instances within the session may be processed only after a subsequent Start transaction read-write access or Start transaction read-only access operation.
 	 ///
-	 public func performTransactionRO(
-		action:(_ transaction: SDAISessionSchema.SdaiTransactionRO) async -> Disposition ) async
+	@discardableResult
+	public func performTransactionRO<Output: Sendable>(
+		output: Output.Type = Void.self,
+		action:@Sendable @escaping (_ transaction: SDAISessionSchema.SdaiTransactionRO) async -> Disposition<Output> ) async -> Disposition<Output>
 	 {
 		 if let activeTransaction = self.activeTransaction {
 			 SDAI.raiseErrorAndContinue(.TR_EXS(activeTransaction), detail: "A transaction has already been started.")
-			 return
+			 return .abort
 		 }
 
 		 let transaction = SDAISessionSchema.SdaiTransactionRO(owningSession: self)
-		 await self.perform(transaction: transaction, async: action)
+		 return await self.perform(transaction: transaction, async: action)
 	 }
+
+  /// EXTENSION to: ISO 10303-22 (10.4.6) Start transaction limited read-write access for schema instance validations/
+  /// (10.4.10) End transaction access and commit/
+  /// (10.4.11) End transaction access and abort
+  ///
+  /// EXTENSION to:(10.4.6)This operation specifies the beginning of a sequence of operations in a session for which access is provided to schema_instances such that changes can be made to those instances.
+  ///
+  /// (10.4.10) This operation ends the sequence of operations started by the Start transaction read-write access or Start transaction read-only access operation. The implementation shall behave as if the Commit operation is performed before ending the transaction access. Further operations accessing entity instances within the session may be processed only after a subsequent Start transaction read-write access or Start transaction read-only access operation.
+  ///
+  /// (10.4.11) This operation ends the sequence of operations started by the Start transaction read-write access or Start transaction read-only access operation. The implementation shall behave as if the Abort operation is performed before ending the transaction access. Further operations accessing entity instances within the session may be processed only after a subsequent Start transaction read-write access or Start transaction read-only access operation.
+  ///
+  @discardableResult
+  public func performTransactionVA<Output: Sendable>(
+    output: Output.Type = Void.self,
+    action:@Sendable @escaping (_ transaction: SDAISessionSchema.SdaiTransactionVA) async -> Disposition<Output> ) async -> Disposition<Output>
+  {
+    if let activeTransaction = self.activeTransaction {
+      SDAI.raiseErrorAndContinue(.TR_EXS(activeTransaction), detail: "A transaction has already been started.")
+      return .abort
+    }
+
+    let transaction = SDAISessionSchema.SdaiTransactionVA(owningSession: self)
+    return await self.perform(transaction: transaction, async: action)
+  }
 
 
 }//SdaiSession

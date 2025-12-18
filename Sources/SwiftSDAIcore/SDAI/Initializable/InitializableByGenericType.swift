@@ -29,6 +29,7 @@ where Self: SDAIGenericType
 		}
 		
 		if let fundamental = generic.asFundamentalType as? FundamentalType {
+//			debugPrint("\(#function): Self:\(Self.self), FundamentalType: \(FundamentalType.self)")
 			return self.convert(from: fundamental)
 		}
 		

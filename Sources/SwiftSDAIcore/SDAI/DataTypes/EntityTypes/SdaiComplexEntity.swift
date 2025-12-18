@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Synchronization
 
 extension SDAI {
 	
@@ -28,10 +29,14 @@ extension SDAI {
 		private enum EntityReferenceStatus {
 			case unknown
 			case resolved(EntityReference)
+			case resolvedAsTemporary
 			case invalid
 		}
-		private var _partialEntities: Dictionary<PartialEntity.TypeIdentity,
-																						 (instance:PartialEntity, reference:EntityReferenceStatus)> = [:]
+    nonisolated(unsafe)
+		private var _partialEntities: [
+      PartialEntity.TypeIdentity :
+			(instance:PartialEntity, reference:EntityReferenceStatus)
+		] = [:]
 
 		// CustomStringConvertible
 		public var description: String {
@@ -54,6 +59,12 @@ extension SDAI {
 			broadcastDeleted()
 		}
 		
+		/// init for persistent complex entity
+		/// - Parameters:
+		///   - entities: constituent partial entities
+		///   - model: SDAI-Model to own the created complex entity
+		///   - name: complex entity identifier
+		///
 		public init(
 			entities:[PartialEntity],
 			model:SDAIPopulationSchema.SdaiModel,
@@ -62,29 +73,55 @@ extension SDAI {
 			self.owningModel = model
 			self.p21name = name
 			if !model.contents.add(complex: self) {
-				self.isTemporary = true
+				fatalError("can not create persistent complex entity")
 			}
+
 			for pe in entities {
 				_partialEntities[type(of: pe).typeIdentity] = (instance:pe, reference:.unknown)	
 			}
+
+      let _ = self.entityReferences // to fill up _partialEntities[:] to avoid data races
 			broadcastCreated()
 		}
-		public convenience init(entities:[PartialEntity]) {
-			guard let session = SDAISessionSchema.activeSession else {
+		
+		/// init for temporary complex entity
+		/// - Parameter entities: constituent partial entities
+		///
+		public init(entities:[PartialEntity]) {
+			guard let session = SDAISessionSchema.activeSession
+			else {
 				SDAI.raiseErrorAndTrap(.SS_NAVL, detail: "SdaiSession object not available as TaskLocal")
 			}
 			let pe = entities.first!
 			let schema = type(of: pe).entityDefinition.parentSchema
 			let fallback = session.fallBackModel(for: schema)
 			let name = fallback.uniqueName
-			self.init(entities:entities, model:fallback, name:name)
-		}
 
+			self.owningModel = fallback
+			self.p21name = name
+			self.isTemporary = true
+
+			for pe in entities {
+				_partialEntities[type(of: pe).typeIdentity] = (instance:pe, reference:.unknown)
+			}
+
+      let _ = self.entityReferences // to fill up _partialEntities[:] to avoid data races
+			broadcastCreated()
+		}
+		
+		/// init for SDAIModel duplication
+		/// - Parameters:
+		///   - original: original complex entity
+		///   - targetModel: target SDAIModel for duplication
+		///
 		internal convenience init(
 			from original: ComplexEntity,
 			targetModel: SDAIPopulationSchema.SdaiModel)
 		{
-			let entities = original.partialEntities.map{ type(of: $0).init(from: $0) }
+			assert(!original.isTemporary)
+
+			let entities = original.partialEntities
+				.map{ type(of: $0).init(from: $0) }
 			let name = original.p21name
 			self.init(entities: entities, model: targetModel, name: name)
 		}
@@ -105,6 +142,7 @@ extension SDAI {
 		
 		// P21 support
 		public let p21name: P21Decode.EntityInstanceName
+
 		public internal(set) var isTemporary: Bool = false
 		
 		public var qualifiedName: String { "\(self.owningModel.name)#\(self.p21name)\(isTemporary ? "(temporary)" : "")" }
@@ -156,58 +194,77 @@ extension SDAI {
 		}
 		
 		
-		public func entityReference<EREF:EntityReference>(_ erefType:EREF.Type) -> EREF? {
+		public func entityReference<EREF:EntityReference>(
+			_ erefType:EREF.Type) -> EREF?
+		{
 			let typeid = erefType.partialEntityType.typeIdentity
+
 			if let tuple = _partialEntities[typeid] {
 				switch tuple.reference {
-				case .resolved(let eref):
-					if let eref = eref as? EREF {
-						return eref
-					}
-					else {
-						fatalError("internal error")
-					}
-				
-				case .invalid:
-					return nil
-				
-				case .unknown:
-					let pe = tuple.instance
-					if let eref = erefType.init(complex:self) {
-						return eref
-					}
-					else {
-						// register the erefType as invalid
-						_partialEntities[typeid] = (instance:pe, reference:.invalid)
+					case .resolved(let eref):
+						if let eref = eref as? EREF {
+							return eref
+						}
+						else {
+							fatalError("internal error")
+						}
+
+					case .invalid:
 						return nil
-					}
+
+					case .unknown,
+							.resolvedAsTemporary:
+						let pe = tuple.instance
+						if let eref = erefType.init(complex:self) {
+							return eref
+						}
+						else {
+							// register the erefType as invalid
+							_partialEntities[typeid] = (instance:pe, reference:.invalid)
+							return nil
+						}
 				}
 			}
 			return nil
 		}
 		
-		/// register the newly created entity reference into the registry
+		/// register a newly created entity reference into the registry
 		/// - Parameter eref: entity reference to register
 		/// - Returns: true when this is the valid entity reference
-		internal func registerEntityReference(_ eref: EntityReference) -> Bool {
+		///
+		internal func registerEntityReference(
+			_ eref: EntityReference) -> Bool
+		{
 			let typeid = type(of: eref).partialEntityType.typeIdentity
 			guard let tuple = _partialEntities[typeid] else { return false }
-			
+
 			if self.isTemporary {
 				eref.retainer = self
 			}
 
 			switch tuple.reference {
-			case .resolved(let registered):
-				eref.unify(with: registered)
-				return true
-				
-			case .invalid:
-				return false
-				
-			case .unknown:
-					_partialEntities[typeid] = (instance:tuple.instance, reference:.resolved(eref))
-				return true
+				case .resolved(let registered):
+					assert(!self.isTemporary, "internal logic error")
+					eref.unifyCache(with: registered)
+					return true
+
+				case .resolvedAsTemporary:
+					assert(self.isTemporary, "internal logic error")
+					return true
+
+				case .invalid:
+					return false
+
+				case .unknown:
+					if self.isTemporary {
+						_partialEntities[typeid] =
+						(instance:tuple.instance, reference:.resolvedAsTemporary)
+					}
+					else {
+						_partialEntities[typeid] =
+						(instance:tuple.instance, reference:.resolved(eref))
+					}
+					return true
 			}
 		}
 		
@@ -221,9 +278,8 @@ extension SDAI {
 				guard let pe = self.partialEntityInstance(supertype.partialEntityType) else { return nil }
 				partials.append(pe)
 			}
-			let pce = PartialComplexEntity(entities: partials, 
-																		model: self.owningModel, 
-																		name: self.owningModel.uniqueName)
+
+      let pce = PartialComplexEntity(entities: partials) // as temporary entity
 			guard let pceref = pce.entityReference(erefType) else { return nil }
 			
 			for pe in partials {
@@ -279,12 +335,12 @@ extension SDAI {
 		//MARK: SdaiCacheHolder related
 		public func notifyApplicationDomainChanged(
 			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance
-		)
+		) async
 		{
 			self.resetCache(relatedTo: schemaInstance)
 
 			for entity in self.entityReferences {
-				entity.notifyApplicationDomainChanged(relatedTo: schemaInstance)
+        await entity.notifyApplicationDomainChanged(relatedTo: schemaInstance)
 			}
 		}
 
@@ -301,151 +357,275 @@ extension SDAI {
 			}
 		}
 
-		private var usedInValueCache: [SDAIPopulationSchema.SdaiModel:Set<EntityReference>] = [:]
+    public func terminateCachingTask()
+    {
+      for entity in self.entityReferences {
+        entity.terminateCachingTask()
+      }
+    }
+
+    public func toCompleteCachingTask() async
+    {
+      for entity in self.entityReferences {
+        await entity.toCompleteCachingTask()
+      }
+    }
+
+
+		//MARK: usedIn function related
+    private let usedInValueCache =
+    Mutex<[SDAIPopulationSchema.SdaiModel : (level:Int, value:Set<EntityReference>)]>([:])
+
+		private var cacheController: SDAIDictionarySchema.SchemaDefinition {
+			self.owningModel.underlyingSchema
+		}
 
 		private func resetCache(
 			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance?)
 		{
 			if let schemaInstance = schemaInstance {
 				for model in schemaInstance.associatedModels {
-					usedInValueCache[model] = nil
+          usedInValueCache.withLock{$0[model] = nil}
 				}
 			}
 			else {
-				usedInValueCache = [:]
+        usedInValueCache.withLock{ $0 = [:] }
 			}
 		}
-		
+
+
+
+    private func kickOffCacheFilling(
+      excluding: Array<ComplexEntity>,
+      session: SDAISessionSchema.SdaiSession
+    ) async
+    {
+      let excluding = Set(excluding)
+      guard session.runUsedinCacheWarming,
+            session.maxConcurrency > 1
+      else { return }
+
+      for model in self.usedInDomain {
+        await model.addCacheFillingTask(session: session)
+        {
+          var targets = model.contents.allComplexEntities
+            .filter { !excluding.contains($0) }
+            .shuffled()
+
+          let chunkSize = max(1, targets.count / session.maxConcurrency)
+
+          await withTaskGroup(of: Void.self) { taskgroup in
+            for _ in 1 ..< session.maxConcurrency {
+              if Task.isCancelled { return }
+
+              let complexes = targets.popLast(chunkSize)
+              guard !complexes.isEmpty else { break }
+              addTask(complexes: complexes)
+            }
+
+            for await _ in taskgroup {
+              if Task.isCancelled { return }
+              
+              let complexes = targets.popLast(chunkSize)
+              guard !complexes.isEmpty else { break }
+              addTask(complexes: complexes)
+            }
+
+            func addTask(complexes: [ComplexEntity])
+            {
+              taskgroup.addTask(name: "SDAI.usedIn _\(targets.count)")
+              {
+                for complex in complexes {
+                  if Task.isCancelled { return }
+                  let _ = complex.usedIn()
+                }
+              }
+            }
+          }//withTaskGroup
+        }//addCacheFillingTask
+      }//model
+    }
+
+
+		@TaskLocal
+		internal static var excluding1:Array<ComplexEntity> = []
+
 		public func usedIn() -> Array<EntityReference>
 		{
-			var result: Set<EntityReference> = []
+			guard !Self.excluding1.contains(self),
+            !Task.isCancelled
+      else { return [] }
 
-			for model in self.usedInDomain {
-				var modelResult: Set<EntityReference> = []
+      guard let session = SDAISessionSchema.activeSession
+      else {
+        SDAI.raiseErrorAndContinue(.SS_NAVL, detail: "active session not available. complex entity = #\(self.p21name), usedIn nesting level = \(Self.excluding1.count)")
+        return []
+      }
 
-				if let cached = self.usedInValueCache[model] {
-					modelResult = cached
-				}
-				else {
-					for complex in model.contents.allComplexEntities {
 
-						entityLoop: for entity in complex.entityReferences {
-							if modelResult.contains(entity) { continue }
+			let result = Self.$excluding1.withValue(Self.excluding1 + [self]) {
+        let newLevel = Self.excluding1.count
+        if newLevel == 2 {
+          Task(name: "SDAI.usedin.kickOffCacheFilling") {
+            await self.kickOffCacheFilling(
+              excluding: Self.excluding1,
+              session: session)
+          }
+        }
 
-							let entityDef = entity.definition
+				var result: Set<EntityReference> = []
+        if newLevel > session.maxUsedinNesting { return result }
 
-							for attrDef in entityDef.attributes.values {
-								if !attrDef.mayYieldEntityReference { continue }
-								if attrDef.source != .thisEntity { continue }
-//								if attrDef.kind == .derived || attrDef.kind == .derivedRedeclaring { continue }
-								guard let attrValue = attrDef.genericValue(for: entity) else { continue }
+				for model in self.usedInDomain {
+					var modelResult: Set<EntityReference> = []
 
-								let attrYieldingEntities = attrValue.entityReferences
-								for attrEntity in attrYieldingEntities {
-									if self === attrEntity.complexEntity {
-										modelResult.insert(entity)
-										break entityLoop
-									}
-								}
-							}//attrDef
-						}//entity
-					}//complex
-					if model.mode == .readOnly {
-						usedInValueCache[model] = modelResult
+          if let (level,cached) = self.usedInValueCache.withLock({$0[model]}),
+             level <= newLevel
+          {
+						modelResult = cached
 					}
-				}
+					else {
+						for complex in model.contents.allComplexEntitiesShuffled {
+              if Task.isCancelled { return result }
+							if Self.excluding1.contains(complex) { continue }
 
-				result.formUnion(modelResult)
-			}//model
+							entityLoop: for entity in complex.entityReferences {
+                if Task.isCancelled { return result }
+								if modelResult.contains(entity) { continue }
+
+								let entityDef = entity.definition
+
+								for attrDef in entityDef.attributes.values {
+                  if Task.isCancelled { return result }
+
+									if !attrDef.mayYieldEntityReference { continue }
+									if attrDef.source != .thisEntity { continue }
+									guard let attrValue = attrDef.genericValue(for: entity) else { continue }
+
+                  if Task.isCancelled { return result }
+									let attrYieldingEntities = attrValue.entityReferences
+									for attrEntity in attrYieldingEntities {
+                    if Task.isCancelled { return result }
+										if self === attrEntity.complexEntity {
+											modelResult.insert(entity)
+											break entityLoop
+										}
+									}
+								}//attrDef
+							}//entity
+						}//complex
+						if model.mode == .readOnly {
+              usedInValueCache.withLock{
+                if let (level,_) = $0[model], level <= newLevel { return }
+                $0[model] = (level:newLevel, value:modelResult)
+              }
+						}
+					}
+
+					result.formUnion(modelResult)
+				}//model
+				return result
+
+			}//withValue
+
 			return Array(result)
 		}
-		
+
+
+
 		public func usedIn<ENT, R>( as role: KeyPath<ENT,R> ) -> Array<ENT.PRef>
 		where ENT: EntityReference & SDAIDualModeReference,
 					R:   SDAIGenericType
 		{
-			var result: Set<ENT> = []
+				var result: Set<ENT> = []
 
-			for model in self.usedInDomain {
-				for complex in model.contents.allComplexEntities {
-					guard let entity = complex.entityReference(ENT.self),
-								!result.contains(entity)
-					else { continue }
+				for model in self.usedInDomain {
 
-					let attr = SDAI.GENERIC( entity[keyPath: role] )
+          guard let entityExtent = model.contents.folders[ENT.entityDefinition] else { continue }
+          for entity in entityExtent.instances(of: ENT.self) {
+            if result.contains(entity) { continue }
 
-					for attrEntity in attr.entityReferences {
-						if self === attrEntity.complexEntity {
-							result.insert(entity)
-							break
-						}
-					}//attrEntity
-				}//complex
-			}//model
+						let attr = SDAI.GENERIC( entity[keyPath: role] )
+
+						for attrEntity in attr.entityReferences {
+							if self === attrEntity.complexEntity {
+								result.insert(entity)
+								break
+							}
+						}//attrEntity
+					}//complex
+				}//model
 			return  result.map{ $0.pRef }
 		}
-		
+
+
 		public func usedIn<ENT, R>( as role: KeyPath<ENT,R?> ) -> Array<ENT.PRef>
 		where ENT: EntityReference & SDAIDualModeReference,
 					R:   SDAIGenericType
 		{
-			var result: Set<ENT> = []
+				var result: Set<ENT> = []
 
-			for model in self.usedInDomain {
-				for complex in model.contents.allComplexEntities {
-					guard let entity = complex.entityReference(ENT.self),
-								!result.contains(entity)
-					else { continue }
-					guard let attr = SDAI.GENERIC( entity[keyPath: role] ) else { continue }
+				for model in self.usedInDomain {
 
-					for attrEntity in attr.entityReferences {
-						if self === attrEntity.complexEntity {
-							result.insert(entity)
-							break
-						}
-					}//attrEntity
-				}//complex
-			}//model
+          guard let entityExtent = model.contents.folders[ENT.entityDefinition] else { continue }
+          for entity in entityExtent.instances(of: ENT.self) {
+            if result.contains(entity) { continue }
+
+            guard let attr = SDAI.GENERIC( entity[keyPath: role] )
+            else { continue }
+
+						for attrEntity in attr.entityReferences {
+							if self === attrEntity.complexEntity {
+								result.insert(entity)
+								break
+							}
+						}//attrEntity
+					}//complex
+			}
 			return result.map{ $0.pRef }
 		}
 
+
 		public func usedIn(as role:String) -> Array<EntityReference>
 		{
-			var result: Set<EntityReference> = []
-
 			let parentModel = self.owningModel
 			let roleSpec = role.split(separator: ".", omittingEmptySubsequences: false)
-			guard roleSpec.count == 3 else { return Array(result) }
-			guard roleSpec[0] == parentModel.underlyingSchema.name else { return Array(result) }
-			guard let entityDef = parentModel.underlyingSchema.entities[String(roleSpec[1])] else { return Array(result) }
-			guard let attrType = entityDef.attributes[String(roleSpec[2])] else { return Array(result) }
+			guard roleSpec.count == 3 else { return [] }
+			guard roleSpec[0] == parentModel.underlyingSchema.name else { return [] }
+			guard let entityDef = parentModel.underlyingSchema.entities[String(roleSpec[1])] else { return [] }
+			guard let attrType = entityDef.attributes[String(roleSpec[2])] else { return [] }
 
-			for model in self.usedInDomain {
-				for complex in model.contents.allComplexEntities {
-					guard let entity = complex.entityReference(entityDef.type),
-								!result.contains(entity)
-					else { continue }
+				var result: Set<EntityReference> = []
 
-					guard let attr = attrType.genericValue(for: entity) else { continue }
+				for model in self.usedInDomain {
 
-					for attrEntity in attr.entityReferences {
-						if self === attrEntity.complexEntity {
-							result.insert(entity)
-							break
-						}
-					}//attrEntity
-				}//complex
-			}//model
+          guard let entityExtent = model.contents.folders[entityDef] else { continue }
+          for entity in entityExtent.instances {
+            if result.contains(entity) { continue }
+						
+						guard let attr = attrType.genericValue(for: entity) else { continue }
+						
+						for attrEntity in attr.entityReferences {
+							if self === attrEntity.complexEntity {
+								result.insert(entity)
+								break
+							}
+						}//attrEntity
+					}//complex
+				}//model
 			return Array(result)
 		}
-		
-		public var typeMembers: Set<SDAI.STRING> { 
+
+
+		//MARK: typeMembers
+		public var typeMembers: Set<SDAI.STRING> {
 			Set( _partialEntities.values
 						.lazy
 						.map{ (tuple) -> Set<STRING> in tuple.instance.typeMembers }
 						.joined() )
 		}
-		
+
+		//MARK: value related
 		public typealias Value = _ComplexEntityValue
 		public var value: Value { _ComplexEntityValue(self) }
 

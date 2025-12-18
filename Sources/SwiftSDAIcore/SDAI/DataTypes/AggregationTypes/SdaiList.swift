@@ -16,7 +16,7 @@ import Foundation
 public protocol SDAIListType:
 	SDAIAggregationType, SDAIAggregateIndexingSettable, SDAIUnderlyingType, SDAISwiftTypeRepresented,
 	InitializableByEmptyListLiteral, InitializableBySwifttypeAsList, InitializableBySelecttypeAsList,
-	InitializableByListLiteral, InitializableByGenericList
+	InitializableByListLiteral, InitializableByGenericList, InitializableByVoid
 {
 	// Built-in procedure support
 	mutating func insert(element: ELEMENT, at position: Int)
@@ -407,10 +407,14 @@ extension SDAI {
 
 
 		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
-			self.init(from: SwiftType())
+			self.init()
 		}
 		
-	}
+    // InitializableByVoid
+    public init() {
+      self.init(from: SwiftType())
+    }
+  }
 }
 
 

@@ -12,6 +12,7 @@ public protocol SDAIEntityReferenceYielding
 	var entityReferences: AnySequence<SDAI.EntityReference> { get }
 
 	func isHolding(entityReference: SDAI.EntityReference) -> Bool
+
 }
 
 //MARK: - SDAIDefinedType extension

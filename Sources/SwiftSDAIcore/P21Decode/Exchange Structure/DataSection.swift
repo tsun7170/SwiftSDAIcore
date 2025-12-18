@@ -75,7 +75,7 @@ extension P21Decode.ExchangeStructure {
 		
 		public func resolveSchema() -> Bool {
 			guard let resolved = exchangeStructure.resolve(schemaName: governingSchema)
-			else { exchangeStructure.add(errorContext: "while resolving governing schema for data section(\(self.name))"); return false }
+			else { exchangeStructure.add(errorContext: "while resolving governing schema[\(governingSchema)] for data section(\(self.name))"); return false }
 			self.schema = resolved
 			return true
 		}
@@ -95,8 +95,8 @@ extension P21Decode.ExchangeStructure {
 		{
 			let modelname = self.name != "" ? filename + "." + self.name : filename
 			
-			guard let repository = exchangeStructure.repository,
-						let schemaDef = schema?.schemaDefinition
+			let repository = exchangeStructure.repository
+			guard let schemaDef = schema?.schemaDefinition
 			else {
 				exchangeStructure.error = "internal error on assigning model to data section"
 				return nil

@@ -92,7 +92,6 @@ extension SDAIDictionarySchema {
 			self.kind = kind
 			self.source = source
 			self.mayYieldEntityReference = mayYieldEntityReference
-//			super.init()
 		}
 
 		private unowned var _parentEntity: EntityDefinition?
@@ -110,15 +109,10 @@ extension SDAIDictionarySchema {
 
 		public var qualifiedAttributeName: SDAIDictionarySchema.ExpressId { parentEntity.qualifiedEntityName + "." + self.name }
 
-//		private var invokedBy: Set<SDAI.EntityReference> = []
-		
 		public func genericValue(for entityInstance: SDAI.EntityReference) -> SDAI.GENERIC?
 		{
 			guard let entity = entityInstance as? ENT else { return nil }
-//			if invokedBy.contains(entity) { return nil }	// to prevent infinite invocation loop
-//			invokedBy.insert(entity)
 			let value = SDAI.GENERIC(self.value(for: entity))
-//			invokedBy.remove(entity)
 			return value
 		}
 

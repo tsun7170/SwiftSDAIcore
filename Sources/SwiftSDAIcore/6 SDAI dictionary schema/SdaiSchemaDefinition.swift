@@ -23,161 +23,174 @@ extension SDAIDictionarySchema {
 																				SdaiFunctionResultCacheController,
 																				SdaiCacheHolder,
 																				Sendable
-	{
+  {
 
-		//MARK: Attribute definitions:
-		
-		/// the name of the schema.
-		public let name: ExpressId
-		
-		/// if present, the information object identifier of the schema upon which the SchemaDefinition is based.
-		public let identification: InfoObjectId?
+    //MARK: Attribute definitions:
 
-		/// the entities declared in or resolved into the schema.
-		public let entities: [ExpressId:EntityDefinition]
+    /// the name of the schema.
+    public let name: ExpressId
 
-		/// the global rules declared in or resolved into the schema.
-		public let globalRules: [ExpressId:GlobalRule]
+    /// if present, the information object identifier of the schema upon which the SchemaDefinition is based.
+    public let identification: InfoObjectId?
 
-		//public var externalSchema
-		
-		//MARK: swift language binding
-//		public init(name: ExpressId, schema: SDAISchema.Type) {
-//			self.name = name
-//			self.schema = schema
-//			super.init()
-//			SDAISessionSchema.SdaiSession.dataDictionary[self.name] = self
-//		}
+    /// the entities declared in or resolved into the schema.
+    public let entities: [ExpressId:EntityDefinition]
 
-		fileprivate init(byFreezing prototype: Prototype) {
-			self.name = prototype.name
-			self.schema = prototype.schema
-			self.identification = prototype.identification
+    /// the global rules declared in or resolved into the schema.
+    public let globalRules: [ExpressId:GlobalRule]
 
-			self.entities = prototype.entities
-			self.globalRules = prototype.globalRules
-			self.constants = prototype.constants
+    //public var externalSchema
 
-//			super.init()
-			self.fixupParentSchemaReferences()
-//			SDAISessionSchema.SdaiSession.dataDictionary[self.name] = self
-		}
+    //MARK: swift language binding
+    fileprivate init(byFreezing prototype: Prototype) {
+      self.name = prototype.name
+      self.schema = prototype.schema
+      self.identification = prototype.identification
 
-		private func fixupParentSchemaReferences() {
-			for entDef in self.entities.values {
-				entDef.fixup(parentSchema: self)
-			}
-			for gRule in self.globalRules.values {
-				gRule.fixup(parentSchema: self)
-			}
-		}
+      self.entities = prototype.entities
+      self.globalRules = prototype.globalRules
+      self.constants = prototype.constants
 
-		/// the constants declared in the schema.
-		public let constants: [ExpressId: @Sendable () -> SDAI.GENERIC]
+      self.fixupParentSchemaReferences()
+    }
 
-		public let schema: SDAISchema.Type
-		
-		
-		public var uniquenessRules: some Collection<SDAIDictionarySchema.UniquenessRule> {
-			return self.entities.lazy.map{ $1.uniquenessRules.lazy.map { $1 }}.joined()
-		}
+    private func fixupParentSchemaReferences() {
+      for entDef in self.entities.values {
+        entDef.fixup(parentSchema: self)
+      }
+      for gRule in self.globalRules.values {
+        gRule.fixup(parentSchema: self)
+      }
+    }
 
-		//MARK: prototype for instance construction
-		public class Prototype {
-			internal let name: ExpressId
-			internal let schema: SDAISchema.Type
-			internal var identification: InfoObjectId?
-			internal private(set) var entities: [ExpressId:EntityDefinition] = [:]
-			internal private(set) var globalRules: [ExpressId:GlobalRule] = [:]
-			internal private(set) var constants: [ExpressId:@Sendable () -> SDAI.GENERIC] = [:]
+    /// the constants declared in the schema.
+    public let constants: [ExpressId: @Sendable () -> SDAI.GENERIC]
 
-			public init(name: ExpressId, schema: SDAISchema.Type) {
-				self.name = name
-				self.schema = schema
-			}
-
-			public func freeze() -> SchemaDefinition {
-				let schemaDef = SchemaDefinition(byFreezing: self)
-				return schemaDef
-			}
-
-			public func addEntity(entityDef: EntityDefinition)
-			{
-				entities[entityDef.name] = entityDef
-			}
-
-			public func addGlobalRule(
-				name: ExpressId,
-				rule: @escaping SDAIPopulationSchema.GlobalRuleSignature)
-			{
-				let ruleDef = GlobalRule(name: name, rule: rule)
-				globalRules[name] = ruleDef
-			}
-
-			public func addConstant<T:SDAIGenericType>(
-				name:ExpressId,
-				value: @Sendable @escaping @autoclosure () -> T )
-			{
-				let genericValue = { @Sendable in SDAI.GENERIC(value()) }
-				constants[name] = genericValue
-			}
-
-		}//class
+    public let schema: SDAISchema.Type
 
 
-		//MARK: - function result cache control related
+    public var uniquenessRules: some Collection<SDAIDictionarySchema.UniquenessRule> {
+      return self.entities.lazy.map{ $1.uniquenessRules.lazy.map { $1 }}.joined()
+    }
 
-		nonisolated(unsafe)
-		private var functionCaches: [SDAI.FunctionResultCache] = []
-		
-		public func register(cache: SDAI.FunctionResultCache) {
-			self.functionCaches.append(cache)		
-		}
-		
-		public func resetCaches() {
-			for cache in self.functionCaches {
-				cache.resetCache()
-			}
-		}
-		
-		
-		private let _isCacheable = Mutex<Bool?>(nil)
+    //MARK: prototype for instance construction
+    public class Prototype {
+      internal let name: ExpressId
+      internal let schema: SDAISchema.Type
+      internal var identification: InfoObjectId?
+      internal private(set) var entities: [ExpressId:EntityDefinition] = [:]
+      internal private(set) var globalRules: [ExpressId:GlobalRule] = [:]
+      internal private(set) var constants: [ExpressId:@Sendable () -> SDAI.GENERIC] = [:]
 
-		public var isCacheable: Bool {
-			guard let session = SDAISessionSchema.activeSession else {
-				return false
-			}
+      public init(name: ExpressId, schema: SDAISchema.Type) {
+        self.name = name
+        self.schema = schema
+      }
 
-			if let cacheable = _isCacheable.withLock({ $0 }) { return cacheable }
+      public func freeze() -> SchemaDefinition {
+        let schemaDef = SchemaDefinition(byFreezing: self)
+        return schemaDef
+      }
 
-			for modelInfo in session.activeModelInfos {
-				guard modelInfo.instance.underlyingSchema == self else { continue }
+      public func addEntity(entityDef: EntityDefinition)
+      {
+        entities[entityDef.name] = entityDef
+      }
 
-				if modelInfo.mode == .readWrite {
-					_isCacheable.withLock{ $0 = false }
-					self.resetCaches()
-					return false
-				}
-			}
+      public func addGlobalRule(
+        name: ExpressId,
+        rule: @escaping SDAIPopulationSchema.GlobalRuleSignature)
+      {
+        let ruleDef = GlobalRule(name: name, rule: rule)
+        globalRules[name] = ruleDef
+      }
 
-			_isCacheable.withLock{ $0 = true }
-			return true
-		}
+      public func addConstant<T:SDAIGenericType>(
+        name:ExpressId,
+        value: @Sendable @escaping @autoclosure () -> T )
+      {
+        let genericValue = { @Sendable in SDAI.GENERIC(value()) }
+        constants[name] = genericValue
+      }
 
-		public func notifyReadWriteModeChanged(
-			sdaiModel: SDAIPopulationSchema.SdaiModel
-		)
-		{
-			_isCacheable.withLock{ $0 = nil }
-		}
+    }//class
 
-		public func notifyApplicationDomainChanged(
-			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance
-		)
-		{
-			_isCacheable.withLock{ $0 = nil }
-		}
-	}
-	
-}
+
+    //MARK: - function result cache control related
+
+    private let functionCaches = Mutex<[SDAI.FunctionResultCache]>([])
+
+    public func register(cache: SDAI.FunctionResultCache) {
+      self.functionCaches.withLock{ $0.append(cache) }
+    }
+
+    public func resetCaches() async {
+      for cache in self.functionCaches.withLock({$0}) {
+        await cache.resetCache()
+      }
+    }
+
+
+    private let _isCacheable = Mutex<Bool?>(nil)
+
+    public var isCacheable: Bool {
+      guard let session = SDAISessionSchema.activeSession else {
+        return false
+      }
+
+      if let cacheable = _isCacheable.withLock({ $0 }) { return cacheable }
+
+      for modelInfo in session.activeModelInfos {
+        guard modelInfo.instance.underlyingSchema == self else { continue }
+
+        if modelInfo.mode == .readWrite {
+          _isCacheable.withLock{ $0 = false }
+          Task(name:"SDAI.FunctionResultCache_resetter") {
+            await self.resetCaches()
+          }
+          return false
+        }
+      }
+
+      _isCacheable.withLock{ $0 = true }
+      return true
+    }
+
+    public var approximationLevel: Int {
+      let level = SDAI.ComplexEntity.excluding1.count
+      return level
+    }
+
+    public func notifyReadWriteModeChanged(
+      sdaiModel: SDAIPopulationSchema.SdaiModel
+    )
+    {
+      _isCacheable.withLock{ $0 = nil }
+    }
+
+    public func notifyApplicationDomainChanged(
+      relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance
+    )
+    {
+      _isCacheable.withLock{ $0 = nil }
+    }
+
+    public func terminateCachingTask()
+    {
+      Task(name:"SDAI.FunctionResultCache_updateCanceller") {
+        for cache in self.functionCaches.withLock({$0}) {
+          await cache.terminateCachingTasks()
+        }
+      }
+    }
+
+    public func toCompleteCachingTask() async
+    {
+      for cache in self.functionCaches.withLock({$0}) {
+        await cache.toCompleteCachingTasks()
+      }
+    }
+
+  }//class
+}//extension
 

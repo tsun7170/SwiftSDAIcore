@@ -23,18 +23,26 @@ extension SDAISessionSchema {
 	///
 	/// An event is a notation of some occurrence related to an SDAI operation at some moment during a session.
 	///
-	public class Event: SDAI.Object {
-		//MARK: Attribute definitions:
-		public let functionID: StaticString
-		public let time: TimeStamp
+  public class Event: SDAI.Object {
+    //MARK: Attribute definitions:
+    public let file: StaticString
+    public let line: UInt
+    public let functionID: StaticString
+    public let time: TimeStamp
 
-		//MARK: swift language binding
-		public init(functionID: StaticString) {
-			self.functionID = functionID
-			self.time = TimeStamp()
-		}
+    //MARK: swift language binding
+    public init(
+      file: StaticString = #fileID,
+      line: UInt = #line,
+      functionID: StaticString)
+    {
+      self.file = file
+      self.line = line
+      self.functionID = functionID
+      self.time = TimeStamp()
+    }
 
-	}//class
+  }//class
 
 
 	/// ISO 10303-22 (7.4.7) error_event
@@ -47,7 +55,7 @@ extension SDAISessionSchema {
 		public var error: INTEGER { errorIndicator.errorCode }
 
 		public var description: STRING {
-			"\(self.errorIndicator) [\(self.errorIndicator.errorCode)]: \(self.errorIndicator.errorDescription) #\(self.functionID) @\(self.time) \n\(self.detailDescription)"
+			"\(self.errorIndicator) [\(self.errorIndicator.errorCode)]: \(self.errorIndicator.errorDescription). #\(self.functionID) [in \(file): line \(line)] @\(self.time) \n\(self.detailDescription)"
 		}
 
 		public var base: ErrorBase? { errorIndicator.errorBase }
@@ -58,13 +66,15 @@ extension SDAISessionSchema {
 
 		internal init(
 			errorIndicator: SDAI.ErrorIndicator,
+      file: StaticString = #fileID,
+      line: UInt = #line,
 			functionID: StaticString,
 			detail: STRING)
 		{
 			self.errorIndicator = errorIndicator
 			self.detailDescription = detail
 
-			super.init(functionID: functionID)
+			super.init(file: file, line: line, functionID: functionID)
 		}//init
 
 	}
@@ -75,21 +85,25 @@ extension SDAI {
 	public static func raiseErrorAndTrap(
 		_ error: SDAI.ErrorIndicator,
 		detail: SDAISessionSchema.STRING,
-		functionID: StaticString=#function ) -> Never
+    file: StaticString = #fileID,
+    line: UInt = #line,
+		functionID: StaticString = #function ) -> Never
 	{
 		self.raiseErrorAndContinue(error, detail: detail, functionID: functionID)
 
-		fatalError("SDAI runtime is trapped by the error event.")
+		fatalError("SDAI runtime is trapped by the error event in \(functionID).", file: file, line: line)
 	}//func
 
 
 	public static func raiseErrorAndContinue(
 		_ error: SDAI.ErrorIndicator,
 		detail: SDAISessionSchema.STRING,
-		functionID: StaticString=#function )
+    file: StaticString = #fileID,
+    line: UInt = #line,
+		functionID: StaticString = #function )
 	{
 		let errorEvent = SDAISessionSchema.ErrorEvent(
-			errorIndicator: error, functionID: functionID, detail: detail)
+			errorIndicator: error, file: file, line: line, functionID: functionID, detail: detail)
 
 		if let session = SDAISessionSchema.activeSession
 		{
@@ -99,7 +113,7 @@ extension SDAI {
 			session.errorEventCallback?(errorEvent, #isolation)
 		}
 
-		loggerSDAI.error("\(errorEvent.description)")
+		loggerSDAI.error("\n\(errorEvent.description)")
 	}//func
 
 

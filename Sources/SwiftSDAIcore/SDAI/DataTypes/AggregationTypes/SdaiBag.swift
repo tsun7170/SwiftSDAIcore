@@ -15,7 +15,7 @@ public protocol SDAIBagType:
 	SDAIAggregationType, SDAIUnderlyingType, SDAISwiftTypeRepresented, SwiftDictRepresentable,
 	InitializableByEmptyListLiteral, InitializableBySwifttypeAsList,
 	InitializableBySelecttypeAsList, InitializableByListLiteral,
-	InitializableByGenericSet, InitializableByGenericList, InitializableByGenericBag
+	InitializableByGenericSet, InitializableByGenericList, InitializableByGenericBag, InitializableByVoid
 {
 	mutating func add(member: ELEMENT?)
 
@@ -565,13 +565,17 @@ extension SDAI {
 		}
 
 		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
-			self.init(from: SwiftType())
+			self.init()
 		}
 		
 
-	}
-}
+    // InitializableByVoid 
+    public init() {
+      self.init(from: SwiftType())
+    }
 
+  }
+}
 
 
 extension SDAI.BAG: SDAIEntityReferenceYielding

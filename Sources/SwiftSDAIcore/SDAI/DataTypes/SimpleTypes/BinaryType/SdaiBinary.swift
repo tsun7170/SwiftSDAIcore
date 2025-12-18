@@ -8,7 +8,8 @@
 import Foundation
 
 //MARK: - BINARY type (8.1.7)
-public protocol SDAIBinaryType: SDAISimpleType, ExpressibleByStringLiteral
+public protocol SDAIBinaryType: SDAISimpleType, ExpressibleByStringLiteral,
+                                InitializableByVoid
 where StringLiteralType == String
 {
 	var blength: Int {get}
@@ -201,7 +202,7 @@ extension SDAI {
 		}
 
 		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
-			self.init(from: SwiftType([]))
+			self.init()
 		}
 
 	}

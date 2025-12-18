@@ -113,17 +113,51 @@ extension SDAIPopulationSchema {
 		//MARK: swift language binding
 		internal typealias SchemaInstanceID = UUID
 
-		internal let schemaInstanceID = SchemaInstanceID()
+		internal let schemaInstanceID: SchemaInstanceID //= SchemaInstanceID()
 
 		public var globalRuleValidationRecord: [GlobalRuleValidationResult]? {
 			self._globalRuleValidationRecord.withLock{ $0 }
 		}
 		private let _globalRuleValidationRecord = Mutex<[GlobalRuleValidationResult]?>(nil)
+		
+		public var globalRuleValidationRecordDescription: String {
+			let recs = self.globalRuleValidationRecord
+			var str = "GlobalRuleValidationResult \(recs?.count, default: "nil") records\n"
+
+			if let recs = recs {
+				for (i,grvRec) in recs.enumerated() {
+					str += "[\(i)]\(grvRec.result)\t\(grvRec.globalRule.name):\t"
+					for whereRec in grvRec.record {
+						str += "(\(whereRec.key): \(whereRec.value)) "
+					}
+					str += "\n"
+				}
+			}
+
+			str += "\n"
+			return str
+		}
+
 
 		public var uniquenessRuleValidationRecord: [UniquenessRuleValidationResult]? {
 			self._uniquenessRuleValidationRecord.withLock{ $0 }
 		}
 		private let _uniquenessRuleValidationRecord = Mutex<[UniquenessRuleValidationResult]?>(nil)
+
+		public var uniquenessRuleValidationRecordDescription: String {
+			let recs = self.uniquenessRuleValidationRecord
+			var str = "UniquenessRuleValidationResult  \(recs?.count, default: "nil") records\n"
+
+			if let recs = recs {
+				for (i,urvRec) in recs.enumerated() {
+					str += "[\(i)]\(urvRec.result)\t\(urvRec.uniquenessRule): #duplicates(\(urvRec.record.instanceCount - urvRec.record.uniqueCount)) / #instances(\(urvRec.record.instanceCount))\n"
+				}
+			}
+
+			str += "\n"
+			return str
+		}
+
 
 		public var whereRuleValidationRecord: WhereRuleValidationResult? {
 			self._whereRuleValidationRecord.withLock{ $0 }
@@ -142,6 +176,7 @@ extension SDAIPopulationSchema {
 			session: SDAISessionSchema.SdaiSession
 		)
 		{
+			self.schemaInstanceID = SchemaInstanceID()
 			self.repository = repository
 			self._name.withLock{ $0 = name }
 			self.nativeSchema = schema
@@ -163,6 +198,7 @@ extension SDAIPopulationSchema {
 		}
 
 		private init(from original: SchemaInstance) {
+			self.schemaInstanceID = original.schemaInstanceID
 			self.repository = original.repository
 			self._name.withLock{ $0 = original.name }
 			self.associatedModelIDs.withLock{ $0 = original.associatedModelIDs.withLock{$0} }
@@ -186,18 +222,10 @@ extension SDAIPopulationSchema {
 
 		internal func associate(with model: SdaiModel) {
 			self.associatedModelIDs.withLock{ $0.insert(model.modelID); return }
-
-//			for model in associatedModels {
-//				model.notifyApplicationDomainChanged(relatedTo: self)
-//			}
 		}
 
 		internal func dissociate(from model: SdaiModel) {
 			self.associatedModelIDs.withLock{ $0.remove(model.modelID); return }
-
-//			for model in associatedModels {
-//				model.notifyApplicationDomainChanged(relatedTo: self)
-//			}
 		}
 
 		public var allComplexEntities: some Collection<SDAI.ComplexEntity> {
@@ -218,15 +246,29 @@ extension SDAIPopulationSchema {
 
 		public func entityExtent<ENT>(
 			type: ENT.Type
-//		) -> some Collection<ENT>
 		) -> some Sequence<ENT>
 		where ENT:SDAIParameterDataSchema.ApplicationInstance
-		{
-			let result = associatedModels.lazy
-				.map{ $0.contents.entityExtent(type:type) }
-				.joined()
-			return result
-		}
+    {
+      let result = associatedModels.lazy
+        .compactMap{ $0.contents.folders[type.entityDefinition]?
+          .instances.compactMap{$0 as? ENT} }
+        .joined()
+      return result
+    }
+
+    //MARK: USEDIN cache related
+
+    public func terminateCachingTasks() {
+      for model in associatedModels {
+        model.terminateCachingTask()
+      }
+    }
+
+    public func toCompleteCachingTasks() async {
+      for model in associatedModels {
+        await model.toCompleteCachingTask()
+      }
+    }
 
 		//MARK: - validation related
 
@@ -262,8 +304,9 @@ extension SDAIPopulationSchema {
 
 
 		//MARK: instance reference domain validation
-		internal func instanceReferenceDomainNonConformances(
-			entity: SDAIParameterDataSchema.ApplicationInstance
+		public func instanceReferenceDomainNonConformances(
+			entity: SDAIParameterDataSchema.ApplicationInstance,
+			recording option: ValidationRecordingOption
 		) -> (result:SDAI.LOGICAL, records:[InstanceReferenceDomainValidationRecord])
 		{
 			var result = SDAI.TRUE
@@ -275,7 +318,12 @@ extension SDAIPopulationSchema {
 				guard attrDef.mayYieldEntityReference else { return nil }
 				guard let val = attrVal else {
 					if result == SDAI.TRUE { result = SDAI.UNKNOWN }
-					return (attrDef, attrVal, SDAI.UNKNOWN)
+					switch option {
+						case .recordFailureOnly:
+							return nil
+						case .recordAll:
+							return (attrDef, attrVal, SDAI.UNKNOWN)
+					}
 				}
 
 				if let entityRef = val.entityReference {
@@ -298,7 +346,7 @@ extension SDAIPopulationSchema {
 			return (result,nonConf)
 		}
 
-		internal func validateAllInstanceReferenceDomain(
+		public func validateAllInstanceReferenceDomain(
 			recording option: ValidationRecordingOption,
 			monitor: ValidationMonitor
 		) -> InstanceReferenceDomainValidationResult
@@ -307,35 +355,148 @@ extension SDAIPopulationSchema {
 			var nonConfs:[InstanceReferenceDomainValidationRecord] = []
 
 			let applicationInstances = self.applicationInstances
+
 			monitor.willValidateInstanceReferenceDomain(for: applicationInstances)
 
 			for entity in applicationInstances {
-				if monitor.terminateValidation {
-					return InstanceReferenceDomainValidationResult(
-						result: SDAI.UNKNOWN, record: nonConfs) }
+        if monitor.terminateValidation {
+          return InstanceReferenceDomainValidationResult(
+            result: SDAI.UNKNOWN, record: nonConfs)
+        }
 
 				let (result,nonconf) =
-				self.instanceReferenceDomainNonConformances(entity: entity)
+				self.instanceReferenceDomainNonConformances(entity: entity, recording: option)
+
 				monitor.didValidateInstanceReferenceDomain(
-					for: entity,
+					for: self,
+					applicationInstance: entity,
 					result: InstanceReferenceDomainValidationResult(result: result, record: nonconf))
 
 				nonConfs.append(contentsOf: nonconf)
 				overallResult = overallResult && result
 			}
 
+      monitor.completedToValidateInstanceReferenceDomain(for: applicationInstances)
+
 			return InstanceReferenceDomainValidationResult(
 				result: overallResult,
 				record: nonConfs)
 		}
 
-		internal func performValidateAllInstanceReferenceDomain(
+    private func chunkSize(for targetCount: Int, session: SDAISessionSchema.SdaiSession) -> Int
+    {
+      let result = max(
+        session.minValidationTaskChunkSize,
+        targetCount / session.maxValidationTaskSegmentation )
+
+      return result
+    }
+
+    public func validateAllInstanceReferenceDomainAsync(
+      recording option: ValidationRecordingOption,
+      monitor: ValidationMonitor,
+      session: SDAISessionSchema.SdaiSession
+    ) async -> InstanceReferenceDomainValidationResult
+    {
+      var overallResult = SDAI.TRUE
+      var nonConfs:[InstanceReferenceDomainValidationRecord] = []
+
+      let applicationInstances = self.applicationInstances
+
+      monitor.willValidateInstanceReferenceDomain(for: applicationInstances)
+
+      await withTaskGroup(
+        of: [(SDAI.EntityReference,
+             SDAI.LOGICAL,
+             [SDAIPopulationSchema.InstanceReferenceDomainValidationRecord])].self)
+      { taskgroup in
+        var targetApplicationInstances = Array(applicationInstances)
+        let chunkSize = chunkSize(for: targetApplicationInstances.count, session: session)
+
+        for _ in 1 ... session.maxConcurrency {
+          if monitor.terminateValidation { return }
+
+          let entities = targetApplicationInstances.popLast(chunkSize)
+          guard !entities.isEmpty else { break }
+
+          addTask(entities: entities)
+        }//for
+
+        for await results in taskgroup {
+          if monitor.terminateValidation { return }
+
+          let entities = targetApplicationInstances.popLast(chunkSize)
+          if !entities.isEmpty {
+            addTask(entities: entities)
+          }
+
+          for (entity,result,nonconf) in results {
+            monitor.didValidateInstanceReferenceDomain(
+              for: self,
+              applicationInstance: entity,
+              result: InstanceReferenceDomainValidationResult(result: result, record: nonconf))
+
+            nonConfs.append(contentsOf: nonconf)
+            overallResult = overallResult && result
+          }
+        }
+
+        func addTask(entities: [SDAI.EntityReference])
+        {
+          taskgroup.addTask(
+            name: "SDAI.RefDomainValidation_\(targetApplicationInstances.count)")
+          {
+            var results:[(SDAI.EntityReference,
+                          SDAI.LOGICAL,
+                          [SDAIPopulationSchema.InstanceReferenceDomainValidationRecord])] = []
+
+            for entity in entities {
+              if monitor.terminateValidation { return results }
+
+              let (result,nonconf) =
+              self.instanceReferenceDomainNonConformances(entity: entity, recording: option)
+              results.append( (entity,result,nonconf) )
+            }//for
+
+            return results
+          }//addTask
+        }
+      }//withTaskGroup
+
+      if monitor.terminateValidation {
+        return InstanceReferenceDomainValidationResult(
+          result: SDAI.UNKNOWN, record: nonConfs)
+      }
+
+      monitor.completedToValidateInstanceReferenceDomain(for: applicationInstances)
+
+      return InstanceReferenceDomainValidationResult(
+        result: overallResult,
+        record: nonConfs)
+    }
+
+
+    internal func performValidateAllInstanceReferenceDomain(
+      recording option: ValidationRecordingOption,
+      monitor: ValidationMonitor
+    )
+    {
+      let result = self.validateAllInstanceReferenceDomain(
+        recording: option, monitor: monitor)
+
+      guard !monitor.terminateValidation else { return }
+      self._instanceReferenceDomainValidationRecord.withLock{ $0 = result }
+      self._validationDate.withLock{ $0 = Date() }
+    }
+
+		internal func performValidateAllInstanceReferenceDomainAsync(
 			recording option: ValidationRecordingOption,
-			monitor: ValidationMonitor
-		)
+			monitor: ValidationMonitor,
+      session: SDAISessionSchema.SdaiSession
+		) async
 		{
-			let result = self.validateAllInstanceReferenceDomain(
-				recording: option, monitor: monitor)
+      let result = await self.validateAllInstanceReferenceDomainAsync(
+        recording: option, monitor: monitor, session: session)
 
 			guard !monitor.terminateValidation else { return }
 			self._instanceReferenceDomainValidationRecord.withLock{ $0 = result }
@@ -344,7 +505,7 @@ extension SDAIPopulationSchema {
 
 
 //MARK: global rule validation
-		internal func validate(
+		public func validate(
 			globalRule rule: SDAIDictionarySchema.GlobalRule,
 			recording option: ValidationRecordingOption
 		) -> GlobalRuleValidationResult
@@ -370,12 +531,13 @@ extension SDAIPopulationSchema {
 				record: validationRecords)
 		}
 
-		internal func validateGlobalRules(
+		public func validateAllGlobalRules(
 			recording: ValidationRecordingOption,
 			monitor: ValidationMonitor
 		) -> [GlobalRuleValidationResult]
 		{
 			var globalRec:[GlobalRuleValidationResult] = []
+
 			monitor.willValidate(globalRules: self.nativeSchema.globalRules.values)
 			
 			for globalRule in self.nativeSchema.globalRules.values {
@@ -391,15 +553,103 @@ extension SDAIPopulationSchema {
 					globalRec.append(result)
 				}
 			}
-			return globalRec			
+
+      monitor.completedToValidate(globalRules: self.nativeSchema.globalRules.values)
+
+			return globalRec
 		}
 
-		internal func performValidateGlobalRules(
+    public func validateAllGlobalRulesAsync(
+      recording: ValidationRecordingOption,
+      monitor: ValidationMonitor,
+      session: SDAISessionSchema.SdaiSession
+    ) async -> [GlobalRuleValidationResult]
+    {
+      var globalRec:[GlobalRuleValidationResult] = []
+
+      monitor.willValidate(globalRules: self.nativeSchema.globalRules.values)
+
+      await withTaskGroup(
+        of: [SDAIPopulationSchema.GlobalRuleValidationResult].self)
+      { taskgroup in
+        var targetGlobalRules = Array(nativeSchema.globalRules.values)
+        let chunkSize = chunkSize(for: targetGlobalRules.count, session: session)
+
+        for _ in 1 ... session.maxConcurrency {
+          if monitor.terminateValidation { return }
+
+          let globalRules = targetGlobalRules.popLast(chunkSize)
+          guard !globalRules.isEmpty else { break }
+
+          addTask(globalRules: globalRules)
+        }//for
+
+        for await results in taskgroup {
+          if monitor.terminateValidation { return }
+
+          let globalRules = targetGlobalRules.popLast(chunkSize)
+          if !globalRules.isEmpty {
+            addTask(globalRules: globalRules)
+          }
+
+          for result in results {
+            monitor.didValidateGlobalRule(for: self, result: result)
+
+            switch recording {
+              case .recordFailureOnly:
+                if result.result == SDAI.FALSE { globalRec.append(result) }
+              case .recordAll:
+                globalRec.append(result)
+            }
+          }
+
+        }//for await
+
+        func addTask(globalRules: [SDAIDictionarySchema.GlobalRule])
+        {
+          taskgroup.addTask(
+            name: "SDAI.GlobalRuleValidation_\(targetGlobalRules.count)")
+          {
+            var results: [SDAIPopulationSchema.GlobalRuleValidationResult] = []
+
+            for globalRule in globalRules {
+              if monitor.terminateValidation { return results }
+
+              let result = self.validate(globalRule: globalRule, recording: recording)
+              results.append(result)
+            }
+
+            return results
+          }//addTask
+        }
+      }//withTaskGroup
+
+      if monitor.terminateValidation { return globalRec }
+
+      monitor.completedToValidate(globalRules: self.nativeSchema.globalRules.values)
+
+      return globalRec
+    }
+
+    internal func performValidateAllGlobalRules(
+      recording option: ValidationRecordingOption,
+      monitor: ValidationMonitor
+    )
+    {
+      let result = self.validateAllGlobalRules(recording: option, monitor: monitor)
+
+      guard !monitor.terminateValidation else { return }
+      self._globalRuleValidationRecord.withLock{ $0 = result }
+      self._validationDate.withLock{ $0 = Date() }
+    }
+
+		internal func performValidateAllGlobalRulesAsync(
 			recording option: ValidationRecordingOption,
-			monitor: ValidationMonitor
-		)
+			monitor: ValidationMonitor,
+      session: SDAISessionSchema.SdaiSession
+		) async
 		{
-			let result = self.validateGlobalRules(recording: option, monitor: monitor)
+      let result = await self.validateAllGlobalRulesAsync(recording: option, monitor: monitor, session: session)
 
 			guard !monitor.terminateValidation else { return }
 			self._globalRuleValidationRecord.withLock{ $0 = result }
@@ -408,7 +658,7 @@ extension SDAIPopulationSchema {
 
 
 //MARK: uniqueness rule validation
-		internal func validate(
+		public func validate(
 			uniquenessRule rule: SDAIDictionarySchema.UniquenessRule
 		) -> UniquenessRuleValidationResult
 		{
@@ -439,12 +689,13 @@ extension SDAIPopulationSchema {
 //			fatalError()
 		}
 
-		internal func validateUniquenessRules(
+		public func validateAllUniquenessRules(
 			recording: ValidationRecordingOption,
 			monitor: ValidationMonitor
 		) -> [UniquenessRuleValidationResult]
 		{
 			var uniqueRec: [UniquenessRuleValidationResult] = []
+
 			monitor.willValidate(uniquenessRules: self.nativeSchema.uniquenessRules)
 			
 			for uniqueRule in self.nativeSchema.uniquenessRules {
@@ -460,16 +711,105 @@ extension SDAIPopulationSchema {
 					uniqueRec.append(result)
 				}
 			}
+
+      monitor.completedToValidate(uniquenessRules: self.nativeSchema.uniquenessRules)
+
 			return uniqueRec
 		}
 
-		internal func performValidateUniquenessRules(
+    public func validateAllUniquenessRulesAsync(
+      recording: ValidationRecordingOption,
+      monitor: ValidationMonitor,
+      session: SDAISessionSchema.SdaiSession
+    ) async -> [UniquenessRuleValidationResult]
+    {
+      var uniqueRec: [UniquenessRuleValidationResult] = []
+
+      monitor.willValidate(uniquenessRules: self.nativeSchema.uniquenessRules)
+
+      await withTaskGroup(
+        of: [SDAIPopulationSchema.UniquenessRuleValidationResult].self)
+      { taskgroup in
+        var targetUniquenessRules = Array(nativeSchema.uniquenessRules)
+        let chunkSize = chunkSize(for: targetUniquenessRules.count, session: session)
+
+        for _ in 1 ... session.maxConcurrency {
+          if monitor.terminateValidation { return }
+
+          let uniqueRules = targetUniquenessRules.popLast(chunkSize)
+          guard !uniqueRules.isEmpty else { break }
+
+          addTask(uniqueRules: uniqueRules)
+        }//for
+
+        for await results in taskgroup {
+          if monitor.terminateValidation { return }
+
+          let uniqueRules = targetUniquenessRules.popLast(chunkSize)
+          if !uniqueRules.isEmpty {
+            addTask(uniqueRules: uniqueRules)
+          }
+
+          for result in results {
+            monitor.didValidateUniquenessRule(for: self, result: result)
+            
+            switch recording {
+              case .recordFailureOnly:
+                if result.result == SDAI.FALSE { uniqueRec.append(result) }
+              case .recordAll:
+                uniqueRec.append(result)
+            }
+          }
+
+        }//for await
+
+        func addTask(uniqueRules: [SDAIDictionarySchema.UniquenessRule])
+        {
+          taskgroup.addTask(
+            name: "SDAI.UniqueRuleValidation_\(targetUniquenessRules.count)")
+          {
+            var results: [SDAIPopulationSchema.UniquenessRuleValidationResult] = []
+
+            for uniqueRule in uniqueRules {
+              if monitor.terminateValidation { return results }
+
+              let result = self.validate(uniquenessRule: uniqueRule)
+              results.append(result)
+            }
+
+            return results
+          }//addTask
+        }
+      }//withTaskGroup
+
+      if monitor.terminateValidation { return uniqueRec }
+
+      monitor.completedToValidate(uniquenessRules: self.nativeSchema.uniquenessRules)
+
+      return uniqueRec
+    }
+
+    internal func performValidateAllUniquenessRules(
+      recording option: ValidationRecordingOption,
+      monitor: ValidationMonitor
+    )
+    {
+      let result = self.validateAllUniquenessRules(
+        recording: option, monitor: monitor)
+
+      guard !monitor.terminateValidation else { return }
+      self._uniquenessRuleValidationRecord.withLock{ $0 = result }
+      self._validationDate.withLock{ $0 = Date() }
+    }
+
+		internal func performValidateAllUniquenessRulesAsync(
 			recording option: ValidationRecordingOption,
-			monitor: ValidationMonitor
-		)
+			monitor: ValidationMonitor,
+      session: SDAISessionSchema.SdaiSession
+		) async
 		{
-			let result = self.validateUniquenessRules(
-				recording: option, monitor: monitor)
+      let result = await self.validateAllUniquenessRulesAsync(
+        recording: option, monitor: monitor, session: session)
 
 			guard !monitor.terminateValidation else { return }
 			self._uniquenessRuleValidationRecord.withLock{ $0 = result }
@@ -477,7 +817,7 @@ extension SDAIPopulationSchema {
 		}
 
 		//MARK: where rule validation
-		internal func validateAllWhereRules(
+		public func validateAllWhereRules(
 			recording option: ValidationRecordingOption,
 			monitor: ValidationMonitor
 		) -> WhereRuleValidationResult
@@ -492,24 +832,117 @@ extension SDAIPopulationSchema {
 				if monitor.terminateValidation { return WhereRuleValidationResult(result: SDAI.UNKNOWN, record: record) }
 				
 				let compResult = complex.validateEntityWhereRules(prefix: "", recording: option)
+				
 				monitor.didValidateWhereRule(for: complex, result: compResult)
 				
 				record.merge(compResult) { (tuple1:SDAI.LOGICAL, tuple2:SDAI.LOGICAL) ->  SDAI.LOGICAL in
 					tuple1 && tuple2
 				}
 			}
-			let result = record.lazy.map{ $1 }.reduce(SDAI.TRUE) { $0 && $1 }
-			
-			return WhereRuleValidationResult(result: result, record: record)
+
+      monitor.completedToValidateWhereRules(for: allComplexEntities)
+
+			let overallResult = record.lazy.map{ $1 }.reduce(SDAI.TRUE) { $0 && $1 }
+
+			return WhereRuleValidationResult(result: overallResult, record: record)
 		}
 
-		internal func performValidateAllWhereRules(
+    public func validateAllWhereRulesAsync(
+      recording option: ValidationRecordingOption,
+      monitor: ValidationMonitor,
+      session: SDAISessionSchema.SdaiSession
+    ) async -> WhereRuleValidationResult
+    {
+      var record: WhereRuleValidationRecords = [:]
+
+      let allComplexEntities = self.allComplexEntities
+      monitor.willValidateWhereRules(for: allComplexEntities)
+
+      await withTaskGroup(
+        of: [(SDAI.ComplexEntity,
+             [SDAIPopulationSchema.WhereLabel : SDAI.LOGICAL])].self)
+      { taskgroup in
+        var targetComplexEntities = Array(allComplexEntities)
+        let chunkSize = chunkSize(for: targetComplexEntities.count, session: session)
+
+        for _ in 1 ... session.maxConcurrency {
+          if monitor.terminateValidation { return }
+
+          let complexes = targetComplexEntities.popLast(chunkSize)
+          guard !complexes.isEmpty else { break }
+
+          addTask(complexes: complexes)
+        }//for
+
+        for await results in taskgroup {
+          if monitor.terminateValidation { return }
+
+          let complexes = targetComplexEntities.popLast(chunkSize)
+          if !complexes.isEmpty {
+            addTask(complexes: complexes)
+          }
+
+          for (complex, compResult) in results {
+            monitor.didValidateWhereRule(for: complex, result: compResult)
+
+            record.merge(compResult) { (tuple1:SDAI.LOGICAL, tuple2:SDAI.LOGICAL) ->  SDAI.LOGICAL in
+              tuple1 && tuple2
+            }
+          }
+
+        }//for await
+
+        func addTask(complexes: [SDAI.ComplexEntity])
+        {
+          taskgroup.addTask(
+            name: "SDAI.WhereRuleValidation_\(targetComplexEntities.count)")
+          {
+            var results: [(SDAI.ComplexEntity,
+                           [SDAIPopulationSchema.WhereLabel : SDAI.LOGICAL])] = []
+
+            for complex in complexes {
+              if monitor.terminateValidation { return results }
+
+              let compResult = complex.validateEntityWhereRules(prefix: "", recording: option)
+
+              results.append( (complex, compResult) )
+            }
+
+            return results
+          }//addTask
+        }
+      }//withTaskGroup
+
+      if monitor.terminateValidation { return WhereRuleValidationResult(result: SDAI.UNKNOWN, record: record) }
+
+      monitor.completedToValidateWhereRules(for: allComplexEntities)
+
+      let overallResult = record.lazy.map{ $1 }.reduce(SDAI.TRUE) { $0 && $1 }
+
+      return WhereRuleValidationResult(result: overallResult, record: record)
+    }
+
+    internal func performValidateAllWhereRules(
+      recording option: ValidationRecordingOption,
+      monitor: ValidationMonitor
+    )
+    {
+      let result = self.validateAllWhereRules(
+        recording: option, monitor: monitor)
+
+      guard !monitor.terminateValidation else { return }
+      self._whereRuleValidationRecord.withLock{ $0 = result }
+      self._validationDate.withLock{ $0 = Date() }
+    }
+
+		internal func performValidateAllWhereRulesAsync(
 			recording option: ValidationRecordingOption,
-			monitor: ValidationMonitor
-		)
+			monitor: ValidationMonitor,
+      session: SDAISessionSchema.SdaiSession
+		) async
 		{
-			let result = self.validateAllWhereRules(
-				recording: option, monitor: monitor)
+      let result = await self.validateAllWhereRulesAsync(
+        recording: option, monitor: monitor, session: session)
 
 			guard !monitor.terminateValidation else { return }
 			self._whereRuleValidationRecord.withLock{ $0 = result }

@@ -7,6 +7,30 @@
 
 import Foundation
 
+extension SDAISessionSchema.SdaiTransaction {
+  internal func _promoteSchemaInstanceToReadWrite(
+    instance: SDAIPopulationSchema.SchemaInstance,
+  ) -> SDAIPopulationSchema.SchemaInstance?
+  {
+    guard let session = self.owningSession else {
+      SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
+      return nil
+    }
+    guard session.checkRepositoriesOpen(relatedTo: instance) else {
+      return nil
+    }
+    guard let activeSI = session.findAndActivateSchemaInstance(schemaInstanceID: instance.schemaInstanceID),
+          activeSI == instance else {
+      SDAI.raiseErrorAndContinue(.SI_NEXS, detail: "The schema instance does not exist or already been deleted within the transaction.")
+      return nil
+    }
+
+    let promoted = session.promoteSchemaInstanceToRW(schemaInstanceID: instance.schemaInstanceID)
+
+    return promoted
+  }
+}
+
 extension SDAISessionSchema.SdaiTransactionRW {
 	
 	/// EXTENSION to ISO 10303-22 (10.6) Promote schema instance to read-write
@@ -20,22 +44,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 		instance: SDAIPopulationSchema.SchemaInstance,
 	) -> SDAIPopulationSchema.SchemaInstance?
 	{
-		guard let session = self.owningSession else {
-			SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
-			return nil
-		}
-		guard session.checkRepositoriesOpen(relatedTo: instance) else {
-			return nil
-		}
-		guard let activeSI = session.findAndActivateSchemaInstance(schemaInstanceID: instance.schemaInstanceID),
-					activeSI == instance else {
-			SDAI.raiseErrorAndContinue(.SI_NEXS, detail: "The schema instance does not exist or already been deleted within the transaction.")
-			return nil
-		}
-
-		let promoted = session.promoteSchemaInstanceToRW(schemaInstanceID: instance.schemaInstanceID)
-
-		return promoted
+    return self._promoteSchemaInstanceToReadWrite(instance: instance)
 	}
 
 
@@ -50,7 +59,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	@discardableResult
 	public func deleteSchemaInstance(
 		instance: SDAIPopulationSchema.SchemaInstance
-	) -> Bool
+	) async -> Bool
 	{
 		guard let session = self.owningSession else {
 			SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
@@ -69,7 +78,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 			return false
 		}
 
-		self.notifyApplicationDomainChanged(relatedTo: instance)
+    await self.notifyApplicationDomainChanged(relatedTo: instance)
 		instance.teardown()
 		session.deleteSchemaInstance(schemaInstanceID: instance.schemaInstanceID)
 		return true
@@ -134,7 +143,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	public func addSdaiModel(
 		instance schemaInstance: SDAIPopulationSchema.SchemaInstance,
 		model: SDAIPopulationSchema.SdaiModel
-	) -> Bool
+	) async -> Bool
 	{
 		guard let session = self.owningSession else {
 			SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
@@ -164,7 +173,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 
 		schemaInstance.associate(with: model)
 
-		self.notifyApplicationDomainChanged(relatedTo: schemaInstance)
+    await self.notifyApplicationDomainChanged(relatedTo: schemaInstance)
 		return true
 	}
 
@@ -184,7 +193,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	public func removeSdaiModel(
 		instance: SDAIPopulationSchema.SchemaInstance,
 		model: SDAIPopulationSchema.SdaiModel
-	) -> Bool
+	) async -> Bool
 	{
 		guard let session = self.owningSession else {
 			SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
@@ -214,12 +223,46 @@ extension SDAISessionSchema.SdaiTransactionRW {
 
 		instance.dissociate(from: model)
 
-		self.notifyApplicationDomainChanged(relatedTo: instance)
+    await self.notifyApplicationDomainChanged(relatedTo: instance)
 		return true
 	}
 
 
 }//SdaiTransactionRW
+
+extension SDAISessionSchema.SdaiTransactionVA {
+
+  /// EXTENSION to ISO 10303-22 (10.6) Promote schema instance to read-write
+  ///
+  /// This operation allows read-write access to a schema instance. The subject schema instance may already be in read-write access in which case the operation is no-op.
+  ///
+  /// - Parameter instance: The schema instance to which read-write access is to be allowed.
+  /// - Returns: updated reference to the schema instance promoted to RW if operation is successful.
+  ///
+  public func promoteSchemaInstanceToReadWrite(
+    instance: SDAIPopulationSchema.SchemaInstance,
+  ) -> SDAIPopulationSchema.SchemaInstance?
+  {
+    guard let session = self.owningSession else {
+      SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
+      return nil
+    }
+    guard session.checkRepositoriesOpen(relatedTo: instance) else {
+      return nil
+    }
+    guard let activeSI = session.findAndActivateSchemaInstance(schemaInstanceID: instance.schemaInstanceID),
+          activeSI == instance else {
+      SDAI.raiseErrorAndContinue(.SI_NEXS, detail: "The schema instance does not exist or already been deleted within the transaction.")
+      return nil
+    }
+
+    let promoted = session.promoteSchemaInstanceToRW(schemaInstanceID: instance.schemaInstanceID)
+
+    return promoted
+  }
+
+}//SdaiTransactionVA
+
 
 extension SDAISessionSchema.SdaiTransaction {
 	/// ISO 10303-22 (10.6.5) Validate global rule
@@ -311,7 +354,8 @@ extension SDAISessionSchema.SdaiTransaction {
 	///
 	public func validateInstanceReferenceDomain(
 		instance: SDAIPopulationSchema.SchemaInstance,
-		object: SDAIParameterDataSchema.ApplicationInstance
+		object: SDAIParameterDataSchema.ApplicationInstance,
+		recording option: SDAIPopulationSchema.ValidationRecordingOption
 	) -> SDAIPopulationSchema.InstanceReferenceDomainValidationResult?
 	{
 		guard let session = self.owningSession else {
@@ -328,12 +372,100 @@ extension SDAISessionSchema.SdaiTransaction {
 		}
 
 		let (result,nonconf) =
-		instance.instanceReferenceDomainNonConformances(entity: object)
+		instance.instanceReferenceDomainNonConformances(entity: object, recording: option)
 
 		return SDAIPopulationSchema.InstanceReferenceDomainValidationResult(
 			result: result,
 			record: nonconf)
 	}
+
+}//SdaiTransaction
+
+extension SDAISessionSchema.SdaiTransaction {
+  internal func _validateSchemaInstance(
+    instance: SDAIPopulationSchema.SchemaInstance,
+    option: SDAIPopulationSchema.ValidationRecordingOption = .recordFailureOnly,
+    monitor: SDAIPopulationSchema.ValidationMonitor = SDAIPopulationSchema.ValidationMonitor()
+  ) -> SDAI.LOGICAL
+  {
+    guard let session = self.owningSession else {
+      SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
+      return nil
+    }
+    guard session.checkRepositoriesOpen(relatedTo: instance) else {
+      return nil
+    }
+    guard let activeSI = session.findAndActivateSchemaInstance(schemaInstanceID: instance.schemaInstanceID),
+          activeSI == instance else {
+      SDAI.raiseErrorAndContinue(.SI_NEXS, detail: "The schema instance does not exist or already been deleted within the transaction.")
+      return nil
+    }
+    guard session.activeSchemaInstanceInfo(for: instance.schemaInstanceID)?.mode == .readWrite else {
+      SDAI.raiseErrorAndContinue(.SX_NRW(instance), detail: "The schema instance is not in read-write mode.")
+      return false
+    }
+
+    // instance reference domain check
+    instance.performValidateAllInstanceReferenceDomain(
+      recording: option, monitor: monitor)
+
+    // global rule check
+    instance.performValidateAllGlobalRules(
+      recording: option, monitor: monitor)
+
+    // uniqueness rule check
+    instance.performValidateAllUniquenessRules(
+      recording: option, monitor: monitor)
+
+    // where rule check
+    instance.performValidateAllWhereRules(
+      recording: option, monitor: monitor)
+
+    return instance.validationResult
+  }
+
+
+  internal func _validateSchemaInstanceAsync(
+    instance: SDAIPopulationSchema.SchemaInstance,
+    option: SDAIPopulationSchema.ValidationRecordingOption = .recordFailureOnly,
+    monitor: SDAIPopulationSchema.ValidationMonitor = SDAIPopulationSchema.ValidationMonitor()
+  ) async -> SDAI.LOGICAL
+  {
+    guard let session = self.owningSession else {
+      SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
+      return nil
+    }
+    guard session.checkRepositoriesOpen(relatedTo: instance) else {
+      return nil
+    }
+    guard let activeSI = session.findAndActivateSchemaInstance(schemaInstanceID: instance.schemaInstanceID),
+          activeSI == instance else {
+      SDAI.raiseErrorAndContinue(.SI_NEXS, detail: "The schema instance does not exist or already been deleted within the transaction.")
+      return nil
+    }
+    guard session.activeSchemaInstanceInfo(for: instance.schemaInstanceID)?.mode == .readWrite else {
+      SDAI.raiseErrorAndContinue(.SX_NRW(instance), detail: "The schema instance is not in read-write mode.")
+      return false
+    }
+
+    // instance reference domain check
+    await instance.performValidateAllInstanceReferenceDomainAsync(
+      recording: option, monitor: monitor, session: session)
+
+    // global rule check
+    await instance.performValidateAllGlobalRulesAsync(
+      recording: option, monitor: monitor, session: session)
+
+    // uniqueness rule check
+    await instance.performValidateAllUniquenessRulesAsync(
+      recording: option, monitor: monitor, session: session)
+
+    // where rule check
+    await instance.performValidateAllWhereRulesAsync(
+      recording: option, monitor: monitor, session: session)
+
+    return instance.validationResult
+  }
 
 }//SdaiTransaction
 
@@ -356,37 +488,80 @@ extension SDAISessionSchema.SdaiTransactionRW {
 		monitor: SDAIPopulationSchema.ValidationMonitor = SDAIPopulationSchema.ValidationMonitor()
 	) -> SDAI.LOGICAL
 	{
-		guard let session = self.owningSession else {
-			SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
-			return nil
-		}
-		guard session.checkRepositoriesOpen(relatedTo: instance) else {
-			return nil
-		}
-		guard let activeSI = session.findAndActivateSchemaInstance(schemaInstanceID: instance.schemaInstanceID),
-					activeSI == instance else {
-			SDAI.raiseErrorAndContinue(.SI_NEXS, detail: "The schema instance does not exist or already been deleted within the transaction.")
-			return nil
-		}
-		guard session.activeSchemaInstanceInfo(for: instance.schemaInstanceID)?.mode == .readWrite else {
-			SDAI.raiseErrorAndContinue(.SX_NRW(instance), detail: "The schema instance is not in read-write mode.")
-			return false
-		}
-
-		// instance reference domain check
-		instance.performValidateAllInstanceReferenceDomain(recording: option, monitor: monitor)
-
-		// global rule check
-		instance.performValidateGlobalRules(recording: option, monitor: monitor)
-
-		// uniqueness rule check
-		instance.performValidateUniquenessRules(recording: option, monitor: monitor)
-
-		// where rule check
-		instance.performValidateAllWhereRules(recording: option, monitor: monitor)
-
-		return instance.validationResult
+    return self._validateSchemaInstance(
+      instance: instance, option: option, monitor: monitor)
 	}
+
+
+  /// ISO 10303-22 (10.6.8) Validate schema instance (async)
+  ///
+  /// This operation determines whether the population associated with a schema instance conforms to all constraints specified within the schema upon which the scheme instance is based.
+  ///
+  /// This operation updates the validation information maintained within the schema instance.
+  ///
+  /// - Parameters:
+  ///   - instance: The schema instance (in RW mode) bounding the test.
+  ///   - option: mode of validation result recording.
+  ///   - monitor: validation activity monitor object, with which the progress of the validation can be tracked.
+  /// - Returns: TRUE if all the constraints from the schema upon which SchemaInstance is based are met, FLASE if any constraint is violated, and UNKNOWN any constraint resulted in UNKNOWN.
+  ///
+  public func validateSchemaInstanceAsync(
+    instance: SDAIPopulationSchema.SchemaInstance,
+    option: SDAIPopulationSchema.ValidationRecordingOption = .recordFailureOnly,
+    monitor: SDAIPopulationSchema.ValidationMonitor = SDAIPopulationSchema.ValidationMonitor()
+  ) async -> SDAI.LOGICAL
+  {
+    return await self._validateSchemaInstanceAsync(
+      instance: instance, option: option, monitor: monitor)
+  }
+
+}//SdaiTransactionRW
+
+extension SDAISessionSchema.SdaiTransactionVA {
+  /// ISO 10303-22 (10.6.8) Validate schema instance
+  ///
+  /// This operation determines whether the population associated with a schema instance conforms to all constraints specified within the schema upon which the scheme instance is based.
+  ///
+  /// This operation updates the validation information maintained within the schema instance.
+  ///
+  /// - Parameters:
+  ///   - instance: The schema instance (in RW mode) bounding the test.
+  ///   - option: mode of validation result recording.
+  ///   - monitor: validation activity monitor object, with which the progress of the validation can be tracked.
+  /// - Returns: TRUE if all the constraints from the schema upon which SchemaInstance is based are met, FLASE if any constraint is violated, and UNKNOWN any constraint resulted in UNKNOWN.
+  ///
+  public func validateSchemaInstance(
+    instance: SDAIPopulationSchema.SchemaInstance,
+    option: SDAIPopulationSchema.ValidationRecordingOption = .recordFailureOnly,
+    monitor: SDAIPopulationSchema.ValidationMonitor = SDAIPopulationSchema.ValidationMonitor()
+  ) -> SDAI.LOGICAL
+  {
+    return self._validateSchemaInstance(
+      instance: instance, option: option, monitor: monitor)
+  }
+
+
+  /// ISO 10303-22 (10.6.8) Validate schema instance (async)
+  ///
+  /// This operation determines whether the population associated with a schema instance conforms to all constraints specified within the schema upon which the scheme instance is based.
+  ///
+  /// This operation updates the validation information maintained within the schema instance.
+  ///
+  /// - Parameters:
+  ///   - instance: The schema instance (in RW mode) bounding the test.
+  ///   - option: mode of validation result recording.
+  ///   - monitor: validation activity monitor object, with which the progress of the validation can be tracked.
+  /// - Returns: TRUE if all the constraints from the schema upon which SchemaInstance is based are met, FLASE if any constraint is violated, and UNKNOWN any constraint resulted in UNKNOWN.
+  ///
+  public func validateSchemaInstanceAsync(
+    instance: SDAIPopulationSchema.SchemaInstance,
+    option: SDAIPopulationSchema.ValidationRecordingOption = .recordFailureOnly,
+    monitor: SDAIPopulationSchema.ValidationMonitor = SDAIPopulationSchema.ValidationMonitor()
+  ) async -> SDAI.LOGICAL
+  {
+    return await self._validateSchemaInstanceAsync(
+      instance: instance, option: option, monitor: monitor)
+  }
 
 }//SdaiTransactionRW
 

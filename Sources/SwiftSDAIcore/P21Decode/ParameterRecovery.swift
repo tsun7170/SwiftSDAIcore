@@ -29,42 +29,81 @@ extension P21Decode.ExchangeStructure {
 	
 	
 	/// recover a required entity attribute value of a given type from a parameter specification
+	///
 	/// - Parameters:
 	///   - type: type of entity attribute
 	///   - parameter: parameter specification
 	/// - Returns: recovered parameter value
-	public func recoverRequiredParameter<T: SDAIGenericType>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T> {
-		switch parameter {
-		case .typedParameter(let typedParam):
-			guard let recovered = T(p21typedParam: typedParam, from: self)
-			else { self.add(errorContext: "while recovering required parameter of type(\(T.self))"); return .failure }
-			return .success(recovered)
-			
-		case .untypedParameter(let untypedParam):
-			switch untypedParam {
-			case .noValue:
-				self.error = "null value is detected"
-				self.add(errorContext: "while recovering required parameter of type(\(T.self))")
-				return .failure
-				
-			default:
-				guard let recovered = T(p21untypedParam: untypedParam, from: self)
-				else { self.add(errorContext: "while recovering required parameter of type(\(T.self))"); return .failure }
-				return .success(recovered)				
-			}
-			
-		case .omittedParameter:
-			self.error = "omitted parameter is detected"
-			self.add(errorContext: "while recovering required parameter of type(\(T.self))")
-			return .failure
-			
-		case .sdaiGeneric(let generic):
-			guard let recovered = T.convert(fromGeneric: generic)
-			else { self.error = "could not convert generic value(\(generic)) to type(\(T.self))"; return .failure }
-			return .success(recovered)
-		}
+	///
+	public func recoverRequiredParameter<T: SDAIGenericType>(
+		as type: T.Type,
+		from parameter: Parameter
+	) -> ParameterRecoveryResult<T>
+	{
+    return _recoverRequiredParameter(
+      as: type,
+      from: parameter,
+      fallback: nil)
 	}
-	
+
+  public func recoverRequiredParameter<T: SDAIGenericType & InitializableByVoid>(
+    as type: T.Type,
+    from parameter: Parameter
+  ) -> ParameterRecoveryResult<T>
+  {
+    return _recoverRequiredParameter(
+      as: type,
+      from: parameter,
+      fallback: type.init())
+  }
+
+  private func _recoverRequiredParameter<T: SDAIGenericType>(
+    as type: T.Type,
+    from parameter: Parameter,
+    fallback: T?
+  ) -> ParameterRecoveryResult<T>
+  {
+    switch parameter {
+      case .typedParameter(let typedParam):
+        guard let recovered = T(p21typedParam: typedParam, from: self)
+        else { self.add(errorContext: "while recovering required parameter of type(\(T.self))"); return .failure }
+        return .success(recovered)
+
+      case .untypedParameter(let untypedParam):
+        switch untypedParam {
+          case .noValue:
+            if let recovered = fallback {
+              SDAI.raiseErrorAndContinue(
+                .VA_NSET,
+                detail: "missing attribute value ($) is detected [ref. 12.2.2 of ISO 10303-21]"
+                + ",\n while recovering required parameter of type(\(T.self)),\n while "
+                + self.resolutionContextDescription
+                + ".\n Fall back to utilize the default initialized data instance.")
+              return .success(recovered)
+            }
+            self.error = "missing attribute value ($) is detected [ref. 12.2.2 of ISO 10303-21]"
+            self.add(errorContext: "while recovering required parameter of type(\(T.self))")
+            return .failure
+
+          default:
+            guard let recovered = T(p21untypedParam: untypedParam, from: self)
+            else { self.add(errorContext: "while recovering required parameter of type(\(T.self))"); return .failure }
+            return .success(recovered)
+        }
+
+      case .omittedParameter:
+        self.error = "omitted parameter (*) is detected [ref. 12.2.6 of ISO 10303-21]"
+        self.add(errorContext: "while recovering required parameter of type(\(T.self))")
+        return .failure
+
+      case .sdaiGeneric(let generic):
+        guard let recovered = T.convert(fromGeneric: generic)
+        else { self.error = "could not convert generic value(\(generic)) to type(\(T.self))"; return .failure }
+        return .success(recovered)
+    }
+  }
+
+
 	/// recover a omittable (due to redeclaration as DERIVEd) required entity attribute value of a given type from a parameter specification
 	/// - Parameters:
 	///   - type: type of entity attribute
@@ -80,10 +119,14 @@ extension P21Decode.ExchangeStructure {
 		case .untypedParameter(let untypedParam):
 			switch untypedParam {
 			case .noValue:
-				self.error = "null value is detected"
-				self.add(errorContext: "while recovering omittable parameter of type(\(T.self))")
-				return .failure
-				
+          SDAI.raiseErrorAndContinue(
+            .VA_NSET,
+            detail: "missing attribute value ($) is detected [ref. 12.2.2 of ISO 10303-21]"
+            + ",\n while recovering omittable parameter of type(\(T.self)),\n while "
+            + self.resolutionContextDescription
+            + ".\n Assume omitted parameter (*) being specified in place.")
+          return .success(nil as T?)
+
 			default:
 				guard let recovered = T(p21untypedParam: untypedParam, from: self)
 				else { self.add(errorContext: "while recovering omittable parameter of type(\(T.self))"); return .failure }
@@ -118,9 +161,13 @@ extension P21Decode.ExchangeStructure {
 			return .success(recovered)
 			
 		case .omittedParameter:
-			self.error = "omitted parameter is detected"
-			self.add(errorContext: "while recovering optional parameter of type(\(T.self))")
-			return .failure
+        SDAI.raiseErrorAndContinue(
+          .VA_NSET,
+          detail: "omitted parameter (*) is detected [ref. 12.2.6 of ISO 10303-21]"
+          + ",\n while recovering omittable parameter of type(\(T.self)),\n while "
+          + self.resolutionContextDescription
+          + ".\n Assume missing attribute parameter ($) being specified in place.")
+        return .success(nil)
 			
 		case .sdaiGeneric(let generic):
 			guard let recovered = T.convert(fromGeneric: generic)

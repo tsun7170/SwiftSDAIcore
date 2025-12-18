@@ -29,7 +29,6 @@ extension SDAI {
 
 		public required convenience init(from original:SDAI.PartialEntity)
 		{
-//			let original = original as! Self
 			self.init(asAbstractSuperclass:())
 		}
 
@@ -85,14 +84,9 @@ extension SDAI {
 		}
 		
 		// attribute observer support
-		private var _owners: Set<UnownedReference<ComplexEntity>> = []
-		public var owners: some Collection<ComplexEntity> { _owners.lazy.map{$0.object} }
-
 		open func broadcast(addedToComplex complex: ComplexEntity) {
-			_owners.insert(UnownedReference(complex))
 		}
 		open func broadcast(removedFromComplex complex: ComplexEntity) {
-			_owners.remove(UnownedReference(complex))
 		}
 		
 		// dynamic attribute support

@@ -21,6 +21,7 @@ fileprivate class _AnyGenericBox: Hashable, @unchecked Sendable {
 	var base: AnyHashable { abstract() }
 	func copy() -> AnyHashable { abstract() }
 	var isCacheable: Bool { abstract() }
+  var typeMembers: Set<SDAI.STRING> { abstract() }
 	var value: SDAI.GenericValue { abstract() }
 	var entityReference: SDAI.EntityReference? { abstract() }
 	var stringValue: SDAI.STRING? { abstract() }
@@ -34,8 +35,6 @@ fileprivate class _AnyGenericBox: Hashable, @unchecked Sendable {
 
 	var entityReferences: AnySequence<SDAI.EntityReference> { abstract() }
 	func isHolding(entityReference: SDAI.EntityReference) -> Bool { abstract() }
-//	func configure(with observer: SDAI.EntityReferenceObserver) { abstract() }
-//	func teardownObserver() { abstract() }
 
 	var pRef: SDAI.GENERIC { abstract() }
 	var aRef: SDAI.GENERIC { abstract() }
@@ -67,6 +66,7 @@ fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox, @unchec
 	override var base: AnyHashable { _base }
 	override func copy() -> AnyHashable { _base.copy() }
 	override var isCacheable: Bool { _base.isCacheable }
+  override var typeMembers: Set<SDAI.STRING> { _base.typeMembers }
 	override var value: SDAI.GenericValue { _base.value as SDAI.GenericValue }
 	override var entityReference: SDAI.EntityReference? { _base.entityReference }
 	override var stringValue: SDAI.STRING? { _base.stringValue }
@@ -212,7 +212,9 @@ extension SDAI {
 			box = fundamental.box
 		}
 		public static var typeName: String { "GENERIC" }
-		public var typeMembers: Set<SDAI.STRING> { return [SDAI.STRING(Self.typeName)] }
+    public var typeMembers: Set<SDAI.STRING> {
+      return box.typeMembers
+    }
 		public var value: Value { box.value }
 		
 		public var entityReference: SDAI.EntityReference? { box.entityReference }

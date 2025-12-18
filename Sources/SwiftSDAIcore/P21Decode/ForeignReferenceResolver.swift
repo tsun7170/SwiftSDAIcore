@@ -11,7 +11,7 @@ import Foundation
 extension P21Decode {
 	
 	/// to resolve the foreign references, called from the decoder when the decoder encounters the foreign references.
-	open class ForeignReferenceResolver {
+	open class ForeignReferenceResolver: @unchecked Sendable {
 		public typealias ParameterRecoveryResult = P21Decode.ExchangeStructure.ParameterRecoveryResult
 		
 		public var error: String?

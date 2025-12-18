@@ -19,7 +19,13 @@ public extension SDAI__NUMBER__subtype
 		guard let fundamental = FundamentalType.convert(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
 	}
-	
+
+  // InitializableByVoid
+  init() {
+    let fundamental = FundamentalType()
+    self.init(fundamental: fundamental)
+  }
+
 	// SDAISimpleType \SDAI__NUMBER__type\SDAI__NUMBER__subtype
 	init(from swiftValue: SwiftType) {
 		self.init(fundamental: FundamentalType(from: swiftValue))

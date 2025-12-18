@@ -13,10 +13,30 @@ extension P21Decode {
 	public final class Decoder {
 		
 		/// consolidated error info from decoder's subsystems
-		public enum Error: Equatable {
+		public enum Error: Equatable, CustomStringConvertible {
 			case decoderError(String)
 			case parserError(P21Error)
 			case resolveError(String)
+
+      public var description: String {
+        switch self {
+          case .decoderError(let string):
+            return  """
+                    decoder error:
+                    \(string)
+                    """
+          case .parserError(let p21Error):
+            return  """
+                    parser error:
+                    \(p21Error)
+                    """
+          case .resolveError(let string):
+            return  """
+                    resolve error:
+                    \(string)
+                    """
+        }
+      }
 		}
 		
 		
@@ -45,11 +65,13 @@ extension P21Decode {
 		///   - monitor: decoder activity monitor pulg-in object
 		///   - foreignReferenceResolver: foreign reference resolver pulg-in object
 		///
-		public init?(output: SDAISessionSchema.SdaiRepository,
-								 schemaList: KeyValuePairs<SchemaName,SDAISchema.Type>,
-								 monitor: ActivityMonitor? = nil,
-								 foreignReferenceResolver: ForeignReferenceResolver = ForeignReferenceResolver() ) {
-			self.repository = output
+		public init?(
+			output repository: SDAISessionSchema.SdaiRepository,
+			schemaList: KeyValuePairs<SchemaName,SDAISchema.Type>,
+			monitor: ActivityMonitor? = nil,
+			foreignReferenceResolver: ForeignReferenceResolver = ForeignReferenceResolver() )
+		{
+			self.repository = repository
 			self.schemaList = schemaList
 			self.activityMonitor = monitor
 			self.foreignReferenceResolver = foreignReferenceResolver
@@ -74,16 +96,18 @@ extension P21Decode {
 				return nil
 			}
 
-			let parser = ExchangeStructureParser(charStream: charStream, monitor: self.activityMonitor)
+			let parser = ExchangeStructureParser(
+				charStream: charStream,
+				output: self.repository,
+				foreignReferenceResolver: self.foreignReferenceResolver,
+				monitor: self.activityMonitor)
+
 			exchangeStructure = parser.parseExchangeStructure()
 			guard let exchangeStructure = exchangeStructure else {
 				error = .parserError(parser.error ?? P21Error(message: "<unknown parser error>", lineNumber: 0))
 				return nil
 			}
-			
-			exchangeStructure.repository = self.repository
-			exchangeStructure.foreignReferenceResolver = self.foreignReferenceResolver
-			
+
 			for (schemaName, schemaType) in self.schemaList {
 				guard exchangeStructure.register(schemaName: schemaName, schema: schemaType) else {
 					error = .decoderError(exchangeStructure.error ?? "<unknown schema registration error>")
@@ -92,7 +116,7 @@ extension P21Decode {
 			}
 
 			session.prepareFallBackModels(
-				for: exchangeStructure.schemaRegistry.values.lazy.map{$0.schemaDefinition},
+				for: exchangeStructure.targetSchemas,
 				transaction: transaction
 			)
 

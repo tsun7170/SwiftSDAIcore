@@ -144,7 +144,12 @@ final class SwiftSDAIcoreTests: XCTestCase {
 		let stepsource = try! String(contentsOf: url, encoding: .utf8) 
 		let charstream = stepsource.makeIterator()
 
-		let parser = P21Decode.ExchangeStructureParser(charStream: charstream)
+		let repository = SDAISessionSchema.SdaiRepository(name: "example", description: "example repository")
+
+		let parser = P21Decode.ExchangeStructureParser(
+			charStream: charstream,
+			output: repository,
+			foreignReferenceResolver: P21Decode.ForeignReferenceResolver() )
 
 		let result = parser.parseExchangeStructure()
 

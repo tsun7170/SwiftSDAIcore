@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CoreFoundation
 
 extension P21Decode {
 	
@@ -388,6 +389,7 @@ extension P21Decode {
 		///			REVERSE_SOLIDUS REVERSE_SOLIDUS | CONTROL_DIRECTIVE } "'"
 		///			 		
 		private func scanString(_ firstChar:Character ) -> TerminalToken? {
+      self.iso8859 = .A
 			var str = ""
 			
 			while let c = p21stream.next() {
@@ -415,7 +417,7 @@ extension P21Decode {
 			return nil			
 		}
 		
-		/// scan one string control directive
+		/// scan one string control directive following the input char '\'
 		/// - Returns: control directive string if succeeded
 		/// 
 		/// 		CONTROL_DIRECTIVE = 
@@ -457,18 +459,19 @@ extension P21Decode {
 		/// ISO 10303-21
 		///  
 		private func scanStringControlDirective() -> String? {
-			guard let c = p21stream.next() else { setError("unexpected end of input stream after '\\' while scanning STRING control directive"); return nil }
-			
-			if c == "\\" {	// REVERSE_SOLIDUS REVERSE_SOLIDUS
+			guard let c0 = p21stream.next() else { setError("unexpected end of input stream after '\\' while scanning STRING control directive"); return nil }
+
+			if c0 == "\\" {	// REVERSE_SOLIDUS REVERSE_SOLIDUS
 				return "\\"
 			}
 			
-			else if c == "X" {	// EXTENDED2 | EXTENDED4 | ARBITRARY
-				guard let c = p21stream.next() else { setError("unexpected end of input stream after '\\X' while scanning STRING control directive"); return nil }
-				
-				if c == "\\" {	// ARBITRARY
+			else if c0 == "X" {	// EXTENDED2 | EXTENDED4 | ARBITRARY
+				guard let c1 = p21stream.next() else { setError("unexpected end of input stream after '\\X' while scanning STRING control directive"); return nil }
+
+				if c1 == "\\" {	// ARBITRARY; 6.4.3.4 in ISO-10303-21 Encoding U+0000 to U+00FF in a string
 					guard let hex1 = p21stream.next() else { setError("unexpected end of input stream after '\\X\\' while scanning STRING control directive"); return nil }
 					guard hex1.is(Self.HEX) else { setError("non-hex-character(\(hex1)) is detected after '\\X\\' while scanning STRING control directive"); return nil }
+
 					guard let hex2 = p21stream.next() else { setError("unexpected end of input stream after '\\X\\\(hex1)' while scanning STRING control directive"); return nil}
 					guard hex2.is(Self.HEX) else { setError("non-hex-character(\(hex2)) is detected after '\\X\\\(hex1)' while scanning STRING control directive"); return nil }
 					
@@ -476,30 +479,99 @@ extension P21Decode {
 					guard let unicode = Unicode.Scalar(hexval) else { setError("STRING control directive(\\X\\\(hex1)\(hex2)) could not be interpreted as valid unicode scalar"); return nil }
 					return String(Character(unicode))
 				}
-				else if c == "2" {	// EXTENDED2
-					return scanStringControlDirectiveExtended(chunk: 2)
+				else if c1 == "2" {	// EXTENDED2; 6.4.3.3 in ISO-10303-21 Encoding ISO/IEC 10646 characters within a string
+					return scanStringControlDirectiveExtended(hexChunk: 4)
 				}
-				else if c == "4" {	// EXTENDED4
-					return scanStringControlDirectiveExtended(chunk: 4)
+				else if c1 == "4" {	// EXTENDED4
+          return scanStringControlDirectiveExtended(hexChunk: 8)
 				}
 				else {
-					setError("unexpected character(\(c)) other than '2' or '4' is detected after '\\X' while scanning STRING control directive")
+					setError("unexpected character(\(c1)) other than '2' or '4' is detected after '\\X' while scanning STRING control directive")
 					return nil
 				}
 			} 
-			
-			else {	// ISO 8859 characters encoding, including PAGE (minimal scanner support)
-				var str = "\\\(c)"
-				while let c = p21stream.next() {
-					str.append(c)
-					if c == "\\" { return str }
-				}
-				setError("unexpected end of input stream after '\(str)' while scanning STRING control directive encoding ISO 8859")
-				return nil
-			}
+
+      else if c0 == "S" { //PAGE control directive; 6.4.3.2 in ISO-10303-21 Encoding ISO/IEC 8859 characters within a string
+        guard let c1 = p21stream.next(), c1 == "\\"
+        else { setError("can not get '\\' after '\\S' while scanning PAGE control directive"); return nil }
+
+        guard let c2 = p21stream.next() else { setError("unexpected end of input stream after '\\S\\' while scanning PAGE control directive"); return nil }
+
+        guard let hexval = c2.asciiValue
+        else { setError("non LATIN_CODEPOINT character '\(c2)' following '\\S\\' while scanning PAGE control directive"); return nil }
+        let charCode = hexval + 128
+
+        return String(data: Data([charCode]), encoding: self.iso8859.encoding)
+      }
+
+      else if c0 == "P" { //ALPHABET control directive; 6.4.3.2 in ISO-10303-21 Encoding ISO/IEC 8859 characters within a string
+        guard let c1 = p21stream.next(),
+              let newPart = ISO8859Part(c1)
+        else { setError("no valid UPPER character following '\\P' while scanning ALPHABET control directive"); return nil }
+
+        guard let c2 = p21stream.next(), c2 == "\\"
+        else { setError("can not get '\\' after '\\P\(c1)' while scanning ALPHABET control directive"); return nil }
+
+        self.iso8859 = newPart
+        return ""
+      }
+
+      setError("unexpected character '\(c0)' following '\\' while scanning string content")
+
+      return nil
 		}
-		
-		/// scan one ISO 10646 characters encoding as EXTENDED2 or EXTENDED4
+
+    private var iso8859 = ISO8859Part.A
+
+    private enum ISO8859Part: String {
+      case A  //ISO-8859-1 (Latin-1)
+      case B  //ISO-8859-2 (Latin-2)
+      case C  //ISO-8859-3 (Latin-3)
+      case D  //ISO-8859-4 (Latin-4)
+      case E  //ISO-8859-5 (Latin/Cyrillic)
+      case F  //ISO-8859-6 (Latin/Arabic)
+      case G  //ISO-8859-7 (Latin/Greek)
+      case H  //ISO-8859-8 (Latin/Hebrew)
+      case I  //ISO-8859-9 (Latin-5, Turkish)
+      case J  //ISO-8859-10 (Latin-6, Nordic) extension from ISO 10303-21 6.4.3.2
+      case K  //ISO-8859-11 (Latin/Thai) extension from ISO 10303-21 6.4.3.2
+
+      init?(_ char: Character) {
+        self.init(rawValue: String(char))
+      }
+
+      var encoding: String.Encoding {
+        switch self {
+          case .A:  //ISO-8859-1 (Latin-1)
+            return .isoLatin1
+          case .B:  //ISO-8859-2 (Latin-2)
+            return .isoLatin2
+          case .C:  //ISO-8859-3 (Latin-3)
+            return  .init(cfStringEncoding: .isoLatin3)
+          case .D:  //ISO-8859-4 (Latin-4)
+            return  .init(cfStringEncoding: .isoLatin4)
+          case .E:  //ISO-8859-5 (Latin/Cyrillic)
+//            return .windowsCP1251
+            return  .init(cfStringEncoding: .isoLatinCyrillic)
+          case .F:  //ISO-8859-6 (Latin/Arabic)
+            return  .init(cfStringEncoding: .isoLatinArabic)
+          case .G:  //ISO-8859-7 (Latin/Greek)
+//            return .windowsCP1253
+            return  .init(cfStringEncoding: .isoLatinGreek)
+          case .H:  //ISO-8859-8 (Latin/Hebrew)
+            return  .init(cfStringEncoding: .isoLatinHebrew)
+          case .I:  //ISO-8859-9 (Latin-5, Turkish)
+            return  .init(cfStringEncoding: .isoLatin5)
+          case .J:  //ISO-8859-10 (Latin-6, Nordic)
+            return  .init(cfStringEncoding: .isoLatin6)
+          case .K:  //ISO-8859-11 (Latin/Thai)
+            return  .init(cfStringEncoding: .isoLatinThai)
+        }
+      }
+    }
+
+
+		/// scan one ISO 10646 characters encoding as EXTENDED2 or EXTENDED4 following the input '\Xn' where n=2 or 4
 		/// - Parameter chunk: hex chunk size (2 or 4)
 		/// - Returns: scanned ISO 10646 characters if succeeded
 		///  
@@ -526,20 +598,28 @@ extension P21Decode {
 		/// 
 		/// ISO 10303-21
 		/// 		 
-		private func scanStringControlDirectiveExtended(chunk: Int) -> String? {
+		private func scanStringControlDirectiveExtended(hexChunk: Int) -> String?
+    {
+      let EXTENDEDn = hexChunk / 2
+      let CTLDIR_head = "\\X\(EXTENDEDn)"
+      let CTLDIR = "\(CTLDIR_head)\\"
+
+      guard let c0 = p21stream.next(), c0 == "\\"
+      else { setError("can not get '\\' after '\(CTLDIR_head)' while scanning STRING control directive EXTENDED\(EXTENDEDn)"); return nil }
+
 			var str = ""
 			var hexseq: [Character] = []
-			for _ in 1 ... chunk {
-				guard let hex = p21stream.next() else { setError("unexpected end of input stream after '\\X\(chunk)\\\(String(hexseq))' while scanning STRING control directive"); return nil }
-				guard hex.is(Self.HEX) else { setError("non-hex-character(\(hex)) is detected after '\\X\(chunk)\\\(String(hexseq))' while scanning STRING control directive"); return nil }
+			for _ in 1 ... hexChunk {
+				guard let hex = p21stream.next() else { setError("unexpected end of input stream after '\(CTLDIR)\(String(hexseq))' while scanning STRING control directive"); return nil }
+				guard hex.is(Self.HEX) else { setError("non-hex-character(\(hex)) is detected after '\(CTLDIR)\(String(hexseq))' while scanning STRING control directive"); return nil }
 				hexseq.append(hex)
 			}
-			guard let hexval = Int(String(hexseq), radix: 16) else { setError("input steam(\(String(hexseq))) could not be interpreted as hex number in STRING control directive '\\X\(chunk)\\'"); return nil }
-			guard let unicode = Unicode.Scalar(hexval) else { setError("STRING control directive(\\X\(chunk)\\\(String(hexseq))) could not be interpreted as valid unicode scalar"); return nil }
+			guard let hexval = Int(String(hexseq), radix: 16) else { setError("input steam(\(String(hexseq))) could not be interpreted as hex number in STRING control directive '\(CTLDIR)'"); return nil }
+			guard let unicode = Unicode.Scalar(hexval) else { setError("STRING control directive(\(CTLDIR)) could not be interpreted as valid unicode scalar"); return nil }
 			str.append(Character(unicode))
 			
-			while let c = p21stream.next() {
-				if c == "\\" {
+			while let c1 = p21stream.next() {
+				if c1 == "\\" {
 					var terminator = "\\"
 					for _ in 1 ... 3 {
 						guard let c = p21stream.next() else { setError("unexpected end of input stream after '\(terminator)' while scanning STRING control directive terminator"); return nil }
@@ -549,18 +629,18 @@ extension P21Decode {
 					return str
 				}
 				
-				guard c.is(Self.HEX) else { setError("non-hex-character(\(c)) is detected while scanning STRING control directive '\\X\(chunk)\\...'"); return nil }
-				var hexseq = [c]
-				for _ in 2 ... chunk {
-					guard let hex = p21stream.next() else { setError("unexpected end of input stream after '\\X\(chunk)\\...\(String(hexseq))' while scanning STRING control directive"); return nil }
-					guard hex.is(Self.HEX) else { setError("non-hex-character(\(hex)) is detected after '\\X\(chunk)\\...\(String(hexseq))' while scanning STRING control directive"); return nil }
+				guard c1.is(Self.HEX) else { setError("non-hex-character(\(c1)) is detected while scanning STRING control directive '\\X\(hexChunk)\\...'"); return nil }
+				var hexseq = [c1]
+				for _ in 2 ... hexChunk {
+					guard let hex = p21stream.next() else { setError("unexpected end of input stream after '\\X\(hexChunk)\\...\(String(hexseq))' while scanning STRING control directive"); return nil }
+					guard hex.is(Self.HEX) else { setError("non-hex-character(\(hex)) is detected after '\\X\(hexChunk)\\...\(String(hexseq))' while scanning STRING control directive"); return nil }
 					hexseq.append(hex)
 				}
-				guard let hexval = Int(String(hexseq), radix: 16) else { setError("input steam(\(String(hexseq))) could not be interpreted as hex number in STRING control directive '\\X\(chunk)\\...'"); return nil }
-				guard let unicode = Unicode.Scalar(hexval) else { setError("STRING control directive(\\X\(chunk)\\...\(String(hexseq))) could not be interpreted as valid unicode scalar"); return nil }
+				guard let hexval = Int(String(hexseq), radix: 16) else { setError("input steam(\(String(hexseq))) could not be interpreted as hex number in STRING control directive '\\X\(hexChunk)\\...'"); return nil }
+				guard let unicode = Unicode.Scalar(hexval) else { setError("STRING control directive(\\X\(hexChunk)\\...\(String(hexseq))) could not be interpreted as valid unicode scalar"); return nil }
 				str.append(Character(unicode))
 			}
-			setError("unexpected end of input stream while scanning STRING control directive '\\X\(chunk)\\'")
+			setError("unexpected end of input stream while scanning STRING control directive '\\X\(hexChunk)\\'")
 			return nil
 		}
 		

@@ -147,7 +147,16 @@ extension SDAI {
 							
 			case .noValue:
 				return nil
-				
+
+      case .real(let realval):
+          if let intval = NUMBER(realval).integerValue {
+            self.init(intval)
+          }
+          else {
+            exchangeStructure.error = "unexpected p21parameter(\(p21untypedParam)) while resolving \(Self.bareTypeName) value"
+            return nil
+          }
+
 			default:
 				exchangeStructure.error = "unexpected p21parameter(\(p21untypedParam)) while resolving \(Self.bareTypeName) value"
 				return nil
@@ -155,9 +164,9 @@ extension SDAI {
 		}
 
 		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
-			self.init(0)
+			self.init()
 		}
-		
+
 	}
 }
 

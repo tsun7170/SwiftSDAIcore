@@ -493,12 +493,16 @@ extension SDAI {
 		}
 
 		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
-			self.init(from: SwiftType())
+			self.init()
 		}
 		
+    // InitializableByVoid
+    public init() {
+      self.init(from: SwiftType())
+    }
 
-	}
-}
+  }//struct
+}//extension
 
 
 

@@ -18,15 +18,22 @@ extension P21Decode {
 		private let exchangeStructure: ExchangeStructure
 		
 		//MARK: constructor
-		public init<CHARSTREAM>(charStream: CHARSTREAM, monitor: ActivityMonitor? = nil) 
-		where CHARSTREAM: CharacterStream //IteratorProtocol, CHARSTREAM.Element == Character
+		public init<CHARSTREAM>(
+			charStream: CHARSTREAM,
+			output repository: SDAISessionSchema.SdaiRepository,
+			foreignReferenceResolver: ForeignReferenceResolver,
+			monitor: ActivityMonitor? = nil)
+		where CHARSTREAM: CharacterStream
 		{
 			self.activityMonitor = monitor
 			
 			let p21charStream = P21CharacterStream(charStream: charStream, monitor: monitor)
 			self.tokenStream = TokenStream(p21stream: p21charStream, monitor: monitor)
 			
-			self.exchangeStructure = ExchangeStructure(monitor: monitor)
+			self.exchangeStructure = ExchangeStructure(
+				repository: repository,
+				foreignReferenceResolver: foreignReferenceResolver,
+				monitor: monitor)
 		}
 		
 		

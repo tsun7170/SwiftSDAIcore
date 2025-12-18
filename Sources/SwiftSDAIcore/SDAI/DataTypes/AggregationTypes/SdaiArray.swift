@@ -10,8 +10,24 @@ import Foundation
 
 
 //MARK: - array type (8.2.1)
-public protocol SDAIArrayType: SDAIArrayOptionalType
-{}
+public protocol SDAIArrayType:
+  SDAIAggregationType, SDAIAggregateIndexingSettable,
+  SDAIUnderlyingType, SDAISwiftTypeRepresented,
+  InitializableBySwifttypeAsArray, InitializableByArrayLiteral, InitializableByGenericArray
+{
+  // SDAIDictionarySchema support
+  static var uniqueFlag: SDAI.BOOLEAN {get}
+  static var optionalFlag: SDAI.BOOLEAN {get}
+}
+
+extension SDAIArrayType {
+  public var isCacheable: Bool {
+    for elem in self.asAggregationSequence {
+      if !elem.isCacheable { return false }
+    }
+    return true
+  }
+}
 
 
 //MARK: - ARRAY type

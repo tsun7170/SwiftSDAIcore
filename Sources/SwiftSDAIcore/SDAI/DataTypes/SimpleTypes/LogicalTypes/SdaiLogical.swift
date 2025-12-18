@@ -16,18 +16,14 @@ public protocol SwiftBoolConvertible
 
 
 //MARK: - LOGICAL type (8.1.4)
-public protocol SDAILogicalType: SDAISimpleType, ExpressibleByBooleanLiteral, SwiftBoolConvertible
+public protocol SDAILogicalType: SDAISimpleType, ExpressibleByBooleanLiteral,
+                                 SwiftBoolConvertible, InitializableByVoid
 {
 	var isTRUE: Bool {get}
 	var isFALSE: Bool {get}
 	var isUNKNOWN: Bool {get}
-//	var isnotTRUE: Bool {get}
 	var possiblyAsSwiftBool: Bool? {get}
 }
-//public extension SDAILogicalType
-//{
-//	var isnotTRUE: Bool { return !self.isTRUE }
-//}
 
 public protocol SDAI__LOGICAL__type: SDAILogicalType, ExpressibleByNilLiteral 
 where FundamentalType == SDAI.LOGICAL,
@@ -92,7 +88,12 @@ extension SDAI {
 		public var stringValue: SDAI.STRING? {nil}
 		public var binaryValue: SDAI.BINARY? {nil}
 		public var logicalValue: SDAI.LOGICAL? { self }
-		public var booleanValue: SDAI.BOOLEAN? {nil}
+    public var booleanValue: SDAI.BOOLEAN? {
+      if let bool = self.rep {
+        return BOOLEAN(from: bool)
+      }
+      return nil
+    }
 		public var numberValue: SDAI.NUMBER? {nil}
 		public var realValue: SDAI.REAL? {nil}
 		public var integerValue: SDAI.INTEGER? {nil}
@@ -167,7 +168,7 @@ extension SDAI {
 					self.init(nil as SwiftType)
 					
 				default:
-					exchangeStructure.error = "unexpected p21parameter enum case(\(enumcase)) while resolving \(Self.bareTypeName) value"
+					exchangeStructure.error = "unexpected p21parameter enum case(\(enumcase)) while resolving \(Self.bareTypeName) value [ref. 12.1.1.4 of ISO 10303-21]"
 					return nil
 				}
 				
@@ -197,9 +198,12 @@ extension SDAI {
 		}
 
 		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
-			self.init(nil as SwiftType)
+			self.init()
 		}
-		
+
+    public init() {
+      self.init(nil as SwiftType)
+    }
 	}
 }
 

@@ -81,7 +81,7 @@ where Self: SDAIIntRepresentedNumberType
 
 
 //MARK: - NUMBER type (8.1.1)
-public protocol SDAINumberType: SDAISimpleType, ExpressibleByIntegerLiteral, SwiftDoubleConvertible
+public protocol SDAINumberType: SDAISimpleType, ExpressibleByIntegerLiteral, SwiftDoubleConvertible, InitializableByVoid
 where SwiftType: SdaiNumberRepType
 {}
 
@@ -219,7 +219,10 @@ extension SDAI {
 			switch p21untypedParam {
 			case .real(let realval):
 				self.init(realval)
-				
+
+      case .integer(let intval):
+        self.init(intval)
+
 			case .rhsOccurrenceName(let rhsname):
 				switch rhsname {
 				case .constantValueName(let name):
@@ -246,9 +249,9 @@ extension SDAI {
 		}
 
 		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
-			self.init(0.0)
+			self.init()
 		}
-		
-	}	
+
+	}
 }
 

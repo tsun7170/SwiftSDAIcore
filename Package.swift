@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
 	name: "SwiftSDAIcore",
 	platforms: [
-		.macOS(.v15)
+		.macOS(.v26)
 	],
 	products: [
 		// Products define the executables and libraries produced by a package, and make them visible to other packages.

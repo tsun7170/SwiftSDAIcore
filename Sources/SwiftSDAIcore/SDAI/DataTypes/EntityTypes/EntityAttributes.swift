@@ -33,6 +33,7 @@ extension SDAI.EntityReference {
 		internal init(entity: SDAI.EntityReference) {
 			let entityDef = entity.definition
 			for attrDef in entityDef.attributes.values {
+//				loggerSDAI.debug("evaluating attribute[\(attrDef.name)] of entity[\(entityDef.name)] #\(entity.complexEntity.p21name) ")
 				let attrValue = attrDef.genericValue(for: entity)
 				let tuple = (definition: attrDef, value: attrValue)
 				attributes.append(tuple)

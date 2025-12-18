@@ -109,7 +109,7 @@ extension SDAISessionSchema.SdaiTransaction {
 	///
 	public func close(
 		repository: SDAISessionSchema.SdaiRepository,
-		disposition: SDAISessionSchema.SdaiTransaction.Disposition
+		disposition: SDAISessionSchema.SdaiTransaction.Disposition<Void>
 	)
 	{
 		guard let session = self.owningSession else {

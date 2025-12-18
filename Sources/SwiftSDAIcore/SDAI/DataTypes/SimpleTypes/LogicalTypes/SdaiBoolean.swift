@@ -141,7 +141,7 @@ extension SDAI {
 					self.init(false)
 					
 				default:
-					exchangeStructure.error = "unexpected p21parameter enum case(\(enumcase)) while resolving \(Self.bareTypeName) value"
+					exchangeStructure.error = "unexpected p21parameter enum case(\(enumcase)) while resolving \(Self.bareTypeName) value [ref. 12.1.1.3 of ISO 10303-21]"
 					return nil
 				}
 				
@@ -171,7 +171,7 @@ extension SDAI {
 		}
 
 		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
-			self.init(false)
+			self.init()
 		}
 
 	}

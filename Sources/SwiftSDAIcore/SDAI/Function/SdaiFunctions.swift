@@ -476,15 +476,17 @@ extension SDAI {
  	/// - Parameter V: V is a value of any type.
 	/// 
 	/// - Returns: The contents of the returned set of string values are the names (in upper case) of all types that the value V is a member of. Such names are qualified by the name of the schema that contains the definition of the type (’SCHEMA.TYPE’) if it is neither a simple data type nor an aggregation data type.
-	/// 	- If V evaluates to indeterminate (?), typeof returns an empty set. 
+	/// 	- If V evaluates to indeterminate (?), typeof returns an empty set.
+  ///
 	public static func TYPEOF<Generic: SDAIGenericType>(_ V: Generic?) -> SET<STRING> {
 		guard let v = V else { return SET<STRING>() }
-		return SET<STRING>(from: v.typeMembers )
+    let typeMembers = v.typeMembers
+		return SET<STRING>(from: typeMembers )
 	}
-	/// swift langage binding - TypeOf function combined with the subsequent query expression checking for one type matching
+	/// swift language binding - TypeOf function combined with the subsequent query expression checking for one type matching
 	/// - Parameters:
 	///   - V: V is a value of any type.
-	///   - target: type meta-object to which the type maching is checked.
+	///   - target: type meta-object to which the type matching is checked.
 	/// - Returns: TRUE if V is of type target.
 	public static func TYPEOF<Generic: SDAIGenericType, T: SDAIGenericType>(_ V: Generic? , IS target: T.Type) -> LOGICAL {
 		guard let v = V else { return UNKNOWN }

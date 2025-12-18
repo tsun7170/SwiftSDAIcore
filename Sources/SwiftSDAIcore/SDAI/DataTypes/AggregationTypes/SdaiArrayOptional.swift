@@ -11,24 +11,9 @@ import Foundation
 
 
 //MARK: - array optional type (8.2.1)
-public protocol SDAIArrayOptionalType:
-	SDAIAggregationType, SDAIAggregateIndexingSettable,
-	SDAIUnderlyingType, SDAISwiftTypeRepresented,
-	InitializableBySwifttypeAsArray, InitializableByArrayLiteral, InitializableByGenericArray
-{
-	// SDAIDictionarySchema support
-	static var uniqueFlag: SDAI.BOOLEAN {get}
-	static var optionalFlag: SDAI.BOOLEAN {get}
-}
+public protocol SDAIArrayOptionalType: SDAIArrayType, InitializableByVoid
+{}
 
-extension SDAIArrayOptionalType {
-	public var isCacheable: Bool {
-		for elem in self.asAggregationSequence {
-			if !elem.isCacheable { return false }
-		}
-		return true
-	}	
-}
 
 //MARK: - ARRAY_OPTIONAL type
 public protocol SDAI__ARRAY_OPTIONAL__type:
@@ -283,11 +268,15 @@ extension SDAI {
 		}
 
 		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
-			self.init(bound1: 1, bound2: 1)
+			self.init()
 		}
 		
+    // InitializableByVoid 
+    public init() {
+      self.init(bound1: 1, bound2: 1)
+    }
 
-	}
+  }
 }
 
 

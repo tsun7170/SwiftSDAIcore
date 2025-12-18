@@ -14,7 +14,7 @@ extension SDAI {
 		SDAIPersistentReference,
 		InitializableByComplexEntity,
 		SDAIEntityReferenceYielding
-	where EREF: SDAI.EntityReference & SDAIDualModeReference
+	where EREF: SDAI.EntityReference & SDAIDualModeReference & InitializableByP21Parameter
 	{
 		// SDAIPersistentReference
 		public typealias ARef = EREF
@@ -26,24 +26,38 @@ extension SDAI {
 
 
 
-		private typealias ComplexEntityID = SDAIPopulationSchema.SdaiModel.ComplexEntityID
-		private typealias SDAIModelID = SDAIPopulationSchema.SdaiModel.SDAIModelID
+    private typealias ComplexEntityID = SDAIPopulationSchema.SdaiModel.ComplexEntityID
+    private typealias SDAIModelID = SDAIPopulationSchema.SdaiModel.SDAIModelID
 
-		private let complexID: ComplexEntityID
-		private let modelID: SDAIModelID
 
+		private enum ComplexEntityReference: Hashable {
+      case persistent(complexID: ComplexEntityID, modelID: SDAIModelID)
+			case temporary(EREF?)
+		}
+
+		private let complexReference: ComplexEntityReference
+    
+    /// initialize persistent entity reference from a optional entity reference
+    /// - Parameter entityRef: optional entity reference
 		public init(_ entityRef: EREF?) {
 			guard let entityRef else {
-				self.complexID = SDAIPopulationSchema.SdaiModel.nilComplexID
-				self.modelID = SDAIPopulationSchema.SdaiModel.nilModelID
+				self.complexReference = .temporary(nil)
 				return
 			}
 
 			let complexEntity = entityRef.complexEntity
 			let owningModel = complexEntity.owningModel
 
-			self.complexID = complexEntity.p21name
-			self.modelID = owningModel.modelID
+			if complexEntity.isTemporary {
+				self.complexReference = .temporary(entityRef)
+			}
+      else {
+        let complexID = complexEntity.p21name
+        let modelID = owningModel.modelID
+
+        self.complexReference =
+          .persistent(complexID: complexID, modelID: modelID)
+      }
 		}
 
 		public convenience init?<OTHER>(_ pref: PersistentEntityReference<OTHER>?)
@@ -77,31 +91,66 @@ extension SDAI {
 
 		public var eval: EREF? { self.optionalInstance }
 
-		public var optionalInstance: EREF? {
-			guard
-				let session = SDAISessionSchema.activeSession,
-				let model = session.findAndActivateSdaiModel(modelID: self.modelID),
-				let complex = model.contents.complexEntity(named: self.complexID)
-			else { return nil }
+    private func resolveComplexEntity(
+      complexID: ComplexEntityID,
+      modelID: SDAIModelID ) -> ComplexEntity?
+    {
+      guard
+        let session = SDAISessionSchema.activeSession
+      else { return nil }
 
-			let eref = complex.entityReference(EREF.self)
-			return eref
+      if let complex = session.activeTransaction?
+        .lookupComplexCache(complexID: complexID, modelID: modelID) {
+        return complex
+      }
+
+      guard
+        let model = session.findAndActivateSdaiModel(modelID: modelID),
+        let complex = model.contents.complexEntity(named: complexID)
+      else { return nil }
+
+      return complex
+    }
+
+		public var optionalInstance: EREF? {
+			switch self.complexReference {
+				case .persistent(let complexID, let modelID):
+					guard
+            let complex = self.resolveComplexEntity(
+              complexID: complexID, modelID: modelID)
+					else { return nil }
+
+					let eref = complex.entityReference(EREF.self)
+					return eref
+
+				case .temporary(let eREF):
+					return eREF
+			}
 		}
 
 		public var instance: EREF {
-			guard
-				let session = SDAISessionSchema.activeSession,
-				let model = session.findAndActivateSdaiModel(modelID: self.modelID),
-				let complex = model.contents.complexEntity(named: self.complexID)
-			else {
-				SDAI.raiseErrorAndTrap(.SY_ERR, detail:"can not locate complex entity:#\(self.complexID) of model:\(self.modelID) under session:\(String(describing: SDAISessionSchema.activeSession))")
-			}
+			switch self.complexReference {
+        case .persistent(let complexID, let modelID):
+					guard
+            let complex = self.resolveComplexEntity(
+              complexID: complexID, modelID: modelID)
+					else {
+						SDAI.raiseErrorAndTrap(.SY_ERR, detail:"can not locate complex entity:#\(complexID) of model:\(modelID) under session:\(String(describing: SDAISessionSchema.activeSession))")
+					}
 
-			guard let eref = complex.entityReference(EREF.self)
-			else {
-				SDAI.raiseErrorAndTrap(.EI_NEXS, detail: "entity reference:\(EREF.self) not found in complex:\(self.complexID)")
+					guard let eref = complex.entityReference(EREF.self)
+					else {
+						SDAI.raiseErrorAndTrap(.EI_NEXS, detail: "entity reference:\(EREF.self) not found in complex:\(complexID)")
+					}
+					return eref
+
+				case .temporary(let eREF):
+					guard let eref = eREF
+					else {
+						SDAI.raiseErrorAndTrap(.EI_NEXS, detail: "nil entity reference:\(EREF.self)")
+					}
+					return eref
 			}
-			return eref
 		}
 
 		public var complexEntity: ComplexEntity? {
@@ -117,33 +166,34 @@ extension SDAI {
 			lhs:PersistentEntityReference, rhs:PersistentEntityReference ) -> Bool
 		{
 			guard
-				lhs.modelID == rhs.modelID,
-				lhs.complexID == rhs.complexID
+				lhs.complexReference == rhs.complexReference
 			else { return false }
 			return true
 		}
 
 		// Hashable
 		public func hash(into hasher: inout Hasher) {
-			hasher.combine(modelID)
-			hasher.combine(complexID)
+			hasher.combine(complexReference)
 		}
 
 		// dynamic member lookup
 		public subscript<T>(dynamicMember keyPath: KeyPath<EREF, T>) -> T? {
 			guard let entity = self.eval else { return nil }
-			return entity[keyPath: keyPath]
+			let result = entity[keyPath: keyPath]
+      return result
 		}
 
 		public subscript<T>(dynamicMember keyPath: KeyPath<EREF, T?>) -> T? {
 			guard let entity = self.eval else { return nil }
-			return entity[keyPath: keyPath]
+			let result = entity[keyPath: keyPath]
+      return result
 		}
 
 		public subscript<U>(dynamicMember keyPath: WritableKeyPath<EREF, U>) -> U? {
 			get {
 				guard let entity = self.eval else { return nil }
-				return entity[keyPath: keyPath]
+				let result = entity[keyPath: keyPath]
+        return result
 			}
 			set {
 				guard var entity = self.eval,
@@ -156,7 +206,8 @@ extension SDAI {
 		public subscript<U>(dynamicMember keyPath: WritableKeyPath<EREF, U?>) -> U? {
 			get {
 				guard let entity = self.eval else { return nil }
-				return entity[keyPath: keyPath]
+				let result = entity[keyPath: keyPath]
+        return result
 			}
 			set {
 				guard var entity = self.eval
@@ -169,11 +220,12 @@ extension SDAI {
 
 		// group reference
 		public func GROUP_REF<SUPER:EntityReference & SDAIDualModeReference>(
-			_ entity_ref: SUPER.Type
+			_ super_ref: SUPER.Type
 		) -> SUPER.PRef?
 		{
 			guard let complex = self.eval?.complexEntity else { return nil }
-			return complex.partialComplexEntity(entity_ref)?.pRef
+      let result = complex.entityReference(super_ref)?.pRef
+      return result
 		}
 
 		// InitializableByComplexEntity
@@ -186,29 +238,48 @@ extension SDAI {
 			if let pref = generic as? Self {
 				self.init(pref)
 			}
-			else if let entity = generic as? SDAI.EntityReference {
-				let complex = entity.complexEntity
-				if let eref = complex.entityReference(EREF.self) {
-					self.init(eref)
-				}
+      else if let eref = generic as? EREF {
+        self.init(eref)
+      }
+      else if let entity = generic as? SDAI.EntityReference {
+        let complex = entity.complexEntity
+        let eref = complex.entityReference(EREF.self)
+        self.init(eref)
 			}
-			return nil
+      else {
+        return nil
+      }
+		}
+
+		public class func convert<G: SDAIGenericType>(fromGeneric generic: G?) -> Self? {
+			guard let eref = EREF.convert(fromGeneric: generic) else { return nil }
+			return self.init(eref)
 		}
 
 		// InitializableByP21Parameter
-		public static var bareTypeName: String {"\(self)"}
+		public static var bareTypeName: String {
+			EREF.bareTypeName
+		}
 
-		public init?(
+		public convenience init?(
 			p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter,
 			from exchangeStructure: P21Decode.ExchangeStructure)
 		{
-			return nil
+			guard let eref = EREF.init(
+				p21untypedParam: p21untypedParam,
+				from: exchangeStructure)
+			else { return nil }
+
+			self.init(eref)
 		}
 
-		public init?(
+		public convenience init?(
 			p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure)
 		{
-			return nil
+			guard let eref = EREF.init(p21omittedParamfrom: exchangeStructure)
+			else { return nil }
+
+			self.init(eref)
 		}
 
 		// SDAICacheableSource
@@ -228,13 +299,18 @@ extension SDAI {
 
 		public convenience init(fundamental other: FundamentalType)
 		{
+//			debugPrint("\(#function): Self:\(EREF.self), FundamentalType: \(FundamentalType.self)")
 			let eref = EREF(fundamental: other)
 			self.init(eref)
 		}
 
 		public static var typeName: String { EREF.typeName }
 
-		public var typeMembers: Set<SDAI.STRING> { self.eval?.typeMembers ?? [] }
+    public var typeMembers: Set<SDAI.STRING> {
+      guard let eref = self.eval else { return [] }
+      let result = eref.typeMembers
+      return result
+    }
 
 		public var value: some SDAIValue {
 			self.instance.value
@@ -289,4 +365,13 @@ where EREF: SDAISimpleEntityType
 		self.init(eref)
 	}
 
+}
+
+extension SDAI.PersistentEntityReference: InitializableByVoid
+where EREF: InitializableByVoid
+{
+  public convenience init() {
+    let eref = EREF()
+    self.init(eref)
+  }
 }

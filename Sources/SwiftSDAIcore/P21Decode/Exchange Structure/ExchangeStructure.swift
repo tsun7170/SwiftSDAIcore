@@ -13,16 +13,21 @@ extension P21Decode {
 	/// 5.3 Exchange structure;
 	/// ISO 10303-21
 	public final class ExchangeStructure: SDAI.Object, Sendable {
-		public let headerSection = HeaderSection()
-		public let anchorSection = AnchorSection()
+		nonisolated(unsafe)
+		public internal(set) var headerSection = HeaderSection()
+		nonisolated(unsafe)
+		public internal(set) var anchorSection = AnchorSection()
 		nonisolated(unsafe)
 		public internal(set) var dataSections: [DataSection] = []
 		
-		public internal(set) var foreignReferenceResolver: ForeignReferenceResolver? = nil
-		public internal(set) var repository: SDAISessionSchema.SdaiRepository? = nil
+		public let foreignReferenceResolver: ForeignReferenceResolver
+		public let repository: SDAISessionSchema.SdaiRepository
 
+		nonisolated(unsafe)
 		public internal(set) var valueInstanceRegistry: [ValueInstanceName:ValueInstanceRecord] = [:]
+		nonisolated(unsafe)
 		public internal(set) var entityInstanceRegistry: [EntityInstanceName:EntityInstanceRecord] = [:]
+		nonisolated(unsafe)
 		public private(set) var schemaRegistry: [SchemaName:SDAISchema.Type] = [:]
 		
 		public var sdaiModels: some Collection<SDAIPopulationSchema.SdaiModel> {
@@ -33,12 +38,20 @@ extension P21Decode {
 		private let activityMonitor: ActivityMonitor?
 		
 		//MARK: - constructor
-		public init(monitor: ActivityMonitor? = nil) {
+		public init(
+			repository: SDAISessionSchema.SdaiRepository,
+			foreignReferenceResolver: ForeignReferenceResolver,
+			monitor: ActivityMonitor? = nil,
+		)
+		{
+			self.repository = repository
+			self.foreignReferenceResolver = foreignReferenceResolver
 			self.activityMonitor = monitor
 		}
 		
 		
 		//MARK: - error handling
+		nonisolated(unsafe)
 		public var error: String? {
 			didSet {
 				if let monitor = activityMonitor, oldValue == nil, let error = error {
@@ -47,7 +60,7 @@ extension P21Decode {
 			}
 		}
 		public func add(errorContext: String) {
-			error = (error ?? "unknown error") + ", " + errorContext
+      error = (error ?? "p21 parser error") + ",\n " + errorContext
 		}
 
 
@@ -74,12 +87,91 @@ extension P21Decode {
 			}
 			return true
 		}
+
+		public var targetSchemas: Set<SDAIDictionarySchema.SchemaDefinition> {
+			Set( schemaRegistry.values.map{ $0.schemaDefinition } )
+		}
 		
 		//MARK: - resolution related
+    enum ResolutionContext: CustomStringConvertible {
+      case schemaName(schemaName: SchemaName)
+      case constantEntityName(constantEntityName: ConstantName)
+      case constantValueName(constantValueName: ConstantName)
+      case valueInstanceName(valueInstanceName: ValueInstanceName)
+      case entityInstanceName(entityInstanceName: EntityInstanceName)
+      case valueReference(valueReference: ExchangeStructure.Resource)
+      case anchorItemValue(anchorItem: AnchorItem)
+      case entityReference(entityReference: ExchangeStructure.Resource)
+      case anchorItemInstance(anchorItem: AnchorItem)
+      case externalMapping(externalMapping: SubsuperRecord)
+
+      var description: String {
+        switch self {
+          case .schemaName(let schemaName):
+            return "resolving application schema [\(schemaName)]"
+
+          case .constantEntityName(let constantEntityName):
+            return "resolving constant entity [\(constantEntityName)]"
+
+          case .constantValueName(let constantValueName):
+            return "resolving constant value [\(constantValueName)]"
+
+          case .valueInstanceName(let valueInstanceName):
+            return "resolving value instance [\(valueInstanceName)]"
+
+          case .entityInstanceName(let entityInstanceName):
+            return "resolving entity instance [\(entityInstanceName)]"
+
+          case .valueReference(let valueReference):
+            return "resolving value reference [\(valueReference)]"
+
+          case .anchorItemValue(let anchorItem):
+            return "resolving anchor item value [\(anchorItem)]"
+
+          case .entityReference(let entityReference):
+            return "resolving entity reference [\(entityReference)]"
+
+          case .anchorItemInstance(let anchorItem):
+            return "resolving anchor item instance [\(anchorItem)]"
+
+          case .externalMapping(let externalMapping):
+            var str = "resolving external mapping ["
+            for simple in externalMapping {
+              str.append("\n\t\(simple)")
+            }
+            str.append("\n ]")
+            return str
+        }
+      }
+    }//enum
+
+    nonisolated(unsafe)
+    var resolutionContextStack: [ResolutionContext] = []
+
+    func push(context: ResolutionContext) {
+      resolutionContextStack.append(context)
+    }
+
+    func popContext() {
+      let _ = resolutionContextStack.popLast()
+    }
+
+    var resolutionContextDescription: String {
+      guard let context = resolutionContextStack.last
+      else { return"" }
+      return context.description
+    }
+
+
+
+
 		public func resolve(
 			schemaName: SchemaName
 		) -> SDAISchema.Type?
 		{
+      push(context: .schemaName(schemaName: schemaName))
+      defer { popContext() }
+
 			let canon = canonicalSchemaName(schemaName)
 			return schemaRegistry[canon]
 		}
@@ -88,6 +180,9 @@ extension P21Decode {
 			constantEntityName: ConstantName
 		) -> SDAI.EntityReference?
 		{
+      push(context: .constantEntityName(constantEntityName: constantEntityName))
+      defer { popContext() }
+
 			guard let schema = self.resolve(schemaName: self.headerSection.fileSchema.SCHEMA_IDENTIFIERS[0])
 			else { self.add(errorContext: "while resolving constant entity name(\(constantEntityName))"); return nil }
 			
@@ -105,6 +200,9 @@ extension P21Decode {
 			constantValueName: ConstantName
 		) -> SDAI.GENERIC?
 		{
+      push(context: .constantValueName(constantValueName: constantValueName))
+      defer { popContext() }
+
 			guard let schema = self.resolve(schemaName: self.headerSection.fileSchema.SCHEMA_IDENTIFIERS[0])
 			else { self.add(errorContext: "while resolving constant value name(\(constantValueName))"); return nil }
 			
@@ -118,6 +216,9 @@ extension P21Decode {
 			valueInstanceName: ValueInstanceName
 		) -> Parameter?
 		{
+      push(context: .valueInstanceName(valueInstanceName: valueInstanceName))
+      defer { popContext() }
+
 			guard let virec = self.valueInstanceRegistry[valueInstanceName]
 			else { self.error = "value instance name(\(valueInstanceName)) not found in reference section"; return nil }
 			
@@ -133,7 +234,10 @@ extension P21Decode {
 			entityInstanceName: EntityInstanceName
 		) -> SDAI.ComplexEntity?
 		{
-			guard let eirec = self.entityInstanceRegistry[entityInstanceName]
+      push(context: .entityInstanceName(entityInstanceName: entityInstanceName))
+      defer { popContext() }
+
+      guard let eirec = self.entityInstanceRegistry[entityInstanceName]
 			else { self.error = "entity instance name #\(entityInstanceName) not found in data section or reference section"; return nil }
 			
 			if let complex = eirec.resolved { return complex }
@@ -178,13 +282,16 @@ extension P21Decode {
 			valueReference: ExchangeStructure.Resource
 		) -> Parameter?
 		{
-			if valueReference.fragment == nil {
+      push(context: .valueReference(valueReference: valueReference))
+      defer { popContext() }
+
+      if valueReference.fragment == nil {
 				return .untypedParameter(.noValue)
 			}
 			
 			if valueReference.uri != nil {
-				guard let resolved = foreignReferenceResolver?.resolve(valueReference: valueReference)
-				else { self.error = foreignReferenceResolver?.error ?? "<unknown foreign value reference resolution error>"; self.add(errorContext: "while resolving value reference(\(valueReference))"); return nil }
+				guard let resolved = foreignReferenceResolver.resolve(valueReference: valueReference)
+				else { self.error = foreignReferenceResolver.error ?? "<unknown foreign value reference resolution error>"; self.add(errorContext: "while resolving value reference(\(valueReference))"); return nil }
 				return resolved
 			}
 			
@@ -205,7 +312,10 @@ extension P21Decode {
 			anchorItem: AnchorItem
 		) -> Parameter?
 		{
-			switch anchorItem {
+      push(context: .anchorItemValue(anchorItem: anchorItem))
+      defer { popContext() }
+
+      switch anchorItem {
 			case .noValue:
 				return .untypedParameter(.noValue)
 				
@@ -261,13 +371,16 @@ extension P21Decode {
 			entityReference: ExchangeStructure.Resource
 		) -> ParameterRecoveryResult<SDAI.ComplexEntity?>
 		{
-			if entityReference.fragment == nil {
+      push(context: .entityReference(entityReference: entityReference))
+      defer { popContext() }
+
+      if entityReference.fragment == nil {
 				return .success(nil)
 			}
 			
 			if entityReference.uri != nil {
-				guard case.success(let resolved) = foreignReferenceResolver?.resolve(entityReference: entityReference)
-				else { self.error = foreignReferenceResolver?.error ?? "<unknown foreign entity reference resolution error>"; self.add(errorContext: "while resolving entity reference(\(entityReference))"); return .failure }
+				guard case.success(let resolved) = foreignReferenceResolver.resolve(entityReference: entityReference)
+				else { self.error = foreignReferenceResolver.error ?? "<unknown foreign entity reference resolution error>"; self.add(errorContext: "while resolving entity reference(\(entityReference))"); return .failure }
 				return .success(resolved)				
 			}
 			
@@ -288,7 +401,10 @@ extension P21Decode {
 			anchorItem: AnchorItem
 		) -> ParameterRecoveryResult<SDAI.ComplexEntity?>
 		{
-			switch anchorItem {
+      push(context: .anchorItemInstance(anchorItem: anchorItem))
+      defer { popContext() }
+
+      switch anchorItem {
 			case .noValue:
 				return .success(nil)
 				
@@ -325,7 +441,10 @@ extension P21Decode {
 			dataSection: DataSection
 		) -> [SDAI.PartialEntity]?
 		{
-			guard let schemaDef = dataSection.schema?.schemaDefinition
+      push(context: .externalMapping(externalMapping: externalMapping))
+      defer { popContext() }
+
+      guard let schemaDef = dataSection.schema?.schemaDefinition
 			else { self.error = "could not find schema definition dictionary for data section(\(dataSection))"; return nil }
 			
 			var partials:[SDAI.PartialEntity] = []
@@ -333,15 +452,15 @@ extension P21Decode {
 				switch simple.keyword {
 				case .standardKeyword(let keyword):
 					guard let entityDef = schemaDef.entities[keyword]
-					else { self.error = "entity name(\(keyword)) not found in schema(\(schemaDef.name))"; self.add(errorContext: "while recovering constutient entity[\(i)]"); return nil }
-					
+					else { self.error = "entity name(\(keyword)) not found in schema(\(schemaDef.name))"; self.add(errorContext: "while recovering constituent entity[\(i)]"); return nil }
+
 					guard let partial = entityDef.partialEntityType.init(parameters: simple.parameterList, exchangeStructure: self)
-					else { self.add(errorContext: "while recovering constutient entity[\(i)]"); return nil }
+					else { self.add(errorContext: "while recovering constituent entity[\(i)]"); return nil }
 					partials.append(partial)
 					
 				case .userDefinedKeyword(let keyword):
-					guard let partial = foreignReferenceResolver?.recover(userDefinedEntity: simple)
-					else { self.error = foreignReferenceResolver?.error ?? "user defined entity(\(keyword)) recovery unknown error"; self.add(errorContext: "while recovering constutient entity[\(i)]"); return nil }
+						guard let partial = foreignReferenceResolver.recover(userDefinedEntity: simple)
+						else { self.error = foreignReferenceResolver.error ?? "user defined entity(\(keyword)) recovery unknown error"; self.add(errorContext: "while recovering constituent entity[\(i)]"); return nil }
 					partials.append(partial)
 				}	
 			}
@@ -381,8 +500,8 @@ extension P21Decode {
 				return subsuper
 				
 			case .userDefinedKeyword(let keyword):
-				guard let subsuper = foreignReferenceResolver?.convertToExternalMapping(from: internalMapping, dataSection: dataSection)
-				else { self.error = foreignReferenceResolver?.error ?? "user defined entity(\(keyword)) external mapping conversion unknown error"; self.add(errorContext: "while converting internal mapping to external mapping"); return nil }
+					guard let subsuper = foreignReferenceResolver.convertToExternalMapping(from: internalMapping, dataSection: dataSection)
+					else { self.error = foreignReferenceResolver.error ?? "user defined entity(\(keyword)) external mapping conversion unknown error"; self.add(errorContext: "while converting internal mapping to external mapping"); return nil }
 				return subsuper
 			}
 		}

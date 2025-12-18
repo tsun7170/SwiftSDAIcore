@@ -20,7 +20,13 @@ public extension SDAI__BINARY__subtype
 		self.init(fundamental: fundamental)
 	}
 	
-	// SDAISimpleType \SDAI__BINARY__type\SDAI__BINARY__subtype
+  // InitializableByVoid
+  init() {
+    let fundamental = FundamentalType()
+    self.init(fundamental: fundamental)
+  }
+
+  // SDAISimpleType \SDAI__BINARY__type\SDAI__BINARY__subtype
 	init(from swiftValue: SwiftType) {
 		self.init(fundamental: FundamentalType(from: swiftValue))
 	}

@@ -12,9 +12,13 @@ import Synchronization
 //MARK: - SdaiCacheHolder
 public protocol SdaiCacheHolder
 {
-	func notifyReadWriteModeChanged(sdaiModel: SDAIPopulationSchema.SdaiModel)
+	func notifyReadWriteModeChanged(sdaiModel: SDAIPopulationSchema.SdaiModel) async
 
-	func notifyApplicationDomainChanged(relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance)
+	func notifyApplicationDomainChanged(relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance) async
+
+  func terminateCachingTask()
+
+  func toCompleteCachingTask() async
 }
 
 
@@ -33,8 +37,9 @@ public extension SdaiCacheableSource where Self: SDAIDefinedType
 //MARK: - SdaiFunctionResultCacheController
 public protocol SdaiFunctionResultCacheController: SdaiCacheableSource, Sendable
 {
+  var approximationLevel: Int {get}
 	func register(cache: SDAI.FunctionResultCache)
-	func resetCaches()
+	func resetCaches() async
 }
 
 
@@ -47,8 +52,22 @@ extension SDAI {
 
 		private let params:[(any ParameterType)?]
 
+    private let hashedParams: Int
+
+    fileprivate typealias LaneNo = Int
+    fileprivate var laneNo: LaneNo {
+      LaneNo(self.hashedParams & 0b11)
+    }
+
 		public init(_ params:(any ParameterType)? ...) {
 			self.params = params
+
+      var hasher = Hasher()
+      hasher.combine(params.count)
+      for param in params {
+        param?.hash_(into: &hasher)
+      }
+      self.hashedParams = hasher.finalize()
 		}
 		
 		public var isCacheable: Bool {
@@ -75,10 +94,7 @@ extension SDAI {
 		}
 
 		public func hash(into hasher: inout Hasher) {
-			hasher.combine(self.params.count)
-			for param in self.params {
-				param?.hash_(into: &hasher)
-			}
+      hasher.combine(self.hashedParams)
 		}
 
 	}//struct
@@ -87,36 +103,177 @@ extension SDAI {
 
 	
 	//MARK: - FunctionResultCache	
-	public final class FunctionResultCache: Sendable
+	public actor FunctionResultCache: Sendable
 	{
 		public enum Result {
 			case available(any Sendable)
 			case unavailable
 		}
-		
-		private let controller: SdaiFunctionResultCacheController
-		private let cache = Mutex<[ParameterList:Result]>([:])
 
-		public init(controller: SdaiFunctionResultCacheController) {
-			self.controller = controller
-			controller.register(cache: self)			
-		}
-		
-		public func updateCache<T: Sendable>(params:ParameterList, value:T) -> T {
-			if controller.isCacheable && params.isCacheable {
-				cache.withLock{ $0[params] = Result.available(value) }
-			}
-			return value
-		}
-		
-		public func cachedValue(params:ParameterList) -> Result {
+    public let label: String
+		private let controller: SdaiFunctionResultCacheController
+
+    private typealias CacheValue = (value:any Sendable, level:Int)
+
+    private let cache0 =
+    Mutex<[ParameterList : CacheValue]>([:])
+    private let cache1 =
+    Mutex<[ParameterList : CacheValue]>([:])
+    private let cache2 =
+    Mutex<[ParameterList : CacheValue]>([:])
+    private let cache3 =
+    Mutex<[ParameterList : CacheValue]>([:])
+
+    private var updateTasks: [ParameterList :
+                                (task:Task<Void,Never>,level:Int) ] = [:]
+
+    private func addTask(
+      for params: ParameterList,
+      level: Int,
+      operation: @Sendable @escaping ()async->Void ) async
+    {
+      while let prevTask = updateTasks[params] {
+        if prevTask.level <= level { return }
+        prevTask.task.cancel()
+        await prevTask.task.value
+      }
+
+      let task = Task(name: "SDAI.function_result_cache_update")
+      {
+        await operation()
+        self.removeTask(for: params)
+      }
+
+      let prevTask = updateTasks.updateValue( (task:task, level:level),
+                                              forKey: params )
+
+      assert(prevTask == nil)
+    }
+
+    private func removeTask(for params:ParameterList)
+    {
+      let _ = updateTasks.removeValue(forKey: params)
+    }
+
+    func terminateCachingTasks()
+    {
+      for running in updateTasks.values {
+        running.task.cancel()
+      }
+    }
+
+    func toCompleteCachingTasks() async
+    {
+      for running in updateTasks.values {
+        await running.task.value
+      }
+    }
+
+
+
+    public init(
+      label: String,
+      controller: SdaiFunctionResultCacheController)
+    {
+      self.label = label
+      self.controller = controller
+      controller.register(cache: self)
+    }
+
+
+    nonisolated
+		public func updateCache<T: Sendable>(
+      params:ParameterList,
+      value:T) -> T
+    {
+      guard controller.isCacheable, params.isCacheable
+      else { return value }
+
+      let currentLevel = controller.approximationLevel
+
+      if attemptToUpdate() != nil { return value }
+
+      Task(name: "SDAI.FunctionResultCache_DeferredUpdate--\(self.label)") {
+        let session = SDAISessionSchema.activeSession
+        let maxAttempts = session?.maxCacheUpdateAttempts ?? 1000
+
+        await self.addTask(for: params, level: currentLevel)
+        {
+          for _ in 1 ... maxAttempts {
+            if Task.isCancelled { return }
+
+            if attemptToUpdate() != nil { return }
+            await Task.yield()
+          }//for
+
+          loggerSDAI.info("\(#function): failed to update function result cache[\(self.label) @level:\(currentLevel)] for \(maxAttempts) attempts")
+        }//addTask
+      }//Task
+
+      return value
+
+      @Sendable func attemptToUpdate() -> Void?
+      {
+        let updated:Void?
+        switch params.laneNo {
+          case 1:
+            updated = self.cache1.withLockIfAvailable{updateKarnel(cache:&$0)}
+          case 2:
+            updated = self.cache2.withLockIfAvailable{updateKarnel(cache:&$0)}
+          case 3:
+            updated = self.cache3.withLockIfAvailable{updateKarnel(cache:&$0)}
+
+          default:
+            updated = self.cache0.withLockIfAvailable{updateKarnel(cache:&$0)}
+        }
+        return updated
+      }
+
+      @Sendable func updateKarnel(
+        cache: inout [ParameterList : CacheValue])
+      {
+        if let cached = cache[params],
+           cached.level <= currentLevel
+        { return }
+
+        cache[params] = (value: value, level: currentLevel)
+      }
+    }
+
+    nonisolated
+		public func cachedValue(params:ParameterList) -> Result
+    {
 			guard controller.isCacheable else { return .unavailable }
-			guard let cached = cache.withLock({ $0[params] }) else { return .unavailable }
-			return cached
+
+      let cached: CacheValue?
+      switch params.laneNo {
+        case 1:
+          cached = cache1.withLock{ $0[params] }
+        case 2:
+          cached = cache2.withLock{ $0[params] }
+        case 3:
+          cached = cache3.withLock{ $0[params] }
+
+        default:
+          cached = cache0.withLock{ $0[params] }
+      }
+
+			guard let cached = cached,
+            cached.level <= controller.approximationLevel
+      else { return .unavailable }
+
+      return .available(cached.value)
 		}
 		
-		public func resetCache() {
-			cache.withLock{ $0 = [:] }
+		public func resetCache() async
+    {
+      self.terminateCachingTasks()
+      await self.toCompleteCachingTasks()
+
+      cache0.withLock{ $0 = [:] }
+      cache1.withLock{ $0 = [:] }
+      cache2.withLock{ $0 = [:] }
+			cache3.withLock{ $0 = [:] }
 		}
 		
 	}

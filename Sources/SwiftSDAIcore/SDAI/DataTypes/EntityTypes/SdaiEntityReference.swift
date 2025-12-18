@@ -23,6 +23,7 @@ public extension SDAIEntityReferenceType {
 	}	
 
 	init(fundamental: FundamentalType) {
+//		debugPrint("\(#function): Self:\(Self.self), FundamentalType: \(FundamentalType.self)")
 		self.init(complex: fundamental.complexEntity)!
 	}
 
@@ -57,8 +58,10 @@ extension SDAI {
 		{
 			guard let complexEntity = complexEntity else { return nil }
 			super.init(complexEntity)
-			assert(type(of:self) != EntityReference.self, "abstract class instantiated")
-			if !complexEntity.registerEntityReference(self) { return nil }
+
+			if type(of:self) != GENERIC_ENTITY.self {
+				if !complexEntity.registerEntityReference(self) { return nil }
+			}
 		}
 
 		//CustomStringConvertible
@@ -170,18 +173,18 @@ extension SDAI {
 		nonisolated(unsafe)
 		internal var retainer: ComplexEntity? = nil // for temporary complex entity lifetime control
 
-		internal func unify( with other:EntityReference )
+		internal func unifyCache( with master:EntityReference )
 		{
-			self.derivedAttributeCache = other.derivedAttributeCache
+      self.cacheUpdater = master.cacheUpdater
 		}
 
 		// group reference
 		public func GROUP_REF<SUPER:EntityReference & SDAIDualModeReference>(
-			_ entity_ref: SUPER.Type
+			_ super_ref: SUPER.Type
 		) -> SUPER.PRef?
 		{
 			let complex = self.complexEntity
-			return complex.partialComplexEntity(entity_ref)?.pRef
+      return complex.entityReference(super_ref)?.pRef
 		}
 
 		//MARK: inverse attribute support
@@ -331,9 +334,9 @@ extension SDAI {
 		//MARK: SdaiCacheHolder related
 		public func notifyApplicationDomainChanged(
 			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance
-		)
+		) async
 		{
-			self.resetCache()
+      await self.resetCache()
 		}
 
 		public func notifyReadWriteModeChanged(
@@ -342,6 +345,18 @@ extension SDAI {
 		{
 			//NOOP
 		}
+
+    public func terminateCachingTask()
+    {
+      Task(name: "SDAI.DerivedAttributeCache_updateCanceller") {
+        await cacheUpdater.terminateCachingTasks()
+      }
+    }
+
+    public func toCompleteCachingTask() async
+    {
+      await cacheUpdater.toCompleteCachingTasks()
+    }
 
 
 		// derived attribute value caching
@@ -353,32 +368,150 @@ extension SDAI {
 			}
 		}
 
-		nonisolated(unsafe)
-		private var derivedAttributeCache: MutexReference<[AttributeName:CachedValue]> = MutexReference([:])
+    private actor CacheUpdater<ENT: EntityReference> {
+
+      private let derivedAttributeCache =
+      Mutex<[AttributeName : (value:CachedValue, level:Int)]>([:])
+
+      private var updateTasks: [AttributeName :
+                                  (task:Task<Void,Never>,level:Int)] = [:]
+
+      private func addTask(
+        for attributeName: AttributeName,
+        level: Int,
+        operation: @Sendable @escaping ()async->Void ) async
+      {
+        while let prevTask = updateTasks[attributeName] {
+          if prevTask.level <= level { return }
+          prevTask.task.cancel()
+          await prevTask.task.value
+        }
+
+        let task = Task(name: "SDAI.derived_attribute_cache_update")
+        {
+          await operation()
+          self.removeTask(for: attributeName)
+        }
+
+        let prevTask = updateTasks.updateValue( (task:task, level:level),
+                                                forKey: attributeName)
+
+        assert(prevTask == nil)
+      }
+
+      private func removeTask(for attributeName:AttributeName)
+      {
+        let _ = updateTasks.removeValue(forKey: attributeName)
+      }
+
+      func terminateCachingTasks()
+      {
+        for running in updateTasks.values {
+          running.task.cancel()
+        }
+      }
+
+      func toCompleteCachingTasks() async
+      {
+        for running in updateTasks.values {
+          await running.task.value
+        }
+      }
+
+      func resetCaches() async
+      {
+        self.terminateCachingTasks()
+        await self.toCompleteCachingTasks()
+        derivedAttributeCache.withLock{ $0 = [:] }
+      }
+
+      nonisolated func cachedValue(
+        for derivedAttributeName: AttributeName
+      ) -> (value:CachedValue, level:Int)?
+      {
+        derivedAttributeCache.withLock{ $0[derivedAttributeName] }
+      }
+
+      nonisolated func updateCache(
+        for derivedAttributeName: AttributeName,
+        value: (some Sendable)?,
+        currentLevel: Int )
+      {
+        if attemptToUpdate() != nil { return }
+
+        Task(name:"SDAI.DerivedAttributeCache_DeferredUpdate--\(ENT.self).\(derivedAttributeName)") {
+          let session = SDAISessionSchema.activeSession
+          let maxAttempts = session?.maxCacheUpdateAttempts ?? 1000
+
+          await self.addTask(for: derivedAttributeName, level: currentLevel)
+          {
+            for _ in 1 ... maxAttempts {
+              if Task.isCancelled { return }
+
+              if attemptToUpdate() != nil { return }
+              await Task.yield()
+            }//for
+
+            loggerSDAI.info("\(#function): failed to update derived attribute cache[\(ENT.self).\(derivedAttributeName) @level:\(currentLevel)] for \(maxAttempts) attempts")
+          }//addTask
+        }//Task
+
+        @Sendable func attemptToUpdate() -> Void?
+        {
+          let updated:Void? = derivedAttributeCache.withLockIfAvailable
+          {
+            if let cached = $0[derivedAttributeName],
+               cached.level <= currentLevel
+            { return }
+
+            $0[derivedAttributeName] = (value:CachedValue(value), level:currentLevel)
+          }
+          return updated
+        }
+      }
+
+    }//CacheUpdater
+
+
+    private var cacheUpdater = CacheUpdater()
+
+		private var cacheController: SDAIDictionarySchema.SchemaDefinition {
+			Self.entityDefinition.parentSchema
+		}
 
 		public func cachedValue(
 			derivedAttributeName: AttributeName
 		) -> CachedValue?
-		{
-			let result = derivedAttributeCache.withLock{ $0[derivedAttributeName] }
-			return result
-		}
+    {
+      guard let cached = cacheUpdater.cachedValue(for: derivedAttributeName),
+            cached.level <= cacheController.approximationLevel
+      else { return nil }
+
+      return cached.value
+    }
 		
 		public func updateCache(
 			derivedAttributeName: AttributeName,
 			value: (some Sendable)?
 		)
 		{
-			guard self.complexEntity.owningModel.mode == .readOnly else { return }
+      guard
+        self.cacheController.isCacheable,
+        self.complexEntity.owningModel.mode == .readOnly
+      else { return }
 
-			derivedAttributeCache.withLock{ $0[derivedAttributeName] = CachedValue(value) }
+      cacheUpdater.updateCache(
+        for: derivedAttributeName,
+        value: value,
+        currentLevel: cacheController.approximationLevel)
 		}
 		
-		public func resetCache()
+		public func resetCache() async
 		{
-			derivedAttributeCache.withLock{ $0 = [:] }
+      await cacheUpdater.resetCaches()
 		}
-		
+
+    
 		// InitializableByGenericType
 		required public convenience init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 			guard let entityRef = generic?.entityReference else { return nil }
@@ -396,6 +529,12 @@ extension SDAI {
 			}
 			return nil
 		}
+
+
+    public static func cast(from complex: ComplexEntity?) -> Self?
+    {
+      complex?.entityReference(self)
+    }
 
 		public static func cast<EREF:EntityReference>(from source: EREF?) -> Self?
 		{

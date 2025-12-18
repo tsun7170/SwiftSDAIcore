@@ -26,7 +26,8 @@ extension String: SwiftStringRepresented
 
 
 //MARK: - STRING type (8.1.6)
-public protocol SDAIStringType: SDAISimpleType, SwiftStringConvertible, ExpressibleByStringLiteral
+public protocol SDAIStringType: SDAISimpleType, SwiftStringConvertible,
+                                ExpressibleByStringLiteral, InitializableByVoid
 where StringLiteralType == String
 {
 	var length: Int {get}
@@ -261,9 +262,8 @@ extension SDAI {
 		}
 
 		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
-			self.init("")
+			self.init()
 		}
-		
 
 	}
 }

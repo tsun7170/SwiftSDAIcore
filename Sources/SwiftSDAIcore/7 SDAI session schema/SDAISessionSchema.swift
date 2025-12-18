@@ -34,6 +34,7 @@ public enum SDAISessionSchema {
 
 	public typealias SchemaDefinition = SDAIDictionarySchema.SchemaDefinition
 
+  internal typealias ComplexEntityID = SDAIPopulationSchema.SdaiModel.ComplexEntityID
 	internal typealias SDAIModelID = SDAIPopulationSchema.SdaiModel.SDAIModelID
 	internal typealias SchemaInstanceID = SDAIPopulationSchema.SchemaInstance.SchemaInstanceID
 

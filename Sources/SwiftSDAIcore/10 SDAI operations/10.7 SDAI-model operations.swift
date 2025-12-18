@@ -19,7 +19,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	@discardableResult
 	public func deleteSdaiModel(
 		model: SDAIPopulationSchema.SdaiModel
-	) -> Bool
+	) async -> Bool
 	{
 		guard let session = self.owningSession else {
 			SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
@@ -36,7 +36,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 		session.deleteSdaiModel(modelID: model.modelID)
 
 		for schemaInstance in model.associatedWith {
-			let _ = self.notifyApplicationDomainChanged(relatedTo: schemaInstance)
+      let _ = await self.notifyApplicationDomainChanged(relatedTo: schemaInstance)
 		}
 
 		return true
@@ -262,7 +262,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	///
 	public func endReadWriteAccess(
 		model: SDAIPopulationSchema.SdaiModel,
-		disposition: SDAISessionSchema.SdaiTransaction.Disposition
+		disposition: SDAISessionSchema.SdaiTransaction.Disposition<Void>
 	) -> Bool
 	{
 		guard let session = self.owningSession else {

@@ -46,7 +46,7 @@ extension SDAISessionSchema {
 		//MARK: swift language binding
 		private let _sessionSet = Mutex<Set<SdaiSession>>([])
 
-		internal init(name: STRING, description: STRING)
+		public init(name: STRING, description: STRING)
 		{
 			self.name = name
 			self.description = description

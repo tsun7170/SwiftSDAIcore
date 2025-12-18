@@ -11,7 +11,8 @@ import Foundation
 extension P21Decode.ExchangeStructure {
 	
 	/// ISO 10303-21 9 Anchor section
-	public struct AnchorSection {
+	public struct AnchorSection: Sendable {
+		nonisolated(unsafe)
 		public private(set) var externalItems: [URIFragmentIdentifier:AnchorRecord] = [:]
 		
 		public mutating func register(name: URIFragmentIdentifier, item: AnchorItem, tag: AnchorTag?) {

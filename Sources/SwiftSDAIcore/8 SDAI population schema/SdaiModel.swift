@@ -17,12 +17,13 @@ extension SDAIPopulationSchema {
 	/// # Formal propositions:
   /// UR1: The name shall be unique within the repository containing the SdaiModel.
 	/// 
-	public final class SdaiModel: SDAI.Object, SdaiCacheHolder, Sendable
+	public actor SdaiModel: SDAI.Object, SdaiCacheHolder, Sendable
 	{
 
 		//MARK: Attribute definitions:
 
 		/// the identifier for this SdaiModel. The name is case sensitive.
+    nonisolated
 		public internal(set) var name: STRING {
 			get {
 				_name.withLock{ $0 }
@@ -34,29 +35,35 @@ extension SDAIPopulationSchema {
 		private let _name = Mutex<STRING>("")
 
 		/// the collection mechanism for entity instances within the SdaiModel.
+    nonisolated
 		public let contents: SdaiModelContents
 		
 		/// the schema that defines the structure of the data that appears in the SdaiModel.
+    nonisolated
 		public let underlyingSchema: SDAIDictionarySchema.SchemaDefinition
 		
 		/// the repository within which the SdaiModel was created.
+    nonisolated
 		public unowned let repository: SDAISessionSchema.SdaiRepository
 		
 		/// if present, the creation date or date of most recent modification, including creation or deletion, to an entity instance within the current SdaiModel.
+    nonisolated
 		public var changeDate: SDAISessionSchema.TimeStamp {
 			self._changeDate.withLock{ $0 }
 		}
 		private let _changeDate = Mutex<SDAISessionSchema.TimeStamp>(Date())
 
+    nonisolated
 		internal func updateChangeDate() {
 			self._changeDate.withLock{ $0 = Date() }
 		}
 
 		/// if present, the current access mode for the SdaiModel. If not present, the SdaiModel is not open.
+    nonisolated
 		public var mode: SDAISessionSchema.AccessType? {
 			guard
 				let session = SDAISessionSchema.activeSession,
-				let modelInfo = session.activeModelInfo(for:self.modelID),
+        let modelInfo = session.activeModelInfo(for:self.modelID),
 				modelInfo.instance == self
 			else { return nil }
 
@@ -64,6 +71,7 @@ extension SDAIPopulationSchema {
 		}//var
 
 		/// the schema instances with which the SdaiModel has been associated.
+    nonisolated
 		public var associatedWith: some Collection<SchemaInstance> {
 			get {
 				var result: [SchemaInstance] = []
@@ -91,11 +99,8 @@ extension SDAIPopulationSchema {
 		internal typealias ComplexEntityID = P21Decode.EntityInstanceName
 		internal typealias SDAIModelID = UUID
 
+    nonisolated
 		internal let modelID: SDAIModelID	// for this SdaiModel
-
-		internal static let nilModelID: SDAIModelID = SDAIModelID()
-		internal static let nilComplexID: ComplexEntityID = 0
-
 
 		internal init(
 			repository: SDAISessionSchema.SdaiRepository,
@@ -108,24 +113,26 @@ extension SDAIPopulationSchema {
 			self._name.withLock{ $0 = modelName }
 			self.underlyingSchema = schema
 			self.contents = SdaiModelContents()
-//			self.changeDate = Date()
 
 			self.contents.fixup(owner: self)
+			repository.contents.add(model: self)
 		}
 
 
 		private init(from original: SdaiModel)
 		{
+			self.modelID = original.modelID
 			self.repository = original.repository
 			self._name.withLock{ $0 = original.name }
-			self.modelID = original.modelID
 			self.underlyingSchema = original.underlyingSchema
 			self.contents = SdaiModelContents()
 			self._changeDate.withLock{ $0 = original.changeDate }
 
 			self.contents.fixup(owner: self)
+			repository.contents.add(model: self)
 		}
 
+    nonisolated
 		internal func clone() -> SdaiModel {
 			let cloned = SdaiModel(from: self)
 			cloned.contents.duplicateContents(from: self.contents)
@@ -135,34 +142,79 @@ extension SDAIPopulationSchema {
 
 		
 		/// unique temporary name as negative number
+    nonisolated
 		public var uniqueName: P21Decode.EntityInstanceName {
 			return _uniqueName.withLock{ $0 = $0 &- 1; return $0 }
 		}
 		private let _uniqueName = Mutex<P21Decode.EntityInstanceName>(0)
 
-
-
-		//MARK: SdaiCacheHolder related
-		public func notifyApplicationDomainChanged(
-			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance
-		)
-		{
-			self.underlyingSchema.notifyApplicationDomainChanged(relatedTo: schemaInstance)
-			self.contents.notifyApplicationDomainChanged(relatedTo: schemaInstance)
+    nonisolated
+		public var fallBackModel: SdaiModel? {
+			guard let session = SDAISessionSchema.activeSession
+			else { return nil }
+			let fallback = session.fallBackModel(for: self.underlyingSchema)
+			return fallback
 		}
 
+		//MARK: SdaiCacheHolder related
+    nonisolated
+		public func notifyApplicationDomainChanged(
+			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance
+		) async
+		{
+      self.terminateCachingTask()
+			self.underlyingSchema.notifyApplicationDomainChanged(relatedTo: schemaInstance)
+      await self.contents.notifyApplicationDomainChanged(relatedTo: schemaInstance)
+		}
+
+    nonisolated
 		public func notifyReadWriteModeChanged(
 			sdaiModel: SDAIPopulationSchema.SdaiModel
 		)
 		{
+      self.terminateCachingTask()
 			self.underlyingSchema.notifyReadWriteModeChanged(sdaiModel: sdaiModel)
 			self.contents.notifyReadWriteModeChanged(sdaiModel: sdaiModel)
 		}
 
+    //MARK: USEDIN cache related
+    internal var cacheFillingTask: Task<Void,Never>?
 
+    internal func addCacheFillingTask(
+      session: SDAISessionSchema.SdaiSession,
+      operation: @Sendable @escaping ()async->Void ) async
+    {
+      guard cacheFillingTask == nil else { return }
 
+      cacheFillingTask =
+      Task.detached(
+        name: "SDAI.USEDIN-\(self.name)_cache_fillings",
+        priority: .low)
+      {
+        await SDAISessionSchema.$activeSession.withValue(session) {
+          await operation()
+        }
+        await self.removeTask()
+      }
+    }
 
-	}//class
+    private func removeTask() {
+      cacheFillingTask = nil
+    }
+
+    nonisolated
+    public func terminateCachingTask() {
+      Task(name:"SDAI.USEDIN_cache_update_canceller") {
+        await cacheFillingTask?.cancel()
+      }
+    }
+
+    public func toCompleteCachingTask() async {
+      await cacheFillingTask?.value
+    }
+
+	}//actor
+
 
 	//MARK: - SdaiModelContents
 	/// ISO-10303-22 (8.4.3)
@@ -171,7 +223,7 @@ extension SDAIPopulationSchema {
 	/** # Informal propositions: 
 	IP1: The set SdaiModelContents.instances contains the same entity instances as the union of the set of extents SdaiModelContents.populatedFolders contains.
 	*/
-	public final class SdaiModelContents: SDAI.Object, SdaiCacheHolder, Sendable
+	public final class SdaiModelContents: SDAI.Object, /*SdaiCacheHolder,*/ Sendable
 	{
 
 		//MARK: Attribute definitions:
@@ -228,21 +280,91 @@ extension SDAIPopulationSchema {
 			type: ENT.Type
 		) -> Array<ENT>
 		{
-			let result = self.instances.compactMap{ $0 as? ENT }
-			return result
+      let result = self.allComplexEntities.compactMap{
+        type.cast(from: $0)
+      }
+      return result
 		}
-		
-		private let complexEntities = Mutex<[P21Decode.EntityInstanceName : SDAI.ComplexEntity]>([:])
 
-		public var allComplexEntities: some Collection<SDAI.ComplexEntity> { 
-			return complexEntities.withLock{ $0.values }
+    private typealias LaneNo = Int8
+
+    private func laneNo(_ p21name:P21Decode.EntityInstanceName) -> LaneNo
+    {
+      LaneNo(p21name & 0b11)
+    }
+
+    private let complexEntities0 = Mutex<[P21Decode.EntityInstanceName : SDAI.ComplexEntity]>([:])
+    private let complexEntities1 = Mutex<[P21Decode.EntityInstanceName : SDAI.ComplexEntity]>([:])
+    private let complexEntities2 = Mutex<[P21Decode.EntityInstanceName : SDAI.ComplexEntity]>([:])
+		private let complexEntities3 = Mutex<[P21Decode.EntityInstanceName : SDAI.ComplexEntity]>([:])
+
+    private func setComplexEntities(
+      _ complex: SDAI.ComplexEntity?,
+      for p21name: P21Decode.EntityInstanceName,
+      laneNo: LaneNo)
+    {
+      switch laneNo {
+        case 1:
+          complexEntities1.withLock{ $0[p21name] = complex }
+        case 2:
+          complexEntities2.withLock{ $0[p21name] = complex }
+        case 3:
+          complexEntities3.withLock{ $0[p21name] = complex }
+
+        default:
+          complexEntities0.withLock{ $0[p21name] = complex }
+      }
+    }
+
+    private func clearComplexEntities()
+    {
+      complexEntities0.withLock{ $0 = [:] }
+      complexEntities1.withLock{ $0 = [:] }
+      complexEntities2.withLock{ $0 = [:] }
+      complexEntities3.withLock{ $0 = [:] }
+    }
+
+		public var allComplexEntities: some Collection<SDAI.ComplexEntity> {
+      let complex0 = complexEntities0.withLock{ $0.values }
+      let complex1 = complexEntities1.withLock{ $0.values }
+      let complex2 = complexEntities2.withLock{ $0.values }
+      let complex3 = complexEntities3.withLock{ $0.values }
+
+      let joined = [complex0, complex1, complex2, complex3].joined()
+
+			return joined
 		}
-		
+
+		public var allComplexEntitiesShuffled: Array<SDAI.ComplexEntity> {
+			Array(allComplexEntities).shuffled()
+		}
+
 		public func complexEntity(
 			named p21name: P21Decode.EntityInstanceName
 		) -> SDAI.ComplexEntity?
 		{
-			return complexEntities.withLock{ $0[p21name] }
+      let laneNo = laneNo(p21name)
+
+      let complex: SDAI.ComplexEntity?
+      switch laneNo {
+        case 1:
+          complex = complexEntities1.withLock{ $0[p21name] }
+        case 2:
+          complex = complexEntities2.withLock{ $0[p21name] }
+        case 3:
+          complex = complexEntities3.withLock{ $0[p21name] }
+
+        default:
+          complex = complexEntities0.withLock{ $0[p21name] }
+      }//switch
+
+      SDAISessionSchema.activeSession?.activeTransaction?
+        .updateComplexCache(
+          complexID: p21name,
+          modelID: self.ownedBy.modelID,
+          value: complex)
+      
+      return complex
 		}
 		
 		internal func add(
@@ -260,7 +382,11 @@ extension SDAIPopulationSchema {
 				return false
 			}
 
-			complexEntities.withLock{ $0[complex.p21name] = complex }
+      self.setComplexEntities(
+        complex,
+        for: complex.p21name,
+        laneNo: self.laneNo(complex.p21name))
+
 			return true
 		}
 
@@ -277,13 +403,17 @@ extension SDAIPopulationSchema {
 				return false
 			}
 
-			complexEntities.withLock{ $0[complex.p21name] = nil }
+      self.setComplexEntities(
+        nil,
+        for: complex.p21name,
+        laneNo: self.laneNo(complex.p21name))
+
 			return true
 		}
 
 		public func removeAll()
 		{
-			complexEntities.withLock{ $0 = [:] }
+      self.clearComplexEntities()
 		}
 
 		//MARK: SdaiCacheHolder related
@@ -303,7 +433,7 @@ extension SDAIPopulationSchema {
 
 		public func notifyApplicationDomainChanged(
 			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance
-		)
+		) async
 		{
 			if Set(self.ownedBy.associatedWith).contains(schemaInstance) {
 				for entityExtent in self.folders.values {
@@ -312,22 +442,12 @@ extension SDAIPopulationSchema {
 			}
 
 			for complex in self.allComplexEntities {
-				complex.notifyApplicationDomainChanged(relatedTo: schemaInstance)
+        await complex.notifyApplicationDomainChanged(relatedTo: schemaInstance)
 			}
 		}
 
+	}//class
 
-//		public func resetCache(
-//			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance?
-//		)
-//		{
-//			for complex in allComplexEntities {
-//				complex.resetCache(relatedTo: schemaInstance)
-//			}
-//		}
-		
-	}
-		
 }
 
 //MARK: - Entity Extent
@@ -336,7 +456,7 @@ extension SDAIPopulationSchema {
 	/// An EntityExtent groups all instances of an entity data type that exist in an SdaiModel.
 	/// - This grouping includes instances of the specified EntityDefinition, instances of all subtypes of the EntityDefinition and instances of other EntityDefinitions resulting from the mapping of the EXPRESS AND and ANDOR constraints as described in annex A which contains the entity data type as a constituent.
 	///
-	public final class EntityExtent: SDAI.Object, SdaiCacheHolder, Sendable
+	public final class EntityExtent: SDAI.Object, Sendable
 	{
 
 		//MARK: Attribute definitions:
@@ -360,6 +480,12 @@ extension SDAIPopulationSchema {
 
 			return result
 		}
+
+    public func instances<ENT:SDAIParameterDataSchema.ApplicationInstance>(
+      of type: ENT.Type) -> some Collection<ENT>
+    {
+      self.instances.compactMap { $0 as? ENT }
+    }
 
 		/// the SdaiModelContents owning the EntityExtent.
 		public unowned let ownedBy: SdaiModelContents

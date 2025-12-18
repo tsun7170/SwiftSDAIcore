@@ -11,7 +11,7 @@ import Foundation
 extension SDAIPopulationSchema {
 
 	//MARK: - ValidationMonitor
-	open class ValidationMonitor {
+  open class ValidationMonitor: @unchecked Sendable {
 		public init() {}
 		
 		open func willValidate(
@@ -27,6 +27,19 @@ extension SDAIPopulationSchema {
 			for applicationInstances: some Collection<SDAI.EntityReference>) {}
 
 
+    open func completedToValidate(
+      globalRules: some Collection<SDAIDictionarySchema.GlobalRule>) {}
+
+    open func completedToValidate(
+      uniquenessRules:some Collection<SDAIDictionarySchema.UniquenessRule>) {}
+
+    open func completedToValidateWhereRules(
+      for complexEntities: some Collection<SDAI.ComplexEntity>) {}
+
+    open func completedToValidateInstanceReferenceDomain(
+      for applicationInstances: some Collection<SDAI.EntityReference>) {}
+
+
 		open func didValidateGlobalRule(
 			for schemaInstance: SchemaInstance,
 			result: GlobalRuleValidationResult) {}
@@ -40,20 +53,17 @@ extension SDAIPopulationSchema {
 			result: WhereRuleValidationRecords) {}
 
 		open func didValidateInstanceReferenceDomain(
-			for applicationInstance: SDAI.EntityReference,
+			for schemaInstance: SchemaInstance,
+			applicationInstance: SDAI.EntityReference,
 			result: InstanceReferenceDomainValidationResult) {}
 
-		open var terminateValidation: Bool { false }
+    open var terminateValidation: Bool { Task.isCancelled }
 	}
 
-//}
-//
-//
-//extension SDAI {
 	//MARK: - validation related
 	public typealias WhereLabel = SDAIDictionarySchema.ExpressId
 
-	public enum ValidationRecordingOption {
+  public enum ValidationRecordingOption: Sendable {
 		case recordFailureOnly
 		case recordAll
 	}
@@ -63,10 +73,33 @@ extension SDAIPopulationSchema {
 
 	public typealias WhereRuleValidationRecords = [WhereLabel:SDAI.LOGICAL]
 
-	public struct GlobalRuleValidationResult: Sendable {
+	public struct GlobalRuleValidationResult:CustomStringConvertible, Sendable {
+    public var description: String {
+      var str = "GlobalRuleValidationResult(\(globalRule.name) result:\(result)\n"
+      for (i,(label,whereResult)) in record
+        .sorted(by: { $0.key < $1.key })
+        .enumerated() {
+        str += "[\(i)]\t\(label): \(whereResult)\n"
+      }
+      str += ")\n"
+
+      return str
+    }
+
 		public var globalRule: SDAIDictionarySchema.GlobalRule
 		public var result: SDAI.LOGICAL
 		public var record: WhereRuleValidationRecords
+
+    public init(
+      globalRule: SDAIDictionarySchema.GlobalRule,
+      result: SDAI.LOGICAL = SDAI.UNKNOWN,
+      record: WhereRuleValidationRecords = [:]
+    )
+    {
+      self.globalRule = globalRule
+      self.result = result
+      self.record = record
+    }
 	}
 
 
@@ -77,6 +110,17 @@ extension SDAIPopulationSchema {
 		public var uniquenessRule: SDAIDictionarySchema.UniquenessRule
 		public var result: SDAI.LOGICAL
 		public var record: (uniqueCount:Int, instanceCount:Int)
+
+    public init(
+      uniquenessRule: SDAIDictionarySchema.UniquenessRule,
+      result: SDAI.LOGICAL = SDAI.UNKNOWN,
+      record: (uniqueCount: Int, instanceCount: Int) = (0,0)
+    )
+    {
+      self.uniquenessRule = uniquenessRule
+      self.result = result
+      self.record = record
+    }
 	}
 
 
@@ -89,7 +133,7 @@ extension SDAIPopulationSchema {
 				.enumerated() {
 					str += "[\(i)]\t\(label): \(whereResult)\n"
 				}
-			str += ")\n"
+			str += "\n"
 			return str
 		}
 
@@ -102,7 +146,16 @@ extension SDAIPopulationSchema {
 	public typealias InstanceReferenceDomainValidationRecord =
 	(definition: SDAIAttributeType, value: SDAI.GENERIC?, result: SDAI.LOGICAL)
 
-	public struct InstanceReferenceDomainValidationResult: Sendable {
+	public struct InstanceReferenceDomainValidationResult: CustomStringConvertible, Sendable {
+		public var description: String {
+			var str = "InstanceReferenceDomainValidationResult( result:\(result)\n"
+			for (i, irvRec) in record.enumerated() {
+				str += "[\(i)]\(irvRec.result)\t\(irvRec.definition.parentEntity.name).\(irvRec.definition.name):\(irvRec.definition.bareTypeName) = \(irvRec.value, default: "nil")\n"
+			}
+			str += "\n"
+			return str
+		}
+
 		public var result: SDAI.LOGICAL
 		public var record: [InstanceReferenceDomainValidationRecord]
 	}

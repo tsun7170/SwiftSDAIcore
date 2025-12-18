@@ -65,8 +65,8 @@ extension SDAISessionSchema {
 
 		/// the SdaiModels currently being accessed in the session.
 		public var activeModels: SET<SdaiModel> {
-			let active = self.activeModelTable.withLock{ $0 }
-			let deleted = self.deletedModels.withLock{ $0 }
+			let active = self.activeModelTable
+			let deleted = self.deletedModelIDs
 
 			let result = active
 				.filter{ !deleted.contains($0.key) }
@@ -107,13 +107,30 @@ extension SDAISessionSchema {
 		nonisolated(unsafe)
 		private var _fallBackModels: [SchemaDefinition:SdaiModel] = [:]
 
-		public init(
+		internal init(
 			repositories: [SdaiRepository],
-			errorEventCallback: ErrorEventCallback? = nil)
+			errorEventCallback: ErrorEventCallback? = nil,
+      maxConcurrency: Int = ProcessInfo.processInfo.processorCount + 2,
+      maxCacheUpdateAttempts: Int = 1000,
+      maxUsedinNesting: Int = 2,
+      runUsedinCacheWarming: Bool = true,
+      maxValidationTaskSegmentation: Int = 400,
+      minValidationTaskChunkSize: Int = 8
+    )
 		{
 			self.fallbackRepository = SdaiRepository(name: "FALLBACK", description: "session temporary fallback repository")
 
 			self.errorEventCallback = errorEventCallback
+
+      self.maxConcurrency = maxConcurrency
+      self.maxCacheUpdateAttempts = maxCacheUpdateAttempts
+
+      self.maxUsedinNesting = maxUsedinNesting
+      self.runUsedinCacheWarming = runUsedinCacheWarming
+
+      self.maxValidationTaskSegmentation = maxValidationTaskSegmentation
+
+      self.minValidationTaskChunkSize = minValidationTaskChunkSize
 
 			for repository in repositories + [self.fallbackRepository] {
 				knownServers[repository.name] = repository
@@ -121,20 +138,44 @@ extension SDAISessionSchema {
 			}
 		}
 
+    //MARK: concurrency related
+    public let maxConcurrency: Int
+    public let maxCacheUpdateAttempts: Int
+
+    public let maxUsedinNesting: Int
+    public let runUsedinCacheWarming: Bool
+
+    public let maxValidationTaskSegmentation: Int
+    public let minValidationTaskChunkSize: Int
+
+    public func terminateCachingTasks() {
+      for model in activeModels {
+        model.terminateCachingTask()
+      }
+    }
+
+    public func toCompleteCachingTasks() async {
+      for model in activeModels {
+        await model.toCompleteCachingTask()
+      }
+    }
+
 		//MARK: fallback model related
-		public func prepareFallBackModels(
-			for schemas: some Sequence<SchemaDefinition>,
+		internal func prepareFallBackModels(
+			for schemas: some Collection<SchemaDefinition>,
 			transaction: SdaiTransactionRW
 		)
 		{
+			transaction.owningSession?.open(repository: fallbackRepository)
+			
 			self._fallBackModels = [:]
 			for schema in schemas {
+//				debugPrint("creating model[\(schema.name + ".fallback")]")
 				if let model = transaction.createSdaiModel(
 					repository: fallbackRepository,
 					modelName: schema.name + ".fallback",
 					schema: schema)
 				{
-					let model = transaction.startReadWriteAccess(model: model)
 					_fallBackModels[schema] = model
 				}
 			}
@@ -161,8 +202,9 @@ extension SDAISessionSchema {
 			self._errors.withLock{ $0 = [] }
 		}
 
-		public typealias ErrorEventCallback = @Sendable (_ errorEvent: ErrorEvent,
-																					 _ isolation: isolated (any Actor)?) -> Void
+    public typealias ErrorEventCallback =
+    @Sendable (_ errorEvent: ErrorEvent,
+               _ isolation: isolated (any Actor)? ) -> Void
 
 		internal let errorEventCallback: ( ErrorEventCallback )?
 
@@ -218,7 +260,7 @@ extension SDAISessionSchema {
 			}
 
 			for model in repository.contents.models {
-				self.closeSdaiModel(modelID: model.modelID)
+        self.closeSdaiModel(modelID: model.modelID)
 			}
 		}
 
@@ -438,40 +480,194 @@ extension SDAISessionSchema {
 			let mode: AccessType
 		}
 
-		private let activeModelTable = Mutex<[SDAIModelID:ModelInfo]>([:])
+    private typealias LaneNo = Int
+
+    private func laneNo(_ modelID: SDAIModelID) -> LaneNo
+    {
+      var hasher = Hasher()
+      hasher.combine(modelID)
+      let lane = hasher.finalize() & 0b11
+      return LaneNo(lane)
+    }
+
+    private let activeModelTable0 = Mutex<[SDAIModelID:ModelInfo]>([:])
+    private let activeModelTable1 = Mutex<[SDAIModelID:ModelInfo]>([:])
+    private let activeModelTable2 = Mutex<[SDAIModelID:ModelInfo]>([:])
+		private let activeModelTable3 = Mutex<[SDAIModelID:ModelInfo]>([:])
+
+    private func setActiveModelTable(
+      info modelInfo: ModelInfo?,
+      for modelID: SDAIModelID,
+      laneNo: LaneNo)
+    {
+      self.activeTransaction?.updateModelCache(
+        modelID:modelID, value:modelInfo?.instance)
+
+      switch laneNo {
+        case 1:
+          self.activeModelTable1.withLock{ $0[modelID] = modelInfo }
+        case 2:
+          self.activeModelTable2.withLock{ $0[modelID] = modelInfo }
+        case 3:
+          self.activeModelTable3.withLock{ $0[modelID] = modelInfo }
+
+        default:
+          self.activeModelTable0.withLock{ $0[modelID] = modelInfo }
+      }
+    }
+
+    internal var activeModelIDs: some Collection<SDAIModelID> {
+      let info0 = self.activeModelTable0.withLock{ $0.keys }
+      let info1 = self.activeModelTable1.withLock{ $0.keys }
+      let info2 = self.activeModelTable2.withLock{ $0.keys }
+      let info3 = self.activeModelTable3.withLock{ $0.keys }
+      let joined = [info0, info1, info2, info3].joined()
+      return joined
+    }
 
 		internal var activeModelInfos: some Collection<ModelInfo> {
-			self.activeModelTable.withLock{ $0.values }
+      let info0 = self.activeModelTable0.withLock{ $0.values }
+      let info1 = self.activeModelTable1.withLock{ $0.values }
+      let info2 = self.activeModelTable2.withLock{ $0.values }
+			let info3 = self.activeModelTable3.withLock{ $0.values }
+      let joined = [info0, info1, info2, info3].joined()
+      return joined
 		}
 
-		internal func activeModelInfo(
-			for modelID: SDAIModelID
+    private var activeModelTable: [SDAIModelID:ModelInfo] {
+      let info0 = self.activeModelTable0.withLock{ $0 }
+      let info1 = self.activeModelTable1.withLock{ $0 }
+      let info2 = self.activeModelTable2.withLock{ $0 }
+      let info3 = self.activeModelTable3.withLock{ $0 }
+
+      let merged01 = info0.merging(info1) { _,_ in fatalError("duplicated entries in activeModelTable0 and activeModelTable1") }
+      let merged23 = info2.merging(info3) { _,_ in fatalError("duplicated entries in activeModelTable2 and activeModelTable3") }
+      let merged = merged01.merging(merged23) { _,_ in fatalError("duplicated entries in merged01 and merged23") }
+
+      return merged
+    }
+
+    internal func activeModelInfo(
+      for modelID: SDAIModelID
+    ) -> ModelInfo?
+    {
+      let laneNo = self.laneNo(modelID)
+      return self.activeModelInfo(for: modelID, laneNo: laneNo)
+    }
+
+		private func activeModelInfo(
+			for modelID: SDAIModelID,
+      laneNo: LaneNo
 		) -> ModelInfo?
 		{
-			self.activeModelTable.withLock{ $0[modelID] }
+      let modelInfo: ModelInfo?
+      switch laneNo {
+        case 1:
+          modelInfo = self.activeModelTable1.withLock{ $0[modelID] }
+        case 2:
+          modelInfo = self.activeModelTable2.withLock{ $0[modelID] }
+        case 3:
+          modelInfo = self.activeModelTable3.withLock{ $0[modelID] }
+
+        default:
+          modelInfo = self.activeModelTable0.withLock{ $0[modelID] }
+      }
+
+      self.activeTransaction?.updateModelCache(
+        modelID:modelID, value:modelInfo?.instance)
+
+      return modelInfo
 		}
 
 
-		private let deletedModels = Mutex<Set<SDAIModelID>>([])
+    private let deletedModels0 = Mutex<Set<SDAIModelID>>([])
+    private let deletedModels1 = Mutex<Set<SDAIModelID>>([])
+    private let deletedModels2 = Mutex<Set<SDAIModelID>>([])
+		private let deletedModels3 = Mutex<Set<SDAIModelID>>([])
 
-		internal func isDeleted(
-			modelWithID modelID: SDAIModelID
+    private func clearDeletedModels()
+    {
+      deletedModels0.withLock{ $0 = [] }
+      deletedModels1.withLock{ $0 = [] }
+      deletedModels2.withLock{ $0 = [] }
+      deletedModels3.withLock{ $0 = [] }
+    }
+
+    private var deletedModelIDs: some Collection<SDAIModelID> {
+      let models0 = deletedModels0.withLock{ $0 }
+      let models1 = deletedModels1.withLock{ $0 }
+      let models2 = deletedModels2.withLock{ $0 }
+      let models3 = deletedModels3.withLock{ $0 }
+
+      let joined = [models0, models1, models2, models3].joined()
+      return joined
+    }
+
+    private var deletedModelLaneIDs: some Sequence<(SDAIModelID,LaneNo)> {
+      let models0 = deletedModels0.withLock{ $0 }
+      let models1 = deletedModels1.withLock{ $0 }
+      let models2 = deletedModels2.withLock{ $0 }
+      let models3 = deletedModels3.withLock{ $0 }
+
+      let lanes0 = Array(repeating: LaneNo(0), count: models0.count)
+      let lanes1 = Array(repeating: LaneNo(1), count: models1.count)
+      let lanes2 = Array(repeating: LaneNo(2), count: models2.count)
+      let lanes3 = Array(repeating: LaneNo(3), count: models3.count)
+
+      let joined = [
+        zip(models0,lanes0),
+        zip(models1,lanes1),
+        zip(models2,lanes2),
+        zip(models3,lanes3)
+      ].joined()
+
+      return joined
+    }
+
+    internal func isDeleted(
+      modelWithID modelID: SDAIModelID
+    ) -> Bool
+    {
+      let laneNo = self.laneNo(modelID)
+      return self.isDeleted(modelWithID: modelID, laneNo: laneNo)
+    }
+
+		private func isDeleted(
+			modelWithID modelID: SDAIModelID,
+      laneNo: LaneNo
 		) -> Bool
 		{
-			self.deletedModels.withLock{ $0.contains(modelID) }
+      guard self.activeTransaction?.mode == .readWrite
+      else { return false }
+
+      switch laneNo {
+        case 1:
+          return self.deletedModels1.withLock{ $0.contains(modelID) }
+        case 2:
+          return self.deletedModels2.withLock{ $0.contains(modelID) }
+        case 3:
+          return self.deletedModels3.withLock{ $0.contains(modelID) }
+
+        default:
+          return self.deletedModels0.withLock{ $0.contains(modelID) }
+      }
 		}
 
 		internal func activateNew(
 			model: SdaiModel,
 			mode: AccessType
-		)
+    )
 		{
 			let modelID = model.modelID
+      let laneNo =  laneNo(modelID)
 
-			guard self.activeModelInfo(for:modelID) == nil
-			else { fatalError("internal logic error") }
+      guard self.activeModelInfo(for:modelID, laneNo: laneNo) == nil
+      else { fatalError("internal logic error") }
 
-			self.activeModelTable.withLock{ $0[modelID] = ModelInfo(instance: model, mode: mode) }
+      self.setActiveModelTable(
+        info: ModelInfo(instance: model, mode: mode),
+        for: modelID,
+        laneNo: laneNo)
 		}
 
 		internal func startReadOnlyAccess(
@@ -486,63 +682,100 @@ extension SDAISessionSchema {
 		) -> SdaiModel?
 		{
 			let modelID = model.modelID
+      let laneNo = laneNo(modelID)
 
-			if self.isDeleted(modelWithID: modelID) {
+      if self.isDeleted(modelWithID: modelID, laneNo: laneNo) {
 				return nil
 			}
 
-			if let modelInfo = self.activeModelInfo(for:modelID) {
+      if let modelInfo = self.activeModelInfo(for:modelID, laneNo: laneNo) {
 				return modelInfo.instance
 			}
 
 			return model
 		}
 
-		internal func findAndActivateSdaiModel(
-			modelID: SDAIModelID
-		) -> SdaiModel?
-		{
-			if self.isDeleted(modelWithID: modelID) {
+    internal func findAndActivateSdaiModel(
+      modelID: SDAIModelID
+    ) -> SdaiModel?
+    {
+      if let model = self.activeTransaction?.lookupModelCache(modelID: modelID) {
+        return model
+      }
+
+      let laneNo = laneNo(modelID)
+      let model = self.findAndActivateSdaiModel(modelID: modelID, laneNo: laneNo)
+
+      return model
+    }
+
+    private func findAndActivateSdaiModel(
+      modelID: SDAIModelID,
+      laneNo: LaneNo
+    ) -> SdaiModel?
+    {
+      if self.isDeleted(modelWithID: modelID, laneNo: laneNo) {
 				return nil
 			}
 
-			if let modelInfo = self.activeModelInfo(for:modelID) {
-				return modelInfo.instance
+      if let modelInfo = self.activeModelInfo(for:modelID, laneNo: laneNo) {
+        return modelInfo.instance
 			}
 
 			for repo in self.activeServers.values {
 				if let model = repo.contents.findSdaiModel(withID: modelID) {
-					let info = ModelInfo(instance: model, mode: .readOnly)
-					self.activeModelTable.withLock{ $0[modelID] = info }
-					return model
+          self.setActiveModelTable(
+            info: ModelInfo(instance: model, mode: .readOnly),
+            for: modelID,
+            laneNo: laneNo)
+
+          return model
 				}
 			}
 
 			return nil
 		}
 
-		internal func closeSdaiModel(
-			modelID: SDAIModelID
+    internal func closeSdaiModel(modelID: SDAIModelID )
+    {
+      let laneNo = laneNo(modelID)
+      self.closeSdaiModel(modelID: modelID, laneNo: laneNo)
+    }
+
+		private func closeSdaiModel(
+			modelID: SDAIModelID,
+      laneNo: LaneNo
 		)
 		{
-			guard let modelInfo = self.activeModelInfo(for:modelID)
+      guard let modelInfo = self.activeModelInfo(for:modelID, laneNo: laneNo)
 			else { fatalError("internal logic error") }
 
 			if modelInfo.instance.repository == self.fallbackRepository {
 				modelInfo.instance.contents.removeAll()
 			}
 			else {
-				self.activeModelTable.withLock{ $0[modelID] = nil }
+        self.setActiveModelTable(info: nil, for: modelID, laneNo: laneNo)
 			}
+
+      self.activeTransaction?.updateModelCache(modelID: modelID, value: nil)
 		}
 
-		internal func persistAndCloseSdaiModel(
-			modelID: SDAIModelID
+    internal func persistAndCloseSdaiModel(
+      modelID: SDAIModelID
+    )
+    {
+      let laneNo = self.laneNo(modelID)
+      self.persistAndCloseSdaiModel(modelID: modelID, laneNo: laneNo)
+    }
+
+		private func persistAndCloseSdaiModel(
+			modelID: SDAIModelID,
+      laneNo: LaneNo
 		)
 		{
-			guard let modelInfo = self.activeModelInfo(for:modelID),
+      guard let modelInfo = self.activeModelInfo(for:modelID, laneNo: laneNo),
 						modelInfo.mode == .readWrite,
-						!self.isDeleted(modelWithID: modelID)
+            !self.isDeleted(modelWithID: modelID, laneNo: laneNo)
 			else { fatalError("internal logic error") }
 
 			let repo = modelInfo.instance.repository
@@ -550,7 +783,7 @@ extension SDAISessionSchema {
 
 			repo.contents.add(model: modelInfo.instance)
 
-			self.closeSdaiModel(modelID: modelID)
+      self.closeSdaiModel(modelID: modelID, laneNo: laneNo)
 		}
 
 		internal func persistAndCloseAllModels()
@@ -559,15 +792,16 @@ extension SDAISessionSchema {
 
 			for modelInfo in self.activeModelInfos {
 				let modelID = modelInfo.instance.modelID
-				assert( !self.isDeleted(modelWithID: modelID) )
+        let laneNo = laneNo(modelID)
+        assert( !self.isDeleted(modelWithID: modelID, laneNo: laneNo) )
 
 				if modelInfo.instance.repository == self.fallbackRepository { continue }
 
 				switch modelInfo.mode {
 					case .readOnly:
-						self.closeSdaiModel(modelID: modelID)
+            self.closeSdaiModel(modelID: modelID, laneNo: laneNo)
 					case .readWrite:
-						self.persistAndCloseSdaiModel(modelID: modelID)
+            self.persistAndCloseSdaiModel(modelID: modelID, laneNo: laneNo)
 				}
 			}
 		}
@@ -578,9 +812,10 @@ extension SDAISessionSchema {
 
 			for modelInfo in self.activeModelInfos {
 				let modelID = modelInfo.instance.modelID
+        let laneNo = self.laneNo(modelID)
 
 				guard modelInfo.mode == .readWrite else { continue }
-				assert( !self.isDeleted(modelWithID: modelID) )
+        assert( !self.isDeleted(modelWithID: modelID, laneNo: laneNo) )
 
 				let repo = modelInfo.instance.repository
 				if repo == self.fallbackRepository { continue }
@@ -588,23 +823,28 @@ extension SDAISessionSchema {
 				repo.contents.add(model: modelInfo.instance)
 
 				let newEdition = modelInfo.instance.clone()
-				let info = ModelInfo(instance: newEdition, mode: .readWrite)
-				self.activeModelTable.withLock{ $0[newEdition.modelID] = info }
+        let newModelID = newEdition.modelID
+        let newLaneNo = self.laneNo(newModelID)
+
+        self.setActiveModelTable(
+          info: ModelInfo(instance: newEdition, mode: .readWrite),
+          for: newModelID,
+          laneNo: newLaneNo)
 			}
 		}
 
 		internal func revertAndCloseAllModels()
 		{
 			for modelInfo in self.activeModelInfos {
-				self.closeSdaiModel(modelID: modelInfo.instance.modelID)
+        self.closeSdaiModel(modelID: modelInfo.instance.modelID)
 			}
 
-			self.deletedModels.withLock{ $0 = [] }
+      self.clearDeletedModels()
 		}
 
 		internal func revertAndContinueAllModels()
 		{
-			self.deletedModels.withLock{ $0 = [] }
+      self.clearDeletedModels()
 
 			for modelInfo in activeModelInfos {
 				guard modelInfo.mode == .readWrite else { continue }
@@ -614,33 +854,54 @@ extension SDAISessionSchema {
 				guard let original = repo.contents.findSdaiModel(withID: modelID)
 				else {
 					// in the case of newly created model
-					self.closeSdaiModel(modelID: modelID)
+          self.closeSdaiModel(modelID: modelID)
 					continue
 				}
 
 				assert( repo != self.fallbackRepository )
 				let newEdition = original.clone()
-				let info = ModelInfo(instance: newEdition, mode: .readWrite)
-				activeModelTable.withLock{ $0[newEdition.modelID] = info }
+        self.setActiveModelTable(
+          info: ModelInfo(instance: newEdition, mode: .readWrite),
+          for: newEdition.modelID,
+          laneNo: self.laneNo(newEdition.modelID))
 			}
 		}
 
-		internal func deleteSdaiModel(
-			modelID: SDAIModelID
+    internal func deleteSdaiModel(
+      modelID: SDAIModelID
+    )
+    {
+      let laneNo = self.laneNo(modelID)
+      self.deleteSdaiModel(modelID: modelID, laneNo: laneNo)
+    }
+
+		private func deleteSdaiModel(
+			modelID: SDAIModelID,
+      laneNo: LaneNo
 		)
 		{
-			guard let modelInfo = self.activeModelInfo(for:modelID),
-						!self.isDeleted(modelWithID: modelID),
+      guard let modelInfo = self.activeModelInfo(for:modelID, laneNo: laneNo),
+            !self.isDeleted(modelWithID: modelID, laneNo: laneNo),
 						modelInfo.instance.repository != self.fallbackRepository
 			else { fatalError("internal logic error") }
 
-			self.deletedModels.withLock{ $0.insert(modelID); return }
+      switch laneNo {
+        case 1:
+          self.deletedModels1.withLock{ $0.insert(modelID); return }
+        case 2:
+          self.deletedModels2.withLock{ $0.insert(modelID); return }
+        case 3:
+          self.deletedModels3.withLock{ $0.insert(modelID); return }
+
+        default:
+          self.deletedModels0.withLock{ $0.insert(modelID); return }
+      }
 		}
 
 		internal func commitToDeleteAllModels()
 		{
-			for modelID in self.deletedModels.withLock({ $0 }) {
-				guard let modelInfo = self.activeModelInfo(for:modelID)
+			for (modelID,laneNo) in self.deletedModelLaneIDs {
+        guard let modelInfo = self.activeModelInfo(for:modelID, laneNo: laneNo)
 				else { fatalError("internal logic error") }
 
 				for schemaInstance in modelInfo.instance.associatedWith {
@@ -648,21 +909,31 @@ extension SDAISessionSchema {
 						schemaInstanceID: schemaInstance.schemaInstanceID)
 
 					promoted.dissociate(from: modelInfo.instance)
-				}
+				}//for
 
 				let repo = modelInfo.instance.repository
 				repo.contents.remove(model: modelInfo.instance)
-				self.activeModelTable.withLock{ $0[modelID] = nil }
-			}
-			self.deletedModels.withLock{ $0 = [] }
+        self.setActiveModelTable(info: nil, for: modelID, laneNo: laneNo)
+			}//for
+
+      self.clearDeletedModels()
 		}
 
-		internal func promoteSdaiModelToRW(
-			modelID: SDAIModelID
+    internal func promoteSdaiModelToRW(
+      modelID: SDAIModelID
+    ) -> SdaiModel
+    {
+      let laneNo = self.laneNo(modelID)
+      return self.promoteSdaiModelToRW(modelID: modelID, laneNo: laneNo)
+    }
+
+    private func promoteSdaiModelToRW(
+			modelID: SDAIModelID,
+      laneNo: LaneNo
 		) -> SdaiModel
 		{
-			guard let modelInfo = activeModelInfo(for: modelID),
-						!self.isDeleted(modelWithID: modelID)
+      guard let modelInfo = activeModelInfo(for: modelID, laneNo: laneNo),
+            !self.isDeleted(modelWithID: modelID, laneNo: laneNo)
 			else { fatalError("internal logic error") }
 
 			if modelInfo.mode == .readWrite { return modelInfo.instance }
@@ -678,8 +949,12 @@ extension SDAISessionSchema {
 				promoted = modelInfo.instance
 			}
 
-			let info = ModelInfo(instance: promoted, mode: .readWrite)
-			self.activeModelTable.withLock{ $0[modelID] = info }
+      assert(promoted.modelID == modelID)
+
+      self.setActiveModelTable(
+        info: ModelInfo(instance: promoted, mode: .readWrite),
+        for: modelID,
+        laneNo: laneNo)
 
 			promoted.notifyReadWriteModeChanged(sdaiModel: promoted)
 			return promoted
