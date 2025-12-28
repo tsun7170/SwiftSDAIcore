@@ -35,7 +35,9 @@ public extension SdaiCacheableSource where Self: SDAIDefinedType
 
 
 //MARK: - SdaiFunctionResultCacheController
-public protocol SdaiFunctionResultCacheController: SdaiCacheableSource, Sendable
+public protocol SdaiFunctionResultCacheController:
+  SdaiCacheableSource,
+  AnyObject, Sendable
 {
   var approximationLevel: Int {get}
 	func register(cache: SDAI.FunctionResultCache)
@@ -276,6 +278,42 @@ extension SDAI {
 			cache3.withLock{ $0 = [:] }
 		}
 		
-	}
-	
-}
+	}//actor
+
+  //MARK: - session cache controller adapter
+  public static let sessionFunctionResultCacheController = SessionFunctionResultCacheControllerAdapter()
+
+  public final class SessionFunctionResultCacheControllerAdapter:
+    SdaiFunctionResultCacheController
+  {
+    private let functionCaches = Mutex<[SDAI.FunctionResultCache]>([])
+
+    public func register(cache: SDAI.FunctionResultCache) {
+      self.functionCaches.withLock{ $0.append(cache) }
+    }
+
+    public func resetCaches() async {
+      for cache in self.functionCaches.withLock({$0}) {
+        await cache.resetCache()
+      }
+    }
+
+    private var activeController: SdaiFunctionResultCacheController? {
+      guard let session = SDAISessionSchema.activeSession
+      else { return nil }
+
+      return session.governingSchema
+    }
+
+    public var isCacheable: Bool {
+      self.activeController?.isCacheable ?? false
+    }
+
+    public var approximationLevel: Int {
+      self.activeController?.approximationLevel ?? 0
+    }
+
+
+  }//class
+
+}//extension

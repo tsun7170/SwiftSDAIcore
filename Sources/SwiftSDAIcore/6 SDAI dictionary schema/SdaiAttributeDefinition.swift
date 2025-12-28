@@ -47,6 +47,14 @@ public protocol SDAIAttributeType: Sendable {
 	/// - Returns: attribute value wrapped in SDAI.GENERIC
 	///
 	func genericValue(for entityInstance: SDAI.EntityReference) -> SDAI.GENERIC?
+  
+  /// persistent entity references for the entities contained in the attribute value
+  ///
+  /// to support USEDIN() function evaluations
+  /// - Parameter entityInstance: The entity instance from which to obtain an attribute value.
+  /// - Returns: sequence of persistent entity references
+  ///
+  func persistentEntityReferences(for entityInstance: SDAI.EntityReference) ->  AnySequence<SDAI.GenericPersistentEntityReference>?
 }
 
 extension SDAIDictionarySchema {
@@ -109,12 +117,24 @@ extension SDAIDictionarySchema {
 
 		public var qualifiedAttributeName: SDAIDictionarySchema.ExpressId { parentEntity.qualifiedEntityName + "." + self.name }
 
-		public func genericValue(for entityInstance: SDAI.EntityReference) -> SDAI.GENERIC?
+		public final func genericValue(for entityInstance: SDAI.EntityReference) -> SDAI.GENERIC?
 		{
 			guard let entity = entityInstance as? ENT else { return nil }
 			let value = SDAI.GENERIC(self.value(for: entity))
 			return value
 		}
+
+    public final func persistentEntityReferences(
+      for entityInstance: SDAI.EntityReference
+    ) -> AnySequence<SDAI.GenericPersistentEntityReference>?
+    {
+      guard let entity = entityInstance as? ENT,
+            let attrValue = self.value(for: entity) as? SDAIEntityReferenceYielding
+      else { return nil }
+
+      let attrYieldingPRefs = attrValue.persistentEntityReferences
+      return attrYieldingPRefs
+    }
 
 		public let kind: AttributeKind
 		public let source: AttributeSource

@@ -288,7 +288,7 @@ extension SDAI {
 
 	public static func NVL<GEN1: SDAI.EntityReference>
 	(V: GEN1?, SUBSTITUTE: SDAI.EntityReference?) -> GEN1 {
-		return V ?? UNWRAP(GEN1.cast(from:SUBSTITUTE))
+		return V ?? UNWRAP(GEN1.convert(sibling:SUBSTITUTE))
 	}
 
 	/// ISO 10303-11 (15.18) NVL - null value function
@@ -507,10 +507,10 @@ extension SDAI {
 	/// Note that if T is not used, an empty bag is returned.
 	/// If T is indeterminate (?), an empty bag is returned.
 	///
-	public static func USEDIN<GEN>(T: GEN?) -> BAG<EntityReference>
+	public static func USEDIN<GEN>(T: GEN?) -> BAG<GenericPersistentEntityReference>
 	where GEN: SDAIGenericType
 	{
-		guard let T = T?.entityReference else { return BAG<EntityReference>() }
+		guard let T = T?.entityReference else { return BAG() }
 		return BAG( from: T.complexEntity.usedIn() )
 	}
 
@@ -533,9 +533,22 @@ extension SDAI {
 				ENT: EntityReference & SDAIDualModeReference,
 				R:   SDAIGenericType
 	{
-		guard let T = T?.entityReference else { return BAG<ENT.PRef>() }
-		return BAG(from: T.complexEntity.usedIn(as: ROLE))
+		guard let T = T?.entityReference else { return BAG() }
+
+    //CACHE LOOKUP
+    let _params = SDAI.ParameterList( T, SDAI.STRING(from: "\(ROLE)") )
+    if case .available(let _cached_value) = _USEDIN1__cache.cachedValue(params: _params) {
+      return _cached_value as! SDAI.BAG<ENT.PRef>
+    }
+
+		let result = BAG(from: T.complexEntity.usedIn(as: ROLE))
+    return _USEDIN1__cache.updateCache(params: _params, value: result)
 	}
+
+  private static let _USEDIN1__cache = SDAI.FunctionResultCache(
+    label: "SDAI.USEDIN1",
+    controller: sessionFunctionResultCacheController )
+
 
 	/// ISO 10303-11 (15.26) UsedIn - general function
 	/// (variant with role specification returning optional value) 
@@ -556,9 +569,22 @@ extension SDAI {
 				ENT: EntityReference & SDAIDualModeReference,
 				R:   SDAIGenericType
 	{
-		guard let T = T?.entityReference else { return BAG<ENT.PRef>() }
-		return BAG(from: T.complexEntity.usedIn(as: ROLE))
+		guard let T = T?.entityReference else { return BAG() }
+
+    //CACHE LOOKUP
+    let _params = SDAI.ParameterList( T, SDAI.STRING(from: "\(ROLE)") )
+    if case .available(let _cached_value) = _USEDIN2__cache.cachedValue(params: _params) {
+      return _cached_value as! SDAI.BAG<ENT.PRef>
+    }
+
+		let result = BAG(from: T.complexEntity.usedIn(as: ROLE))
+    return _USEDIN2__cache.updateCache(params: _params, value: result)
 	}
+
+  private static let _USEDIN2__cache = SDAI.FunctionResultCache(
+    label: "SDAI.USEDIN2",
+    controller: sessionFunctionResultCacheController )
+
 
 	/// ISO 10303-11 (15.26) UsedIn - general function
 	/// (variant with role specification in STRING) 
@@ -574,12 +600,24 @@ extension SDAI {
 	public static func USEDIN<GEN:SDAIGenericType>(
 		T:GEN?,
 		R:STRING?
-	) -> BAG<EntityReference>
+	) -> BAG<GenericPersistentEntityReference>
 	{
-		guard let T = T?.entityReference, let R = R else { return BAG<EntityReference>() }
-		return BAG(from: T.complexEntity.usedIn(as: R.asSwiftType))
+		guard let T = T?.entityReference, let R = R else { return BAG() }
+
+    //CACHE LOOKUP
+    let _params = SDAI.ParameterList( T, R )
+    if case .available(let _cached_value) = _USEDIN3__cache.cachedValue(params: _params) {
+      return _cached_value as! SDAI.BAG<GenericPersistentEntityReference>
+    }
+
+		let result = BAG(from: T.complexEntity.usedIn(as: R.asSwiftType))
+    return _USEDIN3__cache.updateCache(params: _params, value: result)
 	}
-	
+
+  private static let _USEDIN3__cache = SDAI.FunctionResultCache(
+    label: "SDAI.USEDIN3",
+    controller: sessionFunctionResultCacheController )
+
 	//MARK: VALUE function
 	/// ISO 10303-11 (15.27) Value - arithmetic function
 	/// 

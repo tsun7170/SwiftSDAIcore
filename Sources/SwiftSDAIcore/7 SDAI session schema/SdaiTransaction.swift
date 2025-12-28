@@ -31,6 +31,9 @@ extension SDAISessionSchema {
 
 		/// the read-only or read-write access provided by the transaction within the sdai_session.
 		public var mode: AccessType { .readOnly }
+    
+    /// to indicate the possibility of SDAI-models to be in read-write access mode.
+    internal var modelsMayBeMutable: Bool { false }
 
 		/// the sdai_session within which the transaction is active.
 		public fileprivate(set) unowned var owningSession: SdaiSession?
@@ -266,6 +269,8 @@ extension SDAISessionSchema {
 		//MARK: swift language binding
 
 		public override var mode: AccessType { .readWrite }
+
+    internal override var modelsMayBeMutable: Bool { true }
 
 		public func notifyApplicationDomainChanged(
 			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance	// in RW mode

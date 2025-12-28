@@ -15,19 +15,7 @@ public protocol SDAIEntityReferenceType {
 	init?(complex complexEntity: SDAI.ComplexEntity?)
 }
 
-public extension SDAIEntityReferenceType {
-	typealias FundamentalType = Self
 
-	var asFundamentalType: FundamentalType { 
-		return self 
-	}	
-
-	init(fundamental: FundamentalType) {
-//		debugPrint("\(#function): Self:\(Self.self), FundamentalType: \(FundamentalType.self)")
-		self.init(complex: fundamental.complexEntity)!
-	}
-
-}
 
 //MARK: - SDAISimpleEntityType
 public protocol SDAISimpleEntityType {
@@ -51,9 +39,13 @@ extension SDAI {
 		SdaiCacheHolder,
 		CustomStringConvertible, @unchecked Sendable
 	{
-		// SDAIEntityReferenceType
+		//MARK: SDAIEntityReferenceType
 		public var complexEntity: ComplexEntity {self.object}
-		
+
+    internal var complexReference: ComplexEntityReference {
+      ComplexEntityReference(self)
+    }
+
 		public required init?(complex complexEntity: ComplexEntity?)
 		{
 			guard let complexEntity = complexEntity else { return nil }
@@ -64,7 +56,9 @@ extension SDAI {
 			}
 		}
 
-		//CustomStringConvertible
+
+
+		//MARK: CustomStringConvertible
 		public var description: String {
 			var str = "\(self.definition.name)-> \(self.complexEntity.qualifiedName)"
 			if self.complexEntity.isPartial {
@@ -92,7 +86,7 @@ extension SDAI {
 			return "\(self.owningModel.name)#\(p21name)" 
 		}
 
-		// SdaiCachableSource
+		//MARK: SdaiCachableSource
 		public var isCacheable: Bool {
 			let complex = self.complexEntity
 			if complex.isTemporary { return false }
@@ -101,7 +95,18 @@ extension SDAI {
 			return model.mode == .readOnly
 		}
 		
-		// SDAIGenericType
+		//MARK: SDAIGenericType
+    public typealias FundamentalType = EntityReference
+
+    public var asFundamentalType: FundamentalType {
+      return self
+    }
+
+    public required convenience init(fundamental: FundamentalType) {
+      //    debugPrint("\(#function): Self:\(Self.self), FundamentalType: \(FundamentalType.self)")
+      self.init(complex: fundamental.complexEntity)!
+    }
+
 		public typealias Value = ComplexEntity.Value
 
 		public func copy() -> Self { return self }
@@ -135,39 +140,55 @@ extension SDAI {
 		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 
-		// validation related
+		//MARK: validation related
 		open class func validateWhereRules(
 			instance:SDAI.EntityReference?,
 			prefix:SDAIPopulationSchema.WhereLabel
 		) -> SDAIPopulationSchema.WhereRuleValidationRecords
 		{
 			var result: SDAIPopulationSchema.WhereRuleValidationRecords = [:]
-			guard let instance = instance
+			guard let instance = instance,
+            let session = SDAISessionSchema.activeSession,
+            session.validateTemporaryEntities
 			else { return result }
 
-			for (attrname, attrdef) in type(of:instance).entityDefinition.attributes {
-				if (attrdef.domain as Any) is SDAI.EntityReference { continue }
-				
-				let attrval = attrdef.genericValue(for: instance)
-				let attrresult = SDAI.GENERIC.validateWhereRules(
-					instance: attrval, 
-					prefix: prefix + " ." + attrname + "\\" + attrdef.bareTypeName)
-				result.merge(attrresult) { $0 && $1 }
+			for attrDef in type(of:instance).entityDefinition.entityYieldingEssentialAttributes {
+        let attrName = attrDef.name
+
+        guard let attrYieldingPRefs = attrDef.persistentEntityReferences(for: instance)
+        else { continue }
+
+        for pref in attrYieldingPRefs {
+          guard let tempERef = pref.temporaryEntityReference else { continue }
+
+          let tempERefType = type(of:tempERef)
+          let prefix2 = prefix + " ." + attrName + "\\" + tempERef.description
+
+          let attrResult = tempERefType.validateWhereRules(
+            instance: tempERef,
+            prefix: prefix2)
+
+          result.merge(attrResult) { $0 && $1 }
+        }
 			}
 			return result
 		}
 
-		// SDAIEntityReferenceYielding
+		//MARK: SDAIEntityReferenceYielding
 		public final var entityReferences: AnySequence<SDAI.EntityReference> {
-			AnySequence( CollectionOfOne<SDAI.EntityReference>(self) )
+			AnySequence( CollectionOfOne(self) )
 		}
+
+    public final var persistentEntityReferences: AnySequence<SDAI.GenericPersistentEntityReference> {
+      AnySequence( CollectionOfOne(GenericPersistentEntityReference(self)) )
+    }
 
 		public final func isHolding( entityReference: SDAI.EntityReference ) -> Bool
 		{
 			return self == entityReference
 		}
 
-		// EntityReference specific
+		//MARK: EntityReference specific
 		open class var partialEntityType: PartialEntity.Type { abstract() }	// abstract
 
 		nonisolated(unsafe)
@@ -178,7 +199,7 @@ extension SDAI {
       self.cacheUpdater = master.cacheUpdater
 		}
 
-		// group reference
+		//MARK: group reference
 		public func GROUP_REF<SUPER:EntityReference & SDAIDualModeReference>(
 			_ super_ref: SUPER.Type
 		) -> SUPER.PRef?
@@ -199,6 +220,7 @@ extension SDAI {
 				return []
 			}
 
+      let selfPRef = GenericPersistentEntityReference(self)
 			let activeInstances = Set(session.activeSchemaInstances)
 			let associatedInstances = self.complexEntity.owningModel.associatedWith
 
@@ -211,10 +233,10 @@ extension SDAI {
 				let referencing = sources.flatMap{ source in
 					let attributeValue = source[keyPath: attribute]
 
-					return attributeValue.entityReferences.compactMap{
-						if $0.complexEntity == self.complexEntity { return source.pRef }
-						else { return nil }
-					}
+					return attributeValue.persistentEntityReferences.compactMap {
+            if $0 == selfPRef { return source.pRef }
+            else { return nil }
+          }
 				}
 
 				if !referencing.isEmpty { return referencing }
@@ -235,6 +257,7 @@ extension SDAI {
 				return []
 			}
 
+      let selfPRef = GenericPersistentEntityReference(self)
 			let activeInstances = Set(session.activeSchemaInstances)
 			let associatedInstances = self.complexEntity.owningModel.associatedWith
 
@@ -248,8 +271,8 @@ extension SDAI {
 					guard let attributeValue = source[keyPath: attribute]
 					else { return Array<SourceEntity.PRef>() }
 
-					return attributeValue.entityReferences.compactMap{
-						if $0.complexEntity == self.complexEntity { return source.pRef }
+					return attributeValue.persistentEntityReferences.compactMap{
+						if $0 == selfPRef { return source.pRef }
 						else { return nil }
 					}
 				}
@@ -271,6 +294,7 @@ extension SDAI {
 				return nil
 			}
 
+      let selfCRef = self.complexReference
 			let activeInstances = Set(session.activeSchemaInstances)
 			let associatedInstances = self.complexEntity.owningModel.associatedWith
 
@@ -284,8 +308,8 @@ extension SDAI {
 					let attributeValue = source[keyPath: attribute]
 					
 					if Set( attributeValue
-						.entityReferences.map{$0.complexEntity} )
-						.contains(self.complexEntity)
+						.persistentEntityReferences.map{$0.complexReference} )
+						.contains(selfCRef)
 					{
 						return source.pRef
 					}
@@ -306,6 +330,7 @@ extension SDAI {
 				return nil
 			}
 
+      let selfCRef = self.complexReference
 			let activeInstances = Set(session.activeSchemaInstances)
 			let associatedInstances = self.complexEntity.owningModel.associatedWith
 
@@ -320,8 +345,8 @@ extension SDAI {
 					else { continue }
 					
 					if Set( attributeValue
-						.entityReferences.map{$0.complexEntity} )
-						.contains(self.complexEntity)
+						.persistentEntityReferences.map{$0.complexReference} )
+						.contains(selfCRef)
 					{
 						return source.pRef
 					}
@@ -359,7 +384,7 @@ extension SDAI {
     }
 
 
-		// derived attribute value caching
+		//MARK: derived attribute value caching
 		public struct CachedValue: Sendable {
 			public let value: (any Sendable)?
 
@@ -512,7 +537,7 @@ extension SDAI {
 		}
 
     
-		// InitializableByGenericType
+		//MARK: InitializableByGenericType
 		required public convenience init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 			guard let entityRef = generic?.entityReference else { return nil }
 			self.init(complex: entityRef.complexEntity)
@@ -525,37 +550,44 @@ extension SDAI {
 				if let sametype = entityref as? Self {
 					return sametype
 				}
-				return self.cast(from: entityref)
+				return self.convert(sibling: entityref)
 			}
 			return nil
 		}
 
-
-    public static func cast(from complex: ComplexEntity?) -> Self?
+    //MARK: InitializableByComplexEntityType
+    public static func convert(fromComplex complex: ComplexEntity?) -> Self?
     {
       complex?.entityReference(self)
     }
 
-		public static func cast<EREF:EntityReference>(from source: EREF?) -> Self?
+		public static func convert<EREF:EntityReference>(sibling source: EREF?) -> Self?
 		{
 			return source?.complexEntity.entityReference(self)
 		}
 
-		public static func cast<PREF>(from source: PREF?) -> Self?
+		public static func convert<PREF>(sibling source: PREF?) -> Self?
 		where PREF: SDAIPersistentReference,
 					PREF.ARef: EntityReference
 		{
-			return self.cast(from: source?.aRef)
+			return self.convert(sibling: source?.optionalARef)
 		}
 
-		// InitializableByP21Parameter
+		//MARK: InitializableByP21Parameter
 		public static var bareTypeName: String { self.entityDefinition.name }
 		
-		// SDAI entity instance operations
+		//MARK: SDAI entity instance operations
 		public var allAttributes: AttributeList {
-			return AttributeList(entity: self)
+      return AttributeList(
+        entity: self,
+        attributeDefs: self.definition.attributes.values)
 		}
-		
+
+    public var allEntityYieldingEssentialAttributes: AttributeList {
+      return AttributeList(
+        entity: self,
+        attributeDefs: self.definition.entityYieldingEssentialAttributes)
+    }
 	}
 }
 

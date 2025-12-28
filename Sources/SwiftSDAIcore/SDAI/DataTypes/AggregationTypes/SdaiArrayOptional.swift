@@ -281,22 +281,11 @@ extension SDAI {
 
 
 
+extension SDAI.ARRAY_OPTIONAL: SDAIFundamentalAggregationType {}
+
 extension SDAI.ARRAY_OPTIONAL: SDAIEntityReferenceYielding
 where ELEMENT: SDAIEntityReferenceYielding
-{
-	public var entityReferences: AnySequence<SDAI.EntityReference> {
-		AnySequence( self.lazy.compactMap{$0}.flatMap{ $0.entityReferences } )
-	}
-
-	public func isHolding( entityReference: SDAI.EntityReference ) -> Bool
-	{
-		for elem in self {
-			guard let elem else { continue }
-			if elem.isHolding(entityReference: entityReference) { return true }
-		}
-		return false
-	}
-}
+{ }
 
 
 extension SDAI.ARRAY_OPTIONAL: SDAIDualModeReference

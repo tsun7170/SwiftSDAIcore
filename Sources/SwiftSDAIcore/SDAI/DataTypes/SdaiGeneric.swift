@@ -8,7 +8,7 @@
 
 import Foundation
 
-// abstract superclass
+//MARK: - abstract superclass
 fileprivate class _AnyGenericBox: Hashable, @unchecked Sendable {
 	static func == (lhs: _AnyGenericBox, rhs: _AnyGenericBox) -> Bool {
 			return lhs.base == rhs.base
@@ -34,6 +34,7 @@ fileprivate class _AnyGenericBox: Hashable, @unchecked Sendable {
 	var genericEnumValue: SDAI.GenericEnumValue? { abstract() }
 
 	var entityReferences: AnySequence<SDAI.EntityReference> { abstract() }
+  var persistentEntityReferences: AnySequence<SDAI.GenericPersistentEntityReference> { abstract() }
 	func isHolding(entityReference: SDAI.EntityReference) -> Bool { abstract() }
 
 	var pRef: SDAI.GENERIC { abstract() }
@@ -53,6 +54,7 @@ fileprivate class _AnyGenericBox: Hashable, @unchecked Sendable {
 	) -> SDAIPopulationSchema.WhereRuleValidationRecords { abstract() }
 }
 
+//MARK: - _GenericBox
 fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox, @unchecked Sendable
 {
 	private var _base: G
@@ -83,9 +85,17 @@ fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox, @unchec
 			return base.entityReferences
 		}
 		else {
-			return AnySequence<SDAI.EntityReference>([])
+			return AnySequence()
 		}
 	}
+  override var persistentEntityReferences: AnySequence<SDAI.GenericPersistentEntityReference> {
+    if let base = self.anyBase as? SDAIEntityReferenceYielding {
+      return base.persistentEntityReferences
+    }
+    else {
+      return AnySequence()
+    }
+  }
 	override func isHolding( entityReference: SDAI.EntityReference ) -> Bool
 	{
 		if let base = self.anyBase as? SDAIEntityReferenceYielding {
@@ -160,6 +170,8 @@ fileprivate final class _GenericBox<G: SDAIGenericType>: _AnyGenericBox, @unchec
 
 }
 
+
+//MARK: - SDAI__GENERIC__type
 public protocol SDAI__GENERIC__type:
 	SDAIGenericType,
 	SDAIEntityReferenceYielding,
@@ -167,6 +179,8 @@ public protocol SDAI__GENERIC__type:
 	SDAIPersistentReference
 {}
 
+
+//MARK: - SDAI.GENERIC
 extension SDAI {
 	public struct GENERIC: SDAI__GENERIC__type, CustomStringConvertible
 	{
@@ -174,7 +188,7 @@ extension SDAI {
 		public typealias Value = GenericValue
 		private var box: _AnyGenericBox
 		
-		// CustomStringConvertible
+		//MARK: CustomStringConvertible
 		public var description: String { "GENERIC(\(box.base))" }
 		
 		public init?<G: SDAIGenericType>(_ generic: G?) {
@@ -197,15 +211,15 @@ extension SDAI {
 
 		public var base: AnyHashable { box.base }
 		
-		// InitializableByGenericType
+		//MARK: InitializableByGenericType
 		public init?<G: SDAIGenericType>(fromGeneric generic: G?){
 			self.init(generic)
 		}
 		
-		// SdaiCacheableSource
+		//MARK: SdaiCacheableSource
 		public var isCacheable: Bool { box.isCacheable }
 		
-		// SDAIGenericType
+		//MARK: SDAIGenericType
 		public func copy() -> SDAI.GENERIC { return self }
 		public var asFundamentalType: FundamentalType { return self }	
 		public init(fundamental: FundamentalType) {
@@ -256,21 +270,25 @@ extension SDAI {
 			return basetype.validateWhereRules(instance:instance.box, prefix: prefix)
 		}
 
-		// SDAIEntityReferenceYielding
+		//MARK: SDAIEntityReferenceYielding
 		public var entityReferences: AnySequence<SDAI.EntityReference> {
 			return box.entityReferences
 		}
+
+    public var persistentEntityReferences: AnySequence<SDAI.GenericPersistentEntityReference> {
+      return box.persistentEntityReferences
+    }
 
 		public func isHolding(entityReference: SDAI.EntityReference) -> Bool {
 			return box.isHolding(entityReference: entityReference)
 		}
 
-		// SDAIDualModeReference
+		//MARK: SDAIDualModeReference
 		public var pRef: GENERIC {
 			return box.pRef
 		}
 
-		//SDAIPersistentReference
+		//MARK: SDAIPersistentReference
 		public var aRef: GENERIC {
 			return box.aRef
 		}
@@ -279,7 +297,7 @@ extension SDAI {
 			return box.optionalARef
 		}
 
-		// InitializableByP21Parameter
+		//MARK: InitializableByP21Parameter
 		public static let bareTypeName: String = "GENERIC"
 
 		public init?(

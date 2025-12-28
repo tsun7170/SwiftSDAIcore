@@ -47,7 +47,10 @@ extension SDAIPopulationSchema {
 			get {
 				var result: [SdaiModel] = []
 				guard let session = SDAISessionSchema.activeSession
-				else { return result }
+        else {
+          SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
+          return result
+        }
 
 				for modelID in self.associatedModelIDs.withLock({$0}) {
 					if let model = session.findAndActivateSdaiModel(modelID: modelID) {
@@ -70,10 +73,14 @@ extension SDAIPopulationSchema {
 			withID modelID: SdaiModel.SDAIModelID
 		) -> SdaiModel?
 		{
-			guard self.isAssociatedWith(modelWithID: modelID),
-						let session = SDAISessionSchema.activeSession
-			else { return nil }
-			
+      guard self.isAssociatedWith(modelWithID: modelID)
+      else { return nil }
+			guard let session = SDAISessionSchema.activeSession
+      else {
+        SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
+        return nil
+      }
+
 			let model = session.findAndActivateSdaiModel(modelID: modelID)
 			return model
 		}
@@ -111,9 +118,9 @@ extension SDAIPopulationSchema {
 
 
 		//MARK: swift language binding
-		internal typealias SchemaInstanceID = UUID
+		public typealias SchemaInstanceID = UUID
 
-		internal let schemaInstanceID: SchemaInstanceID //= SchemaInstanceID()
+		public let schemaInstanceID: SchemaInstanceID
 
 		public var globalRuleValidationRecord: [GlobalRuleValidationResult]? {
 			self._globalRuleValidationRecord.withLock{ $0 }
@@ -192,7 +199,6 @@ extension SDAIPopulationSchema {
 		internal func teardown()
 		{
 			for model in self.associatedModels {
-//				model.notifyApplicationDomainChanged(relatedTo: self)
 				self.dissociate(from: model)
 			}
 		}
@@ -312,10 +318,10 @@ extension SDAIPopulationSchema {
 			var result = SDAI.TRUE
 
 			let nonConf: [InstanceReferenceDomainValidationRecord] =
-			entity.allAttributes.attributes.compactMap {
+			entity.allEntityYieldingEssentialAttributes.attributeValues.compactMap {
 				let attrDef = $0.definition
 				let attrVal = $0.value
-				guard attrDef.mayYieldEntityReference else { return nil }
+
 				guard let val = attrVal else {
 					if result == SDAI.TRUE { result = SDAI.UNKNOWN }
 					switch option {
@@ -326,15 +332,9 @@ extension SDAIPopulationSchema {
 					}
 				}
 
-				if let entityRef = val.entityReference {
-					let modelRef = entityRef.owningModel.modelID
-					if self.isAssociatedWith(modelWithID: modelRef) { return nil }
-					result = SDAI.FALSE
-					return (attrDef, attrVal, SDAI.FALSE)
-				}
+				for entityPRef in val.persistentEntityReferences {
+          guard let modelRef = entityPRef.modelID else { continue }
 
-				for entityRef in val.entityReferences {
-					let modelRef = entityRef.owningModel.modelID
 					if !self.isAssociatedWith(modelWithID: modelRef) {
 						result = SDAI.FALSE
 						return (attrDef, attrVal, SDAI.FALSE)
@@ -411,11 +411,11 @@ extension SDAIPopulationSchema {
              [SDAIPopulationSchema.InstanceReferenceDomainValidationRecord])].self)
       { taskgroup in
         var targetApplicationInstances = Array(applicationInstances)
-        let chunkSize = chunkSize(for: targetApplicationInstances.count, session: session)
 
         for _ in 1 ... session.maxConcurrency {
           if monitor.terminateValidation { return }
 
+          let chunkSize = chunkSize(for: targetApplicationInstances.count, session: session)
           let entities = targetApplicationInstances.popLast(chunkSize)
           guard !entities.isEmpty else { break }
 
@@ -425,6 +425,7 @@ extension SDAIPopulationSchema {
         for await results in taskgroup {
           if monitor.terminateValidation { return }
 
+          let chunkSize = chunkSize(for: targetApplicationInstances.count, session: session)
           let entities = targetApplicationInstances.popLast(chunkSize)
           if !entities.isEmpty {
             addTask(entities: entities)
@@ -454,8 +455,12 @@ extension SDAIPopulationSchema {
               if monitor.terminateValidation { return results }
 
               let (result,nonconf) =
-              self.instanceReferenceDomainNonConformances(entity: entity, recording: option)
+              self.instanceReferenceDomainNonConformances(
+                entity: entity, recording: option)
+
               results.append( (entity,result,nonconf) )
+
+              await Task.yield()
             }//for
 
             return results
@@ -573,11 +578,11 @@ extension SDAIPopulationSchema {
         of: [SDAIPopulationSchema.GlobalRuleValidationResult].self)
       { taskgroup in
         var targetGlobalRules = Array(nativeSchema.globalRules.values)
-        let chunkSize = chunkSize(for: targetGlobalRules.count, session: session)
 
         for _ in 1 ... session.maxConcurrency {
           if monitor.terminateValidation { return }
 
+          let chunkSize = chunkSize(for: targetGlobalRules.count, session: session)
           let globalRules = targetGlobalRules.popLast(chunkSize)
           guard !globalRules.isEmpty else { break }
 
@@ -587,6 +592,7 @@ extension SDAIPopulationSchema {
         for await results in taskgroup {
           if monitor.terminateValidation { return }
 
+          let chunkSize = chunkSize(for: targetGlobalRules.count, session: session)
           let globalRules = targetGlobalRules.popLast(chunkSize)
           if !globalRules.isEmpty {
             addTask(globalRules: globalRules)
@@ -615,8 +621,12 @@ extension SDAIPopulationSchema {
             for globalRule in globalRules {
               if monitor.terminateValidation { return results }
 
-              let result = self.validate(globalRule: globalRule, recording: recording)
+              let result = self.validate(
+                globalRule: globalRule, recording: recording)
+
               results.append(result)
+
+              await Task.yield()
             }
 
             return results
@@ -649,7 +659,8 @@ extension SDAIPopulationSchema {
       session: SDAISessionSchema.SdaiSession
 		) async
 		{
-      let result = await self.validateAllGlobalRulesAsync(recording: option, monitor: monitor, session: session)
+      let result = await self.validateAllGlobalRulesAsync(
+        recording: option, monitor: monitor, session: session)
 
 			guard !monitor.terminateValidation else { return }
 			self._globalRuleValidationRecord.withLock{ $0 = result }
@@ -731,11 +742,11 @@ extension SDAIPopulationSchema {
         of: [SDAIPopulationSchema.UniquenessRuleValidationResult].self)
       { taskgroup in
         var targetUniquenessRules = Array(nativeSchema.uniquenessRules)
-        let chunkSize = chunkSize(for: targetUniquenessRules.count, session: session)
 
         for _ in 1 ... session.maxConcurrency {
           if monitor.terminateValidation { return }
 
+          let chunkSize = chunkSize(for: targetUniquenessRules.count, session: session)
           let uniqueRules = targetUniquenessRules.popLast(chunkSize)
           guard !uniqueRules.isEmpty else { break }
 
@@ -745,6 +756,7 @@ extension SDAIPopulationSchema {
         for await results in taskgroup {
           if monitor.terminateValidation { return }
 
+          let chunkSize = chunkSize(for: targetUniquenessRules.count, session: session)
           let uniqueRules = targetUniquenessRules.popLast(chunkSize)
           if !uniqueRules.isEmpty {
             addTask(uniqueRules: uniqueRules)
@@ -775,6 +787,8 @@ extension SDAIPopulationSchema {
 
               let result = self.validate(uniquenessRule: uniqueRule)
               results.append(result)
+
+              await Task.yield()
             }
 
             return results
@@ -863,11 +877,11 @@ extension SDAIPopulationSchema {
              [SDAIPopulationSchema.WhereLabel : SDAI.LOGICAL])].self)
       { taskgroup in
         var targetComplexEntities = Array(allComplexEntities)
-        let chunkSize = chunkSize(for: targetComplexEntities.count, session: session)
 
         for _ in 1 ... session.maxConcurrency {
           if monitor.terminateValidation { return }
 
+          let chunkSize = chunkSize(for: targetComplexEntities.count, session: session)
           let complexes = targetComplexEntities.popLast(chunkSize)
           guard !complexes.isEmpty else { break }
 
@@ -877,6 +891,7 @@ extension SDAIPopulationSchema {
         for await results in taskgroup {
           if monitor.terminateValidation { return }
 
+          let chunkSize = chunkSize(for: targetComplexEntities.count, session: session)
           let complexes = targetComplexEntities.popLast(chunkSize)
           if !complexes.isEmpty {
             addTask(complexes: complexes)
@@ -903,9 +918,12 @@ extension SDAIPopulationSchema {
             for complex in complexes {
               if monitor.terminateValidation { return results }
 
-              let compResult = complex.validateEntityWhereRules(prefix: "", recording: option)
-
+              let compResult = complex.validateEntityWhereRules(
+                prefix: "", recording: option)
+              
               results.append( (complex, compResult) )
+
+              await Task.yield()
             }
 
             return results

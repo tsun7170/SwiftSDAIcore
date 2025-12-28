@@ -24,8 +24,8 @@ public extension SDAISelectType
 {
 	// SdaiCacheableSource
 	var isCacheable: Bool {
-		for elem in self.entityReferences {
-			if !elem.isCacheable { return false }
+		for pref in self.persistentEntityReferences {
+			if !pref.isCacheable { return false }
 		}
 		return true
 	}

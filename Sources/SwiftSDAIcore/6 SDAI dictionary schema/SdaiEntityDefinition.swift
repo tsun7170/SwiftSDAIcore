@@ -28,8 +28,7 @@ extension SDAIDictionarySchema {
 		/// a boolean that has the value TRUE if the EntityDefinition is the result of mapping ANDOR or AND supertypes in the application schema (see A.1.3); FALSE if the EntityDefinition is mapped directly from an entity type in the schema.
 		public var complex: SDAI.BOOLEAN { SDAI.BOOLEAN(supertypes.count > 1) }
 		
-//		public var instantiable: SDAI.BOOLEAN
-		
+
 		/// a boolean that has the value FALSE if the entity type is not independently instantiable because it is made available by a REFERENCE specification or is implicitly interfaced into the schema; TRUE if the entity type is declared locally within the schema or is made available by a USE specification.
 		public var independent: SDAI.BOOLEAN { SDAI.BOOLEAN(true) }
 		
@@ -37,6 +36,8 @@ extension SDAIDictionarySchema {
 		/// 
 		/// Attributes inherited from supertypes DO appear as elements of this set. Attributes to be introduced in the declared subtypes also DO appear as elements of this set. This set is populated for instances of EntityDefinition established by the EXPRESS ANDOR or AND supertype constraint.  
 		public let attributes: [ExpressId:SDAIAttributeType]
+
+    public let entityYieldingEssentialAttributes: [SDAIAttributeType]
 
 		public let uniquenessRules: [ExpressId:UniquenessRule]
 
@@ -55,6 +56,14 @@ extension SDAIDictionarySchema {
 			self.supertypes = prototype.supertypes
 			self.attributes = prototype.attributes.mapValues{ $0.freeze() }
 			self.uniquenessRules = prototype.uniquenessRules
+
+      self.entityYieldingEssentialAttributes = self.attributes.values
+        .filter {
+          guard $0.mayYieldEntityReference,
+                $0.source == .thisEntity
+          else { return false }
+          return true
+        }
 
 			super.init(name: prototype.name)
 

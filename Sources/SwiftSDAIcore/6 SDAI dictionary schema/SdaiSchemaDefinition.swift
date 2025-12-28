@@ -128,13 +128,17 @@ extension SDAIDictionarySchema {
       for cache in self.functionCaches.withLock({$0}) {
         await cache.resetCache()
       }
+      
+      await SDAI.sessionFunctionResultCacheController.resetCaches()
     }
 
 
     private let _isCacheable = Mutex<Bool?>(nil)
 
     public var isCacheable: Bool {
-      guard let session = SDAISessionSchema.activeSession else {
+      guard let session = SDAISessionSchema.activeSession
+      else {
+        SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
         return false
       }
 

@@ -16,18 +16,28 @@ public protocol InitializableByComplexEntity
 
 public extension InitializableByComplexEntity
 {
-	init?(possiblyFrom entityRef: SDAI.EntityReference?) {
+  //Initializers
+	init?(possiblyFrom entityRef: SDAI.EntityReference?)
+  {
 		self.init(possiblyFrom: entityRef?.complexEntity)
 	}
 
-	init?<PREF>(possiblyFrom pref: PREF?)
-	where PREF: SDAIPersistentReference,
-	PREF.ARef: SDAI.EntityReference
-	{
-		self.init(possiblyFrom: pref?.aRef.complexEntity)
-	}
+  init?<PREF>(possiblyFrom pref: PREF?)
+  where PREF: SDAIPersistentReference,
+        PREF.ARef: SDAI.EntityReference
+  {
+    self.init(possiblyFrom: pref?.optionalARef?.complexEntity)
+  }
 
-	static func convert(sibling: SDAI.EntityReference?) -> Self? {
+
+  //Converters
+  static func convert(fromComplex complex: SDAI.ComplexEntity?) -> Self?
+  {
+    return self.init(possiblyFrom: complex)
+  }
+
+	static func convert(sibling: SDAI.EntityReference?) -> Self?
+  {
 		if let sibling = sibling as? Self {
 			return sibling
 		}
@@ -53,7 +63,8 @@ public extension InitializableByComplexEntity
 public extension InitializableByComplexEntity
 where Self: SDAI.EntityReference
 {
-	init?(possiblyFrom complex: SDAI.ComplexEntity?) {
+	init?(possiblyFrom complex: SDAI.ComplexEntity?)
+  {
 		self.init(complex: complex)
 	}
 

@@ -59,9 +59,9 @@ extension SDAI {
 	}
 
 	public static func UNWRAP<EREF>(_ pref:PersistentEntityReference<EREF>?) -> PersistentEntityReference<EREF>
-	where EREF: EntityReference & SDAIDualModeReference
+	where EREF: EntityReference
 	{
 		if let pref = pref { return pref }
-		return PersistentEntityReference(nil)
+		return PersistentEntityReference(nil as EREF?)
 	}
 }

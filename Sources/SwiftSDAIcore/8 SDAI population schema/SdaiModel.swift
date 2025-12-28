@@ -60,15 +60,25 @@ extension SDAIPopulationSchema {
 
 		/// if present, the current access mode for the SdaiModel. If not present, the SdaiModel is not open.
     nonisolated
-		public var mode: SDAISessionSchema.AccessType? {
-			guard
-				let session = SDAISessionSchema.activeSession,
-        let modelInfo = session.activeModelInfo(for:self.modelID),
-				modelInfo.instance == self
-			else { return nil }
+    public var mode: SDAISessionSchema.AccessType? {
+      guard let session = SDAISessionSchema.activeSession
+      else {
+        SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
+        return nil
+      }
 
-			return modelInfo.mode
-		}//var
+      if let transaction = session.activeTransaction,
+         !transaction.modelsMayBeMutable
+      {
+        return .readOnly
+      }
+
+      guard let modelInfo = session.activeModelInfo(for:self.modelID),
+            modelInfo.instance == self
+      else { return nil }
+
+      return modelInfo.mode
+    }//var
 
 		/// the schema instances with which the SdaiModel has been associated.
     nonisolated
@@ -76,7 +86,11 @@ extension SDAIPopulationSchema {
 			get {
 				var result: [SchemaInstance] = []
 
-				guard let session = SDAISessionSchema.activeSession else { return result }
+				guard let session = SDAISessionSchema.activeSession
+        else {
+          SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
+          return result
+        }
 
 				for repo in session.knownServers.values {
 					for instance in repo.contents.schemaInstances {
@@ -96,11 +110,11 @@ extension SDAIPopulationSchema {
 
 
 		//MARK: swift language binding
-		internal typealias ComplexEntityID = P21Decode.EntityInstanceName
-		internal typealias SDAIModelID = UUID
+		public typealias ComplexEntityID = P21Decode.EntityInstanceName
+		public typealias SDAIModelID = UUID
 
     nonisolated
-		internal let modelID: SDAIModelID	// for this SdaiModel
+		public let modelID: SDAIModelID	// for this SdaiModel
 
 		internal init(
 			repository: SDAISessionSchema.SdaiRepository,
@@ -151,7 +165,10 @@ extension SDAIPopulationSchema {
     nonisolated
 		public var fallBackModel: SdaiModel? {
 			guard let session = SDAISessionSchema.activeSession
-			else { return nil }
+      else {
+        SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
+        return nil
+      }
 			let fallback = session.fallBackModel(for: self.underlyingSchema)
 			return fallback
 		}
@@ -281,7 +298,7 @@ extension SDAIPopulationSchema {
 		) -> Array<ENT>
 		{
       let result = self.allComplexEntities.compactMap{
-        type.cast(from: $0)
+        type.convert(fromComplex: $0)
       }
       return result
 		}

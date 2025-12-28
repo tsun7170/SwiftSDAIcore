@@ -16,7 +16,7 @@ extension SDAI.EntityReference {
 	{
 		public var description: String {
 			var str = ""
-			for (i,tuple) in attributes.enumerated() {
+			for (i,tuple) in attributeValues.enumerated() {
 				print("[\(i)]\t\(tuple.definition.name) (\(tuple.definition.kind)): \(tuple.definition.domain) = ", terminator: "", to: &str)
 				if let value = tuple.value?.base {
 					print("\(value)", to: &str)
@@ -28,15 +28,17 @@ extension SDAI.EntityReference {
 			return str
 		}
 
-		public private(set) var attributes: [AttributeTuple] = []
+		public private(set) var attributeValues: [AttributeTuple] = []
 		
-		internal init(entity: SDAI.EntityReference) {
-			let entityDef = entity.definition
-			for attrDef in entityDef.attributes.values {
+    internal init(
+      entity: SDAI.EntityReference,
+      attributeDefs: some Collection<SDAIAttributeType>)
+    {
+			for attrDef in attributeDefs {
 //				loggerSDAI.debug("evaluating attribute[\(attrDef.name)] of entity[\(entityDef.name)] #\(entity.complexEntity.p21name) ")
 				let attrValue = attrDef.genericValue(for: entity)
 				let tuple = (definition: attrDef, value: attrValue)
-				attributes.append(tuple)
+				attributeValues.append(tuple)
 			}
 		}
 	}

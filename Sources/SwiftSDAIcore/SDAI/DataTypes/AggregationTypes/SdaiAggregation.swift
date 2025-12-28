@@ -123,6 +123,10 @@ public extension SDAIAggregationType
 	static var upperBound: SDAIDictionarySchema.Bound? { nil }
 }
 
+public protocol SDAIFundamentalAggregationType: SDAIAggregationType
+{}
+
+
 //MARK: - generic aggregate
 extension SDAI {
 	public typealias AGGREGATE<ELEMENT> = LIST<ELEMENT> where ELEMENT : SDAIGenericType
@@ -191,6 +195,68 @@ where ELEMENT: InitializableBySwiftType
 	}
 }
 
+
+public extension SDAIFundamentalAggregationType
+where ELEMENT: SDAIEntityReferenceYielding
+{
+  var entityReferences: AnySequence<SDAI.EntityReference> {
+    AnySequence( self.asAggregationSequence.lazy.flatMap{ $0.entityReferences } )
+  }
+
+  var persistentEntityReferences: AnySequence<SDAI.GenericPersistentEntityReference> {
+    AnySequence( self.asAggregationSequence.lazy.flatMap{ $0.persistentEntityReferences } )
+  }
+
+  func isHolding( entityReference: SDAI.EntityReference ) -> Bool
+  {
+    for elem in self.asAggregationSequence {
+      if elem.isHolding(entityReference: entityReference) { return true }
+    }
+    return false
+  }
+}
+
+public extension SDAIFundamentalAggregationType
+where ELEMENT: SDAI.EntityReference
+{
+  var entityReferences: AnySequence<SDAI.EntityReference> {
+    self.asAggregationSequence as! AnySequence<SDAI.EntityReference>
+  }
+
+  var persistentEntityReferences: AnySequence<SDAI.GenericPersistentEntityReference> {
+    AnySequence( self.asAggregationSequence.map{ SDAI.GenericPersistentEntityReference($0) } )
+  }
+
+  func isHolding( entityReference: SDAI.EntityReference ) -> Bool
+  {
+    for elem in self.asAggregationSequence {
+      if elem.isHolding(entityReference: entityReference) { return true }
+    }
+    return false
+  }
+}
+
+public extension SDAIFundamentalAggregationType
+where ELEMENT: SDAI.GenericPersistentEntityReference
+{
+  var entityReferences: AnySequence<SDAI.EntityReference> {
+    AnySequence( self.asAggregationSequence.compactMap{ $0.asGenericEntityReference } )
+  }
+
+  var persistentEntityReferences: AnySequence<SDAI.GenericPersistentEntityReference> {
+    self.asAggregationSequence as! AnySequence<SDAI.GenericPersistentEntityReference>
+  }
+
+  func isHolding( entityReference: SDAI.EntityReference ) -> Bool
+  {
+    for elem in self.asAggregationSequence {
+      if let eref = elem.asGenericEntityReference,
+        eref.isHolding(entityReference: entityReference)
+      { return true }
+    }
+    return false
+  }
+}
 
 
 

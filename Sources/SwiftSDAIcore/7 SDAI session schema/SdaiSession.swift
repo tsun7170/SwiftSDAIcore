@@ -107,15 +107,19 @@ extension SDAISessionSchema {
 		nonisolated(unsafe)
 		private var _fallBackModels: [SchemaDefinition:SdaiModel] = [:]
 
+    nonisolated(unsafe)
+    internal private(set) var governingSchema: SchemaDefinition? = nil
+
 		internal init(
 			repositories: [SdaiRepository],
-			errorEventCallback: ErrorEventCallback? = nil,
-      maxConcurrency: Int = ProcessInfo.processInfo.processorCount + 2,
-      maxCacheUpdateAttempts: Int = 1000,
-      maxUsedinNesting: Int = 2,
-      runUsedinCacheWarming: Bool = true,
-      maxValidationTaskSegmentation: Int = 400,
-      minValidationTaskChunkSize: Int = 8
+			errorEventCallback: ErrorEventCallback?/* = nil*/,
+      maxConcurrency: Int/* = ProcessInfo.processInfo.processorCount + 2*/,
+      maxCacheUpdateAttempts: Int /*= 1000*/,
+      maxUsedinNesting: Int /*= 2*/,
+      runUsedinCacheWarming: Bool /*= true*/,
+      maxValidationTaskSegmentation: Int /*= 400*/,
+      minValidationTaskChunkSize: Int /*= 8*/,
+      validateTemporaryEntities: Bool,
     )
 		{
 			self.fallbackRepository = SdaiRepository(name: "FALLBACK", description: "session temporary fallback repository")
@@ -129,8 +133,9 @@ extension SDAISessionSchema {
       self.runUsedinCacheWarming = runUsedinCacheWarming
 
       self.maxValidationTaskSegmentation = maxValidationTaskSegmentation
-
       self.minValidationTaskChunkSize = minValidationTaskChunkSize
+
+      self.validateTemporaryEntities = validateTemporaryEntities
 
 			for repository in repositories + [self.fallbackRepository] {
 				knownServers[repository.name] = repository
@@ -147,6 +152,9 @@ extension SDAISessionSchema {
 
     public let maxValidationTaskSegmentation: Int
     public let minValidationTaskChunkSize: Int
+
+    public let validateTemporaryEntities: Bool
+
 
     public func terminateCachingTasks() {
       for model in activeModels {
@@ -179,6 +187,12 @@ extension SDAISessionSchema {
 					_fallBackModels[schema] = model
 				}
 			}
+
+      if schemas.count == 1,
+         let theSchema = schemas.first
+      { self.governingSchema = theSchema }
+      else
+      { self.governingSchema = nil }
 		}
 
 		public func fallBackModel(

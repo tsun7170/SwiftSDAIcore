@@ -58,55 +58,80 @@ extension SDAI {
 		deinit {
 			broadcastDeleted()
 		}
-		
+
+    //MARK: Initializers
+    internal init(
+      entities:[PartialEntity],
+      model:SDAIPopulationSchema.SdaiModel,
+      name:P21Decode.EntityInstanceName,
+      repEntityRefType:EntityReference.Type,
+      isTemporary: Bool )
+    {
+      self.representativeEntityRefType = repEntityRefType
+
+      self.owningModel = model
+      self.p21name = name
+      self.isTemporary = isTemporary
+
+      if !isTemporary {
+        guard model.contents.add(complex: self)
+        else {
+          fatalError("can not create persistent complex entity")
+        }
+      }
+
+      for pe in entities {
+        _partialEntities[type(of: pe).typeIdentity] = (instance:pe, reference:.unknown)
+      }
+
+      let _ = self.entityReferences // to fill up _partialEntities[:] to avoid data races
+      broadcastCreated()
+    }
+
 		/// init for persistent complex entity
 		/// - Parameters:
 		///   - entities: constituent partial entities
 		///   - model: SDAI-Model to own the created complex entity
 		///   - name: complex entity identifier
 		///
-		public init(
+    public convenience init(
 			entities:[PartialEntity],
 			model:SDAIPopulationSchema.SdaiModel,
 			name:P21Decode.EntityInstanceName)
 		{
-			self.owningModel = model
-			self.p21name = name
-			if !model.contents.add(complex: self) {
-				fatalError("can not create persistent complex entity")
-			}
+      let pe = entities.last!
+      let repERefType  = type(of:pe).entityReferenceType
 
-			for pe in entities {
-				_partialEntities[type(of: pe).typeIdentity] = (instance:pe, reference:.unknown)	
-			}
-
-      let _ = self.entityReferences // to fill up _partialEntities[:] to avoid data races
-			broadcastCreated()
+      self.init(
+        entities: entities,
+        model: model,
+        name: name,
+        repEntityRefType: repERefType,
+        isTemporary: false)
 		}
 		
 		/// init for temporary complex entity
 		/// - Parameter entities: constituent partial entities
 		///
-		public init(entities:[PartialEntity]) {
+		public convenience init(entities:[PartialEntity]) {
 			guard let session = SDAISessionSchema.activeSession
 			else {
-				SDAI.raiseErrorAndTrap(.SS_NAVL, detail: "SdaiSession object not available as TaskLocal")
-			}
-			let pe = entities.first!
-			let schema = type(of: pe).entityDefinition.parentSchema
-			let fallback = session.fallBackModel(for: schema)
-			let name = fallback.uniqueName
-
-			self.owningModel = fallback
-			self.p21name = name
-			self.isTemporary = true
-
-			for pe in entities {
-				_partialEntities[type(of: pe).typeIdentity] = (instance:pe, reference:.unknown)
+        SDAI.raiseErrorAndTrap(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
 			}
 
-      let _ = self.entityReferences // to fill up _partialEntities[:] to avoid data races
-			broadcastCreated()
+			let pe = entities.last!
+      let repERefType  = type(of:pe).entityReferenceType
+
+      let schema = type(of: pe).entityDefinition.parentSchema
+      let fallback = session.fallBackModel(for: schema)
+      let name = fallback.uniqueName
+
+      self.init(
+        entities: entities,
+        model: fallback,
+        name: name,
+        repEntityRefType: repERefType,
+        isTemporary: true)
 		}
 		
 		/// init for SDAIModel duplication
@@ -123,7 +148,14 @@ extension SDAI {
 			let entities = original.partialEntities
 				.map{ type(of: $0).init(from: $0) }
 			let name = original.p21name
-			self.init(entities: entities, model: targetModel, name: name)
+      let repERefType = original.representativeEntityRefType
+
+      self.init(
+        entities: entities,
+        model: targetModel,
+        name: name,
+        repEntityRefType: repERefType,
+        isTemporary: false)
 		}
 
 		fileprivate func broadcastCreated() {
@@ -143,8 +175,8 @@ extension SDAI {
 		// P21 support
 		public let p21name: P21Decode.EntityInstanceName
 
-		public internal(set) var isTemporary: Bool = false
-		
+		public let isTemporary: Bool
+
 		public var qualifiedName: String { "\(self.owningModel.name)#\(self.p21name)\(isTemporary ? "(temporary)" : "")" }
 
 		//MARK: - partial entity access
@@ -169,6 +201,10 @@ extension SDAI {
 		}
 		
 		//MARK: - entity reference access
+    public var persistentEntityReferences: [GenericPersistentEntityReference] {
+      return self.entityReferences.map{ GenericPersistentEntityReference($0) }
+    }
+
 		public var entityReferences: [EntityReference] {
 			var result:[EntityReference] = []
 			
@@ -193,10 +229,15 @@ extension SDAI {
 			return leafs
 		}
 		
-		
+    private let representativeEntityRefType: EntityReference.Type
+
 		public func entityReference<EREF:EntityReference>(
 			_ erefType:EREF.Type) -> EREF?
 		{
+      if erefType == GENERIC_ENTITY.self {
+        return self.entityReference(representativeEntityRefType) as? EREF
+      }
+
 			let typeid = erefType.partialEntityType.typeIdentity
 
 			if let tuple = _partialEntities[typeid] {
@@ -297,18 +338,20 @@ extension SDAI {
 			return domain
 		}
 		
-		private func findRoles(in entity: SDAI.EntityReference) -> some Collection<SDAIAttributeType>
+		private func findEssentialRoles(
+      in entity: SDAI.EntityReference
+    ) -> some Collection<SDAIAttributeType>
 		{
 			var roles:[SDAIAttributeType] = []
 			let entityDef = entity.definition
+      let selfPRef = GenericPersistentEntityReference(self)
 
-			for attrDef in entityDef.attributes.values {
-				if !attrDef.mayYieldEntityReference { continue } 
-				
-				guard let attrYieldingEntities = attrDef.genericValue(for: entity)?.entityReferences else { continue }
+			for attrDef in entityDef.entityYieldingEssentialAttributes {
+				guard let attrYieldingPRefs = attrDef.persistentEntityReferences(for: entity)
+        else { continue }
 
-				for attrEntity in attrYieldingEntities {
-					if self === attrEntity.complexEntity {
+				for attrPRef in attrYieldingPRefs {
+					if selfPRef == attrPRef {
 						roles.append(attrDef)
 						break
 					}
@@ -323,7 +366,7 @@ extension SDAI {
 			for model in self.usedInDomain {
 				for complex in model.contents.allComplexEntities {
 					for entity in complex.entityReferences {
-						result.formUnion( self.findRoles(in: entity).lazy.map{ (attrDef) in
+						result.formUnion( self.findEssentialRoles(in: entity).lazy.map{ (attrDef) in
 							return STRING(from: attrDef.qualifiedAttributeName) 
 						} )
 					}
@@ -374,7 +417,7 @@ extension SDAI {
 
 		//MARK: usedIn function related
     private let usedInValueCache =
-    Mutex<[SDAIPopulationSchema.SdaiModel : (level:Int, value:Set<EntityReference>)]>([:])
+    Mutex<[SDAIPopulationSchema.SdaiModel : (level:Int, value:Set<GenericPersistentEntityReference>)]>([:])
 
 		private var cacheController: SDAIDictionarySchema.SchemaDefinition {
 			self.owningModel.underlyingSchema
@@ -412,12 +455,11 @@ extension SDAI {
             .filter { !excluding.contains($0) }
             .shuffled()
 
-          let chunkSize = max(1, targets.count / session.maxConcurrency)
-
           await withTaskGroup(of: Void.self) { taskgroup in
             for _ in 1 ..< session.maxConcurrency {
               if Task.isCancelled { return }
 
+              let chunkSize = max(1, targets.count / session.maxConcurrency)
               let complexes = targets.popLast(chunkSize)
               guard !complexes.isEmpty else { break }
               addTask(complexes: complexes)
@@ -425,7 +467,8 @@ extension SDAI {
 
             for await _ in taskgroup {
               if Task.isCancelled { return }
-              
+
+              let chunkSize = max(1, targets.count / session.maxConcurrency)
               let complexes = targets.popLast(chunkSize)
               guard !complexes.isEmpty else { break }
               addTask(complexes: complexes)
@@ -438,6 +481,8 @@ extension SDAI {
                 for complex in complexes {
                   if Task.isCancelled { return }
                   let _ = complex.usedIn()
+
+                  await Task.yield()
                 }
               }
             }
@@ -450,20 +495,20 @@ extension SDAI {
 		@TaskLocal
 		internal static var excluding1:Array<ComplexEntity> = []
 
-		public func usedIn() -> Array<EntityReference>
-		{
-			guard !Self.excluding1.contains(self),
+		public func usedIn() -> Array<GenericPersistentEntityReference>
+    {
+      guard !Self.excluding1.contains(self),
             !Task.isCancelled
       else { return [] }
 
       guard let session = SDAISessionSchema.activeSession
       else {
-        SDAI.raiseErrorAndContinue(.SS_NAVL, detail: "active session not available. complex entity = #\(self.p21name), usedIn nesting level = \(Self.excluding1.count)")
+        SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession. complex entity = #\(self.p21name), usedIn nesting level = \(Self.excluding1.count)")
         return []
       }
 
 
-			let result = Self.$excluding1.withValue(Self.excluding1 + [self]) {
+      let result = Self.$excluding1.withValue(Self.excluding1 + [self]) {
         let newLevel = Self.excluding1.count
         if newLevel == 2 {
           Task(name: "SDAI.usedin.kickOffCacheFilling") {
@@ -473,148 +518,204 @@ extension SDAI {
           }
         }
 
-				var result: Set<EntityReference> = []
+        var result: Set<GenericPersistentEntityReference> = []
         if newLevel > session.maxUsedinNesting { return result }
 
-				for model in self.usedInDomain {
-					var modelResult: Set<EntityReference> = []
+        let selfPRef = GenericPersistentEntityReference(self)
+
+        for model in self.usedInDomain {
+          var modelResult: Set<GenericPersistentEntityReference> = []
 
           if let (level,cached) = self.usedInValueCache.withLock({$0[model]}),
              level <= newLevel
           {
-						modelResult = cached
-					}
-					else {
-						for complex in model.contents.allComplexEntitiesShuffled {
+            modelResult = cached
+          }
+          else {
+            for complex in model.contents.allComplexEntitiesShuffled {
               if Task.isCancelled { return result }
-							if Self.excluding1.contains(complex) { continue }
+              if Self.excluding1.contains(complex) { continue }
 
-							entityLoop: for entity in complex.entityReferences {
+              entityLoop: for entity in complex.entityReferences {
                 if Task.isCancelled { return result }
-								if modelResult.contains(entity) { continue }
 
-								let entityDef = entity.definition
+                let entityPRef = GenericPersistentEntityReference(entity)
+                if modelResult.contains(entityPRef)
+                { continue }
 
-								for attrDef in entityDef.attributes.values {
-                  if Task.isCancelled { return result }
+                let entityDef = entity.definition
 
-									if !attrDef.mayYieldEntityReference { continue }
-									if attrDef.source != .thisEntity { continue }
-									guard let attrValue = attrDef.genericValue(for: entity) else { continue }
+                for attrDef in entityDef.entityYieldingEssentialAttributes {
+//                  if Task.isCancelled { return result }
 
-                  if Task.isCancelled { return result }
-									let attrYieldingEntities = attrValue.entityReferences
-									for attrEntity in attrYieldingEntities {
-                    if Task.isCancelled { return result }
-										if self === attrEntity.complexEntity {
-											modelResult.insert(entity)
-											break entityLoop
-										}
-									}
-								}//attrDef
-							}//entity
-						}//complex
-						if model.mode == .readOnly {
+                  guard let attrYieldingPRefs = attrDef.persistentEntityReferences(for: entity)
+                  else { continue }
+
+                  for attrPRef in attrYieldingPRefs {
+//                    if Task.isCancelled { return result }
+                    if selfPRef == attrPRef {
+                      modelResult.insert( entityPRef )
+                      break entityLoop
+                    }
+                  }
+                }//attrDef
+              }//entity
+            }//complex
+            if model.mode == .readOnly {
               usedInValueCache.withLock{
                 if let (level,_) = $0[model], level <= newLevel { return }
                 $0[model] = (level:newLevel, value:modelResult)
               }
-						}
-					}
+            }
+          }
 
-					result.formUnion(modelResult)
-				}//model
-				return result
+          result.formUnion(modelResult)
+        }//model
+        return result
 
-			}//withValue
+      }//withValue
 
-			return Array(result)
-		}
+      return Array(result)
+    }
 
 
+    private func entityExtent<ENT>(
+      of type: ENT.Type,
+      in model: SDAIPopulationSchema.SdaiModel
+    ) -> (Array<ENT>)?
+    where ENT: EntityReference
+    {
+      if let (level,cachedPRefs) = self.usedInValueCache.withLock({$0[model]}),
+         level == 0
+      {
+        let extent = cachedPRefs.compactMap {
+          $0.complexEntity?.entityReference(type)
+        }
+        return extent
+      }
+
+      guard let entityExtent = model.contents.folders[ENT.entityDefinition]
+      else { return nil }
+
+      let extent = entityExtent.instances(of: ENT.self)
+      return Array(extent)
+    }
 
 		public func usedIn<ENT, R>( as role: KeyPath<ENT,R> ) -> Array<ENT.PRef>
 		where ENT: EntityReference & SDAIDualModeReference,
 					R:   SDAIGenericType
-		{
-				var result: Set<ENT> = []
+    {
+      var result: Set<ENT.PRef> = []
 
-				for model in self.usedInDomain {
+      let selfPRef = GenericPersistentEntityReference(self)
 
-          guard let entityExtent = model.contents.folders[ENT.entityDefinition] else { continue }
-          for entity in entityExtent.instances(of: ENT.self) {
-            if result.contains(entity) { continue }
+      for model in self.usedInDomain {
+        if Task.isCancelled { return Array(result) }
 
-						let attr = SDAI.GENERIC( entity[keyPath: role] )
+        guard let entityExtent = self.entityExtent(of: ENT.self, in: model)
+        else { continue }
+        for entity in entityExtent {
+          if Task.isCancelled { return Array(result) }
 
-						for attrEntity in attr.entityReferences {
-							if self === attrEntity.complexEntity {
-								result.insert(entity)
-								break
-							}
-						}//attrEntity
-					}//complex
-				}//model
-			return  result.map{ $0.pRef }
-		}
+          let entityPRef = entity.pRef
+          if result.contains(entityPRef) { continue }
+
+          guard let attr = entity[keyPath: role] as? SDAIEntityReferenceYielding
+          else { continue }
+
+          for attrPRef in attr.persistentEntityReferences {
+//            if Task.isCancelled { return Array(result) }
+
+            if selfPRef == attrPRef {
+              result.insert(entityPRef)
+              break
+            }
+          }//attrPRef
+        }//entity
+      }//model
+      return Array(result)
+    }
 
 
 		public func usedIn<ENT, R>( as role: KeyPath<ENT,R?> ) -> Array<ENT.PRef>
 		where ENT: EntityReference & SDAIDualModeReference,
 					R:   SDAIGenericType
-		{
-				var result: Set<ENT> = []
+    {
+      var result: Set<ENT.PRef> = []
 
-				for model in self.usedInDomain {
+      let selfPRef = GenericPersistentEntityReference(self)
 
-          guard let entityExtent = model.contents.folders[ENT.entityDefinition] else { continue }
-          for entity in entityExtent.instances(of: ENT.self) {
-            if result.contains(entity) { continue }
+      for model in self.usedInDomain {
+        if Task.isCancelled { return Array(result) }
 
-            guard let attr = SDAI.GENERIC( entity[keyPath: role] )
-            else { continue }
+        guard let entityExtent = self.entityExtent(of: ENT.self, in: model)
+        else { continue }
+        for entity in entityExtent {
+          if Task.isCancelled { return Array(result) }
 
-						for attrEntity in attr.entityReferences {
-							if self === attrEntity.complexEntity {
-								result.insert(entity)
-								break
-							}
-						}//attrEntity
-					}//complex
-			}
-			return result.map{ $0.pRef }
-		}
+          let entityPRef = entity.pRef
+          if result.contains(entityPRef) { continue }
+
+          guard let attr = entity[keyPath: role] as? SDAIEntityReferenceYielding
+          else { continue }
+
+          for attrPRef in attr.persistentEntityReferences {
+//            if Task.isCancelled { return Array(result) }
+
+            if selfPRef == attrPRef {
+              result.insert(entityPRef)
+              break
+            }
+          }//attrPRef
+        }//entity
+      }
+      return Array(result)
+    }
 
 
-		public func usedIn(as role:String) -> Array<EntityReference>
-		{
-			let parentModel = self.owningModel
-			let roleSpec = role.split(separator: ".", omittingEmptySubsequences: false)
-			guard roleSpec.count == 3 else { return [] }
-			guard roleSpec[0] == parentModel.underlyingSchema.name else { return [] }
-			guard let entityDef = parentModel.underlyingSchema.entities[String(roleSpec[1])] else { return [] }
-			guard let attrType = entityDef.attributes[String(roleSpec[2])] else { return [] }
+		public func usedIn(as role:String) -> Array<GenericPersistentEntityReference>
+    {
+      let parentModel = self.owningModel
+      let roleSpec = role.split(separator: ".", omittingEmptySubsequences: false)
 
-				var result: Set<EntityReference> = []
+      guard roleSpec.count == 3,
+            roleSpec[0] == parentModel.underlyingSchema.name,
+            let entityDef = parentModel.underlyingSchema.entities[String(roleSpec[1])],
+            let attrType = entityDef.attributes[String(roleSpec[2])],
+            attrType.mayYieldEntityReference
+      else { return [] }
 
-				for model in self.usedInDomain {
+      var result: Set<GenericPersistentEntityReference> = []
 
-          guard let entityExtent = model.contents.folders[entityDef] else { continue }
-          for entity in entityExtent.instances {
-            if result.contains(entity) { continue }
-						
-						guard let attr = attrType.genericValue(for: entity) else { continue }
-						
-						for attrEntity in attr.entityReferences {
-							if self === attrEntity.complexEntity {
-								result.insert(entity)
-								break
-							}
-						}//attrEntity
-					}//complex
-				}//model
-			return Array(result)
-		}
+      let selfPRef = GenericPersistentEntityReference(self)
+
+      for model in self.usedInDomain {
+        if Task.isCancelled { return Array(result) }
+
+        guard let entityExtent = self.entityExtent(of: entityDef.type, in: model)
+        else { continue }
+
+        for entity in entityExtent {
+          if Task.isCancelled { return Array(result) }
+
+          let entityPRef = GenericPersistentEntityReference(entity)
+          if result.contains(entityPRef) { continue }
+
+          guard let attrYieldingPRefs = attrType.persistentEntityReferences(for: entity)
+          else { continue }
+
+          for attrPRef in attrYieldingPRefs {
+//            if Task.isCancelled { return Array(result) }
+
+            if selfPRef == attrPRef {
+              result.insert(entityPRef)
+              break
+            }
+          }//attrPRef
+        }//entity
+      }//model
+      return Array(result)
+    }
 
 
 		//MARK: typeMembers

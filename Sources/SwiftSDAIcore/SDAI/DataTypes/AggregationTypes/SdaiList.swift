@@ -184,7 +184,6 @@ extension SDAI {
 		public var loIndex: Int { return 1 }
 		public var size: Int { return rep.count }
 		public var isEmpty: Bool { return rep.isEmpty }
-//		public var observer: EntityReferenceObserver?
 
 		public subscript(index: Int?) -> ELEMENT? {
 			get{
@@ -418,21 +417,11 @@ extension SDAI {
 }
 
 
+extension SDAI.LIST: SDAIFundamentalAggregationType{}
+
 extension SDAI.LIST: SDAIEntityReferenceYielding
 where ELEMENT: SDAIEntityReferenceYielding
-{
-	public var entityReferences: AnySequence<SDAI.EntityReference> {
-		AnySequence( self.lazy.flatMap{ $0.entityReferences } )
-	}
-
-	public func isHolding( entityReference: SDAI.EntityReference ) -> Bool
-	{
-		for elem in self {
-			if elem.isHolding(entityReference: entityReference) { return true }
-		}
-		return false
-	}
-}
+{ }
 
 extension SDAI.LIST: SDAIDualModeReference
 where ELEMENT: SDAIDualModeReference
