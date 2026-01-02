@@ -128,7 +128,7 @@ extension SDAIDictionarySchema {
       for cache in self.functionCaches.withLock({$0}) {
         await cache.resetCache()
       }
-      
+
       await SDAI.sessionFunctionResultCacheController.resetCaches()
     }
 

@@ -174,6 +174,8 @@ extension SDAISessionSchema {
 			transaction: SdaiTransactionRW
 		)
 		{
+      guard transaction.owningSession?.activeServers[fallbackRepository.name] == nil
+      else { return }
 			transaction.owningSession?.open(repository: fallbackRepository)
 			
 			self._fallBackModels = [:]

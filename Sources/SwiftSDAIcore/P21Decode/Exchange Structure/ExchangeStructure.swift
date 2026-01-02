@@ -12,7 +12,9 @@ extension P21Decode {
 	
 	/// 5.3 Exchange structure;
 	/// ISO 10303-21
-	public final class ExchangeStructure: SDAI.Object, Sendable {
+	public final class ExchangeStructure:
+    SDAI.Object, Sendable, CustomStringConvertible
+  {
 		nonisolated(unsafe)
 		public internal(set) var headerSection = HeaderSection()
 		nonisolated(unsafe)
@@ -36,7 +38,17 @@ extension P21Decode {
 		}
 		
 		private let activityMonitor: ActivityMonitor?
-		
+
+    public var description: String {
+      var count = 0
+      for ds in dataSections {
+        guard let complexes = ds.model?.contents.allComplexEntities else { continue }
+        count += complexes.count
+      }
+      let str = "ExchangeStructure(#ENT: \(count))"
+      return str
+    }
+
 		//MARK: - constructor
 		public init(
 			repository: SDAISessionSchema.SdaiRepository,
