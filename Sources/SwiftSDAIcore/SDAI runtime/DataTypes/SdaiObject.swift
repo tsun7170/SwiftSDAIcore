@@ -16,20 +16,7 @@ public protocol SdaiObjectReference: AnyObject, Sendable {
 }
 
 
-//MARK: - SDAI namespace
-public enum SDAI {
-	public typealias GENERIC_ENTITY = EntityReference
-
-	public static let TRUE:LOGICAL = true
-	public static let FALSE:LOGICAL = false
-	public static let UNKNOWN:LOGICAL = nil
-	
-	public static let CONST_E:REAL = REAL(exp(1.0))
-	public static let PI:REAL = REAL(Double.pi)
-	
-	public static let _Infinity:INTEGER? = nil;
-
-
+extension SDAI {
 
 	//MARK: - SDAI.Object
 	public protocol Object: AnyObject, Hashable {}
