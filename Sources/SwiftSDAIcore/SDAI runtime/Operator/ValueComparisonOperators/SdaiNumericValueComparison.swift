@@ -8,58 +8,178 @@
 
 import Foundation
 
-//MARK: - Numeric comparisons (12.2.1.1)
+//MARK: - Numeric value comparisons (12.2.1.1)
 
 //MARK: integer vs. integer
-public func .==. <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
+/// Numeric Value Equal: Int .==. Int = LOGICAL
+///
+public func .==. <TI: SDAIIntRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TI?, rhs: UI?) -> SDAI.LOGICAL
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	return SDAI.LOGICAL( lhs.asSwiftInt == rhs.asSwiftInt )
 }
-public func .!=. <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
+
+/// Numeric Value NotEqual: Int .!=. Int = LOGICAL
+///
+public func .!=. <TI: SDAIIntRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TI?, rhs: UI?) -> SDAI.LOGICAL
+{ !(lhs .==. rhs) }
+
+/// Numeric Value GreaterThan: Int \> Int = LOGICAL
+///
+public func >    <TI: SDAIIntRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TI?, rhs: UI?) -> SDAI.LOGICAL
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	return SDAI.LOGICAL( lhs.asSwiftInt > rhs.asSwiftInt )
 }
-public func <    <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
-public func >=   <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
-public func <=   <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThan: Int \< Int = LOGICAL
+///
+public func <    <TI: SDAIIntRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TI?, rhs: UI?) -> SDAI.LOGICAL
+{ rhs > lhs }
+
+/// Numeric Value GreaterThanOrEqual: Int \>= Int = LOGICAL
+///
+public func >=   <TI: SDAIIntRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TI?, rhs: UI?) -> SDAI.LOGICAL
+{ (lhs > rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThanOrEqual: Int \<= Int = LOGICAL
+///
+public func <=   <TI: SDAIIntRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TI?, rhs: UI?) -> SDAI.LOGICAL
+{ (lhs < rhs)||(lhs .==. rhs) }
 
 
 //MARK: integer vs. double
-public func .==. <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { SDAI.REAL(lhs) .==. rhs }
-public func .!=. <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { SDAI.REAL(lhs) > rhs }
-public func <    <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
-public func >=   <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
-public func <=   <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+/// Numeric Value Equal: Int .==. Double = LOGICAL
+///
+public func .==. <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TI?, rhs: UD?) -> SDAI.LOGICAL
+{ SDAI.REAL(lhs) .==. rhs }
+
+/// Numeric Value NotEqual: Int .!=. Double = LOGICAL
+///
+public func .!=. <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TI?, rhs: UD?) -> SDAI.LOGICAL
+{ !(lhs .==. rhs) }
+
+/// Numeric Value GreaterThan: Int \> Double = LOGICAL
+///
+public func >    <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TI?, rhs: UD?) -> SDAI.LOGICAL
+{ SDAI.REAL(lhs) > rhs }
+
+/// Numeric Value LessThan: Int \< Double = LOGICAL
+///
+public func <    <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TI?, rhs: UD?) -> SDAI.LOGICAL
+{ rhs > lhs }
+
+/// Numeric Value GreaterThanOrEqual: Int \>= Double = LOGICAL
+///
+public func >=   <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TI?, rhs: UD?) -> SDAI.LOGICAL
+{ (lhs > rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThanOrEqual: Int \<= Double = LOGICAL
+///
+public func <=   <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TI?, rhs: UD?) -> SDAI.LOGICAL
+{ (lhs < rhs)||(lhs .==. rhs) }
 
 
 //MARK: double vs. double
-public func .==. <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
+/// Numeric Value Equal: Double .==. Double = LOGICAL
+///
+public func .==. <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TD?, rhs: UD?) -> SDAI.LOGICAL
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	return SDAI.LOGICAL( lhs.asSwiftDouble == rhs.asSwiftDouble )
 }
-public func .!=. <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
+
+/// Numeric Value NotEqual: Double .!=. Double = LOGICAL
+///
+public func .!=. <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TD?, rhs: UD?) -> SDAI.LOGICAL
+{ !(lhs .==. rhs) }
+
+/// Numeric Value GreaterThan: Double \> Double = LOGICAL
+///
+public func >    <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TD?, rhs: UD?) -> SDAI.LOGICAL
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	return SDAI.LOGICAL( lhs.asSwiftDouble > rhs.asSwiftDouble )
 }
-public func <    <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
-public func >=   <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
-public func <=   <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThan: Double \< Double = LOGICAL
+///
+public func <    <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TD?, rhs: UD?) -> SDAI.LOGICAL
+{ rhs > lhs }
+
+/// Numeric Value GreaterThanOrEqual: Double \>= Double = LOGICAL
+///
+public func >=   <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TD?, rhs: UD?) -> SDAI.LOGICAL
+{ (lhs > rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThanOrEqual: Double \<= Double = LOGICAL
+///
+public func <=   <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TD?, rhs: UD?) -> SDAI.LOGICAL
+{ (lhs < rhs)||(lhs .==. rhs) }
 
 
 //MARK: double vs. integer
-public func .==. <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. SDAI.REAL(rhs) }
-public func .!=. <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs > SDAI.REAL(rhs) }
-public func <    <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
-public func >=   <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
-public func <=   <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+/// Numeric Value Equal: Double .==. Int = LOGICAL
+///
+public func .==. <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TD?, rhs: UI?) -> SDAI.LOGICAL
+{ lhs .==. SDAI.REAL(rhs) }
+
+/// Numeric Value NotEqual: Double .!=. Int = LOGICAL
+///
+public func .!=. <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TD?, rhs: UI?) -> SDAI.LOGICAL
+{ !(lhs .==. rhs) }
+
+/// Numeric Value GreaterThan: Double \> Int = LOGICAL
+///
+public func >    <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TD?, rhs: UI?) -> SDAI.LOGICAL
+{ lhs > SDAI.REAL(rhs) }
+
+/// Numeric Value LessThan: Double \< Int = LOGICAL
+///
+public func <    <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TD?, rhs: UI?) -> SDAI.LOGICAL
+{ rhs > lhs }
+
+/// Numeric Value GreaterThanOrEqual: Double \>= Int = LOGICAL
+///
+public func >=   <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TD?, rhs: UI?) -> SDAI.LOGICAL
+{ (lhs > rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThanOrEqual: Double \<= Int = LOGICAL
+///
+public func <=   <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TD?, rhs: UI?) -> SDAI.LOGICAL
+{ (lhs < rhs)||(lhs .==. rhs) }
 
 
 //MARK: integer vs. select
-public func .==. <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
+/// Numeric Value Equal: Int .==. Select = LOGICAL
+///
+public func .==. <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+  lhs: TI?, rhs: US?) -> SDAI.LOGICAL
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	if let rhs = rhs.possiblyAsSwiftInt {
 		return SDAI.LOGICAL( lhs.asSwiftInt == rhs )
@@ -69,8 +189,18 @@ public func .==. <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, r
 	}
 	return SDAI.FALSE
 }
-public func .!=. <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
+
+/// Numeric Value NotEqual: Int .!=. Select = LOGICAL
+///
+public func .!=. <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+  lhs: TI?, rhs: US?) -> SDAI.LOGICAL
+{ !(lhs .==. rhs) }
+
+/// Numeric Value GreaterThan: Int \> Select = LOGICAL
+///
+public func >    <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+  lhs: TI?, rhs: US?) -> SDAI.LOGICAL
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	if let rhs = rhs.possiblyAsSwiftInt {
 		return SDAI.LOGICAL( lhs.asSwiftInt > rhs )
@@ -80,44 +210,132 @@ public func >    <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, r
 	}
 	return SDAI.UNKNOWN
 }
-public func <    <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
-public func >=   <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
-public func <=   <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThan: Int \< Select = LOGICAL
+///
+public func <    <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+  lhs: TI?, rhs: US?) -> SDAI.LOGICAL
+{ rhs > lhs }
+
+/// Numeric Value GreaterThanOrEqual: Int \>= Select = LOGICAL
+///
+public func >=   <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+  lhs: TI?, rhs: US?) -> SDAI.LOGICAL
+{ (lhs > rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThanOrEqual: Int \<= Select = LOGICAL
+///
+public func <=   <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+  lhs: TI?, rhs: US?) -> SDAI.LOGICAL
+{ (lhs < rhs)||(lhs .==. rhs) }
 
 
 //MARK: double vs. select
-public func .==. <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
+/// Numeric Value Equal: Double .==. Select = LOGICAL
+///
+public func .==. <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+  lhs: TD?, rhs: US?) -> SDAI.LOGICAL
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	if let rhs = rhs.possiblyAsSwiftDouble {
 		return SDAI.LOGICAL( lhs.asSwiftDouble == rhs )
 	}
 	return SDAI.FALSE
 }
-public func .!=. <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
+
+/// Numeric Value NotEqual: Double .!=. Select = LOGICAL
+///
+public func .!=. <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+  lhs: TD?, rhs: US?) -> SDAI.LOGICAL
+{ !(lhs .==. rhs) }
+
+/// Numeric Value GreaterThan: Double \> Select = LOGICAL
+///
+public func >    <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+  lhs: TD?, rhs: US?) -> SDAI.LOGICAL
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	if let rhs = rhs.possiblyAsSwiftDouble {
 		return SDAI.LOGICAL( lhs.asSwiftDouble > rhs )
 	}
 	return SDAI.UNKNOWN
 }
-public func <    <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
-public func >=   <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
-public func <=   <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThan: Double \< Select = LOGICAL
+///
+public func <    <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+  lhs: TD?, rhs: US?) -> SDAI.LOGICAL
+{ rhs > lhs }
+
+/// Numeric Value GreaterThanOrEqual: Double \>= Select = LOGICAL
+///
+public func >=   <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+  lhs: TD?, rhs: US?) -> SDAI.LOGICAL
+{ (lhs > rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThanOrEqual: Double \<= Select = LOGICAL
+///
+public func <=   <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+  lhs: TD?, rhs: US?) -> SDAI.LOGICAL
+{ (lhs < rhs)||(lhs .==. rhs) }
 
 
 //MARK: select vs. select
-public func .==. <T: SDAISelectType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { SDAI.GENERIC(lhs) .==. SDAI.GENERIC(rhs) }
-public func .!=. <T: SDAISelectType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SDAISelectType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { SDAI.GENERIC(lhs) > SDAI.GENERIC(rhs) }
-public func <    <T: SDAISelectType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
-public func >=   <T: SDAISelectType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
-public func <=   <T: SDAISelectType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+/// Numeric Value Equal: Select .==. Select = LOGICAL
+///
+public func .==. <TS: SDAISelectType, US: SDAISelectType>(
+  lhs: TS?, rhs: US?) -> SDAI.LOGICAL
+{ SDAI.GENERIC(lhs) .==. SDAI.GENERIC(rhs) }
+
+/// Numeric Value NotEqual: Select .!=. Select = LOGICAL
+///
+public func .!=. <TS: SDAISelectType, US: SDAISelectType>(
+  lhs: TS?, rhs: US?) -> SDAI.LOGICAL
+{ !(lhs .==. rhs) }
+
+/// Numeric Value GreaterThan: Select \> Select = LOGICAL
+///
+public func >    <TS: SDAISelectType, US: SDAISelectType>(
+  lhs: TS?, rhs: US?) -> SDAI.LOGICAL
+{ SDAI.GENERIC(lhs) > SDAI.GENERIC(rhs) }
+
+/// Numeric Value LessThan: Select \< Select = LOGICAL
+///
+public func <    <TS: SDAISelectType, US: SDAISelectType>(
+  lhs: TS?, rhs: US?) -> SDAI.LOGICAL
+{ rhs > lhs }
+
+/// Numeric Value GreaterThanOrEqual: Select \>= Select = LOGICAL
+///
+public func >=   <TS: SDAISelectType, US: SDAISelectType>(
+  lhs: TS?, rhs: US?) -> SDAI.LOGICAL
+{ (lhs > rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThanOrEqual: Select \<= Select = LOGICAL
+///
+public func <=   <TS: SDAISelectType, US: SDAISelectType>(
+  lhs: TS?, rhs: US?) -> SDAI.LOGICAL
+{ (lhs < rhs)||(lhs .==. rhs) }
+
 
 //MARK: select vs. integer
-public func .==. <T: SDAISelectType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs .==. lhs }
-public func .!=. <T: SDAISelectType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SDAISelectType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL {
+/// Numeric Value Equal: Select .==. Int = LOGICAL
+///
+public func .==. <TS: SDAISelectType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TS?, rhs: UI?) -> SDAI.LOGICAL
+{ rhs .==. lhs }
+
+/// Numeric Value NotEqual: Select .!=. Int = LOGICAL
+///
+public func .!=. <TS: SDAISelectType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TS?, rhs: UI?) -> SDAI.LOGICAL
+{ !(lhs .==. rhs) }
+
+/// Numeric Value GreaterThan: Select \> Int = LOGICAL
+///
+public func >    <TS: SDAISelectType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TS?, rhs: UI?) -> SDAI.LOGICAL
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	if let lhs = lhs.possiblyAsSwiftInt {
 		return SDAI.LOGICAL( lhs > rhs.asSwiftInt )
@@ -127,23 +345,67 @@ public func >    <T: SDAISelectType, U: SDAIIntRepresentedNumberType>(lhs: T?, r
 	}
 	return SDAI.UNKNOWN
 }
-public func <    <T: SDAISelectType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
-public func >=   <T: SDAISelectType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
-public func <=   <T: SDAISelectType, U: SDAIIntRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThan: Select \< Int = LOGICAL
+///
+public func <    <TS: SDAISelectType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TS?, rhs: UI?) -> SDAI.LOGICAL
+{ rhs > lhs }
+
+/// Numeric Value GreaterThanOrEqual: Select \>= Int = LOGICAL
+///
+public func >=   <TS: SDAISelectType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TS?, rhs: UI?) -> SDAI.LOGICAL
+{ (lhs > rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThanOrEqual: Select \<= Int = LOGICAL
+///
+public func <=   <TS: SDAISelectType, UI: SDAIIntRepresentedNumberType>(
+  lhs: TS?, rhs: UI?) -> SDAI.LOGICAL
+{ (lhs < rhs)||(lhs .==. rhs) }
 
 
 //MARK: select vs. double
-public func .==. <T: SDAISelectType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs .==. lhs }
-public func .!=. <T: SDAISelectType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SDAISelectType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL {
+/// Numeric Value Equal: Select .==. Double = LOGICAL
+///
+public func .==. <TS: SDAISelectType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TS?, rhs: UD?) -> SDAI.LOGICAL
+{ rhs .==. lhs }
+
+/// Numeric Value NotEqual: Select .!=. Double = LOGICAL
+///
+public func .!=. <TS: SDAISelectType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TS?, rhs: UD?) -> SDAI.LOGICAL
+{ !(lhs .==. rhs) }
+
+/// Numeric Value GreaterThan: Select \> Double = LOGICAL
+///
+public func >    <TS: SDAISelectType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TS?, rhs: UD?) -> SDAI.LOGICAL
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	if let lhs = lhs.possiblyAsSwiftDouble {
 		return SDAI.LOGICAL( lhs > rhs.asSwiftDouble )
 	}
 	return SDAI.UNKNOWN
 }
-public func <    <T: SDAISelectType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
-public func >=   <T: SDAISelectType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
-public func <=   <T: SDAISelectType, U: SDAIDoubleRepresentedNumberType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThan: Select \< Double = LOGICAL
+///
+public func <    <TS: SDAISelectType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TS?, rhs: UD?) -> SDAI.LOGICAL
+{ rhs > lhs }
+
+/// Numeric Value GreaterThanOrEqual: Select \>= Double = LOGICAL
+///
+public func >=   <TS: SDAISelectType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TS?, rhs: UD?) -> SDAI.LOGICAL
+{ (lhs > rhs)||(lhs .==. rhs) }
+
+/// Numeric Value LessThanOrEqual: Select \<= Double = LOGICAL
+///
+public func <=   <TS: SDAISelectType, UD: SDAIDoubleRepresentedNumberType>(
+  lhs: TS?, rhs: UD?) -> SDAI.LOGICAL
+{ (lhs < rhs)||(lhs .==. rhs) }
 
 

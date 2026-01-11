@@ -8,41 +8,82 @@
 
 import Foundation
 
-//MARK: - Arithmetic operators
- public prefix func + <T: SDAINumberType>(number: T?) -> T? {
+//MARK: - Arithmetic operators (12.1)
+/// Arithmetic Identity
+///
+ public prefix func + <T: SDAINumberType>(
+  number: T?) -> T?
+{
 	return number
 }
 
- public prefix func - <T: SDAINumberType>(number: T?) -> T? {
+/// Arithmetic Negation
+ public prefix func - <T: SDAINumberType>(
+  number: T?) -> T?
+{
 	guard let number = number else { return nil }
 	return T( from: -(number.asSwiftType) )
 }
 
 //MARK: Int vs. Int
-public func +   <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+/// Arithmetic Addition: Int + Int = INTEGER
+///
+public func +   <TI: SDAIIntRepresentedNumberType, UI: SDAIIntRepresented>(
+  lhs: TI?, rhs: UI?) -> SDAI.INTEGER?
+{
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return SDAI.INTEGER( lhs.asSwiftInt + rhs.asSwiftInt )
 }
-public func -   <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Subtraction: Int - Int = INTEGER
+///
+public func -   <TI: SDAIIntRepresentedNumberType, UI: SDAIIntRepresented>(
+  lhs: TI?, rhs: UI?) -> SDAI.INTEGER?
+{
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return SDAI.INTEGER( lhs.asSwiftInt - rhs.asSwiftInt )
 }
-public func *   <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Multiplication: Int \* Int = INTEGER
+///
+public func *   <TI: SDAIIntRepresentedNumberType, UI: SDAIIntRepresented>(
+  lhs: TI?, rhs: UI?) -> SDAI.INTEGER?
+{
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return SDAI.INTEGER( lhs.asSwiftInt * rhs.asSwiftInt )
 }
-public func /   <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
-	SDAI.REAL(lhs) / SDAI.REAL(rhs?.asSwiftDouble) 
+
+/// Arithmetic Real Division: Int / Int = REAL
+///
+public func /   <TI: SDAIIntRepresentedNumberType, UI: SDAIIntRepresented>(
+  lhs: TI?, rhs: UI?) -> SDAI.REAL?
+{
+	SDAI.REAL(lhs) / SDAI.REAL(rhs?.asSwiftDouble)
 }
-public func **  <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Exponentiation: Int \*\* Int = INTEGER
+///
+public func **  <TI: SDAIIntRepresentedNumberType, UI: SDAIIntRepresented>(
+  lhs: TI?, rhs: UI?) -> SDAI.INTEGER?
+{
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return SDAI.INTEGER(truncating: pow(lhs.asSwiftDouble, rhs.asSwiftDouble) )
 }
-public func ./. <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Integer Division (DIV): Int ./. Int = INTEGER
+///
+public func ./. <TI: SDAIIntRepresentedNumberType, UI: SDAIIntRepresented>(
+  lhs: TI?, rhs: UI?) -> SDAI.INTEGER?
+{
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return SDAI.INTEGER( lhs.asSwiftInt / rhs.asSwiftInt )
 }
-public func %   <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Modulo (MOD): Int % Int = INTEGER
+///
+public func %   <TI: SDAIIntRepresentedNumberType, UI: SDAIIntRepresented>(
+  lhs: TI?, rhs: UI?) -> SDAI.INTEGER?
+{
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	let sign = rhs.asSwiftInt >= 0 ? 1 : -1
 	return (lhs - (lhs ./. rhs) * rhs) * sign
@@ -50,175 +91,413 @@ public func %   <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?
 
 
 //MARK: Int vs. Double
-public func +   <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+/// Arithmetic Addition: Int + Double = REAL
+///
+public func +   <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresented>(
+  lhs: TI?, rhs: UD?) -> SDAI.REAL?
+{
 	SDAI.REAL(lhs) + rhs
 }
-public func -   <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Subtraction: Int - Double = REAL
+///
+public func -   <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresented>(
+  lhs: TI?, rhs: UD?) -> SDAI.REAL?
+{
 	SDAI.REAL(lhs) - rhs
 }
-public func *   <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Multiplication: Int \* Double = REAL
+///
+public func *   <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresented>(
+  lhs: TI?, rhs: UD?) -> SDAI.REAL?
+{
 	SDAI.REAL(lhs) * rhs
 }
-public func /   <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Real Division: Int / Double = REAL
+///
+public func /   <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresented>(
+  lhs: TI?, rhs: UD?) -> SDAI.REAL?
+{
 	SDAI.REAL(lhs) / rhs
 }
-public func **  <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Exponentiation: Int \*\* Double = REAL
+///
+public func **  <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresented>(
+  lhs: TI?, rhs: UD?) -> SDAI.REAL?
+{
 	SDAI.REAL(lhs) ** rhs
 }
-public func ./. <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Integer Division (DIV): Int ./. Double = INTEGER
+///
+public func ./. <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresented>(
+  lhs: TI?, rhs: UD?) -> SDAI.INTEGER?
+{
 	lhs ./. SDAI.INTEGER(truncating: rhs)
 }
-public func %   <T: SDAIIntRepresentedNumberType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Modulo (MOD): Int % Double = INTEGER
+///
+public func %   <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresented>(
+  lhs: TI?, rhs: UD?) -> SDAI.INTEGER?
+{
 	lhs % SDAI.INTEGER(truncating: rhs)
 }
 
 
 //MARK: Double vs. Double
-public func +   <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+/// Arithmetic Addition: Double + Double = REAL
+///
+public func +   <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresented>(
+  lhs: TD?, rhs: UD?) -> SDAI.REAL?
+{
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return SDAI.REAL( lhs.asSwiftDouble + rhs.asSwiftDouble )
 }
-public func -   <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Subtraction: Double - Double = REAL
+///
+public func -   <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresented>(
+  lhs: TD?, rhs: UD?) -> SDAI.REAL?
+{
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return SDAI.REAL( lhs.asSwiftDouble - rhs.asSwiftDouble )
 }
-public func *   <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Multiplication: Double \* Double = REAL
+///
+public func *   <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresented>(
+  lhs: TD?, rhs: UD?) -> SDAI.REAL?
+{
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return SDAI.REAL( lhs.asSwiftDouble * rhs.asSwiftDouble )
 }
-public func /   <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Real Division: Double / Double = REAL
+///
+public func /   <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresented>(
+  lhs: TD?, rhs: UD?) -> SDAI.REAL?
+{
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return SDAI.REAL( lhs.asSwiftDouble / rhs.asSwiftDouble )
 }
-public func **  <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Exponentiation: Double \*\* Double = REAL
+///
+public func **  <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresented>(
+  lhs: TD?, rhs: UD?) -> SDAI.REAL?
+{
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return SDAI.REAL( pow(lhs.asSwiftDouble, rhs.asSwiftDouble) )
 }
-public func ./. <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Integer Division (DIV): Double ./. Double = INTEGER
+///
+public func ./. <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresented>(
+  lhs: TD?, rhs: UD?) -> SDAI.INTEGER?
+{
 	SDAI.INTEGER(truncating: lhs) ./. SDAI.INTEGER(truncating: rhs)
 }
-public func %   <T: SDAIDoubleRepresentedNumberType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Modulo (MOD): Double % Double = INTEGER
+///
+public func %   <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresented>(
+  lhs: TD?, rhs: UD?) -> SDAI.INTEGER?
+{
 	SDAI.INTEGER(truncating: lhs) % SDAI.INTEGER(truncating: rhs)
 }
 
 
 //MARK: Double vs. Int
-public func +   <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+/// Arithmetic Addition: Double + Int = REAL
+///
+public func +   <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresented>(
+  lhs: TD?, rhs: UI?) -> SDAI.REAL?
+{
 	lhs + SDAI.REAL(rhs?.asSwiftDouble)
 }
-public func -   <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Subtraction: Double - Int = REAL
+///
+public func -   <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresented>(
+  lhs: TD?, rhs: UI?) -> SDAI.REAL?
+{
 	lhs - SDAI.REAL(rhs?.asSwiftDouble)
 }
-public func *   <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Multiplication: Double \* Int = REAL
+///
+public func *   <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresented>(
+  lhs: TD?, rhs: UI?) -> SDAI.REAL?
+{
 	lhs * SDAI.REAL(rhs?.asSwiftDouble)
 }
-public func /   <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Real Division: Double / Int = REAL
+///
+public func /   <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresented>(
+  lhs: TD?, rhs: UI?) -> SDAI.REAL?
+{
 	lhs / SDAI.REAL(rhs?.asSwiftDouble)
 }
-public func **  <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Exponentiation: Double \*\* Int = REAL
+///
+public func **  <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresented>(
+  lhs: TD?, rhs: UI?) -> SDAI.REAL?
+{
 	lhs ** SDAI.REAL(rhs?.asSwiftDouble)
 }
-public func ./. <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Integer Division (DIV): Double ./. Int = INTEGER
+///
+public func ./. <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresented>(
+  lhs: TD?, rhs: UI?) -> SDAI.INTEGER?
+{
 	SDAI.INTEGER(lhs) ./. rhs
 }
-public func %   <T: SDAIDoubleRepresentedNumberType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Modulo (MOD): Double % Int = INTEGER
+///
+public func %   <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresented>(
+  lhs: TD?, rhs: UI?) -> SDAI.INTEGER?
+{
 	SDAI.INTEGER(lhs) % rhs
 }
 
 
 //MARK: Double vs. Select
-public func +   <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+/// Arithmetic Addition: Double + Select = REAL
+///
+public func +   <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+  lhs: TD?, rhs: US?) -> SDAI.REAL?
+{
 	lhs + rhs?.realValue
 }
-public func -   <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Subtraction: Double - Select = REAL
+///
+public func -   <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+  lhs: TD?, rhs: US?) -> SDAI.REAL?
+{
 	lhs - rhs?.realValue
 }
-public func *   <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Multiplication: Double \* Select = REAL
+///
+public func *   <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+  lhs: TD?, rhs: US?) -> SDAI.REAL?
+{
 	lhs * rhs?.realValue
 }
-public func /   <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Real Division: Double / Select = REAL
+///
+public func /   <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+  lhs: TD?, rhs: US?) -> SDAI.REAL?
+{
 	lhs / rhs?.realValue
 }
-public func **  <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Exponentiation: Double \*\* Select = REAL
+///
+public func **  <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+  lhs: TD?, rhs: US?) -> SDAI.REAL?
+{
 	lhs ** rhs?.realValue
 }
-public func ./. <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Integer Division (DIV): Double ./. Select = INTEGER
+///
+public func ./. <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+  lhs: TD?, rhs: US?) -> SDAI.INTEGER?
+{
 	if let rhs = rhs?.integerValue { return lhs ./. rhs }
 	return lhs ./. rhs?.realValue
 }
-public func %   <T: SDAIDoubleRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Modulo (MOD): Double % Select = INTEGER
+///
+public func %   <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+  lhs: TD?, rhs: US?) -> SDAI.INTEGER?
+{
 	if let rhs = rhs?.integerValue { return lhs % rhs }
 	return lhs % rhs?.realValue
 }
 
 //MARK: Select vs. Double
-public func +   <T: SDAISelectType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+/// Arithmetic Addition: Select + Double = REAL
+///
+public func +   <TS: SDAISelectType, UD: SDAIDoubleRepresented>(
+  lhs: TS?, rhs: UD?) -> SDAI.REAL?
+{
 	lhs?.realValue + rhs
 }
-public func -   <T: SDAISelectType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Subtraction: Select - Double = REAL
+///
+public func -   <TS: SDAISelectType, UD: SDAIDoubleRepresented>(
+  lhs: TS?, rhs: UD?) -> SDAI.REAL?
+{
 	lhs?.realValue - rhs
 }
-public func *   <T: SDAISelectType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Multiplication: Select \* Double = REAL
+///
+public func *   <TS: SDAISelectType, UD: SDAIDoubleRepresented>(
+  lhs: TS?, rhs: UD?) -> SDAI.REAL?
+{
 	lhs?.realValue * rhs
 }
-public func /   <T: SDAISelectType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Real Division: Select / Double = REAL
+///
+public func /   <TS: SDAISelectType, UD: SDAIDoubleRepresented>(
+  lhs: TS?, rhs: UD?) -> SDAI.REAL?
+{
 	lhs?.realValue / rhs
 }
-public func **  <T: SDAISelectType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Exponentiation: Select \*\* Double = REAL
+///
+public func **  <TS: SDAISelectType, UD: SDAIDoubleRepresented>(
+  lhs: TS?, rhs: UD?) -> SDAI.REAL?
+{
 	lhs?.realValue ** rhs
 }
-public func ./. <T: SDAISelectType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Integer Division (DIV): Select ./. Double = INTEGER
+///
+public func ./. <TS: SDAISelectType, UD: SDAIDoubleRepresented>(
+  lhs: TS?, rhs: UD?) -> SDAI.INTEGER?
+{
 	if let lhs = lhs?.integerValue { return lhs ./. rhs }
 	return lhs?.realValue ./. rhs
 }
-public func %   <T: SDAISelectType, U: SDAIDoubleRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Modulo (MOD): Select % Double = INTEGER
+///
+public func %   <TS: SDAISelectType, UD: SDAIDoubleRepresented>(
+  lhs: TS?, rhs: UD?) -> SDAI.INTEGER?
+{
 	if let lhs = lhs?.integerValue { return lhs ./. rhs }
 	return lhs?.realValue % rhs
 }
 
 //MARK: Int vs. Select
-public func +   <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+/// Arithmetic Addition: Int + Select = INTEGER
+///
+public func +   <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+  lhs: TI?, rhs: US?) -> SDAI.INTEGER?
+{
 	lhs + rhs?.integerValue
 }
-public func -   <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Subtraction: Int - Select = INTEGER
+///
+public func -   <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+  lhs: TI?, rhs: US?) -> SDAI.INTEGER?
+{
 	lhs - rhs?.integerValue
 }
-public func *   <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Multiplication: Int \* Select = INTEGER
+///
+public func *   <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+  lhs: TI?, rhs: US?) -> SDAI.INTEGER?
+{
 	lhs * rhs?.integerValue
 }
-public func /   <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Real Division: Int / Select = REAL
+///
+public func /   <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+  lhs: TI?, rhs: US?) -> SDAI.REAL?
+{
 	lhs / rhs?.integerValue
 }
-public func **  <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Exponentiation: Int \*\* Select = INTEGER
+///
+public func **  <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+  lhs: TI?, rhs: US?) -> SDAI.INTEGER?
+{
 	lhs ** rhs?.integerValue
 }
-public func ./. <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Integer Division (DIV): Int ./. Select = INTEGER
+///
+public func ./. <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+  lhs: TI?, rhs: US?) -> SDAI.INTEGER?
+{
 	lhs ./. rhs?.integerValue
 }
-public func %   <T: SDAIIntRepresentedNumberType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Modulo (MOD): Int % Select = INTEGER
+///
+public func %   <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+  lhs: TI?, rhs: US?) -> SDAI.INTEGER?
+{
 	lhs % rhs?.integerValue
 }
 
 //MARK: Select vs. Int
-public func +   <T: SDAISelectType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+/// Arithmetic Addition: Select + Int = INTEGER
+///
+public func +   <TS: SDAISelectType, UI: SDAIIntRepresented>(
+  lhs: TS?, rhs: UI?) -> SDAI.INTEGER?
+{
 	lhs?.integerValue + rhs
 }
-public func -   <T: SDAISelectType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Subtraction: Select - Int = INTEGER
+///
+public func -   <TS: SDAISelectType, UI: SDAIIntRepresented>(
+  lhs: TS?, rhs: UI?) -> SDAI.INTEGER?
+{
 	lhs?.integerValue - rhs
 }
-public func *   <T: SDAISelectType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Multiplication: Select \* Int = INTEGER
+///
+public func *   <TS: SDAISelectType, UI: SDAIIntRepresented>(
+  lhs: TS?, rhs: UI?) -> SDAI.INTEGER?
+{
 	lhs?.integerValue * rhs
 }
-public func /   <T: SDAISelectType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.REAL? { 
+
+/// Arithmetic Real Division: Select / Int = REAL
+///
+public func /   <TS: SDAISelectType, UI: SDAIIntRepresented>(
+  lhs: TS?, rhs: UI?) -> SDAI.REAL?
+{
 	lhs?.integerValue / rhs
 }
-public func **  <T: SDAISelectType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Exponentiation: Select \*\* Int = INTEGER
+///
+public func **  <TS: SDAISelectType, UI: SDAIIntRepresented>(
+  lhs: TS?, rhs: UI?) -> SDAI.INTEGER?
+{
 	lhs?.integerValue ** rhs
 }
-public func ./. <T: SDAISelectType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Integer Division (DIV): Select ./. Int = INTEGER
+///
+public func ./. <TS: SDAISelectType, UI: SDAIIntRepresented>(
+  lhs: TS?, rhs: UI?) -> SDAI.INTEGER?
+{
 	lhs?.integerValue ./. rhs
 }
-public func %   <T: SDAISelectType, U: SDAIIntRepresented>(lhs: T?, rhs: U?) -> SDAI.INTEGER? { 
+
+/// Arithmetic Modulo (MOD): Select % Int = INTEGER
+///
+public func %   <TS: SDAISelectType, UI: SDAIIntRepresented>(
+  lhs: TS?, rhs: UI?) -> SDAI.INTEGER?
+{
 	lhs?.integerValue % rhs
 }
 

@@ -8,36 +8,125 @@
 
 import Foundation
 
-//MARK: - Logical comparisons (12.2.1.3)
+//MARK: - Logical value comparisons (12.2.1.3)
 
 //MARK: logical vs. logical
-public func .==. <T: SDAILogicalType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
+/// Logical Value Equal: Logical .==. Logical = LOGICAL
+///
+public func .==. <T: SDAILogicalType, U: SDAILogicalType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	return SDAI.LOGICAL( SDAI.cardinal(logical: lhs) == SDAI.cardinal(logical: rhs) )
 }
-public func .!=. <T: SDAILogicalType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SDAILogicalType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { 
+
+/// Logical Value NotEqual: Logical .!=. Logical = LOGICAL
+///
+public func .!=. <T: SDAILogicalType, U: SDAILogicalType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ !(lhs .==. rhs) }
+
+/// Logical Value GreaterThan: Logical \> Logical = LOGICAL
+///
+public func >    <T: SDAILogicalType, U: SDAILogicalType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	return SDAI.LOGICAL( SDAI.cardinal(logical: lhs) > SDAI.cardinal(logical: rhs) )
 }
-public func <    <T: SDAILogicalType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
-public func >=   <T: SDAILogicalType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
-public func <=   <T: SDAILogicalType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+
+/// Logical Value LessThan: Logical \< Logical = LOGICAL
+///
+public func <    <T: SDAILogicalType, U: SDAILogicalType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ rhs > lhs }
+
+/// Logical Value GreaterThanOrEqual: Logical \>= Logical = LOGICAL
+///
+public func >=   <T: SDAILogicalType, U: SDAILogicalType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ (lhs > rhs)||(lhs .==. rhs) }
+
+/// Logical Value LessThanOrEqual: Logical \<= Logical = LOGICAL
+///
+public func <=   <T: SDAILogicalType, U: SDAILogicalType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ (lhs < rhs)||(lhs .==. rhs) }
+
 
 //MARK: logical vs. select
-public func .==. <T: SDAILogicalType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs .==. rhs?.logicalValue }
-public func .!=. <T: SDAILogicalType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SDAILogicalType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs > rhs?.logicalValue }
-public func <    <T: SDAILogicalType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
-public func >=   <T: SDAILogicalType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
-public func <=   <T: SDAILogicalType, U: SDAISelectType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+/// Logical Value Equal: Logical .==. Select = LOGICAL
+///
+public func .==. <T: SDAILogicalType, U: SDAISelectType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ lhs .==. rhs?.logicalValue }
+
+/// Logical Value NotEqual: Logical .!=. Select = LOGICAL
+///
+public func .!=. <T: SDAILogicalType, U: SDAISelectType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ !(lhs .==. rhs) }
+
+/// Logical Value GreaterThan: Logical \> Select = LOGICAL
+///
+public func >    <T: SDAILogicalType, U: SDAISelectType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ lhs > rhs?.logicalValue }
+
+/// Logical Value LessThan: Logical \< Select = LOGICAL
+///
+public func <    <T: SDAILogicalType, U: SDAISelectType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ rhs > lhs }
+
+/// Logical Value GreaterThanOrEqual: Logical \>= Select = LOGICAL
+///
+public func >=   <T: SDAILogicalType, U: SDAISelectType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ (lhs > rhs)||(lhs .==. rhs) }
+
+/// Logical Value LessThanOrEqual: Logical \<= Select = LOGICAL
+///
+public func <=   <T: SDAILogicalType, U: SDAISelectType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ (lhs < rhs)||(lhs .==. rhs) }
+
 
 //MARK: select vs. logical
-public func .==. <T: SDAISelectType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs .==. lhs }
-public func .!=. <T: SDAISelectType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
-public func >    <T: SDAISelectType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { lhs?.logicalValue > rhs }
-public func <    <T: SDAISelectType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { rhs > lhs }
-public func >=   <T: SDAISelectType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
-public func <=   <T: SDAISelectType, U: SDAILogicalType>(lhs: T?, rhs: U?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+/// Logical Value Equal: Select .==. Logical = LOGICAL
+///
+public func .==. <T: SDAISelectType, U: SDAILogicalType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ rhs .==. lhs }
+
+/// Logical Value NotEqual: Select .!=. Logical = LOGICAL
+///
+public func .!=. <T: SDAISelectType, U: SDAILogicalType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ !(lhs .==. rhs) }
+
+/// Logical Value GreaterThan: Select \> Logical = LOGICAL
+///
+public func >    <T: SDAISelectType, U: SDAILogicalType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ lhs?.logicalValue > rhs }
+
+/// Logical Value LessThan: Select \< Logical = LOGICAL
+///
+public func <    <T: SDAISelectType, U: SDAILogicalType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ rhs > lhs }
+
+/// Logical Value GreaterThanOrEqual: Select \>= Logical = LOGICAL
+///
+public func >=   <T: SDAISelectType, U: SDAILogicalType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ (lhs > rhs)||(lhs .==. rhs) }
+
+/// Logical Value LessThanOrEqual: Select \<= Logical = LOGICAL
+///
+public func <=   <T: SDAISelectType, U: SDAILogicalType>(
+  lhs: T?, rhs: U?) -> SDAI.LOGICAL
+{ (lhs < rhs)||(lhs .==. rhs) }
 
 

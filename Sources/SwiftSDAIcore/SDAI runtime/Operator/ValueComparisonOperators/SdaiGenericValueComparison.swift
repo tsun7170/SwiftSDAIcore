@@ -8,7 +8,13 @@
 
 import Foundation
 
-public func .==. (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL { 
+//MARK: - GENERIC value comparisons (12.2.1)
+
+/// GENERIC value Equal: GENERIC .==. GENERIC = LOGICAL
+///
+public func .==. (
+  lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	if let lhs = lhs.entityReference, let rhs = rhs.entityReference {
 		return lhs .==. rhs
@@ -52,9 +58,17 @@ public func .==. (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL {
 	return SDAI.UNKNOWN
 }
 
-public func .!=. (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL { !(lhs .==. rhs) }
+/// GENERIC value NotEqual: GENERIC .!=. GENERIC = LOGICAL
+///
+public func .!=. (
+  lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL
+{ !(lhs .==. rhs) }
 
-public func >    (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL { 
+/// GENERIC value GreaterThan: GENERIC \> GENERIC = LOGICAL
+///
+public func >    (
+  lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	if let lhs = lhs.stringValue, let rhs = rhs.stringValue {
 		return lhs > rhs
@@ -84,9 +98,21 @@ public func >    (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL {
 	return SDAI.UNKNOWN
 }
 
-public func <    (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL { rhs > lhs }
+/// GENERIC value LessThan: GENERIC \< GENERIC = LOGICAL
+///
+public func <    (
+  lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL
+{ rhs > lhs }
 
-public func >=   (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL { (lhs > rhs)||(lhs .==. rhs) }
+/// GENERIC value GreaterThanOrEqual: GENERIC \>= GENERIC = LOGICAL
+///
+public func >=   (
+  lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL
+{ (lhs > rhs)||(lhs .==. rhs) }
 
-public func <=   (lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL { (lhs < rhs)||(lhs .==. rhs) }
+/// GENERIC value LessThanOrEqual: GENERIC \<= GENERIC = LOGICAL
+///
+public func <=   (
+  lhs: SDAI.GENERIC?, rhs: SDAI.GENERIC?) -> SDAI.LOGICAL
+{ (lhs < rhs)||(lhs .==. rhs) }
 
