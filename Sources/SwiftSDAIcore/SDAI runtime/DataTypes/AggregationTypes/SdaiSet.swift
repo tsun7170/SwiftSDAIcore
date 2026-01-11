@@ -55,7 +55,7 @@ where Element == ELEMENT,
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 }
 public extension SDAI__SET__type 
-where ELEMENT: InitializableByComplexEntity {
+where ELEMENT: SDAI.InitializableByComplexEntity {
 	func unionWith(rhs: SDAI.ComplexEntity) -> SDAI.SET<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
 		return self.unionWith(rhs: rhs)
@@ -538,8 +538,8 @@ where ELEMENT: SDAIPersistentReference
 
 
 
-extension SDAI.SET: InitializableBySelecttypeSet
-where ELEMENT: InitializableBySelectType
+extension SDAI.SET: SDAI.InitializableBySelecttypeSet
+where ELEMENT: SDAI.InitializableBySelectType
 {
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(
 		bound1: I1, bound2: I2?, _ settype: T?) 
@@ -554,8 +554,8 @@ where ELEMENT: InitializableBySelectType
 
 
 
-extension SDAI.SET: InitializableByEntitySet
-where ELEMENT: InitializableByComplexEntity
+extension SDAI.SET: SDAI.InitializableByEntitySet
+where ELEMENT: SDAI.InitializableByComplexEntity
 {
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(
 		bound1: I1, bound2: I2?, _ settype: T?)
@@ -576,8 +576,8 @@ where ELEMENT: InitializableByComplexEntity
 }
 
 
-extension SDAI.SET: InitializableByDefinedtypeSet
-where ELEMENT: InitializableByDefinedType
+extension SDAI.SET: SDAI.InitializableByDefinedtypeSet
+where ELEMENT: SDAI.InitializableByDefinedType
 {
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(
 		bound1: I1, bound2: I2?, _ settype: T?) 

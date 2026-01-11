@@ -9,13 +9,14 @@
 import Foundation
 
 //MARK: - from generic type scalar
-public protocol InitializableByGenericType
-{
-	init?<G: SDAIGenericType>(fromGeneric generic: G?)
-	static func convert<G: SDAIGenericType>(fromGeneric generic: G?) -> Self?
+extension SDAI {
+  public protocol InitializableByGenericType
+  {
+    init?<G: SDAIGenericType>(fromGeneric generic: G?)
+    static func convert<G: SDAIGenericType>(fromGeneric generic: G?) -> Self?
+  }
 }
-
-public extension InitializableByGenericType 
+public extension SDAI.InitializableByGenericType
 where Self: SDAIGenericType
 {
 	static func convert<G: SDAIGenericType>(fromGeneric generic: G?) -> Self? {
@@ -46,7 +47,7 @@ where Self: SDAIGenericType
 
 }
 
-public extension InitializableByGenericType 
+public extension SDAI.InitializableByGenericType
 where Self: SDAIGenericType, FundamentalType == Self
 {
 	static func convert<G: SDAIGenericType>(fromGeneric generic: G?) -> Self? {
@@ -67,11 +68,13 @@ where Self: SDAIGenericType, FundamentalType == Self
 }
 
 //MARK: - from generic type list
-public protocol InitializableByGenericList
-{
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, generic listtype: T?) 
+extension SDAI {
+  public protocol InitializableByGenericList
+  {
+    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, generic listtype: T?)
+  }
 }
-public extension InitializableByGenericList
+public extension SDAI.InitializableByGenericList
 {
 	init?<T: SDAI__LIST__type>(generic listtype: T?) 
 	{
@@ -81,11 +84,13 @@ public extension InitializableByGenericList
 }
 
 //MARK: - from generic type bag
-public protocol InitializableByGenericBag
-{
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, generic bagtype: T?) 
+extension SDAI {
+  public protocol InitializableByGenericBag
+  {
+    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, generic bagtype: T?)
+  }
 }
-public extension InitializableByGenericBag
+public extension SDAI.InitializableByGenericBag
 {
 	init?<T: SDAI__BAG__type>(generic bagtype: T?) 
 	{
@@ -95,11 +100,13 @@ public extension InitializableByGenericBag
 }
 
 //MARK: - from generic type set
-public protocol InitializableByGenericSet
-{
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, generic settype: T?) 
+extension SDAI {
+  public protocol InitializableByGenericSet
+  {
+    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, generic settype: T?)
+  }
 }
-public extension InitializableByGenericSet
+public extension SDAI.InitializableByGenericSet
 {
 	init?<T: SDAI__SET__type>(generic settype: T?) 
 	{
@@ -110,11 +117,13 @@ public extension InitializableByGenericSet
 
 
 //MARK: - from generic type array optional
-public protocol InitializableByGenericArrayOptional
-{
-	init?<T: SDAI__ARRAY_OPTIONAL__type>(generic arraytype: T?) 
+extension SDAI {
+  public protocol InitializableByGenericArrayOptional
+  {
+    init?<T: SDAI__ARRAY_OPTIONAL__type>(generic arraytype: T?)
+  }
 }
-public extension InitializableByGenericArrayOptional
+public extension SDAI.InitializableByGenericArrayOptional
 {
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY_OPTIONAL__type>(bound1: I1, bound2: I2, generic arraytype: T?) 
 	{
@@ -128,11 +137,13 @@ public extension InitializableByGenericArrayOptional
 
 
 //MARK: - from generic type array
-public protocol InitializableByGenericArray
-{
-	init?<T: SDAI__ARRAY__type>(generic arraytype: T?) 
+extension SDAI {
+  public protocol InitializableByGenericArray
+  {
+    init?<T: SDAI__ARRAY__type>(generic arraytype: T?)
+  }
 }
-public extension InitializableByGenericArray
+public extension SDAI.InitializableByGenericArray
 {
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY__type>(bound1: I1, bound2: I2, generic arraytype: T?) 
 	{

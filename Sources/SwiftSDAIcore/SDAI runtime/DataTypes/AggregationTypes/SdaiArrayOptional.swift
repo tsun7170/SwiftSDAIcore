@@ -17,7 +17,7 @@ public protocol SDAIArrayOptionalType: SDAIArrayType, InitializableByVoid
 
 //MARK: - ARRAY_OPTIONAL type
 public protocol SDAI__ARRAY_OPTIONAL__type:
-	SDAIArrayOptionalType, InitializableByEmptyArrayLiteral, InitializableByGenericArrayOptional
+  SDAIArrayOptionalType, SDAI.InitializableByEmptyArrayLiteral, SDAI.InitializableByGenericArrayOptional
 where Element == ELEMENT?,
 			FundamentalType == SDAI.ARRAY_OPTIONAL<ELEMENT>,
 			Value == FundamentalType.Value,
@@ -311,8 +311,8 @@ where ELEMENT: SDAIPersistentReference
 }
 
 
-extension SDAI.ARRAY_OPTIONAL: InitializableBySelecttypeArrayOptional, InitializableBySelecttypeArray
-where ELEMENT: InitializableBySelectType
+extension SDAI.ARRAY_OPTIONAL: SDAI.InitializableBySelecttypeArrayOptional, SDAI.InitializableBySelecttypeArray
+where ELEMENT: SDAI.InitializableBySelectType
 {
 	public init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAISelectType
@@ -338,8 +338,8 @@ where ELEMENT: InitializableBySelectType
 
 
 
-extension SDAI.ARRAY_OPTIONAL: InitializableByEntityArrayOptional, InitializableByEntityArray
-where ELEMENT: InitializableByComplexEntity
+extension SDAI.ARRAY_OPTIONAL: SDAI.InitializableByEntityArrayOptional, SDAI.InitializableByEntityArray
+where ELEMENT: SDAI.InitializableByComplexEntity
 {
 	public init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
@@ -365,8 +365,8 @@ where ELEMENT: InitializableByComplexEntity
 
 
 
-extension SDAI.ARRAY_OPTIONAL: InitializableByDefinedtypeArrayOptional, InitializableByDefinedtypeArray
-where ELEMENT: InitializableByDefinedType
+extension SDAI.ARRAY_OPTIONAL: SDAI.InitializableByDefinedtypeArrayOptional, SDAI.InitializableByDefinedtypeArray
+where ELEMENT: SDAI.InitializableByDefinedType
 {
 	 public init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
 	 where T.ELEMENT: SDAIUnderlyingType

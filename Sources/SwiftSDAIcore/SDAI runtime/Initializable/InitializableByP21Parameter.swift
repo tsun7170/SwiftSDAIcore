@@ -8,50 +8,52 @@
 
 import Foundation
 
-public protocol InitializableByP21Parameter: InitializableByGenericType
-{
-	static var bareTypeName: String {get}
+extension SDAI {
+  public protocol InitializableByP21Parameter: SDAI.InitializableByGenericType
+  {
+    static var bareTypeName: String {get}
 
 
-	/// init from ExchangeStructure.Parameter
-	/// - Parameters:
-	///   - p21param: <#p21param description#>
-	///   - exchangeStructure: <#exchangeStructure description#>
-	///
-	///   default implementation provided.
-	init?(
-		p21param: P21Decode.ExchangeStructure.Parameter,
-		from exchangeStructure: P21Decode.ExchangeStructure)
+    /// init from ExchangeStructure.Parameter
+    /// - Parameters:
+    ///   - p21param: <#p21param description#>
+    ///   - exchangeStructure: <#exchangeStructure description#>
+    ///
+    ///   default implementation provided.
+    init?(
+      p21param: P21Decode.ExchangeStructure.Parameter,
+      from exchangeStructure: P21Decode.ExchangeStructure)
 
 
-	/// init from ExchangeStructure.TypedParameter
-	/// - Parameters:
-	///   - p21typedParam: <#p21typedParam description#>
-	///   - exchangeStructure: <#exchangeStructure description#>
-	///
-	///   default implementation provided.
-	init?(
-		p21typedParam: P21Decode.ExchangeStructure.TypedParameter,
-		from exchangeStructure: P21Decode.ExchangeStructure)
+    /// init from ExchangeStructure.TypedParameter
+    /// - Parameters:
+    ///   - p21typedParam: <#p21typedParam description#>
+    ///   - exchangeStructure: <#exchangeStructure description#>
+    ///
+    ///   default implementation provided.
+    init?(
+      p21typedParam: P21Decode.ExchangeStructure.TypedParameter,
+      from exchangeStructure: P21Decode.ExchangeStructure)
 
 
-	/// init form ExchangeStructure.UntypedParameter
-	/// - Parameters:
-	///   - p21untypedParam: <#p21untypedParam description#>
-	///   - exchangeStructure: <#exchangeStructure description#>
-	init?(
-		p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter,
-		from exchangeStructure: P21Decode.ExchangeStructure)
-	
-	/// init from p21omittedParam
-	/// - Parameter exchangeStructure: <#exchangeStructure description#>
-	init?(
-		p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure)
+    /// init form ExchangeStructure.UntypedParameter
+    /// - Parameters:
+    ///   - p21untypedParam: <#p21untypedParam description#>
+    ///   - exchangeStructure: <#exchangeStructure description#>
+    init?(
+      p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter,
+      from exchangeStructure: P21Decode.ExchangeStructure)
 
+    /// init from p21omittedParam
+    /// - Parameter exchangeStructure: <#exchangeStructure description#>
+    init?(
+      p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure)
+
+  }
 }
 
 //MARK: - bareTypeName
-public extension InitializableByP21Parameter where Self: SDAI.EntityReference
+public extension SDAI.InitializableByP21Parameter where Self: SDAI.EntityReference
 {
 	static var bareTypeName: String {
 		self.entityDefinition.name
@@ -60,7 +62,7 @@ public extension InitializableByP21Parameter where Self: SDAI.EntityReference
 
 
 //MARK: - init from ExchangeStructure.Parameter
-public extension InitializableByP21Parameter
+public extension SDAI.InitializableByP21Parameter
 {
 	init?(
 		p21param: P21Decode.ExchangeStructure.Parameter,
@@ -88,7 +90,7 @@ public extension InitializableByP21Parameter
 }
 
 //MARK: - init from ExchangeStructure.TypedParameter
-public extension InitializableByP21Parameter
+public extension SDAI.InitializableByP21Parameter
 {
 	init?(
 		p21typedParam: P21Decode.ExchangeStructure.TypedParameter,
@@ -100,7 +102,7 @@ public extension InitializableByP21Parameter
 }
 
 //MARK: - init form ExchangeStructure.UntypedParameter
-public extension InitializableByP21Parameter
+public extension SDAI.InitializableByP21Parameter
 where Self: SDAIDefinedType
 {
 	init?(
@@ -112,7 +114,7 @@ where Self: SDAIDefinedType
 	}
 }
 
-public extension InitializableByP21Parameter
+public extension SDAI.InitializableByP21Parameter
 where Self: SDAI.EntityReference
 {
 	init?(
@@ -148,7 +150,7 @@ where Self: SDAI.EntityReference
 
 
 //MARK: - init from p21omittedParam
-public extension InitializableByP21Parameter
+public extension SDAI.InitializableByP21Parameter
 where Self: SDAIDefinedType
 {
 	init?(
@@ -160,7 +162,7 @@ where Self: SDAIDefinedType
 
 }
 
-public extension InitializableByP21Parameter
+public extension SDAI.InitializableByP21Parameter
 where Self: SDAI.EntityReference
 {
 	init?(

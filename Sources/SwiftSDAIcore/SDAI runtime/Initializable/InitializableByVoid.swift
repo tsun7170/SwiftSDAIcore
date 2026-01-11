@@ -29,7 +29,7 @@ extension Array: InitializableByVoid {}
 extension Dictionary: InitializableByVoid {}
 extension Set: InitializableByVoid {}
 
-extension InitializableBySwiftType
+extension SDAI.InitializableBySwiftType
 where SwiftType: InitializableByVoid
 {
   public init() {

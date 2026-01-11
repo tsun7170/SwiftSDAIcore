@@ -26,7 +26,7 @@ extension SDAI {
     return unwrapped
   }
 
-  public static func UNWRAP<T: InitializableBySwiftType> (
+  public static func UNWRAP<T: SDAI.InitializableBySwiftType> (
     _ val:T?,
     file: StaticString = #fileID,
     line: UInt = #line,

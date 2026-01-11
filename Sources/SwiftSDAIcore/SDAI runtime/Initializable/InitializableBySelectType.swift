@@ -9,12 +9,13 @@
 import Foundation
 
 //MARK: - from select type scalar
-public protocol InitializableBySelectType
-{
-	init?<S: SDAISelectType>(possiblyFrom select: S?)
+extension SDAI {
+  public protocol InitializableBySelectType
+  {
+    init?<S: SDAISelectType>(possiblyFrom select: S?)
+  }
 }
-
-public extension InitializableBySelectType
+public extension SDAI.InitializableBySelectType
 {
 	init?<S: SDAISelectType>(_ select: S?) {
 		self.init(possiblyFrom: select)
@@ -30,8 +31,8 @@ public extension InitializableBySelectType
 	}
 }
 
-public extension InitializableBySelectType
-where Self: InitializableByGenericType
+public extension SDAI.InitializableBySelectType
+where Self: SDAI.InitializableByGenericType
 {
 	init?<S: SDAISelectType>(possiblyFrom select: S?) {
 		self.init(fromGeneric: select)
@@ -55,12 +56,14 @@ public protocol InitializableBySelecttypeAsArray
 
 
 //MARK: - from select type list
-public protocol InitializableBySelecttypeList
-{
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
-	where T.ELEMENT: SDAISelectType
+extension SDAI {
+  public protocol InitializableBySelecttypeList
+  {
+    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?)
+    where T.ELEMENT: SDAISelectType
+  }
 }
-public extension InitializableBySelecttypeList
+public extension SDAI.InitializableBySelecttypeList
 {
 	init?<T: SDAI__LIST__type>(_ listtype: T?) 
 	where T.ELEMENT: SDAISelectType
@@ -73,12 +76,14 @@ public extension InitializableBySelecttypeList
 
 
 //MARK: - from select type bag
-public protocol InitializableBySelecttypeBag
-{
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
-	where T.ELEMENT: SDAISelectType
+extension SDAI {
+  public protocol InitializableBySelecttypeBag
+  {
+    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?)
+    where T.ELEMENT: SDAISelectType
+  }
 }
-public extension InitializableBySelecttypeBag
+public extension SDAI.InitializableBySelecttypeBag
 {
 	init?<T: SDAI__BAG__type>(_ bagtype: T?) 
 	where T.ELEMENT: SDAISelectType
@@ -91,12 +96,14 @@ public extension InitializableBySelecttypeBag
 
 
 //MARK: - from select type set
-public protocol InitializableBySelecttypeSet
-{	
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?) 
-	where T.ELEMENT: SDAISelectType
+extension SDAI {
+  public protocol InitializableBySelecttypeSet
+  {
+    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?)
+    where T.ELEMENT: SDAISelectType
+  }
 }
-public extension InitializableBySelecttypeSet
+public extension SDAI.InitializableBySelecttypeSet
 {
 	init?<T: SDAI__SET__type>(_ settype: T?) 
 	where T.ELEMENT: SDAISelectType
@@ -107,12 +114,14 @@ public extension InitializableBySelecttypeSet
 }
 
 //MARK: - from select type array optional
-public protocol InitializableBySelecttypeArrayOptional
-{
-	init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAISelectType
+extension SDAI {
+  public protocol InitializableBySelecttypeArrayOptional
+  {
+    init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?)
+    where T.ELEMENT: SDAISelectType
+  }
 }
-public extension InitializableBySelecttypeArrayOptional
+public extension SDAI.InitializableBySelecttypeArrayOptional
 {
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY_OPTIONAL__type>(bound1: I1, bound2: I2, _ arraytype: T?) 
 	where T.ELEMENT: SDAISelectType
@@ -127,12 +136,14 @@ public extension InitializableBySelecttypeArrayOptional
 
 
 //MARK: - from select type array
-public protocol InitializableBySelecttypeArray
-{
-	init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAISelectType
+extension SDAI {
+  public protocol InitializableBySelecttypeArray
+  {
+    init?<T: SDAI__ARRAY__type>(_ arraytype: T?)
+    where T.ELEMENT: SDAISelectType
+  }
 }
-public extension InitializableBySelecttypeArray
+public extension SDAI.InitializableBySelecttypeArray
 {
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY__type>(bound1: I1, bound2: I2, _ arraytype: T?) 
 	where T.ELEMENT: SDAISelectType

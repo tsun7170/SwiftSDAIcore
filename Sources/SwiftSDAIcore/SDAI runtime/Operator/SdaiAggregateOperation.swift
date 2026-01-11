@@ -236,7 +236,7 @@ where T7.ELEMENT: SDAI__LOGICAL__type,
 ///
 public func + <T8: SDAI__BAG__type>(
 	lhs: T8?, rhs: SDAI.ComplexEntity?) -> SDAI.BAG<T8.ELEMENT>?
-where T8.ELEMENT: InitializableByComplexEntity
+where T8.ELEMENT: SDAI.InitializableByComplexEntity
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return lhs.unionWith(rhs: rhs)
@@ -319,7 +319,7 @@ where T15: SDAIBooleanType,
 ///
 public func + <U16: SDAI__BAG__type>(
 	lhs: SDAI.ComplexEntity?, rhs: U16?) -> SDAI.BAG<U16.ELEMENT>?
-where U16.ELEMENT: InitializableByComplexEntity
+where U16.ELEMENT: SDAI.InitializableByComplexEntity
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return rhs.unionWith(rhs: lhs)
@@ -427,7 +427,7 @@ where T25.ELEMENT: SDAI__LOGICAL__type,
 ///
 public func + <T26: SDAI__SET__type>(
 	lhs: T26?, rhs: SDAI.ComplexEntity?) -> SDAI.SET<T26.ELEMENT>?
-where T26.ELEMENT: InitializableByComplexEntity
+where T26.ELEMENT: SDAI.InitializableByComplexEntity
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return lhs.unionWith(rhs: rhs)
@@ -510,7 +510,7 @@ where T33: SDAIBooleanType,
 ///
 public func + <U34: SDAI__SET__type>(
 	lhs: SDAI.ComplexEntity?, rhs: U34?) -> SDAI.SET<U34.ELEMENT>?
-where U34.ELEMENT: InitializableByComplexEntity
+where U34.ELEMENT: SDAI.InitializableByComplexEntity
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return rhs.unionWith(rhs: lhs)
@@ -604,7 +604,7 @@ where T42.ELEMENT: SDAI__LOGICAL__type,
 ///
 public func + <T43: SDAI__LIST__type>(
 	lhs: T43?, rhs: SDAI.ComplexEntity?) -> SDAI.LIST<T43.ELEMENT>?
-where T43.ELEMENT: InitializableByComplexEntity
+where T43.ELEMENT: SDAI.InitializableByComplexEntity
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return lhs.appendWith(rhs: rhs)
@@ -687,7 +687,7 @@ where T50: SDAIBooleanType,
 ///
 public func + <U51: SDAI__LIST__type>(
 	lhs: SDAI.ComplexEntity?, rhs: U51?) -> SDAI.LIST<U51.ELEMENT>?
-where U51.ELEMENT: InitializableByComplexEntity
+where U51.ELEMENT: SDAI.InitializableByComplexEntity
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return rhs.prependWith(lhs: lhs)
@@ -854,7 +854,7 @@ where T6.ELEMENT: SDAI__LOGICAL__type,
 ///
 public func - <T7: SDAI__BAG__type>(
 	lhs: T7?, rhs: SDAI.ComplexEntity?) -> SDAI.BAG<T7.ELEMENT>?
-where T7.ELEMENT: InitializableByComplexEntity
+where T7.ELEMENT: SDAI.InitializableByComplexEntity
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return lhs.differenceWith(rhs: rhs)
@@ -949,7 +949,7 @@ where T15.ELEMENT: SDAI__LOGICAL__type,
 ///
 public func - <T16: SDAI__SET__type>(
 	lhs: T16?, rhs: SDAI.ComplexEntity?) -> SDAI.SET<T16.ELEMENT>?
-where T16.ELEMENT: InitializableByComplexEntity
+where T16.ELEMENT: SDAI.InitializableByComplexEntity
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return lhs.differenceWith(rhs: rhs)

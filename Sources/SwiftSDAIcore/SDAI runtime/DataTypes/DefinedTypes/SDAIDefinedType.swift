@@ -16,7 +16,7 @@ where FundamentalType: SDAISelectCompatibleUnderlyingTypeBase
 
 
 //MARK: - Underlying Type excluding select type
-public protocol SDAIUnderlyingType: SDAISelectCompatibleUnderlyingTypeBase, InitializableByDefinedType 
+public protocol SDAIUnderlyingType: SDAISelectCompatibleUnderlyingTypeBase, SDAI.InitializableByDefinedType 
 {}
 public extension SDAIUnderlyingType 
 {	

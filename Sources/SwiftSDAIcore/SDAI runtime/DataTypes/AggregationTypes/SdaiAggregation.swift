@@ -144,7 +144,7 @@ extension SDAI {
 
 //MARK: - extension per ELEMENT type
 public extension SDAIAggregationType
-where ELEMENT: InitializableBySelectType
+where ELEMENT: SDAI.InitializableBySelectType
 {
 	func CONTAINS<T: SDAISelectType>(_ elem: T?) -> SDAI.LOGICAL {
 		return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))
@@ -152,7 +152,7 @@ where ELEMENT: InitializableBySelectType
 }
 
 public extension SDAIAggregationType
-where ELEMENT: InitializableByComplexEntity
+where ELEMENT: SDAI.InitializableByComplexEntity
 {
 	func CONTAINS(_ elem: SDAI.EntityReference?) -> SDAI.LOGICAL
 	{
@@ -178,7 +178,7 @@ where ELEMENT: InitializableByComplexEntity
 }
 
 public extension SDAIAggregationType
-where ELEMENT: InitializableByDefinedType
+where ELEMENT: SDAI.InitializableByDefinedType
 {
 	func CONTAINS<T: SDAIUnderlyingType>(_ elem: T?) -> SDAI.LOGICAL {
 		return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))
@@ -186,7 +186,7 @@ where ELEMENT: InitializableByDefinedType
 }
 
 public extension SDAIAggregationType
-where ELEMENT: InitializableBySwiftType
+where ELEMENT: SDAI.InitializableBySwiftType
 {
 	func CONTAINS<T>(_ elem: T?) -> SDAI.LOGICAL 
 	where T == ELEMENT.SwiftType

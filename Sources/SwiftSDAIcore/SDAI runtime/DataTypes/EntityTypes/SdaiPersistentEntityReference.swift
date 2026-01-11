@@ -15,7 +15,7 @@ extension SDAI {
 		SDAIPersistentReference,
 		InitializableByComplexEntity,
 		SDAIEntityReferenceYielding
-	where EREF: SDAI.EntityReference & InitializableByP21Parameter
+  where EREF: SDAI.EntityReference & SDAI.InitializableByP21Parameter
 	{
 		//MARK: SDAIPersistentReference
 		public typealias ARef = EREF

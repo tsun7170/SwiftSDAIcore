@@ -9,13 +9,15 @@
 import Foundation
 
 //MARK: - from swift type scalar
-public protocol InitializableBySwiftType
-{
-	associatedtype SwiftType
-	
-	init(from swiftValue: SwiftType)
+extension SDAI {
+  public protocol InitializableBySwiftType
+  {
+    associatedtype SwiftType
+
+    init(from swiftValue: SwiftType)
+  }
 }
-public extension InitializableBySwiftType
+public extension SDAI.InitializableBySwiftType
 {
 	init?(from swiftValue: SwiftType?) {
 		guard let swiftvalue = swiftValue else { return nil }
@@ -25,16 +27,18 @@ public extension InitializableBySwiftType
 
 
 //MARK: - from swift type as list (with optional bounds)
-public protocol InitializableBySwifttypeAsList
-{
-	associatedtype SwiftType
-	
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
-		from swiftValue: SwiftType,
-		bound1: I1,
-		bound2: I2?)
+extension SDAI {
+  public protocol InitializableBySwifttypeAsList
+  {
+    associatedtype SwiftType
+
+    init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+      from swiftValue: SwiftType,
+      bound1: I1,
+      bound2: I2?)
+  }
 }
-public extension InitializableBySwifttypeAsList
+public extension SDAI.InitializableBySwifttypeAsList
 {
 	init(from swiftValue: SwiftType) { 
 		self.init(from: swiftValue, bound1: 0, bound2: nil as Int?) 
@@ -48,14 +52,15 @@ public extension InitializableBySwifttypeAsList
 }
 
 //MARK: - from swift type as array (with required bounds)
-public protocol InitializableBySwifttypeAsArray
-{
-	associatedtype SwiftType
-	
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
-		from swiftValue: SwiftType,
-		bound1: I1,
-		bound2: I2)
+extension SDAI {
+  public protocol InitializableBySwifttypeAsArray
+  {
+    associatedtype SwiftType
+    
+    init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+      from swiftValue: SwiftType,
+      bound1: I1,
+      bound2: I2)
+  }
 }
-
 

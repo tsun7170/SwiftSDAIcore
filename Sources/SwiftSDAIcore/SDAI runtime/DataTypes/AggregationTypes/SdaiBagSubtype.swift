@@ -111,7 +111,7 @@ public extension SDAI__BAG__subtype
 
 //MARK: - for select type element
 public extension SDAI__BAG__subtype
-where ELEMENT: InitializableBySelectType
+where ELEMENT: SDAI.InitializableBySelectType
 {
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T:SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)
@@ -131,7 +131,7 @@ where ELEMENT: InitializableBySelectType
 
 //MARK: - for entity type element
 public extension SDAI__BAG__subtype
-where ELEMENT: InitializableByComplexEntity
+where ELEMENT: SDAI.InitializableByComplexEntity
 {
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)
@@ -168,7 +168,7 @@ where ELEMENT: InitializableByComplexEntity
 
 //MARK: - for defined type element
 public extension SDAI__BAG__subtype
-where ELEMENT: InitializableByDefinedType
+where ELEMENT: SDAI.InitializableByDefinedType
 {
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T:SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)

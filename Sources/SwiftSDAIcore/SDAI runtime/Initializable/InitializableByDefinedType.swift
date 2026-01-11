@@ -9,11 +9,13 @@
 import Foundation
 
 //MARK: - from defined type scalar
-public protocol InitializableByDefinedType
-{
-	init?<T: SDAIUnderlyingType>(possiblyFrom underlyingType: T?) 
+extension SDAI {
+  public protocol InitializableByDefinedType
+  {
+    init?<T: SDAIUnderlyingType>(possiblyFrom underlyingType: T?)
+  }
 }
-public extension InitializableByDefinedType
+public extension SDAI.InitializableByDefinedType
 {
 	init?<T: SDAIUnderlyingType>(_ underlyingType: T?)
 	{
@@ -34,13 +36,14 @@ public extension InitializableByDefinedType
 
 
 //MARK: - from defined type list
-public protocol InitializableByDefinedtypeList
-{
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType
+extension SDAI {
+  public protocol InitializableByDefinedtypeList
+  {
+    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?)
+    where T.ELEMENT: SDAIUnderlyingType
+  }
 }
-
-public extension InitializableByDefinedtypeList
+public extension SDAI.InitializableByDefinedtypeList
 {
 	init?<T: SDAI__LIST__type>(_ listtype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType
@@ -52,13 +55,14 @@ public extension InitializableByDefinedtypeList
 
 
 //MARK: - from defined type bag
-public protocol InitializableByDefinedtypeBag
-{
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType
+extension SDAI {
+  public protocol InitializableByDefinedtypeBag
+  {
+    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?)
+    where T.ELEMENT: SDAIUnderlyingType
+  }
 }
-
-public extension InitializableByDefinedtypeBag
+public extension SDAI.InitializableByDefinedtypeBag
 {
 	init?<T: SDAI__BAG__type>(_ bagtype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType
@@ -70,12 +74,14 @@ public extension InitializableByDefinedtypeBag
 
 
 //MARK: - from defined type set
-public protocol InitializableByDefinedtypeSet
-{
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType
+extension SDAI {
+  public protocol InitializableByDefinedtypeSet
+  {
+    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?)
+    where T.ELEMENT: SDAIUnderlyingType
+  }
 }
-public extension InitializableByDefinedtypeSet
+public extension SDAI.InitializableByDefinedtypeSet
 {
 	init?<T: SDAI__SET__type>(_ settype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType
@@ -86,12 +92,14 @@ public extension InitializableByDefinedtypeSet
 }
 
 //MARK: - from defined type array optional
-public protocol InitializableByDefinedtypeArrayOptional
-{
-	init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType
+extension SDAI {
+  public protocol InitializableByDefinedtypeArrayOptional
+  {
+    init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?)
+    where T.ELEMENT: SDAIUnderlyingType
+  }
 }
-public extension InitializableByDefinedtypeArrayOptional
+public extension SDAI.InitializableByDefinedtypeArrayOptional
 {
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY_OPTIONAL__type>(bound1: I1, bound2: I2, _ arraytype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType
@@ -106,12 +114,14 @@ public extension InitializableByDefinedtypeArrayOptional
 
 
 //MARK: - from defined type array
-public protocol InitializableByDefinedtypeArray
-{
-	init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType
+extension SDAI {
+  public protocol InitializableByDefinedtypeArray
+  {
+    init?<T: SDAI__ARRAY__type>(_ arraytype: T?)
+    where T.ELEMENT: SDAIUnderlyingType
+  }
 }
-public extension InitializableByDefinedtypeArray
+public extension SDAI.InitializableByDefinedtypeArray
 {
 	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY__type>(bound1: I1, bound2: I2, _ arraytype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType

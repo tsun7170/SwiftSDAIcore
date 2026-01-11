@@ -12,7 +12,7 @@ import Foundation
 
 public protocol SDAISelectType:
 	SDAIConstructedType,
-	InitializableByDefinedType, InitializableByComplexEntity,
+  SDAI.InitializableByDefinedType, SDAI.InitializableByComplexEntity,
 	SwiftDoubleConvertible, SwiftIntConvertible, SwiftStringConvertible, SwiftBoolConvertible,
 	SDAIEntityReferenceYielding,
 	SDAIAggregationBehavior

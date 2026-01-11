@@ -10,7 +10,7 @@ import Foundation
 
 //MARK: - Simple data types (8.1)
 
-public protocol SDAISimpleType: SDAIUnderlyingType, SDAIBaseType, InitializableBySwiftType, SDAISwiftTypeRepresented 
+public protocol SDAISimpleType: SDAIUnderlyingType, SDAIBaseType, SDAI.InitializableBySwiftType, SDAISwiftTypeRepresented 
 {}
 
 public extension SDAISimpleType 

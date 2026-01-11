@@ -15,8 +15,8 @@ import Foundation
 //MARK: - list type (8.2.2)
 public protocol SDAIListType:
 	SDAIAggregationType, SDAIAggregateIndexingSettable, SDAIUnderlyingType, SDAISwiftTypeRepresented,
-	InitializableByEmptyListLiteral, InitializableBySwifttypeAsList, InitializableBySelecttypeAsList,
-	InitializableByListLiteral, InitializableByGenericList, InitializableByVoid
+  SDAI.InitializableByEmptyListLiteral, SDAI.InitializableBySwifttypeAsList, InitializableBySelecttypeAsList,
+  InitializableByListLiteral, SDAI.InitializableByGenericList, InitializableByVoid
 {
 	// Built-in procedure support
 	mutating func insert(element: ELEMENT, at position: Int)
@@ -64,7 +64,7 @@ where Element == ELEMENT,
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 }
 public extension SDAI__LIST__type 
-where ELEMENT: InitializableByComplexEntity {
+where ELEMENT: SDAI.InitializableByComplexEntity {
 	func appendWith(rhs: SDAI.ComplexEntity) -> SDAI.LIST<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
 		return self.appendWith(rhs: rhs)
@@ -448,8 +448,8 @@ where ELEMENT: SDAIPersistentReference
 }
 
 
-extension SDAI.LIST: InitializableBySelecttypeList
-where ELEMENT: InitializableBySelectType
+extension SDAI.LIST: SDAI.InitializableBySelecttypeList
+where ELEMENT: SDAI.InitializableBySelectType
 {	
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
 		bound1: I1, bound2: I2?, _ listtype: T?)
@@ -461,8 +461,8 @@ where ELEMENT: InitializableBySelectType
 }
 
 
-extension SDAI.LIST: InitializableByEntityList
-where ELEMENT: InitializableByComplexEntity
+extension SDAI.LIST: SDAI.InitializableByEntityList
+where ELEMENT: SDAI.InitializableByComplexEntity
 {
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
 		bound1: I1, bound2: I2?, _ listtype: T?)
@@ -489,8 +489,8 @@ where ELEMENT: InitializableByComplexEntity
 }
 
 
-extension SDAI.LIST: InitializableByDefinedtypeList
-where ELEMENT: InitializableByDefinedType
+extension SDAI.LIST: SDAI.InitializableByDefinedtypeList
+where ELEMENT: SDAI.InitializableByDefinedType
 {
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
 		bound1: I1, bound2: I2?, _ listtype: T?)

@@ -32,7 +32,7 @@ extension SDAI {
 }
 
 
-extension SDAI.UnownedWrap: InitializableBySelectType where REF: InitializableBySelectType {
+extension SDAI.UnownedWrap: SDAI.InitializableBySelectType where REF: SDAI.InitializableBySelectType {
 	public init?<S: SDAISelectType>(possiblyFrom select: S?) {
 		guard let obj = REF.init(possiblyFrom: select) else { return nil }
 		self.init(obj)
@@ -40,7 +40,7 @@ extension SDAI.UnownedWrap: InitializableBySelectType where REF: InitializableBy
 
 }
 
-extension SDAI.UnownedWrap: InitializableByGenericType where REF: InitializableByGenericType {
+extension SDAI.UnownedWrap: SDAI.InitializableByGenericType where REF: SDAI.InitializableByGenericType {
 	public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
 		guard let obj = REF.init(fromGeneric: generic) else { return nil }
 		self.init(obj)
@@ -53,7 +53,7 @@ extension SDAI.UnownedWrap: InitializableByGenericType where REF: InitializableB
 
 }
 
-extension SDAI.UnownedWrap: InitializableByP21Parameter where REF: InitializableByP21Parameter {
+extension SDAI.UnownedWrap: SDAI.InitializableByP21Parameter where REF: SDAI.InitializableByP21Parameter {
 	public static var bareTypeName: String { REF.bareTypeName }
 	
 	public init?(p21param: P21Decode.ExchangeStructure.Parameter, from exchangeStructure: P21Decode.ExchangeStructure) {

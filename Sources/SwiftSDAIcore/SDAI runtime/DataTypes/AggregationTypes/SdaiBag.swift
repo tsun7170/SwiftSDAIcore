@@ -13,9 +13,9 @@ import Foundation
 //MARK: - bag type (8.2.3)
 public protocol SDAIBagType:
 	SDAIAggregationType, SDAIUnderlyingType, SDAISwiftTypeRepresented, SwiftDictRepresentable,
-	InitializableByEmptyListLiteral, InitializableBySwifttypeAsList,
+  SDAI.InitializableByEmptyListLiteral, SDAI.InitializableBySwifttypeAsList,
 	InitializableBySelecttypeAsList, InitializableByListLiteral,
-	InitializableByGenericSet, InitializableByGenericList, InitializableByGenericBag, InitializableByVoid
+  SDAI.InitializableByGenericSet, SDAI.InitializableByGenericList, SDAI.InitializableByGenericBag, InitializableByVoid
 {
 	mutating func add(member: ELEMENT?)
 
@@ -117,7 +117,7 @@ where Element == ELEMENT,
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 }
 public extension SDAI__BAG__type 
-where ELEMENT: InitializableByComplexEntity {
+where ELEMENT: SDAI.InitializableByComplexEntity {
 	func unionWith(rhs: SDAI.ComplexEntity) -> SDAI.BAG<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
 		return self.unionWith(rhs: rhs)
@@ -610,8 +610,8 @@ where ELEMENT: SDAIPersistentReference
 
 
 
-extension SDAI.BAG: InitializableBySelecttypeBag, InitializableBySelecttypeSet
-where ELEMENT: InitializableBySelectType
+extension SDAI.BAG: SDAI.InitializableBySelecttypeBag, SDAI.InitializableBySelecttypeSet
+where ELEMENT: SDAI.InitializableBySelectType
 {
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, _ bagtype: T?) 
@@ -632,8 +632,8 @@ where ELEMENT: InitializableBySelectType
 }
 
 
-extension SDAI.BAG: InitializableByEntityBag, InitializableByEntitySet  
-where ELEMENT: InitializableByComplexEntity
+extension SDAI.BAG: SDAI.InitializableByEntityBag, SDAI.InitializableByEntitySet
+where ELEMENT: SDAI.InitializableByComplexEntity
 {
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)
@@ -680,8 +680,8 @@ where ELEMENT: InitializableByComplexEntity
 }
 
 
-extension SDAI.BAG: InitializableByDefinedtypeBag, InitializableByDefinedtypeSet 
-where ELEMENT: InitializableByDefinedType
+extension SDAI.BAG: SDAI.InitializableByDefinedtypeBag, SDAI.InitializableByDefinedtypeSet 
+where ELEMENT: SDAI.InitializableByDefinedType
 {
 	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)

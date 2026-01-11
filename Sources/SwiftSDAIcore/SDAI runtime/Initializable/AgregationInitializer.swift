@@ -15,12 +15,15 @@ extension SDAI {
 }
 
 //MARK: - from empty list (with optional bounds)
-public protocol InitializableByEmptyListLiteral
-{
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
-		bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral)
+extension SDAI {
+  public protocol InitializableByEmptyListLiteral
+  {
+    init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+      bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral)
+  }
 }
-public extension InitializableByEmptyListLiteral
+
+public extension SDAI.InitializableByEmptyListLiteral
 {
 	init(_ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE) {
 		self.init(bound1: 0, bound2: nil as Int?, emptyLiteral)
@@ -28,12 +31,13 @@ public extension InitializableByEmptyListLiteral
 }
 
 //MARK: - from empty array (with required bounds)
-public protocol InitializableByEmptyArrayLiteral
-{
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
-		bound1: I1, bound2: I2, _ emptyLiteral: SDAI.EmptyAggregateLiteral)
+extension SDAI {
+  public protocol InitializableByEmptyArrayLiteral
+  {
+    init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+      bound1: I1, bound2: I2, _ emptyLiteral: SDAI.EmptyAggregateLiteral)
+  }
 }
-
 
 
 
@@ -128,7 +132,7 @@ public extension SDAIAggregationInitializer
 
 //MARK: - extension per ELEMENT type
 public extension SDAIAggregationInitializer 
-where ELEMENT: InitializableBySelectType
+where ELEMENT: SDAI.InitializableBySelectType
 {
 	func CONTAINS<T: SDAISelectType>(_ elem: T?) -> SDAI.LOGICAL {
 		return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))
@@ -136,7 +140,7 @@ where ELEMENT: InitializableBySelectType
 }
 
 public extension SDAIAggregationInitializer 
-where ELEMENT: InitializableByComplexEntity
+where ELEMENT: SDAI.InitializableByComplexEntity
 {
 	func CONTAINS(_ elem: SDAI.EntityReference?) -> SDAI.LOGICAL {
 		if let elem = elem as? ELEMENT {
@@ -149,7 +153,7 @@ where ELEMENT: InitializableByComplexEntity
 }
 
 public extension SDAIAggregationInitializer 
-where ELEMENT: InitializableByDefinedType
+where ELEMENT: SDAI.InitializableByDefinedType
 {
 	func CONTAINS<T: SDAIUnderlyingType>(_ elem: T?) -> SDAI.LOGICAL {
 		return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))
@@ -157,7 +161,7 @@ where ELEMENT: InitializableByDefinedType
 }
 
 public extension SDAIAggregationInitializer 
-where ELEMENT: InitializableBySwiftType
+where ELEMENT: SDAI.InitializableBySwiftType
 {
 	func CONTAINS<T>(_ elem: T?) -> SDAI.LOGICAL 
 	where T == ELEMENT.SwiftType

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol SDAIGenericType: Hashable, InitializableBySelectType, InitializableByP21Parameter, SdaiCacheableSource, Sendable
+public protocol SDAIGenericType: Hashable, SDAI.InitializableBySelectType, SDAI.InitializableByP21Parameter, SdaiCacheableSource, Sendable
 {
 	associatedtype FundamentalType: SDAIGenericType
 	associatedtype Value: SDAIValue

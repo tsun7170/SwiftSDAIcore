@@ -49,7 +49,7 @@ public extension SDAI__ARRAY__subtype
 
 //MARK: - for select type element
 public extension SDAI__ARRAY__subtype
-where ELEMENT: InitializableBySelectType
+where ELEMENT: SDAI.InitializableBySelectType
 {
 	init?<T:SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAISelectType
@@ -62,7 +62,7 @@ where ELEMENT: InitializableBySelectType
 
 //MARK: - for entity type element
 public extension SDAI__ARRAY__subtype
-where ELEMENT: InitializableByComplexEntity
+where ELEMENT: SDAI.InitializableByComplexEntity
 {
 	init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
@@ -81,7 +81,7 @@ where ELEMENT: InitializableByComplexEntity
 
 //MARK: - for defined type element
 public extension SDAI__ARRAY__subtype
-where ELEMENT: InitializableByDefinedType
+where ELEMENT: SDAI.InitializableByDefinedType
 {
 	init?<T:SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType

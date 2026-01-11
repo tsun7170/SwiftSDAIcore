@@ -13,7 +13,7 @@ import Foundation
 public protocol SDAIArrayType:
   SDAIAggregationType, SDAIAggregateIndexingSettable,
   SDAIUnderlyingType, SDAISwiftTypeRepresented,
-  InitializableBySwifttypeAsArray, InitializableByArrayLiteral, InitializableByGenericArray
+  SDAI.InitializableBySwifttypeAsArray, InitializableByArrayLiteral, SDAI.InitializableByGenericArray
 {
   // SDAIDictionarySchema support
   static var uniqueFlag: SDAI.BOOLEAN {get}
@@ -295,8 +295,8 @@ where ELEMENT: SDAIPersistentReference
 }
 
 
-extension SDAI.ARRAY: InitializableBySelecttypeArray
-where ELEMENT: InitializableBySelectType
+extension SDAI.ARRAY: SDAI.InitializableBySelecttypeArray
+where ELEMENT: SDAI.InitializableBySelectType
 {
 	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAISelectType
@@ -308,8 +308,8 @@ where ELEMENT: InitializableBySelectType
 
 
 
-extension SDAI.ARRAY: InitializableByEntityArray
-where ELEMENT: InitializableByComplexEntity
+extension SDAI.ARRAY: SDAI.InitializableByEntityArray
+where ELEMENT: SDAI.InitializableByComplexEntity
 {
 	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
@@ -323,8 +323,8 @@ where ELEMENT: InitializableByComplexEntity
 
 
 
-extension SDAI.ARRAY: InitializableByDefinedtypeArray 
-where ELEMENT: InitializableByDefinedType
+extension SDAI.ARRAY: SDAI.InitializableByDefinedtypeArray
+where ELEMENT: SDAI.InitializableByDefinedType
 {
 	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
 	where T.ELEMENT: SDAIUnderlyingType
