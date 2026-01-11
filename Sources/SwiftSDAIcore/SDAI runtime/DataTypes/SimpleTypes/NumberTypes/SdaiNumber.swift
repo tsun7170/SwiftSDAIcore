@@ -81,7 +81,7 @@ where Self: SDAIIntRepresentedNumberType
 
 
 //MARK: - NUMBER type (8.1.1)
-public protocol SDAINumberType: SDAISimpleType, ExpressibleByIntegerLiteral, SwiftDoubleConvertible, InitializableByVoid
+public protocol SDAINumberType: SDAISimpleType, ExpressibleByIntegerLiteral, SwiftDoubleConvertible, SDAI.InitializableByVoid
 where SwiftType: SdaiNumberRepType
 {}
 

@@ -46,7 +46,7 @@ extension P21Decode.ExchangeStructure {
       fallback: nil)
 	}
 
-  public func recoverRequiredParameter<T: SDAIGenericType & InitializableByVoid>(
+  public func recoverRequiredParameter<T: SDAIGenericType & SDAI.InitializableByVoid>(
     as type: T.Type,
     from parameter: Parameter
   ) -> ParameterRecoveryResult<T>

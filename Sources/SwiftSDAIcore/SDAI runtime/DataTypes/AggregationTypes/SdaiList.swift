@@ -16,7 +16,7 @@ import Foundation
 public protocol SDAIListType:
 	SDAIAggregationType, SDAIAggregateIndexingSettable, SDAIUnderlyingType, SDAISwiftTypeRepresented,
   SDAI.InitializableByEmptyListLiteral, SDAI.InitializableBySwifttypeAsList, InitializableBySelecttypeAsList,
-  InitializableByListLiteral, SDAI.InitializableByGenericList, InitializableByVoid
+  InitializableByListLiteral, SDAI.InitializableByGenericList, SDAI.InitializableByVoid
 {
 	// Built-in procedure support
 	mutating func insert(element: ELEMENT, at position: Int)

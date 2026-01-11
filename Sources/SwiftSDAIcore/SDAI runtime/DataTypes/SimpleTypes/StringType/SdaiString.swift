@@ -27,7 +27,7 @@ extension String: SwiftStringRepresented
 
 //MARK: - STRING type (8.1.6)
 public protocol SDAIStringType: SDAISimpleType, SwiftStringConvertible,
-                                ExpressibleByStringLiteral, InitializableByVoid
+                                ExpressibleByStringLiteral, SDAI.InitializableByVoid
 where StringLiteralType == String
 {
 	var length: Int {get}

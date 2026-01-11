@@ -264,8 +264,8 @@ where EREF: SDAISimpleEntityType
 
 }
 
-extension SDAI.PersistentEntityReference: InitializableByVoid
-where EREF: InitializableByVoid
+extension SDAI.PersistentEntityReference: SDAI.InitializableByVoid
+where EREF: SDAI.InitializableByVoid
 {
   public convenience init() {
     let eref = EREF()

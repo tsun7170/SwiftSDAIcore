@@ -32,7 +32,7 @@ extension SDAI {
     line: UInt = #line,
     functionID: StaticString = #function
   ) -> T
-  where T.SwiftType: InitializableByVoid
+  where T.SwiftType: SDAI.InitializableByVoid
   {
     if let unwrapped = val { return unwrapped }
 
@@ -53,7 +53,7 @@ extension SDAI {
 	public static func IS_UNKNOWN<T: SDAILogicalType>(_ logical: T?) -> Bool { logical?.isUNKNOWN ?? true }
 	
 	public static func UNWRAP<A:Sequence>(seq: A?) -> A 
-	where A: InitializableByVoid {
+  where A: SDAI.InitializableByVoid {
 		if let seq = seq { return seq }
 		return A()
 	}

@@ -9,7 +9,7 @@ import Foundation
 
 //MARK: - BINARY type (8.1.7)
 public protocol SDAIBinaryType: SDAISimpleType, ExpressibleByStringLiteral,
-                                InitializableByVoid
+                                SDAI.InitializableByVoid
 where StringLiteralType == String
 {
 	var blength: Int {get}

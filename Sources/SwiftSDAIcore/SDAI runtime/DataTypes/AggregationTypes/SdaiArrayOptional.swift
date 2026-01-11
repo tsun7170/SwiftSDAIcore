@@ -11,7 +11,7 @@ import Foundation
 
 
 //MARK: - array optional type (8.2.1)
-public protocol SDAIArrayOptionalType: SDAIArrayType, InitializableByVoid
+public protocol SDAIArrayOptionalType: SDAIArrayType, SDAI.InitializableByVoid
 {}
 
 

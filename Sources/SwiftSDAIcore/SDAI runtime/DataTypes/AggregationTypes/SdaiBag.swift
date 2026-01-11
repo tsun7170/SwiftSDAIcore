@@ -15,7 +15,7 @@ public protocol SDAIBagType:
 	SDAIAggregationType, SDAIUnderlyingType, SDAISwiftTypeRepresented, SwiftDictRepresentable,
   SDAI.InitializableByEmptyListLiteral, SDAI.InitializableBySwifttypeAsList,
 	InitializableBySelecttypeAsList, InitializableByListLiteral,
-  SDAI.InitializableByGenericSet, SDAI.InitializableByGenericList, SDAI.InitializableByGenericBag, InitializableByVoid
+  SDAI.InitializableByGenericSet, SDAI.InitializableByGenericList, SDAI.InitializableByGenericBag, SDAI.InitializableByVoid
 {
 	mutating func add(member: ELEMENT?)
 

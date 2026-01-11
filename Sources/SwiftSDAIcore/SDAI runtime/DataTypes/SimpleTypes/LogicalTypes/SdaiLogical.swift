@@ -17,7 +17,7 @@ public protocol SwiftBoolConvertible
 
 //MARK: - LOGICAL type (8.1.4)
 public protocol SDAILogicalType: SDAISimpleType, ExpressibleByBooleanLiteral,
-                                 SwiftBoolConvertible, InitializableByVoid
+                                 SwiftBoolConvertible, SDAI.InitializableByVoid
 {
 	var isTRUE: Bool {get}
 	var isFALSE: Bool {get}
