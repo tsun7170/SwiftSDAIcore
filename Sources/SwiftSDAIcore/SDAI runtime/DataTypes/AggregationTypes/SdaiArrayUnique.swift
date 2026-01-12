@@ -8,13 +8,15 @@
 
 import Foundation
 
-public protocol SDAI__ARRAY_UNIQUE__type: SDAI__ARRAY__subtype {}
+extension SDAI {
+  public protocol ARRAY_UNIQUE__TypeBehavior: SDAI.ARRAY__Subtype {}
 
-public protocol SDAI__ARRAY_UNIQUE__subtype: SDAI__ARRAY_UNIQUE__type {}
+  public protocol ARRAY_UNIQUE__Subtype: SDAI.ARRAY_UNIQUE__TypeBehavior {}
+}
 
 //MARK: - SDAI.ARRAY_UNIQUE
 extension SDAI {
-	public struct ARRAY_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI__ARRAY_UNIQUE__type
+	public struct ARRAY_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI.ARRAY_UNIQUE__TypeBehavior
 	{
 		public typealias Supertype = SDAI.ARRAY<ELEMENT>
 		public typealias FundamentalType = Supertype.FundamentalType

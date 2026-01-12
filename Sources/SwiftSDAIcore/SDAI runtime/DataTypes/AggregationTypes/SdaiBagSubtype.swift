@@ -10,17 +10,19 @@ import Foundation
 
 
 //MARK: - BAG subtypes (8.2.3, 8.3.2)
-public protocol SDAI__BAG__subtype: SDAI__BAG__type, SDAI.DefinedType
-where Supertype: SDAI__BAG__type
-{}
+extension SDAI {
+  public protocol BAG__Subtype: SDAI.BAG__TypeBehavior, SDAI.DefinedType
+  where Supertype: SDAI.BAG__TypeBehavior
+  {}
+}
 
-public extension SDAI__BAG__subtype
+public extension SDAI.BAG__Subtype
 {
 	// Aggregation operator support
-	func intersectionWith<U: SDAI__BAG__type>(rhs: U) -> SDAI.BAG<ELEMENT>? 
+	func intersectionWith<U: SDAI.BAG__TypeBehavior>(rhs: U) -> SDAI.BAG<ELEMENT>? 
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.intersectionWith(rhs: rhs) }
 
-	func intersectionWith<U: SDAI__SET__type>(rhs: U) -> SDAI.SET<ELEMENT>?
+	func intersectionWith<U: SDAI.SET__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.intersectionWith(rhs: rhs) }
 
 	func intersectionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.BAG<ELEMENT>?
@@ -60,21 +62,21 @@ public extension SDAI__BAG__subtype
 	}
 	
 	// InitializableByGenericSet
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, generic settype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: settype))
 	}
 
 	// InitializableByGenericBag
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.BAG__TypeBehavior>(
 		bound1: I1, bound2: I2?, generic bagtype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: bagtype))
 	}
 
 	// InitializableByGenericList
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, generic listtype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: listtype))
@@ -110,17 +112,17 @@ public extension SDAI__BAG__subtype
 }
 
 //MARK: - for select type element
-public extension SDAI__BAG__subtype
+public extension SDAI.BAG__Subtype
 where ELEMENT: SDAI.InitializableBySelectType
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI__BAG__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI.BAG__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)
 	where T.ELEMENT: SDAI.SelectType
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, bagtype) )
 	}
 
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?) 
 	where T.ELEMENT: SDAI.SelectType
 	{
@@ -130,17 +132,17 @@ where ELEMENT: SDAI.InitializableBySelectType
 
 
 //MARK: - for entity type element
-public extension SDAI__BAG__subtype
+public extension SDAI.BAG__Subtype
 where ELEMENT: SDAI.InitializableByComplexEntity
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.BAG__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, bagtype) )
 	}	
 
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -148,7 +150,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 	}	
 
 
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.BAG__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)
 	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
@@ -156,7 +158,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, bagtype) )
 	}	
 
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
@@ -167,17 +169,17 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 
 
 //MARK: - for defined type element
-public extension SDAI__BAG__subtype
+public extension SDAI.BAG__Subtype
 where ELEMENT: SDAI.InitializableByDefinedType
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI__BAG__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI.BAG__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)
 	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, bagtype) )
 	}	
 
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?) 
 	where T.ELEMENT: SDAI.UnderlyingType
 	{

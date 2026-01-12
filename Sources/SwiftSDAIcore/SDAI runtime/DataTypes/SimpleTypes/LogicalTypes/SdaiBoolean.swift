@@ -15,19 +15,22 @@ extension SDAI {
   {}
 }
 
-public protocol SDAI__BOOLEAN__type: SDAI.BooleanType 
-where FundamentalType == SDAI.BOOLEAN,
-			Value == FundamentalType.Value,
-			SwiftType == FundamentalType.SwiftType
-{
-	init?(_ bool: Bool?)
-	init(_ bool: Bool)
-	init?<T:SDAI__BOOLEAN__type>(_ subtype: T?)	
-	init<T:SDAI__BOOLEAN__type>(_ subtype: T)	
-	init?<T:SDAI__LOGICAL__type>(_ logical: T?)
-	init<T:SDAI__LOGICAL__type>(_ logical: T)
+extension SDAI {
+  public protocol BOOLEAN__TypeBehavior: SDAI.BooleanType
+  where FundamentalType == SDAI.BOOLEAN,
+        Value == FundamentalType.Value,
+        SwiftType == FundamentalType.SwiftType
+  {
+    init?(_ bool: Bool?)
+    init(_ bool: Bool)
+    init?<T:SDAI.BOOLEAN__TypeBehavior>(_ subtype: T?)
+    init<T:SDAI.BOOLEAN__TypeBehavior>(_ subtype: T)
+    init?<T:SDAI.LOGICAL__TypeBehavior>(_ logical: T?)
+    init<T:SDAI.LOGICAL__TypeBehavior>(_ logical: T)
+  }
 }
-public extension SDAI__BOOLEAN__type
+
+public extension SDAI.BOOLEAN__TypeBehavior
 {
 	var possiblyAsSwiftBool: Bool? { return self.asSwiftType }
 	var asSwiftBool: Bool { return self.asSwiftType }
@@ -45,24 +48,24 @@ public extension SDAI__BOOLEAN__type
 	init(booleanLiteral value: Bool) {
 		self.init(from: value)
 	}
-	init?<T:SDAI__BOOLEAN__type>(_ subtype: T?)	{
+	init?<T:SDAI.BOOLEAN__TypeBehavior>(_ subtype: T?)	{
 		guard let subtype = subtype else { return nil }
 		self.init(from: subtype.asSwiftType)
 	}
-	init<T:SDAI__BOOLEAN__type>(_ subtype: T) {
+	init<T:SDAI.BOOLEAN__TypeBehavior>(_ subtype: T) {
 		self.init(from: subtype.asSwiftType)
 	}
-	init?<T:SDAI__LOGICAL__type>(_ logical: T?) {
+	init?<T:SDAI.LOGICAL__TypeBehavior>(_ logical: T?) {
 		guard let bool = logical?.asSwiftType else { return nil }
 		self.init(from: bool)
 	}
-	init<T:SDAI__LOGICAL__type>(_ logical: T) {
+	init<T:SDAI.LOGICAL__TypeBehavior>(_ logical: T) {
 		self.init(from: SDAI.UNWRAP(logical.asSwiftType) )
 	}
 }
 
 extension SDAI {
-	public struct BOOLEAN : SDAI__BOOLEAN__type, SDAIValue, CustomStringConvertible
+	public struct BOOLEAN : SDAI.BOOLEAN__TypeBehavior, SDAIValue, CustomStringConvertible
 	{
 		public typealias SwiftType = Bool
 		public typealias FundamentalType = Self

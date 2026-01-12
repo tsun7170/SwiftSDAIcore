@@ -105,18 +105,21 @@ extension SDAI {
   {}
 }
 
-public protocol SDAI__NUMBER__type: SDAI.DoubleRepresentedNumberType, ExpressibleByFloatLiteral
-where FundamentalType == SDAI.NUMBER,
-			Value == FundamentalType.Value
-{
-	init?(_ double: Double?)
-	init(_ double: Double)
-	init?(_ int: Int?)
-	init(_ int: Int)
-	init?<T:SDAI.NumberType>(_ subtype: T?)
-	init<T:SDAI.NumberType>(_ subtype: T)
+extension SDAI {
+  public protocol NUMBER__TypeBehavior: SDAI.DoubleRepresentedNumberType, ExpressibleByFloatLiteral
+  where FundamentalType == SDAI.NUMBER,
+        Value == FundamentalType.Value
+  {
+    init?(_ double: Double?)
+    init(_ double: Double)
+    init?(_ int: Int?)
+    init(_ int: Int)
+    init?<T:SDAI.NumberType>(_ subtype: T?)
+    init<T:SDAI.NumberType>(_ subtype: T)
+  }
 }
-public extension SDAI__NUMBER__type
+
+public extension SDAI.NUMBER__TypeBehavior
 {
 	var asSwiftDouble: Double { return self.asSwiftType }
 
@@ -151,7 +154,7 @@ public extension SDAI__NUMBER__type
 }
 
 extension SDAI {
-	public struct NUMBER: SDAI__NUMBER__type, SDAIValue, CustomStringConvertible
+	public struct NUMBER: SDAI.NUMBER__TypeBehavior, SDAIValue, CustomStringConvertible
 	{
 		public typealias SwiftType = Double
 		public typealias FundamentalType = Self

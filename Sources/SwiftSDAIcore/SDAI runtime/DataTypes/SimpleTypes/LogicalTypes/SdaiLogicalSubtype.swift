@@ -9,10 +9,13 @@
 import Foundation
 
 //MARK: - LOGICAL subtype (8.1.4, 8.3.2)
-public protocol SDAI__LOGICAL__subtype: SDAI__LOGICAL__type, SDAI.DefinedType
-where Supertype: SDAI__LOGICAL__type
-{}
-public extension SDAI__LOGICAL__subtype
+extension SDAI {
+  public protocol LOGICAL__Subtype: SDAI.LOGICAL__TypeBehavior, SDAI.DefinedType
+  where Supertype: SDAI.LOGICAL__TypeBehavior
+  {}
+}
+
+public extension SDAI.LOGICAL__Subtype
 {
 	// InitializableByGenerictype
 	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {

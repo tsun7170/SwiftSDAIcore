@@ -16,47 +16,50 @@ extension SDAI {
 }
 
 //MARK: - SET type
-public protocol SDAI__SET__type: SDAI.SetType
-where Element == ELEMENT,
-			FundamentalType == SDAI.SET<ELEMENT>,
-			Value == FundamentalType.Value,
-			SwiftType == FundamentalType.SwiftType
-{
-	// Aggregation operator support
-	func intersectionWith<U: SDAI.BagType>(rhs: U) -> SDAI.SET<ELEMENT>? 
-	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+extension SDAI {
+  public protocol SET__TypeBehavior: SDAI.SetType
+  where Element == ELEMENT,
+        FundamentalType == SDAI.SET<ELEMENT>,
+        Value == FundamentalType.Value,
+        SwiftType == FundamentalType.SwiftType
+  {
+    // Aggregation operator support
+    func intersectionWith<U: SDAI.BagType>(rhs: U) -> SDAI.SET<ELEMENT>?
+    where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
-	func intersectionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
-	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
-
-
-	func unionWith<U: SDAI.BagType>(rhs: U) -> SDAI.SET<ELEMENT>?
-	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
-
-	func unionWith<U: SDAI.ListType>(rhs: U) -> SDAI.SET<ELEMENT>?
-	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
-
-	func unionWith<U: SDAI.GenericType>(rhs: U) -> SDAI.SET<ELEMENT>?
-	where ELEMENT.FundamentalType == U.FundamentalType
-
-	func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>?
-
-	func unionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
-	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+    func intersectionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
+    where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
 
-	func differenceWith<U: SDAI.BagType>(rhs: U) -> SDAI.SET<ELEMENT>?
-	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+    func unionWith<U: SDAI.BagType>(rhs: U) -> SDAI.SET<ELEMENT>?
+    where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
-	func differenceWith<U: SDAI.GenericType>(rhs: U) -> SDAI.SET<ELEMENT>?
-	where ELEMENT.FundamentalType == U.FundamentalType
+    func unionWith<U: SDAI.ListType>(rhs: U) -> SDAI.SET<ELEMENT>?
+    where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
-	func differenceWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>?
+    func unionWith<U: SDAI.GenericType>(rhs: U) -> SDAI.SET<ELEMENT>?
+    where ELEMENT.FundamentalType == U.FundamentalType
 
-	func differenceWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
-	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+    func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>?
+
+    func unionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
+    where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+
+
+    func differenceWith<U: SDAI.BagType>(rhs: U) -> SDAI.SET<ELEMENT>?
+    where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+
+    func differenceWith<U: SDAI.GenericType>(rhs: U) -> SDAI.SET<ELEMENT>?
+    where ELEMENT.FundamentalType == U.FundamentalType
+
+    func differenceWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>?
+
+    func differenceWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
+    where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+  }
 }
-public extension SDAI__SET__type 
+
+public extension SDAI.SET__TypeBehavior
 where ELEMENT: SDAI.InitializableByComplexEntity {
 	func unionWith(rhs: SDAI.ComplexEntity) -> SDAI.SET<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
@@ -67,7 +70,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity {
 		return self.differenceWith(rhs: rhs)
 	}
 }
-public extension SDAI__SET__type 
+public extension SDAI.SET__TypeBehavior 
 where ELEMENT: SDAI.EntityReference {
 	func unionWith<U: SDAI.SelectType>(rhs: U) -> SDAI.SET<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
@@ -78,7 +81,7 @@ where ELEMENT: SDAI.EntityReference {
 		return self.differenceWith(rhs: rhs)
 	}
 }
-public extension SDAI__SET__type 
+public extension SDAI.SET__TypeBehavior 
 where ELEMENT: SDAI.PersistentReference {
 	func unionWith<U: SDAI.SelectType>(rhs: U) -> SDAI.SET<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
@@ -93,7 +96,7 @@ where ELEMENT: SDAI.PersistentReference {
 
 //MARK: - SDAI.SET
 extension SDAI {
-	public struct SET<ELEMENT:SDAI.GenericType>: SDAI__SET__type
+	public struct SET<ELEMENT:SDAI.GenericType>: SDAI.SET__TypeBehavior
 	{
 		public typealias SwiftType = Set<ELEMENT>
 		public typealias FundamentalType = Self
@@ -260,7 +263,7 @@ extension SDAI {
 		}
 		
 		// InitializableByGenericSet
-		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
 			bound1: I1, bound2: I2?, generic settype: T?)
 		{
 			guard let settype = settype else { return nil }
@@ -268,7 +271,7 @@ extension SDAI {
 		}
 
 		// InitializableByGenericBag
-		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.BAG__TypeBehavior>(
 			bound1: I1, bound2: I2?, generic bagtype: T?)
 		{
 			guard let bagtype = bagtype else { return nil }
@@ -276,7 +279,7 @@ extension SDAI {
 		}
 		
 		// InitializableByGenericList
-		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
 			bound1: I1, bound2: I2?, generic listtype: T?)
 		{
 			guard let listtype = listtype else { return nil }
@@ -543,7 +546,7 @@ where ELEMENT: SDAI.PersistentReference
 extension SDAI.SET: SDAI.InitializableBySelecttypeSet
 where ELEMENT: SDAI.InitializableBySelectType
 {
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?) 
 	where T.ELEMENT: SDAI.SelectType
 	{
@@ -559,7 +562,7 @@ where ELEMENT: SDAI.InitializableBySelectType
 extension SDAI.SET: SDAI.InitializableByEntitySet
 where ELEMENT: SDAI.InitializableByComplexEntity
 {
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -567,7 +570,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 		self.init(bound1: bound1, bound2: bound2, [settype]) { ELEMENT.convert(sibling: $0) }		
 	}
 
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
@@ -581,7 +584,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 extension SDAI.SET: SDAI.InitializableByDefinedtypeSet
 where ELEMENT: SDAI.InitializableByDefinedType
 {
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?) 
 	where T.ELEMENT: SDAI.UnderlyingType
 	{

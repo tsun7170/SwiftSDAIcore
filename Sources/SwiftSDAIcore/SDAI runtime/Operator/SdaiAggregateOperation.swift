@@ -21,7 +21,7 @@ import Foundation
 /// - Returns: A new `SDAI.BAG` containing the intersection of elements from both `lhs` and `rhs`, or `nil` if either operand is `nil`.
 /// - Note: The element types of the operands must have the same `FundamentalType`.
 /// - Discussion: This operator implements the intersection operation as described in section 12.6.2 of the formal specification. It may be overloaded for other aggregate type combinations as defined by the standard.
-public func * <T1: SDAI__BAG__type, U1: SDAI__BAG__type>(
+public func * <T1: SDAI.BAG__TypeBehavior, U1: SDAI.BAG__TypeBehavior>(
 	lhs: T1?, rhs: U1?) -> SDAI.BAG<T1.ELEMENT>?
 where T1.ELEMENT.FundamentalType == U1.ELEMENT.FundamentalType
 {
@@ -43,7 +43,7 @@ where T1.ELEMENT.FundamentalType == U1.ELEMENT.FundamentalType
 /// - Returns: A new aggregate containing the intersection of elements from both `lhs` and `rhs`, or `nil` if either operand is `nil`.
 /// - Note: The element types of the operands must have the same `FundamentalType`.
 /// - Discussion: The result type depends on the operand types, for example, `BAG * BAG` yields a `BAG`, while `SET * BAG` yields a `SET`.
-public func * <T2: SDAI__BAG__type, U2: SDAI__SET__type>(
+public func * <T2: SDAI.BAG__TypeBehavior, U2: SDAI.SET__TypeBehavior>(
 	lhs: T2?, rhs: U2?) -> SDAI.SET<T2.ELEMENT>?
 where T2.ELEMENT.FundamentalType == U2.ELEMENT.FundamentalType
 {
@@ -63,7 +63,7 @@ where T2.ELEMENT.FundamentalType == U2.ELEMENT.FundamentalType
 /// - Returns: A new `SDAI.SET` containing the intersection of elements from both `lhs` and `rhs`, or `nil` if either operand is `nil`.
 /// - Note: The element types of the operands must have the same `FundamentalType`.
 /// - Discussion: This operator implements the intersection operation (as described in section 12.6.2 of the formal specification) between a `SET` and either another `SET` or a `BAG`. The result type is always a `SET`.
-public func * <T3: SDAI__SET__type, U3: SDAI.BagType>(
+public func * <T3: SDAI.SET__TypeBehavior, U3: SDAI.BagType>(
 	lhs: T3?, rhs: U3?) -> SDAI.SET<T3.ELEMENT>?
 where T3.ELEMENT.FundamentalType == U3.ELEMENT.FundamentalType
 {
@@ -82,7 +82,7 @@ where T3.ELEMENT.FundamentalType == U3.ELEMENT.FundamentalType
 /// - Returns: A new `SDAI.BAG` containing the intersection of elements from both `lhs` and `rhs`, or `nil` if either operand is `nil`.
 /// - Note: The element types of the operands must have the same `FundamentalType`.
 /// - Discussion: This operator implements the intersection operation as described in section 12.6.2 of the formal specification. It may be overloaded for other aggregate type combinations as defined by the standard.
-public func * <T4: SDAI__BAG__type, U4: SDAIAggregationInitializer>(
+public func * <T4: SDAI.BAG__TypeBehavior, U4: SDAIAggregationInitializer>(
 	lhs: T4?, rhs: U4?) -> SDAI.BAG<T4.ELEMENT>?
 where T4.ELEMENT.FundamentalType == U4.ELEMENT.FundamentalType
 {
@@ -101,7 +101,7 @@ where T4.ELEMENT.FundamentalType == U4.ELEMENT.FundamentalType
 /// - Returns: A new aggregate containing the intersection of elements from both `lhs` and `rhs`, or `nil` if either operand is `nil`.
 /// - Note: The element types of the operands must have the same `FundamentalType`.
 /// - Discussion: This operator implements the intersection operation as described in section 12.6.2 of the formal specification, for aggregate types that include aggregation initializers.
-public func * <T5: SDAIAggregationInitializer, U5: SDAI__BAG__type>(
+public func * <T5: SDAIAggregationInitializer, U5: SDAI.BAG__TypeBehavior>(
 	lhs: T5?, rhs: U5?) -> SDAI.BAG<U5.ELEMENT>?
 where T5.ELEMENT.FundamentalType == U5.ELEMENT.FundamentalType
 {
@@ -123,7 +123,7 @@ where T5.ELEMENT.FundamentalType == U5.ELEMENT.FundamentalType
 /// - Returns: A new `SDAI.SET` containing the intersection of elements from both `lhs` and `rhs`, or `nil` if either operand is `nil`.
 /// - Note: The element types of the operands must have the same `FundamentalType`.
 /// - Discussion: The result type is always a `SET`, as defined by the standard, for the intersection of a set and either another `SET` or a `BAG`.
-public func * <T6: SDAI__SET__type, U6: SDAIAggregationInitializer>(
+public func * <T6: SDAI.SET__TypeBehavior, U6: SDAIAggregationInitializer>(
 	lhs: T6?, rhs: U6?) -> SDAI.SET<T6.ELEMENT>?
 where T6.ELEMENT.FundamentalType == U6.ELEMENT.FundamentalType
 {
@@ -145,7 +145,7 @@ where T6.ELEMENT.FundamentalType == U6.ELEMENT.FundamentalType
 /// - Returns: A new aggregate containing the intersection of elements from both `lhs` and `rhs`, or `nil` if either operand is `nil`.
 /// - Note: The element types of the operands must have the same `FundamentalType`.
 /// - Discussion: The result type depends on the operand types, as defined by the standard. For example, the intersection of a `SET` and another aggregate yields a `SET`, while other combinations may yield different types.
-public func * <T7: SDAIAggregationInitializer, U7: SDAI__SET__type>(
+public func * <T7: SDAIAggregationInitializer, U7: SDAI.SET__TypeBehavior>(
 	lhs: T7?, rhs: U7?) -> SDAI.SET<U7.ELEMENT>?
 where T7.ELEMENT.FundamentalType == U7.ELEMENT.FundamentalType
 {
@@ -160,7 +160,7 @@ where T7.ELEMENT.FundamentalType == U7.ELEMENT.FundamentalType
 //MARK: Bag + Bag/Set = Bag
 /// Aggregate Union: Bag + Bag/Set = BAG
 ///
-public func + <T1: SDAI__BAG__type, U1: SDAI.BagType>(
+public func + <T1: SDAI.BAG__TypeBehavior, U1: SDAI.BagType>(
 	lhs: T1?, rhs: U1?) -> SDAI.BAG<T1.ELEMENT>?
 where T1.ELEMENT.FundamentalType == U1.ELEMENT.FundamentalType
 {
@@ -171,7 +171,7 @@ where T1.ELEMENT.FundamentalType == U1.ELEMENT.FundamentalType
 //MARK: Bag + List = Bag
 /// Aggregate Union: Bag + List = BAG
 ///
-public func + <T2: SDAI__BAG__type, U2: SDAI.ListType>(
+public func + <T2: SDAI.BAG__TypeBehavior, U2: SDAI.ListType>(
 	lhs: T2?, rhs: U2?) -> SDAI.BAG<T2.ELEMENT>?
 where T2.ELEMENT.FundamentalType == U2.ELEMENT.FundamentalType
 {
@@ -182,7 +182,7 @@ where T2.ELEMENT.FundamentalType == U2.ELEMENT.FundamentalType
 //MARK: Bag + Element = Bag
 /// Aggregate Union: BAG\<Fundamental\> + Fundamental = BAG
 ///
-public func + <T3: SDAI__BAG__type, U3: SDAI.GenericType>(
+public func + <T3: SDAI.BAG__TypeBehavior, U3: SDAI.GenericType>(
 	lhs: T3?, rhs: U3?) -> SDAI.BAG<T3.ELEMENT>?
 where T3.ELEMENT.FundamentalType == U3.FundamentalType
 {
@@ -192,7 +192,7 @@ where T3.ELEMENT.FundamentalType == U3.FundamentalType
 
 /// Aggregate Union: BAG\<Generic\> + GENERIC = Bag
 ///
-public func + <T4: SDAI__BAG__type, U4: SDAI__GENERIC__type>(
+public func + <T4: SDAI.BAG__TypeBehavior, U4: SDAI__GENERIC__type>(
 	lhs: T4?, rhs: U4?) -> SDAI.BAG<T4.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -201,9 +201,9 @@ public func + <T4: SDAI__BAG__type, U4: SDAI__GENERIC__type>(
 
 /// Aggregate Union: BAG\<NUMBER\> + Real = BAG
 ///
-public func + <T5: SDAI__BAG__type, U5>(
+public func + <T5: SDAI.BAG__TypeBehavior, U5>(
 	lhs: T5?, rhs: U5?) -> SDAI.BAG<T5.ELEMENT>?
-where T5.ELEMENT: SDAI__NUMBER__type,
+where T5.ELEMENT: SDAI.NUMBER__TypeBehavior,
 			U5: SDAI.RealType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -212,9 +212,9 @@ where T5.ELEMENT: SDAI__NUMBER__type,
 
 /// Aggregate Union: BAG\<REAL\> + Integer = BAG
 ///
-public func + <T6: SDAI__BAG__type, U6>(
+public func + <T6: SDAI.BAG__TypeBehavior, U6>(
 	lhs: T6?, rhs: U6?) -> SDAI.BAG<T6.ELEMENT>?
-where T6.ELEMENT: SDAI__REAL__type,
+where T6.ELEMENT: SDAI.REAL__TypeBehavior,
 			U6: SDAI.IntegerType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -223,9 +223,9 @@ where T6.ELEMENT: SDAI__REAL__type,
 
 /// Aggregate Union: BAG\<LOGICAL\> + Boolean = BAG
 ///
-public func + <T7: SDAI__BAG__type, U7>(
+public func + <T7: SDAI.BAG__TypeBehavior, U7>(
 	lhs: T7?, rhs: U7?) -> SDAI.BAG<T7.ELEMENT>?
-where T7.ELEMENT: SDAI__LOGICAL__type,
+where T7.ELEMENT: SDAI.LOGICAL__TypeBehavior,
 			U7: SDAI.BooleanType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -234,7 +234,7 @@ where T7.ELEMENT: SDAI__LOGICAL__type,
 
 /// Aggregate Union: BAG\<Complex\> + Complex = BAG
 ///
-public func + <T8: SDAI__BAG__type>(
+public func + <T8: SDAI.BAG__TypeBehavior>(
 	lhs: T8?, rhs: SDAI.ComplexEntity?) -> SDAI.BAG<T8.ELEMENT>?
 where T8.ELEMENT: SDAI.InitializableByComplexEntity
 {
@@ -244,7 +244,7 @@ where T8.ELEMENT: SDAI.InitializableByComplexEntity
 
 /// Aggregate Union: BAG\<Entity\> + Select = BAG
 ///
-public func + <T9: SDAI__BAG__type, U9: SDAI.SelectType>(
+public func + <T9: SDAI.BAG__TypeBehavior, U9: SDAI.SelectType>(
 	lhs: T9?, rhs: U9?) -> SDAI.BAG<T9.ELEMENT>?
 where T9.ELEMENT: SDAI.EntityReference
 {
@@ -254,7 +254,7 @@ where T9.ELEMENT: SDAI.EntityReference
 
 /// Aggregate Union: BAG\<PRef\> + Select = BAG
 ///
-public func + <T10: SDAI__BAG__type, U10: SDAI.SelectType>(
+public func + <T10: SDAI.BAG__TypeBehavior, U10: SDAI.SelectType>(
 	lhs: T10?, rhs: U10?) -> SDAI.BAG<T10.ELEMENT>?
 where T10.ELEMENT: SDAI.PersistentReference
 {
@@ -265,7 +265,7 @@ where T10.ELEMENT: SDAI.PersistentReference
 //MARK: Element + Bag = Bag
 /// Aggregate Union: Fundamental + BAG\<Fundamental\> = BAG
 ///
-public func + <T11: SDAI.GenericType, U11: SDAI__BAG__type>(
+public func + <T11: SDAI.GenericType, U11: SDAI.BAG__TypeBehavior>(
 	lhs: T11?, rhs: U11?) -> SDAI.BAG<U11.ELEMENT>?
 where T11.FundamentalType == U11.ELEMENT.FundamentalType
 {
@@ -275,7 +275,7 @@ where T11.FundamentalType == U11.ELEMENT.FundamentalType
 
 /// Aggregate Union: GENERIC + BAG\<Generic\> = BAG
 ///
-public func + <T12: SDAI__GENERIC__type, U12: SDAI__BAG__type>	(
+public func + <T12: SDAI__GENERIC__type, U12: SDAI.BAG__TypeBehavior>	(
 	lhs: T12?, rhs: U12?) -> SDAI.BAG<U12.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -284,10 +284,10 @@ public func + <T12: SDAI__GENERIC__type, U12: SDAI__BAG__type>	(
 
 /// Aggregate Union: Real + BAG\<NUMBER\> = BAG
 ///
-public func + <T13, U13: SDAI__BAG__type>(
+public func + <T13, U13: SDAI.BAG__TypeBehavior>(
 	lhs: T13?, rhs: U13?) -> SDAI.BAG<U13.ELEMENT>?
 where T13: SDAI.RealType,
-			U13.ELEMENT: SDAI__NUMBER__type
+			U13.ELEMENT: SDAI.NUMBER__TypeBehavior
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return rhs.unionWith(rhs: SDAI.NUMBER(lhs))
@@ -295,10 +295,10 @@ where T13: SDAI.RealType,
 
 /// Aggregate Union: Integer + BAG\<REAL\> = BAG
 ///
-public func + <T14, U14: SDAI__BAG__type>(
+public func + <T14, U14: SDAI.BAG__TypeBehavior>(
 	lhs: T14?, rhs: U14?) -> SDAI.BAG<U14.ELEMENT>?
 where T14: SDAI.IntegerType,
-			U14.ELEMENT: SDAI__REAL__type
+			U14.ELEMENT: SDAI.REAL__TypeBehavior
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return rhs.unionWith(rhs: SDAI.REAL(lhs))
@@ -306,10 +306,10 @@ where T14: SDAI.IntegerType,
 
 /// Aggregate Union: Boolean + BAG\<LOGICAL\> = BAG
 ///
-public func + <T15, U15: SDAI__BAG__type>(
+public func + <T15, U15: SDAI.BAG__TypeBehavior>(
 	lhs: T15?, rhs: U15?) -> SDAI.BAG<U15.ELEMENT>?
 where T15: SDAI.BooleanType,
-			U15.ELEMENT: SDAI__LOGICAL__type
+			U15.ELEMENT: SDAI.LOGICAL__TypeBehavior
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return rhs.unionWith(rhs: SDAI.LOGICAL(lhs))
@@ -317,7 +317,7 @@ where T15: SDAI.BooleanType,
 
 /// Aggregate Union: Complex + BAG\<Complex\> = BAG
 ///
-public func + <U16: SDAI__BAG__type>(
+public func + <U16: SDAI.BAG__TypeBehavior>(
 	lhs: SDAI.ComplexEntity?, rhs: U16?) -> SDAI.BAG<U16.ELEMENT>?
 where U16.ELEMENT: SDAI.InitializableByComplexEntity
 {
@@ -327,7 +327,7 @@ where U16.ELEMENT: SDAI.InitializableByComplexEntity
 
 /// Aggregate Union: Select + BAG\<Entity\> = BAG
 ///
-public func + <T17: SDAI.SelectType, U17: SDAI__BAG__type>(
+public func + <T17: SDAI.SelectType, U17: SDAI.BAG__TypeBehavior>(
 	lhs: T17?, rhs: U17?) -> SDAI.BAG<U17.ELEMENT>?
 where U17.ELEMENT: SDAI.EntityReference
 {
@@ -337,7 +337,7 @@ where U17.ELEMENT: SDAI.EntityReference
 
 /// Aggregate Union: Select + BAG\<PRef\> = BAG
 ///
-public func + <T18: SDAI.SelectType, U18: SDAI__BAG__type>(
+public func + <T18: SDAI.SelectType, U18: SDAI.BAG__TypeBehavior>(
 	lhs: T18?, rhs: U18?) -> SDAI.BAG<U18.ELEMENT>?
 where U18.ELEMENT: SDAI.PersistentReference
 {
@@ -348,7 +348,7 @@ where U18.ELEMENT: SDAI.PersistentReference
 //MARK:  Set + Set/Bag = Set
 /// Aggregate Union: Set + Set/Bag = SET
 ///
-public func + <T19: SDAI__SET__type, U19: SDAI.BagType>(
+public func + <T19: SDAI.SET__TypeBehavior, U19: SDAI.BagType>(
 	lhs: T19?, rhs: U19?) -> SDAI.SET<T19.ELEMENT>?
 where T19.ELEMENT.FundamentalType == U19.ELEMENT.FundamentalType
 {
@@ -359,7 +359,7 @@ where T19.ELEMENT.FundamentalType == U19.ELEMENT.FundamentalType
 //MARK: Set + List = Set
 /// Aggregate Union: Set + List = SET
 ///
-public func + <T20: SDAI__SET__type, U20: SDAI.ListType>(
+public func + <T20: SDAI.SET__TypeBehavior, U20: SDAI.ListType>(
 	lhs: T20?, rhs: U20?) -> SDAI.SET<T20.ELEMENT>?
 where T20.ELEMENT.FundamentalType == U20.ELEMENT.FundamentalType
 {
@@ -373,7 +373,7 @@ where T20.ELEMENT.FundamentalType == U20.ELEMENT.FundamentalType
 
 /// Aggregate Union: SET\<Fundamental\> + Fundamental = SET
 ///
-public func + <T21: SDAI__SET__type, U21: SDAI.GenericType>(
+public func + <T21: SDAI.SET__TypeBehavior, U21: SDAI.GenericType>(
 	lhs: T21?, rhs: U21?) -> SDAI.SET<T21.ELEMENT>?
 where T21.ELEMENT.FundamentalType == U21.FundamentalType
 {
@@ -383,7 +383,7 @@ where T21.ELEMENT.FundamentalType == U21.FundamentalType
 
 /// Aggregate Union: SET\<Generic\> + GENERIC = SET
 ///
-public func + <T22: SDAI__SET__type, U22: SDAI__GENERIC__type>(
+public func + <T22: SDAI.SET__TypeBehavior, U22: SDAI__GENERIC__type>(
 	lhs: T22?, rhs: U22?) -> SDAI.SET<T22.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -392,9 +392,9 @@ public func + <T22: SDAI__SET__type, U22: SDAI__GENERIC__type>(
 
 /// Aggregate Union: SET\<NUMBER\> + Real = SET
 ///
-public func + <T23: SDAI__SET__type, U23>(
+public func + <T23: SDAI.SET__TypeBehavior, U23>(
 	lhs: T23?, rhs: U23?) -> SDAI.SET<T23.ELEMENT>?
-where T23.ELEMENT: SDAI__NUMBER__type,
+where T23.ELEMENT: SDAI.NUMBER__TypeBehavior,
 			U23: SDAI.RealType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -403,9 +403,9 @@ where T23.ELEMENT: SDAI__NUMBER__type,
 
 /// Aggregate Union: SET\<NUMBER\> + Integer = SET
 ///
-public func + <T24: SDAI__SET__type, U24>(
+public func + <T24: SDAI.SET__TypeBehavior, U24>(
 	lhs: T24?, rhs: U24?) -> SDAI.SET<T24.ELEMENT>?
-where T24.ELEMENT: SDAI__REAL__type,
+where T24.ELEMENT: SDAI.REAL__TypeBehavior,
 			U24: SDAI.IntegerType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -414,9 +414,9 @@ where T24.ELEMENT: SDAI__REAL__type,
 
 /// Aggregate Union: SET\<LOGICAL\> + Boolean = SET
 ///
-public func + <T25: SDAI__SET__type, U25>(
+public func + <T25: SDAI.SET__TypeBehavior, U25>(
 	lhs: T25?, rhs: U25?) -> SDAI.SET<T25.ELEMENT>?
-where T25.ELEMENT: SDAI__LOGICAL__type,
+where T25.ELEMENT: SDAI.LOGICAL__TypeBehavior,
 			U25: SDAI.BooleanType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -425,7 +425,7 @@ where T25.ELEMENT: SDAI__LOGICAL__type,
 
 /// Aggregate Union: SET\<Complex\> + Complex = SET
 ///
-public func + <T26: SDAI__SET__type>(
+public func + <T26: SDAI.SET__TypeBehavior>(
 	lhs: T26?, rhs: SDAI.ComplexEntity?) -> SDAI.SET<T26.ELEMENT>?
 where T26.ELEMENT: SDAI.InitializableByComplexEntity
 {
@@ -435,7 +435,7 @@ where T26.ELEMENT: SDAI.InitializableByComplexEntity
 
 /// Aggregate Union: SET\<Entity\> + Select = SET
 ///
-public func + <T27: SDAI__SET__type, U27: SDAI.SelectType>(
+public func + <T27: SDAI.SET__TypeBehavior, U27: SDAI.SelectType>(
 	lhs: T27?, rhs: U27?) -> SDAI.SET<T27.ELEMENT>?
 where T27.ELEMENT: SDAI.EntityReference
 {
@@ -445,7 +445,7 @@ where T27.ELEMENT: SDAI.EntityReference
 
 /// Aggregate Union: SET\<PRef\> + Select = SET
 ///
-public func + <T28: SDAI__SET__type, U28: SDAI.SelectType>(
+public func + <T28: SDAI.SET__TypeBehavior, U28: SDAI.SelectType>(
 	lhs: T28?, rhs: U28?) -> SDAI.SET<T28.ELEMENT>?
 where T28.ELEMENT: SDAI.PersistentReference
 {
@@ -456,7 +456,7 @@ where T28.ELEMENT: SDAI.PersistentReference
 //MARK: Element + Set = Set
 /// Aggregate Union: Fundamental + SET\<Fundamental\> = SET
 ///
-public func + <T29: SDAI.GenericType, U29: SDAI__SET__type>(
+public func + <T29: SDAI.GenericType, U29: SDAI.SET__TypeBehavior>(
 	lhs: T29?, rhs: U29?) -> SDAI.SET<U29.ELEMENT>?
 where T29.FundamentalType == U29.ELEMENT.FundamentalType
 {
@@ -466,7 +466,7 @@ where T29.FundamentalType == U29.ELEMENT.FundamentalType
 
 /// Aggregate Union: GENERIC + SET\<Generic\> = SET
 ///
-public func + <T30: SDAI__GENERIC__type, U30: SDAI__SET__type>(
+public func + <T30: SDAI__GENERIC__type, U30: SDAI.SET__TypeBehavior>(
 	lhs: T30?, rhs: U30?) -> SDAI.SET<U30.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -475,10 +475,10 @@ public func + <T30: SDAI__GENERIC__type, U30: SDAI__SET__type>(
 
 /// Aggregate Union: Real + SET\<NUMBER\> = SET
 ///
-public func + <T31, U31: SDAI__SET__type>(
+public func + <T31, U31: SDAI.SET__TypeBehavior>(
 	lhs: T31?, rhs: U31?) -> SDAI.SET<U31.ELEMENT>?
 where T31: SDAI.RealType,
-			U31.ELEMENT: SDAI__NUMBER__type
+			U31.ELEMENT: SDAI.NUMBER__TypeBehavior
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return rhs.unionWith(rhs: SDAI.NUMBER(lhs))
@@ -486,10 +486,10 @@ where T31: SDAI.RealType,
 
 /// Aggregate Union: Integer + SET\<REAL\> = SET
 ///
-public func + <T32, U32: SDAI__SET__type>(
+public func + <T32, U32: SDAI.SET__TypeBehavior>(
 	lhs: T32?, rhs: U32?) -> SDAI.SET<U32.ELEMENT>?
 where T32: SDAI.IntegerType,
-			U32.ELEMENT: SDAI__REAL__type
+			U32.ELEMENT: SDAI.REAL__TypeBehavior
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return rhs.unionWith(rhs: SDAI.REAL(lhs))
@@ -497,10 +497,10 @@ where T32: SDAI.IntegerType,
 
 /// Aggregate Union: Boolean + SET\<LOGICAL\> = SET
 ///
-public func + <T33, U33: SDAI__SET__type>(
+public func + <T33, U33: SDAI.SET__TypeBehavior>(
 	lhs: T33?, rhs: U33?) -> SDAI.SET<U33.ELEMENT>?
 where T33: SDAI.BooleanType,
-			U33.ELEMENT: SDAI__LOGICAL__type
+			U33.ELEMENT: SDAI.LOGICAL__TypeBehavior
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return rhs.unionWith(rhs: SDAI.LOGICAL(lhs))
@@ -508,7 +508,7 @@ where T33: SDAI.BooleanType,
 
 /// Aggregate Union: Complex + SET\<Complex\> = SET
 ///
-public func + <U34: SDAI__SET__type>(
+public func + <U34: SDAI.SET__TypeBehavior>(
 	lhs: SDAI.ComplexEntity?, rhs: U34?) -> SDAI.SET<U34.ELEMENT>?
 where U34.ELEMENT: SDAI.InitializableByComplexEntity
 {
@@ -518,7 +518,7 @@ where U34.ELEMENT: SDAI.InitializableByComplexEntity
 
 /// Aggregate Union: Select + SET\<Entity\> = SET
 ///
-public func + <T35: SDAI.SelectType, U35: SDAI__SET__type>(
+public func + <T35: SDAI.SelectType, U35: SDAI.SET__TypeBehavior>(
 	lhs: T35?, rhs: U35?) -> SDAI.SET<U35.ELEMENT>?
 where U35.ELEMENT: SDAI.EntityReference
 {
@@ -528,7 +528,7 @@ where U35.ELEMENT: SDAI.EntityReference
 
 /// Aggregate Union: Select + SET\<PRef\> = SET
 ///
-public func + <T36: SDAI.SelectType, U36: SDAI__SET__type>(
+public func + <T36: SDAI.SelectType, U36: SDAI.SET__TypeBehavior>(
 	lhs: T36?, rhs: U36?) -> SDAI.SET<U36.ELEMENT>?
 where U36.ELEMENT: SDAI.PersistentReference
 {
@@ -539,7 +539,7 @@ where U36.ELEMENT: SDAI.PersistentReference
 //MARK: List + List = List
 /// Aggregate Union: List + List = List
 ///
-public func + <T37: SDAI__LIST__type, U37: SDAI.ListType>(
+public func + <T37: SDAI.LIST__TypeBehavior, U37: SDAI.ListType>(
 	lhs: T37?, rhs: U37?) -> SDAI.LIST<T37.ELEMENT>?
 where T37.ELEMENT.FundamentalType == U37.ELEMENT.FundamentalType
 {
@@ -550,7 +550,7 @@ where T37.ELEMENT.FundamentalType == U37.ELEMENT.FundamentalType
 //MARK: List + Element = List
 /// Aggregate Union: LIST\<Fundamental\> + Fundamental = List
 ///
-public func + <T38: SDAI__LIST__type, U38: SDAI.GenericType>(
+public func + <T38: SDAI.LIST__TypeBehavior, U38: SDAI.GenericType>(
 	lhs: T38?, rhs: U38?) -> SDAI.LIST<T38.ELEMENT>?
 where T38.ELEMENT.FundamentalType == U38.FundamentalType
 {
@@ -560,7 +560,7 @@ where T38.ELEMENT.FundamentalType == U38.FundamentalType
 
 /// Aggregate Union: LIST\<Generic\> + GENERIC = List
 ///
-public func + <T39: SDAI__LIST__type, U39: SDAI__GENERIC__type>(
+public func + <T39: SDAI.LIST__TypeBehavior, U39: SDAI__GENERIC__type>(
 	lhs: T39?, rhs: U39?) -> SDAI.LIST<T39.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -569,9 +569,9 @@ public func + <T39: SDAI__LIST__type, U39: SDAI__GENERIC__type>(
 
 /// Aggregate Union: LIST\<NUMBER\> + Real = List
 ///
-public func + <T40: SDAI__LIST__type, U40>(
+public func + <T40: SDAI.LIST__TypeBehavior, U40>(
 	lhs: T40?, rhs: U40?) -> SDAI.LIST<T40.ELEMENT>?
-where T40.ELEMENT: SDAI__NUMBER__type,
+where T40.ELEMENT: SDAI.NUMBER__TypeBehavior,
 			U40: SDAI.RealType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -580,9 +580,9 @@ where T40.ELEMENT: SDAI__NUMBER__type,
 
 /// Aggregate Union: LIST\<REAL\> + Integer = List
 ///
-public func + <T41: SDAI__LIST__type, U41>(
+public func + <T41: SDAI.LIST__TypeBehavior, U41>(
 	lhs: T41?, rhs: U41?) -> SDAI.LIST<T41.ELEMENT>?
-where T41.ELEMENT: SDAI__REAL__type,
+where T41.ELEMENT: SDAI.REAL__TypeBehavior,
 			U41: SDAI.IntegerType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -591,9 +591,9 @@ where T41.ELEMENT: SDAI__REAL__type,
 
 /// Aggregate Union: LIST\<LOGICAL\> + Boolean = List
 ///
-public func + <T42: SDAI__LIST__type, U42>(
+public func + <T42: SDAI.LIST__TypeBehavior, U42>(
 	lhs: T42?, rhs: U42?) -> SDAI.LIST<T42.ELEMENT>?
-where T42.ELEMENT: SDAI__LOGICAL__type,
+where T42.ELEMENT: SDAI.LOGICAL__TypeBehavior,
 			U42: SDAI.BooleanType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -602,7 +602,7 @@ where T42.ELEMENT: SDAI__LOGICAL__type,
 
 /// Aggregate Union: LIST\<Complex\> + Complex = List
 ///
-public func + <T43: SDAI__LIST__type>(
+public func + <T43: SDAI.LIST__TypeBehavior>(
 	lhs: T43?, rhs: SDAI.ComplexEntity?) -> SDAI.LIST<T43.ELEMENT>?
 where T43.ELEMENT: SDAI.InitializableByComplexEntity
 {
@@ -612,7 +612,7 @@ where T43.ELEMENT: SDAI.InitializableByComplexEntity
 
 /// Aggregate Union: LIST\<Entity\> + Select = List
 ///
-public func + <T44: SDAI__LIST__type, U44: SDAI.SelectType>(
+public func + <T44: SDAI.LIST__TypeBehavior, U44: SDAI.SelectType>(
 	lhs: T44?, rhs: U44?) -> SDAI.LIST<T44.ELEMENT>?
 where T44.ELEMENT: SDAI.EntityReference
 {
@@ -622,7 +622,7 @@ where T44.ELEMENT: SDAI.EntityReference
 
 /// Aggregate Union: LIST\<PRef\> + Select = List
 ///
-public func + <T45: SDAI__LIST__type, U45: SDAI.SelectType>(
+public func + <T45: SDAI.LIST__TypeBehavior, U45: SDAI.SelectType>(
 	lhs: T45?, rhs: U45?) -> SDAI.LIST<T45.ELEMENT>?
 where T45.ELEMENT: SDAI.PersistentReference
 {
@@ -633,7 +633,7 @@ where T45.ELEMENT: SDAI.PersistentReference
 //MARK: Element + List = List
 /// Aggregate Union: Fundamental + LIST\<Fundamental\> = List
 ///
-public func + <T46: SDAI.GenericType, U46: SDAI__LIST__type>(
+public func + <T46: SDAI.GenericType, U46: SDAI.LIST__TypeBehavior>(
 	lhs: T46?, rhs: U46?) -> SDAI.LIST<U46.ELEMENT>?
 where T46.FundamentalType == U46.ELEMENT.FundamentalType
 {
@@ -643,7 +643,7 @@ where T46.FundamentalType == U46.ELEMENT.FundamentalType
 
 /// Aggregate Union: GENERIC + LIST\<Generic\> = List
 ///
-public func + <T47: SDAI__GENERIC__type, U47: SDAI__LIST__type>(
+public func + <T47: SDAI__GENERIC__type, U47: SDAI.LIST__TypeBehavior>(
 	lhs: T47?, rhs: U47?) -> SDAI.LIST<U47.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -652,10 +652,10 @@ public func + <T47: SDAI__GENERIC__type, U47: SDAI__LIST__type>(
 
 /// Aggregate Union: Real + LIST\<NUMBER\> = List
 ///
-public func + <T48, U48: SDAI__LIST__type>(
+public func + <T48, U48: SDAI.LIST__TypeBehavior>(
 	lhs: T48?, rhs: U48?) -> SDAI.LIST<U48.ELEMENT>?
 where T48: SDAI.RealType,
-			U48.ELEMENT: SDAI__NUMBER__type
+			U48.ELEMENT: SDAI.NUMBER__TypeBehavior
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return rhs.prependWith(lhs: SDAI.NUMBER(lhs))
@@ -663,10 +663,10 @@ where T48: SDAI.RealType,
 
 /// Aggregate Union: Integer + LIST\<REAL\> = List
 ///
-public func + <T49, U49: SDAI__LIST__type>(
+public func + <T49, U49: SDAI.LIST__TypeBehavior>(
 	lhs: T49?, rhs: U49?) -> SDAI.LIST<U49.ELEMENT>?
 where T49: SDAI.IntegerType,
-			U49.ELEMENT: SDAI__REAL__type
+			U49.ELEMENT: SDAI.REAL__TypeBehavior
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return rhs.prependWith(lhs: SDAI.REAL(lhs))
@@ -674,10 +674,10 @@ where T49: SDAI.IntegerType,
 
 /// Aggregate Union: Boolean + LIST\<LOGICAL\> = List
 ///
-public func + <T50, U50: SDAI__LIST__type>(
+public func + <T50, U50: SDAI.LIST__TypeBehavior>(
 	lhs: T50?, rhs: U50?) -> SDAI.LIST<U50.ELEMENT>?
 where T50: SDAI.BooleanType,
-			U50.ELEMENT: SDAI__LOGICAL__type
+			U50.ELEMENT: SDAI.LOGICAL__TypeBehavior
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return rhs.prependWith(lhs: SDAI.LOGICAL(lhs))
@@ -685,7 +685,7 @@ where T50: SDAI.BooleanType,
 
 /// Aggregate Union: Complex + LIST\<Complex\> = List
 ///
-public func + <U51: SDAI__LIST__type>(
+public func + <U51: SDAI.LIST__TypeBehavior>(
 	lhs: SDAI.ComplexEntity?, rhs: U51?) -> SDAI.LIST<U51.ELEMENT>?
 where U51.ELEMENT: SDAI.InitializableByComplexEntity
 {
@@ -695,7 +695,7 @@ where U51.ELEMENT: SDAI.InitializableByComplexEntity
 
 /// Aggregate Union: Select + LIST\<Entity\> = List
 ///
-public func + <T52: SDAI.SelectType, U52: SDAI__LIST__type>(
+public func + <T52: SDAI.SelectType, U52: SDAI.LIST__TypeBehavior>(
 	lhs: T52?, rhs: U52?) -> SDAI.LIST<U52.ELEMENT>?
 where U52.ELEMENT: SDAI.EntityReference
 {
@@ -705,7 +705,7 @@ where U52.ELEMENT: SDAI.EntityReference
 
 /// Aggregate Union: Select + LIST\<PRef\> = List
 ///
-public func + <T53: SDAI.SelectType, U53: SDAI__LIST__type>(
+public func + <T53: SDAI.SelectType, U53: SDAI.LIST__TypeBehavior>(
 	lhs: T53?, rhs: U53?) -> SDAI.LIST<U53.ELEMENT>?
 where U53.ELEMENT: SDAI.PersistentReference
 {
@@ -716,7 +716,7 @@ where U53.ELEMENT: SDAI.PersistentReference
 //MARK: Bag + Aggregate = Bag
 /// Aggregate Union: Bag + Aggregate = BAG
 ///
-public func + <T54: SDAI__BAG__type, U54: SDAIAggregationInitializer>(
+public func + <T54: SDAI.BAG__TypeBehavior, U54: SDAIAggregationInitializer>(
 	lhs: T54?, rhs: U54?) -> SDAI.BAG<T54.ELEMENT>?
 where T54.ELEMENT.FundamentalType == U54.ELEMENT.FundamentalType
 {
@@ -727,7 +727,7 @@ where T54.ELEMENT.FundamentalType == U54.ELEMENT.FundamentalType
 //MARK: Aggregate + Bag = Bag
 /// Aggregate Union: Aggregate + Bag = BAG
 ///
-public func + <T55: SDAIAggregationInitializer, U55: SDAI__BAG__type>(
+public func + <T55: SDAIAggregationInitializer, U55: SDAI.BAG__TypeBehavior>(
 	lhs: T55?, rhs: U55?) -> SDAI.BAG<U55.ELEMENT>?
 where T55.ELEMENT.FundamentalType == U55.ELEMENT.FundamentalType
 {
@@ -738,7 +738,7 @@ where T55.ELEMENT.FundamentalType == U55.ELEMENT.FundamentalType
 //MARK: Set + Aggregate = Set
 /// Aggregate Union: Set + Aggregate = SET
 ///
-public func + <T56: SDAI__SET__type, U56: SDAIAggregationInitializer>(
+public func + <T56: SDAI.SET__TypeBehavior, U56: SDAIAggregationInitializer>(
 	lhs: T56?, rhs: U56?) -> SDAI.SET<T56.ELEMENT>?
 where T56.ELEMENT.FundamentalType == U56.ELEMENT.FundamentalType
 {
@@ -749,7 +749,7 @@ where T56.ELEMENT.FundamentalType == U56.ELEMENT.FundamentalType
 //MARK: Aggregate + Set = Set
 /// Aggregate Union: Aggregate + Set = SET
 ///
-public func + <T57: SDAIAggregationInitializer, U57: SDAI__SET__type>(
+public func + <T57: SDAIAggregationInitializer, U57: SDAI.SET__TypeBehavior>(
 	lhs: T57?, rhs: U57?) -> SDAI.SET<U57.ELEMENT>?
 where T57.ELEMENT.FundamentalType == U57.ELEMENT.FundamentalType
 {
@@ -760,7 +760,7 @@ where T57.ELEMENT.FundamentalType == U57.ELEMENT.FundamentalType
 //MARK: List + Aggregate = List
 /// Aggregate Union: List + Aggregate = List
 ///
-public func + <T58: SDAI__LIST__type, U58: SDAIAggregationInitializer>(
+public func + <T58: SDAI.LIST__TypeBehavior, U58: SDAIAggregationInitializer>(
 	lhs: T58?, rhs: U58?) -> SDAI.LIST<T58.ELEMENT>?
 where T58.ELEMENT.FundamentalType == U58.ELEMENT.FundamentalType
 {
@@ -771,7 +771,7 @@ where T58.ELEMENT.FundamentalType == U58.ELEMENT.FundamentalType
 //MARK: Aggregate + List = List
 /// Aggregate Union: Aggregate + List = List
 ///
-public func + <T59: SDAIAggregationInitializer, U59: SDAI__LIST__type>(
+public func + <T59: SDAIAggregationInitializer, U59: SDAI.LIST__TypeBehavior>(
 	lhs: T59?, rhs: U59?) -> SDAI.LIST<U59.ELEMENT>?
 where T59.ELEMENT.FundamentalType == U59.ELEMENT.FundamentalType
 {
@@ -789,7 +789,7 @@ where T59.ELEMENT.FundamentalType == U59.ELEMENT.FundamentalType
 //MARK: Bag - Bag/Set = Bag
 /// Aggregate Difference: Bag - Bag/Set = BAG
 ///
-public func - <T1: SDAI__BAG__type, U1: SDAI.BagType>(
+public func - <T1: SDAI.BAG__TypeBehavior, U1: SDAI.BagType>(
 	lhs: T1?, rhs: U1?) -> SDAI.BAG<T1.ELEMENT>?
 where T1.ELEMENT.FundamentalType == U1.ELEMENT.FundamentalType
 {
@@ -800,7 +800,7 @@ where T1.ELEMENT.FundamentalType == U1.ELEMENT.FundamentalType
 //MARK: Bag - Element = Bag
 /// Aggregate Difference: BAG\<Fundamental\> - Fundamental = BAG
 ///
-public func - <T2: SDAI__BAG__type, U2: SDAI.GenericType>(
+public func - <T2: SDAI.BAG__TypeBehavior, U2: SDAI.GenericType>(
 	lhs: T2?, rhs: U2?) -> SDAI.BAG<T2.ELEMENT>?
 where T2.ELEMENT.FundamentalType == U2.FundamentalType
 {
@@ -810,7 +810,7 @@ where T2.ELEMENT.FundamentalType == U2.FundamentalType
 
 /// Aggregate Difference: BAG\<Generic\> - GENERIC = BAG
 ///
-public func - <T3: SDAI__BAG__type, U3: SDAI__GENERIC__type>(
+public func - <T3: SDAI.BAG__TypeBehavior, U3: SDAI__GENERIC__type>(
 	lhs: T3?, rhs: U3?) -> SDAI.BAG<T3.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -819,9 +819,9 @@ public func - <T3: SDAI__BAG__type, U3: SDAI__GENERIC__type>(
 
 /// Aggregate Difference: BAG\<NUMBER\> - Real = BAG
 ///
-public func - <T4: SDAI__BAG__type, U4>(
+public func - <T4: SDAI.BAG__TypeBehavior, U4>(
 	lhs: T4?, rhs: U4?) -> SDAI.BAG<T4.ELEMENT>?
-where T4.ELEMENT: SDAI__NUMBER__type,
+where T4.ELEMENT: SDAI.NUMBER__TypeBehavior,
 			U4: SDAI.RealType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -830,9 +830,9 @@ where T4.ELEMENT: SDAI__NUMBER__type,
 
 /// Aggregate Difference: BAG\<REAL\> - Integer = BAG
 ///
-public func - <T5: SDAI__BAG__type, U5>(
+public func - <T5: SDAI.BAG__TypeBehavior, U5>(
 	lhs: T5?, rhs: U5?) -> SDAI.BAG<T5.ELEMENT>?
-where T5.ELEMENT: SDAI__REAL__type,
+where T5.ELEMENT: SDAI.REAL__TypeBehavior,
 			U5: SDAI.IntegerType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -841,9 +841,9 @@ where T5.ELEMENT: SDAI__REAL__type,
 
 /// Aggregate Difference: BAG\<LOGICAL\> - Boolean = BAG
 ///
-public func - <T6: SDAI__BAG__type, U6>(
+public func - <T6: SDAI.BAG__TypeBehavior, U6>(
 	lhs: T6?, rhs: U6?) -> SDAI.BAG<T6.ELEMENT>?
-where T6.ELEMENT: SDAI__LOGICAL__type,
+where T6.ELEMENT: SDAI.LOGICAL__TypeBehavior,
 			U6: SDAI.BooleanType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -852,7 +852,7 @@ where T6.ELEMENT: SDAI__LOGICAL__type,
 
 /// Aggregate Difference: BAG\<Complex\> - Complex = BAG
 ///
-public func - <T7: SDAI__BAG__type>(
+public func - <T7: SDAI.BAG__TypeBehavior>(
 	lhs: T7?, rhs: SDAI.ComplexEntity?) -> SDAI.BAG<T7.ELEMENT>?
 where T7.ELEMENT: SDAI.InitializableByComplexEntity
 {
@@ -862,7 +862,7 @@ where T7.ELEMENT: SDAI.InitializableByComplexEntity
 
 /// Aggregate Difference: BAG\<Entity\> - Select = BAG
 ///
-public func - <T8: SDAI__BAG__type, U8: SDAI.SelectType>(
+public func - <T8: SDAI.BAG__TypeBehavior, U8: SDAI.SelectType>(
 	lhs: T8?, rhs: U8?) -> SDAI.BAG<T8.ELEMENT>?
 where T8.ELEMENT: SDAI.EntityReference
 {
@@ -872,7 +872,7 @@ where T8.ELEMENT: SDAI.EntityReference
 
 /// Aggregate Difference: BAG\<PRef\> - Select = BAG
 ///
-public func - <T9: SDAI__BAG__type, U9: SDAI.SelectType>(
+public func - <T9: SDAI.BAG__TypeBehavior, U9: SDAI.SelectType>(
 	lhs: T9?, rhs: U9?) -> SDAI.BAG<T9.ELEMENT>?
 where T9.ELEMENT: SDAI.PersistentReference
 {
@@ -884,7 +884,7 @@ where T9.ELEMENT: SDAI.PersistentReference
 //MARK: Set - Set/Bag = Set
 /// Aggregate Difference: Set - Set/Bag = SET
 ///
-public func - <T10: SDAI__SET__type, U10: SDAI.BagType>(
+public func - <T10: SDAI.SET__TypeBehavior, U10: SDAI.BagType>(
 	lhs: T10?, rhs: U10?) -> SDAI.SET<T10.ELEMENT>?
 where T10.ELEMENT.FundamentalType == U10.ELEMENT.FundamentalType
 {
@@ -895,7 +895,7 @@ where T10.ELEMENT.FundamentalType == U10.ELEMENT.FundamentalType
 //MARK: Set - Element = Set
 /// Aggregate Difference: SET\<Fundamental\> - Fundamental = SET
 ///
-public func - <T11: SDAI__SET__type, U11: SDAI.GenericType>(
+public func - <T11: SDAI.SET__TypeBehavior, U11: SDAI.GenericType>(
 	lhs: T11?, rhs: U11?) -> SDAI.SET<T11.ELEMENT>?
 where T11.ELEMENT.FundamentalType == U11.FundamentalType
 {
@@ -905,7 +905,7 @@ where T11.ELEMENT.FundamentalType == U11.FundamentalType
 
 /// Aggregate Difference: SET\<Generic\> - GENERIC = SET
 ///
-public func - <T12: SDAI__SET__type, U12: SDAI__GENERIC__type>(
+public func - <T12: SDAI.SET__TypeBehavior, U12: SDAI__GENERIC__type>(
 	lhs: T12?, rhs: U12?) -> SDAI.SET<T12.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -914,9 +914,9 @@ public func - <T12: SDAI__SET__type, U12: SDAI__GENERIC__type>(
 
 /// Aggregate Difference: SET\<NUMBER\> - Real = SET
 ///
-public func - <T13: SDAI__SET__type, U13>(
+public func - <T13: SDAI.SET__TypeBehavior, U13>(
 	lhs: T13?, rhs: U13?) -> SDAI.SET<T13.ELEMENT>?
-where T13.ELEMENT: SDAI__NUMBER__type,
+where T13.ELEMENT: SDAI.NUMBER__TypeBehavior,
 			U13: SDAI.RealType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -925,9 +925,9 @@ where T13.ELEMENT: SDAI__NUMBER__type,
 
 /// Aggregate Difference: SET\<REAL\> - Integer = SET
 ///
-public func - <T14: SDAI__SET__type, U14>(
+public func - <T14: SDAI.SET__TypeBehavior, U14>(
 	lhs: T14?, rhs: U14?) -> SDAI.SET<T14.ELEMENT>?
-where T14.ELEMENT: SDAI__REAL__type,
+where T14.ELEMENT: SDAI.REAL__TypeBehavior,
 			U14: SDAI.IntegerType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -936,9 +936,9 @@ where T14.ELEMENT: SDAI__REAL__type,
 
 /// Aggregate Difference: SET\<LOGICL\> - Boolean = SET
 ///
-public func - <T15: SDAI__SET__type, U15>(
+public func - <T15: SDAI.SET__TypeBehavior, U15>(
 	lhs: T15?, rhs: U15?) -> SDAI.SET<T15.ELEMENT>?
-where T15.ELEMENT: SDAI__LOGICAL__type,
+where T15.ELEMENT: SDAI.LOGICAL__TypeBehavior,
 			U15: SDAI.BooleanType
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -947,7 +947,7 @@ where T15.ELEMENT: SDAI__LOGICAL__type,
 
 /// Aggregate Difference: SET\<Complex\> - Complex = SET
 ///
-public func - <T16: SDAI__SET__type>(
+public func - <T16: SDAI.SET__TypeBehavior>(
 	lhs: T16?, rhs: SDAI.ComplexEntity?) -> SDAI.SET<T16.ELEMENT>?
 where T16.ELEMENT: SDAI.InitializableByComplexEntity
 {
@@ -957,7 +957,7 @@ where T16.ELEMENT: SDAI.InitializableByComplexEntity
 
 /// Aggregate Difference: SET\<Entity\> - Select = SET
 ///
-public func - <T17: SDAI__SET__type, U17: SDAI.SelectType>(
+public func - <T17: SDAI.SET__TypeBehavior, U17: SDAI.SelectType>(
 	lhs: T17?, rhs: U17?) -> SDAI.SET<T17.ELEMENT>?
 where T17.ELEMENT: SDAI.EntityReference
 {
@@ -967,7 +967,7 @@ where T17.ELEMENT: SDAI.EntityReference
 
 /// Aggregate Difference: SET\<PRef\> - Select = SET
 ///
-public func - <T18: SDAI__SET__type, U18: SDAI.SelectType>(
+public func - <T18: SDAI.SET__TypeBehavior, U18: SDAI.SelectType>(
 	lhs: T18?, rhs: U18?) -> SDAI.SET<T18.ELEMENT>?
 where T18.ELEMENT: SDAI.PersistentReference
 {
@@ -979,7 +979,7 @@ where T18.ELEMENT: SDAI.PersistentReference
 //MARK: Bag - Aggregate = Bag
 /// Aggregate Difference: Bag - Aggregate = BAG
 ///
-public func - <T19: SDAI__BAG__type, U19: SDAIAggregationInitializer>(
+public func - <T19: SDAI.BAG__TypeBehavior, U19: SDAIAggregationInitializer>(
 	lhs: T19?, rhs: U19?) -> SDAI.BAG<T19.ELEMENT>?
 where T19.ELEMENT.FundamentalType == U19.ELEMENT.FundamentalType
 {
@@ -990,7 +990,7 @@ where T19.ELEMENT.FundamentalType == U19.ELEMENT.FundamentalType
 //MARK: Set - Aggregate = Set
 /// Aggregate Difference: Set - Aggregate = SET
 ///
-public func - <T20: SDAI__SET__type, U20: SDAIAggregationInitializer>	(
+public func - <T20: SDAI.SET__TypeBehavior, U20: SDAIAggregationInitializer>	(
 	lhs: T20?, rhs: U20?) -> SDAI.SET<T20.ELEMENT>?
 where T20.ELEMENT.FundamentalType == U20.ELEMENT.FundamentalType
 {

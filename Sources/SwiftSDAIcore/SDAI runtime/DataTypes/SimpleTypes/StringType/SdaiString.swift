@@ -34,7 +34,7 @@ extension SDAI {
   where StringLiteralType == String
   {
     var length: Int {get}
-    subscript<I: SDAI__INTEGER__type>(index: I?) -> SDAI.STRING? {get}
+    subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> SDAI.STRING? {get}
     subscript(index: Int?) -> SDAI.STRING? {get}
     subscript(range: ClosedRange<Int>?) -> SDAI.STRING? {get}
     func ISLIKE<T:SDAI.StringType>(PATTERN substring: T? ) -> SDAI.LOGICAL	// Express 'LIKE' operator translation
@@ -45,7 +45,7 @@ extension SDAI {
 
 public extension SDAI.StringType
 {
-	subscript<I: SDAI__INTEGER__type>(index: I?) -> SDAI.STRING? {
+	subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> SDAI.STRING? {
 		return self[index?.asSwiftType]
 	}
 
@@ -59,19 +59,23 @@ public extension SDAI.StringType where SwiftType == String
 	var possiblyAsSwiftString: String? { return self.asSwiftType }
 }
 
-public protocol SDAI__STRING__type: SDAI.StringType, SDAI.SwiftStringRepresented 
-where FundamentalType == SDAI.STRING,
-			Value == FundamentalType.Value,
-			SwiftType == FundamentalType.SwiftType
-{
-	init?(_ string:String?)
-	init(_ string:String)
-	init?<T:SDAI__STRING__type>(_ subtype: T?)
-	init<T:SDAI__STRING__type>(_ subtype: T)
-	static var width: SDAIDictionarySchema.Bound? {get}
-	static var fixedWidth: SDAI.BOOLEAN {get}
+
+extension SDAI {
+  public protocol STRING__TypeBehavior: SDAI.StringType, SDAI.SwiftStringRepresented
+  where FundamentalType == SDAI.STRING,
+        Value == FundamentalType.Value,
+        SwiftType == FundamentalType.SwiftType
+  {
+    init?(_ string:String?)
+    init(_ string:String)
+    init?<T:SDAI.STRING__TypeBehavior>(_ subtype: T?)
+    init<T:SDAI.STRING__TypeBehavior>(_ subtype: T)
+    static var width: SDAIDictionarySchema.Bound? {get}
+    static var fixedWidth: SDAI.BOOLEAN {get}
+  }
 }
-public extension SDAI__STRING__type
+
+public extension SDAI.STRING__TypeBehavior
 {
 	var asSwiftString: String { return String(self.asSwiftType) }
 
@@ -87,12 +91,12 @@ public extension SDAI__STRING__type
 		self.init(from: SwiftType(value) )
 	}
 
-	init?<T:SDAI__STRING__type>(_ subtype: T?) {
+	init?<T:SDAI.STRING__TypeBehavior>(_ subtype: T?) {
 		guard let subtype = subtype else { return nil }
 		self.init(from: subtype.asSwiftType)
 	}
 
-	init<T:SDAI__STRING__type>(_ subtype:T) {
+	init<T:SDAI.STRING__TypeBehavior>(_ subtype:T) {
 		self.init(from: subtype.asSwiftType)
 	}
 
@@ -101,7 +105,7 @@ public extension SDAI__STRING__type
 }
 
 extension SDAI {
-	public struct STRING: SDAI__STRING__type, SDAIValue, CustomStringConvertible
+	public struct STRING: SDAI.STRING__TypeBehavior, SDAIValue, CustomStringConvertible
 	{
 		public typealias SwiftType = String
 		public typealias FundamentalType = Self

@@ -14,19 +14,22 @@ extension SDAI {
   {}
 }
 
-public protocol SDAI__REAL__type: SDAI.RealType, SDAI.DoubleRepresentedNumberType, ExpressibleByFloatLiteral
-where FundamentalType == SDAI.REAL,
-			Value == FundamentalType.Value
-{
-	init?(_ double: Double?)
-	init(_ double: Double)
-	init?(_ int: Int?)
-	init(_ int: Int)
-	init?<T:SDAI.RealType>(_ subtype: T?)
-	init<T:SDAI.RealType>(_ subtype: T)
-	static var precision: SDAIDictionarySchema.Bound {get}
+extension SDAI {
+  public protocol REAL__TypeBehavior: SDAI.RealType, SDAI.DoubleRepresentedNumberType, ExpressibleByFloatLiteral
+  where FundamentalType == SDAI.REAL,
+        Value == FundamentalType.Value
+  {
+    init?(_ double: Double?)
+    init(_ double: Double)
+    init?(_ int: Int?)
+    init(_ int: Int)
+    init?<T:SDAI.RealType>(_ subtype: T?)
+    init<T:SDAI.RealType>(_ subtype: T)
+    static var precision: SDAIDictionarySchema.Bound {get}
+  }
 }
-public extension SDAI__REAL__type
+
+public extension SDAI.REAL__TypeBehavior
 {
 	var asSwiftDouble: Double { return self.asSwiftType }
 
@@ -61,7 +64,7 @@ public extension SDAI__REAL__type
 }
 
 extension SDAI {
-	public struct REAL: SDAI__REAL__type, SDAIValue, CustomStringConvertible
+	public struct REAL: SDAI.REAL__TypeBehavior, SDAIValue, CustomStringConvertible
 	{
 		public typealias SwiftType = Double
 		public typealias FundamentalType = Self

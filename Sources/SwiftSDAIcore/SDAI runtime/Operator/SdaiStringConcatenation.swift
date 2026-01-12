@@ -16,7 +16,7 @@ import Foundation
 
 /// String Concatenation: String + String = STRING
 ///
-public func + <T1: SDAI__STRING__type, U1: SDAI__STRING__type>(
+public func + <T1: SDAI.STRING__TypeBehavior, U1: SDAI.STRING__TypeBehavior>(
   lhs: T1?, rhs: U1?) -> SDAI.STRING?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -25,24 +25,24 @@ public func + <T1: SDAI__STRING__type, U1: SDAI__STRING__type>(
 
 /// String Concatenation: String + Select = STRING
 ///
-public func + <T2: SDAI__STRING__type, U2: SDAI.SelectType>(
+public func + <T2: SDAI.STRING__TypeBehavior, U2: SDAI.SelectType>(
   lhs: T2?, rhs: U2?) -> SDAI.STRING?
 { lhs + rhs?.stringValue }
 
 /// String Concatenation: Select + String = STRING
 ///
-public func + <T3: SDAI.SelectType, U3: SDAI__STRING__type>(
+public func + <T3: SDAI.SelectType, U3: SDAI.STRING__TypeBehavior>(
   lhs: T3?, rhs: U3?) -> SDAI.STRING?
 { lhs?.stringValue + rhs }
 
 /// String Concatenation: String + StringLiteral = STRING
 ///
-public func + <T4: SDAI__STRING__type>(
+public func + <T4: SDAI.STRING__TypeBehavior>(
   lhs: T4?, rhs: String?) -> SDAI.STRING?
 { lhs + SDAI.STRING(rhs) }
 
 /// String Concatenation: StringLiteral + String = STRING
 ///
-public func + <U5: SDAI__STRING__type>(
+public func + <U5: SDAI.STRING__TypeBehavior>(
   lhs: String?, rhs: U5?) -> SDAI.STRING?
 { SDAI.STRING(lhs) + rhs }

@@ -23,7 +23,7 @@ final class SwiftSDAIcoreTests: XCTestCase {
 	
 	
 	
-	struct StringSubType: SDAI__STRING__subtype, CustomStringConvertible {
+	struct StringSubType: SDAI.STRING__Subtype, CustomStringConvertible {
 		public var typeMembers: Set<SDAI.STRING> {
 			var members = Set<SDAI.STRING>()
 			members.insert(SDAI.STRING(Self.typeName))

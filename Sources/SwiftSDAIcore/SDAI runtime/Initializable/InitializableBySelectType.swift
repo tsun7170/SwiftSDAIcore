@@ -59,13 +59,13 @@ public protocol InitializableBySelecttypeAsArray
 extension SDAI {
   public protocol InitializableBySelecttypeList
   {
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(bound1: I1, bound2: I2?, _ listtype: T?)
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(bound1: I1, bound2: I2?, _ listtype: T?)
     where T.ELEMENT: SDAI.SelectType
   }
 }
 public extension SDAI.InitializableBySelecttypeList
 {
-	init?<T: SDAI__LIST__type>(_ listtype: T?) 
+	init?<T: SDAI.LIST__TypeBehavior>(_ listtype: T?) 
 	where T.ELEMENT: SDAI.SelectType
 	{
 		guard let listtype = listtype else { return nil }
@@ -79,13 +79,13 @@ public extension SDAI.InitializableBySelecttypeList
 extension SDAI {
   public protocol InitializableBySelecttypeBag
   {
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(bound1: I1, bound2: I2?, _ bagtype: T?)
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.BAG__TypeBehavior>(bound1: I1, bound2: I2?, _ bagtype: T?)
     where T.ELEMENT: SDAI.SelectType
   }
 }
 public extension SDAI.InitializableBySelecttypeBag
 {
-	init?<T: SDAI__BAG__type>(_ bagtype: T?) 
+	init?<T: SDAI.BAG__TypeBehavior>(_ bagtype: T?) 
 	where T.ELEMENT: SDAI.SelectType
 	{
 		guard let bagtype = bagtype else { return nil }
@@ -99,13 +99,13 @@ public extension SDAI.InitializableBySelecttypeBag
 extension SDAI {
   public protocol InitializableBySelecttypeSet
   {
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(bound1: I1, bound2: I2?, _ settype: T?)
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(bound1: I1, bound2: I2?, _ settype: T?)
     where T.ELEMENT: SDAI.SelectType
   }
 }
 public extension SDAI.InitializableBySelecttypeSet
 {
-	init?<T: SDAI__SET__type>(_ settype: T?) 
+	init?<T: SDAI.SET__TypeBehavior>(_ settype: T?) 
 	where T.ELEMENT: SDAI.SelectType
 	{
 		guard let settype = settype else { return nil }
@@ -117,13 +117,13 @@ public extension SDAI.InitializableBySelecttypeSet
 extension SDAI {
   public protocol InitializableBySelecttypeArrayOptional
   {
-    init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?)
+    init?<T: SDAI.ARRAY_OPTIONAL__TypeBehavior>(_ arraytype: T?)
     where T.ELEMENT: SDAI.SelectType
   }
 }
 public extension SDAI.InitializableBySelecttypeArrayOptional
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__ARRAY_OPTIONAL__type>(bound1: I1, bound2: I2, _ arraytype: T?) 
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.ARRAY_OPTIONAL__TypeBehavior>(bound1: I1, bound2: I2, _ arraytype: T?) 
 	where T.ELEMENT: SDAI.SelectType
 	{
 		guard let arraytype = arraytype, 
@@ -139,13 +139,13 @@ public extension SDAI.InitializableBySelecttypeArrayOptional
 extension SDAI {
   public protocol InitializableBySelecttypeArray
   {
-    init?<T: SDAI__ARRAY__type>(_ arraytype: T?)
+    init?<T: SDAI.ARRAY__TypeBehavior>(_ arraytype: T?)
     where T.ELEMENT: SDAI.SelectType
   }
 }
 public extension SDAI.InitializableBySelecttypeArray
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__ARRAY__type>(bound1: I1, bound2: I2, _ arraytype: T?) 
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.ARRAY__TypeBehavior>(bound1: I1, bound2: I2, _ arraytype: T?) 
 	where T.ELEMENT: SDAI.SelectType
 	{
 		guard let arraytype = arraytype, 

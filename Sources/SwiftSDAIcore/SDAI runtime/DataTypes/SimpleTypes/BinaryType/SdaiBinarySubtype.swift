@@ -9,10 +9,13 @@
 import Foundation
 
 //MARK: - BINARY subtype (8.1.7, 8.3.2)
-public protocol SDAI__BINARY__subtype: SDAI__BINARY__type, SDAI.DefinedType
-where Supertype: SDAI__BINARY__type
-{}
-public extension SDAI__BINARY__subtype
+extension SDAI {
+  public protocol BINARY__Subtype: SDAI.BINARY__TypeBehavior, SDAI.DefinedType
+  where Supertype: SDAI.BINARY__TypeBehavior
+  {}
+}
+
+public extension SDAI.BINARY__Subtype
 {
 	// InitializableByGenerictype
 	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {

@@ -10,10 +10,13 @@ import Foundation
 
 
 //MARK: - LIST subtype (8.2.2, 8.3.2)
-public protocol SDAI__LIST__subtype: SDAI__LIST__type, SDAI.DefinedType
-where Supertype: SDAI__LIST__type
-{}
-public extension SDAI__LIST__subtype
+extension SDAI {
+  public protocol LIST__Subtype: SDAI.LIST__TypeBehavior, SDAI.DefinedType
+  where Supertype: SDAI.LIST__TypeBehavior
+  {}
+}
+
+public extension SDAI.LIST__Subtype
 {	
 	// SDAI__LIST__type
 	static var uniqueFlag: SDAI.BOOLEAN { Supertype.uniqueFlag }
@@ -49,7 +52,7 @@ public extension SDAI__LIST__subtype
 	}
 	
 	// InitializableByGenericList
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, generic listtype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: listtype))
@@ -87,10 +90,10 @@ public extension SDAI__LIST__subtype
 
 
 //MARK: - for select type element
-public extension SDAI__LIST__subtype
+public extension SDAI.LIST__Subtype
 where ELEMENT: SDAI.InitializableBySelectType
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI__LIST__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ listtype: T?) 
 	where T.ELEMENT: SDAI.SelectType//, T.ELEMENT == T.Element
 	{
@@ -100,17 +103,17 @@ where ELEMENT: SDAI.InitializableBySelectType
 
 
 //MARK: - for entity type element
-public extension SDAI__LIST__subtype
+public extension SDAI.LIST__Subtype
 where ELEMENT: SDAI.InitializableByComplexEntity
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ listtype: T? )
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, listtype) )
 	}
 
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ listtype: T? )
 	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
@@ -123,10 +126,10 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 
 
 //MARK: - for defined type element
-public extension SDAI__LIST__subtype
+public extension SDAI.LIST__Subtype
 where ELEMENT: SDAI.InitializableByDefinedType
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI__LIST__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ listtype: T?) 
 	where T.ELEMENT: SDAI.UnderlyingType
 	{

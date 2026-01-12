@@ -10,10 +10,13 @@ import Foundation
 
 
 //MARK: - SET subtype (8.2.4, 8.3.2)
-public protocol SDAI__SET__subtype: SDAI__SET__type, SDAI.DefinedType
-where Supertype: SDAI__SET__type 
-{}
-public extension SDAI__SET__subtype
+extension SDAI {
+  public protocol SET__Subtype: SDAI.SET__TypeBehavior, SDAI.DefinedType
+  where Supertype: SDAI.SET__TypeBehavior
+  {}
+}
+
+public extension SDAI.SET__Subtype
 {
 	// Aggregation operator support
 	func intersectionWith<U: SDAI.BagType>(rhs: U) -> SDAI.SET<ELEMENT>? 
@@ -56,21 +59,21 @@ public extension SDAI__SET__subtype
 	}
 	
 	// InitializableByGenericSet
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, generic settype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: settype))
 	}
 
 	// InitializableByGenericBag
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.BAG__TypeBehavior>(
 		bound1: I1, bound2: I2?, generic bagtype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: bagtype))
 	}
 
 	// InitializableByGenericList
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, generic listtype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: listtype))
@@ -102,10 +105,10 @@ public extension SDAI__SET__subtype
 
 
 //MARK: - for select type element
-public extension SDAI__SET__subtype
+public extension SDAI.SET__Subtype
 where ELEMENT: SDAI.InitializableBySelectType
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.SelectType
 	{
@@ -115,10 +118,10 @@ where ELEMENT: SDAI.InitializableBySelectType
 
 
 //MARK: - for entity type element
-public extension SDAI__SET__subtype
+public extension SDAI.SET__Subtype
 where ELEMENT: SDAI.InitializableByComplexEntity
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -126,7 +129,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 	}	
 
 
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
@@ -137,10 +140,10 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 
 
 //MARK: - for defined type element
-public extension SDAI__SET__subtype
+public extension SDAI.SET__Subtype
 where ELEMENT: SDAI.InitializableByDefinedType
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?) 
 	where T.ELEMENT: SDAI.UnderlyingType
 	{

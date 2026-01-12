@@ -33,17 +33,19 @@ extension SDAI.ArrayType {
 
 
 //MARK: - ARRAY type
-public protocol SDAI__ARRAY__type: SDAI.ArrayType
-where Element == ELEMENT,
-			FundamentalType == SDAI.ARRAY<ELEMENT>,
-			Value == FundamentalType.Value,
-			SwiftType == FundamentalType.SwiftType
-{}
+extension SDAI {
+  public protocol ARRAY__TypeBehavior: SDAI.ArrayType
+  where Element == ELEMENT,
+        FundamentalType == SDAI.ARRAY<ELEMENT>,
+        Value == FundamentalType.Value,
+        SwiftType == FundamentalType.SwiftType
+  {}
+}
 
 //MARK: - SDAI.ARRAY
 extension SDAI {
 	
-	public struct ARRAY<ELEMENT:SDAI.GenericType>: SDAI__ARRAY__type
+	public struct ARRAY<ELEMENT:SDAI.GenericType>: SDAI.ARRAY__TypeBehavior
 	{
 		public typealias SwiftType = Array<ELEMENT>
 		public typealias FundamentalType = Self
@@ -192,7 +194,7 @@ extension SDAI {
 		}
 
 		// InitializableByGenericArray
-		public init?<T: SDAI__ARRAY__type>(generic arraytype: T?) {
+		public init?<T: SDAI.ARRAY__TypeBehavior>(generic arraytype: T?) {
 			guard let arraytype = arraytype else { return nil }
 			self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { ELEMENT.convert(fromGeneric: $0) }
 		}
@@ -300,7 +302,7 @@ where ELEMENT: SDAI.PersistentReference
 extension SDAI.ARRAY: SDAI.InitializableBySelecttypeArray
 where ELEMENT: SDAI.InitializableBySelectType
 {
-	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
+	public init?<T: SDAI.ARRAY__TypeBehavior>(_ arraytype: T?) 
 	where T.ELEMENT: SDAI.SelectType
 	{
 		guard let arraytype = arraytype else { return nil }
@@ -313,7 +315,7 @@ where ELEMENT: SDAI.InitializableBySelectType
 extension SDAI.ARRAY: SDAI.InitializableByEntityArray
 where ELEMENT: SDAI.InitializableByComplexEntity
 {
-	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
+	public init?<T: SDAI.ARRAY__TypeBehavior>(_ arraytype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		guard let arraytype = arraytype else { return nil }
@@ -328,7 +330,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 extension SDAI.ARRAY: SDAI.InitializableByDefinedtypeArray
 where ELEMENT: SDAI.InitializableByDefinedType
 {
-	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
+	public init?<T: SDAI.ARRAY__TypeBehavior>(_ arraytype: T?) 
 	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		guard let arraytype = arraytype else { return nil }

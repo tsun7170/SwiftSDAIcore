@@ -36,36 +36,38 @@ extension SDAI.ListType {
 
 
 //MARK: - LIST type
-public protocol SDAI__LIST__type: SDAI.ListType
-where Element == ELEMENT,
-			FundamentalType == SDAI.LIST<ELEMENT>,
-			Value == FundamentalType.Value,
-			SwiftType == FundamentalType.SwiftType
-{
-	// SDAIDictionarySchema support
-	static var uniqueFlag: SDAI.BOOLEAN {get}
-	
-	// Aggregation operator support
-	func appendWith<U: SDAI.ListType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
-	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+extension SDAI {
+  public protocol LIST__TypeBehavior: SDAI.ListType
+  where Element == ELEMENT,
+        FundamentalType == SDAI.LIST<ELEMENT>,
+        Value == FundamentalType.Value,
+        SwiftType == FundamentalType.SwiftType
+  {
+    // SDAIDictionarySchema support
+    static var uniqueFlag: SDAI.BOOLEAN {get}
 
-	func appendWith<U: SDAI.GenericType>(rhs: U) -> SDAI.LIST<ELEMENT>?
-	where ELEMENT.FundamentalType == U.FundamentalType
+    // Aggregation operator support
+    func appendWith<U: SDAI.ListType>(rhs: U) -> SDAI.LIST<ELEMENT>?
+    where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
-	func prependWith<U: SDAI.GenericType>(lhs: U) -> SDAI.LIST<ELEMENT>?
-	where ELEMENT.FundamentalType == U.FundamentalType
+    func appendWith<U: SDAI.GenericType>(rhs: U) -> SDAI.LIST<ELEMENT>?
+    where ELEMENT.FundamentalType == U.FundamentalType
 
-	func appendWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>?
+    func prependWith<U: SDAI.GenericType>(lhs: U) -> SDAI.LIST<ELEMENT>?
+    where ELEMENT.FundamentalType == U.FundamentalType
 
-	func prependWith<U: SDAI__GENERIC__type>(lhs: U) -> SDAI.LIST<ELEMENT>?
+    func appendWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>?
 
-	func appendWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>?
-	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+    func prependWith<U: SDAI__GENERIC__type>(lhs: U) -> SDAI.LIST<ELEMENT>?
 
-	func prependWith<U: SDAIAggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>?
-	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+    func appendWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>?
+    where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+
+    func prependWith<U: SDAIAggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>?
+    where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
+  }
 }
-public extension SDAI__LIST__type 
+public extension SDAI.LIST__TypeBehavior
 where ELEMENT: SDAI.InitializableByComplexEntity {
 	func appendWith(rhs: SDAI.ComplexEntity) -> SDAI.LIST<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
@@ -76,7 +78,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity {
 		return self.prependWith(lhs: lhs)
 	}
 }
-public extension SDAI__LIST__type 
+public extension SDAI.LIST__TypeBehavior 
 where ELEMENT: SDAI.EntityReference {
 	func appendWith<U: SDAI.SelectType>(rhs: U) -> SDAI.LIST<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
@@ -87,7 +89,7 @@ where ELEMENT: SDAI.EntityReference {
 		return self.prependWith(lhs: lhs)
 	}
 }
-public extension SDAI__LIST__type 
+public extension SDAI.LIST__TypeBehavior 
 where ELEMENT: SDAI.PersistentReference {
 	func appendWith<U: SDAI.SelectType>(rhs: U) -> SDAI.LIST<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
@@ -103,7 +105,7 @@ where ELEMENT: SDAI.PersistentReference {
 //MARK: - SDAI.LIST
 extension SDAI {
 	
-	public struct LIST<ELEMENT:SDAI.GenericType>: SDAI__LIST__type
+	public struct LIST<ELEMENT:SDAI.GenericType>: SDAI.LIST__TypeBehavior
 	{
 		public typealias SwiftType = Array<ELEMENT>
 		public typealias FundamentalType = Self
@@ -243,7 +245,7 @@ extension SDAI {
 		}
 
 		// InitializableByGenericList
-		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
 			bound1: I1, bound2: I2?, generic listtype: T?)
 		{
 			guard let listtype = listtype else { return nil }
@@ -453,7 +455,7 @@ where ELEMENT: SDAI.PersistentReference
 extension SDAI.LIST: SDAI.InitializableBySelecttypeList
 where ELEMENT: SDAI.InitializableBySelectType
 {	
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ listtype: T?)
 	where T.ELEMENT: SDAI.SelectType
 	{
@@ -466,7 +468,7 @@ where ELEMENT: SDAI.InitializableBySelectType
 extension SDAI.LIST: SDAI.InitializableByEntityList
 where ELEMENT: SDAI.InitializableByComplexEntity
 {
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ listtype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -476,7 +478,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 		}		
 	}
 
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ listtype: T?)
 	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
@@ -494,7 +496,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 extension SDAI.LIST: SDAI.InitializableByDefinedtypeList
 where ELEMENT: SDAI.InitializableByDefinedType
 {
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ listtype: T?)
 	where T.ELEMENT: SDAI.UnderlyingType
 	{

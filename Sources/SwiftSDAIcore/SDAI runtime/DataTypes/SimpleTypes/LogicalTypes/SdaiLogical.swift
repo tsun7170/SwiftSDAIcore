@@ -28,16 +28,19 @@ extension SDAI {
   }
 }
 
-public protocol SDAI__LOGICAL__type: SDAI.LogicalType, ExpressibleByNilLiteral
-where FundamentalType == SDAI.LOGICAL,
-			Value == FundamentalType.Value,
-			SwiftType == FundamentalType.SwiftType
-{
-	init(_ bool: Bool?)
-	init<T:SDAI.LogicalType>(_ subtype: T?)
-	init<T:SDAI.LogicalType>(_ subtype: T)
+extension SDAI {
+  public protocol LOGICAL__TypeBehavior: SDAI.LogicalType, ExpressibleByNilLiteral
+  where FundamentalType == SDAI.LOGICAL,
+        Value == FundamentalType.Value,
+        SwiftType == FundamentalType.SwiftType
+  {
+    init(_ bool: Bool?)
+    init<T:SDAI.LogicalType>(_ subtype: T?)
+    init<T:SDAI.LogicalType>(_ subtype: T)
+  }
 }
-public extension SDAI__LOGICAL__type
+
+public extension SDAI.LOGICAL__TypeBehavior
 {
 	var possiblyAsSwiftBool: Bool? { return self.asSwiftType }
 	var asSwiftBool: Bool { return SDAI.UNWRAP(self.possiblyAsSwiftBool) }
@@ -64,7 +67,7 @@ public extension SDAI__LOGICAL__type
 }
 
 extension SDAI {
-	public struct LOGICAL : SDAI__LOGICAL__type, SDAIValue, CustomStringConvertible
+	public struct LOGICAL : SDAI.LOGICAL__TypeBehavior, SDAIValue, CustomStringConvertible
 	{
 		
 		public typealias SwiftType = Bool?

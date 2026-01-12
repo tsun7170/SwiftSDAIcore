@@ -194,7 +194,7 @@ extension SDAIDictionarySchema {
 	/// 
 	///  ListType is a VariableSizeAggregationType that represents the EXPRESS LIST type.
 	///  The elements of a list may be required to be unique. 
-	public typealias ListType = SDAI__LIST__type
+	public typealias ListType = SDAI.LIST__TypeBehavior
 
 
 

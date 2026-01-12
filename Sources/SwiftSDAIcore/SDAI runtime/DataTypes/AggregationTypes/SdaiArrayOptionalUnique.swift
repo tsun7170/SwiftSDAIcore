@@ -8,13 +8,15 @@
 
 import Foundation
 
-public protocol SDAI__ARRAY_OPTIONAL_UNIQUE__type: SDAI__ARRAY_OPTIONAL__subtype {}
+extension SDAI {
+  public protocol ARRAY_OPTIONAL_UNIQUE__TypeBehavior: SDAI.ARRAY_OPTIONAL__Subtype {}
 
-public protocol SDAI__ARRAY_OPTIONAL_UNIQUE__subtype: SDAI__ARRAY_OPTIONAL_UNIQUE__type {}
+  public protocol ARRAY_OPTIONAL_UNIQUE__Subtype: SDAI.ARRAY_OPTIONAL_UNIQUE__TypeBehavior {}
+}
 
 //MARK: - SDAI.ARRAY_OPTIONAL_UNIQUE
 extension SDAI {
-	public struct ARRAY_OPTIONAL_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI__ARRAY_OPTIONAL_UNIQUE__type
+	public struct ARRAY_OPTIONAL_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI.ARRAY_OPTIONAL_UNIQUE__TypeBehavior
 	{
 		
 		public typealias Supertype = SDAI.ARRAY_OPTIONAL<ELEMENT>

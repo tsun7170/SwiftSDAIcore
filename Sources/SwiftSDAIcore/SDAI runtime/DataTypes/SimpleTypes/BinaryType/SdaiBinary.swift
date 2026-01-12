@@ -14,7 +14,7 @@ extension SDAI {
   where StringLiteralType == String
   {
     var blength: Int {get}
-    subscript<I: SDAI__INTEGER__type>(index: I?) -> SDAI.BINARY? {get}
+    subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> SDAI.BINARY? {get}
     subscript(index: Int?) -> SDAI.BINARY? {get}
     subscript(range: ClosedRange<Int>?) -> SDAI.BINARY? {get}
 
@@ -23,23 +23,26 @@ extension SDAI {
 
 public extension SDAI.BinaryType
 {
-	subscript<I: SDAI__INTEGER__type>(index: I?) -> SDAI.BINARY? { return self[index?.asSwiftType] }
+	subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> SDAI.BINARY? { return self[index?.asSwiftType] }
 }
 
 
-public protocol SDAI__BINARY__type: SDAI.BinaryType
-where FundamentalType == SDAI.BINARY,
-			Value == FundamentalType.Value,
-			SwiftType == FundamentalType.SwiftType
-{
-	init?(_ string: String?)
-	init(_ string: String)
-	init?<T:SDAI__BINARY__type>(_ subtype: T?)
-	init<T:SDAI__BINARY__type>(_ subtype: T)
-	static var width: SDAIDictionarySchema.Bound? {get}
-	static var fixedWidth: SDAI.BOOLEAN {get}
+extension SDAI {
+  public protocol BINARY__TypeBehavior: SDAI.BinaryType
+  where FundamentalType == SDAI.BINARY,
+        Value == FundamentalType.Value,
+        SwiftType == FundamentalType.SwiftType
+  {
+    init?(_ string: String?)
+    init(_ string: String)
+    init?<T:SDAI.BINARY__TypeBehavior>(_ subtype: T?)
+    init<T:SDAI.BINARY__TypeBehavior>(_ subtype: T)
+    static var width: SDAIDictionarySchema.Bound? {get}
+    static var fixedWidth: SDAI.BOOLEAN {get}
+  }
 }
-public extension SDAI__BINARY__type
+
+public extension SDAI.BINARY__TypeBehavior
 {
 	init?(_ string: String?) {
 		guard let string = string else { return nil }
@@ -48,11 +51,11 @@ public extension SDAI__BINARY__type
 	init(_ string: String) {
 		self.init(stringLiteral: string)
 	}
-	init?<T:SDAI__BINARY__type>(_ subtype: T?) {
+	init?<T:SDAI.BINARY__TypeBehavior>(_ subtype: T?) {
 		guard let subtype = subtype else { return nil }	
 		self.init(from: subtype.asSwiftType)
 	}
-	init<T:SDAI__BINARY__type>(_ subtype: T) {
+	init<T:SDAI.BINARY__TypeBehavior>(_ subtype: T) {
 		self.init(from: subtype.asSwiftType)
 	}
 
@@ -62,7 +65,7 @@ public extension SDAI__BINARY__type
 
 
 extension SDAI {
-	public struct BINARY: SDAI__BINARY__type, SDAIValue, CustomStringConvertible
+	public struct BINARY: SDAI.BINARY__TypeBehavior, SDAIValue, CustomStringConvertible
 	{
 		public typealias SwiftType = Array<Int8>
 		public typealias FundamentalType = Self

@@ -15,16 +15,19 @@ extension SDAI {
   {}
 }
 
-public protocol SDAI__INTEGER__type: SDAI.IntegerType, SDAI.IntRepresentedNumberType
-where FundamentalType == SDAI.INTEGER,
-			Value == FundamentalType.Value
-{
-	init?(_ int: Int?)
-	init(_ int: Int)
-	init?<T:SDAI.IntegerType>(_ subtype: T?)
-	init<T:SDAI.IntegerType>(_ subtype: T)
+extension SDAI {
+  public protocol INTEGER__TypeBehavior: SDAI.IntegerType, SDAI.IntRepresentedNumberType
+  where FundamentalType == SDAI.INTEGER,
+        Value == FundamentalType.Value
+  {
+    init?(_ int: Int?)
+    init(_ int: Int)
+    init?<T:SDAI.IntegerType>(_ subtype: T?)
+    init<T:SDAI.IntegerType>(_ subtype: T)
+  }
 }
-public extension SDAI__INTEGER__type
+
+public extension SDAI.INTEGER__TypeBehavior
 {
 	var asSwiftInt: Int { return self.asSwiftType }
 	var asSwiftDouble: Double { return Double(self.asSwiftType) }
@@ -50,7 +53,7 @@ public extension SDAI__INTEGER__type
 }
 
 extension SDAI {
-	public struct INTEGER: SDAI__INTEGER__type, SDAIValue, CustomStringConvertible
+	public struct INTEGER: SDAI.INTEGER__TypeBehavior, SDAIValue, CustomStringConvertible
 	{
 		public typealias SwiftType = Int
 		public typealias FundamentalType = Self

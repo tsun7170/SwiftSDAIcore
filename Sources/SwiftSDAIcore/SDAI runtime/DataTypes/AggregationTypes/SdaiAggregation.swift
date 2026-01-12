@@ -12,20 +12,20 @@ import Foundation
 extension SDAI {
   public protocol AggregateIndexingGettable {
     associatedtype ELEMENT
-    subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {get}
+    subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> ELEMENT? {get}
     subscript(index: Int?) -> ELEMENT? {get}
   }
 
   public protocol AggregateIndexingSettable: SDAI.AggregateIndexingGettable {
     associatedtype ELEMENT
-    subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {get set}
+    subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> ELEMENT? {get set}
     subscript(index: Int?) -> ELEMENT? {get set}
   }
 }
 
 public extension SDAI.AggregateIndexingGettable
 {
-	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
+	subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> ELEMENT? {
 		get{
 			return self[index?.asSwiftType]
 		}
@@ -34,7 +34,7 @@ public extension SDAI.AggregateIndexingGettable
 
 public extension SDAI.AggregateIndexingSettable
 {
-	subscript<I: SDAI__INTEGER__type>(index: I?) -> ELEMENT? {
+	subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> ELEMENT? {
 		get{
 			return self[index?.asSwiftType]
 		}

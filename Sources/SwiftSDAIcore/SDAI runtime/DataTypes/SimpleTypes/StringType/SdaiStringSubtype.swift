@@ -9,10 +9,13 @@
 import Foundation
 
 //MARK: - STRING subtype (8.1.6, 8.3.2)
-public protocol SDAI__STRING__subtype: SDAI__STRING__type, SDAI.DefinedType
-where Supertype: SDAI__STRING__type
-{}
-public extension SDAI__STRING__subtype
+extension SDAI {
+  public protocol STRING__Subtype: SDAI.STRING__TypeBehavior, SDAI.DefinedType
+  where Supertype: SDAI.STRING__TypeBehavior
+  {}
+}
+
+public extension SDAI.STRING__Subtype
 {
 	// InitializableByGenerictype
 	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {

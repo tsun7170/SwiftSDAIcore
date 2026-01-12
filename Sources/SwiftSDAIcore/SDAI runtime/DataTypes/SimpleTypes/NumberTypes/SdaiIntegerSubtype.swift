@@ -9,10 +9,13 @@
 import Foundation
 
 //MARK: - INTEGER subtype (8.1.3, 8.3.2)
-public protocol SDAI__INTEGER__subtype: SDAI__INTEGER__type, SDAI.DefinedType
-where Supertype: SDAI__INTEGER__type
-{}
-public extension SDAI__INTEGER__subtype
+extension SDAI {
+  public protocol INTEGER__Subtype: SDAI.INTEGER__TypeBehavior, SDAI.DefinedType
+  where Supertype: SDAI.INTEGER__TypeBehavior
+  {}
+}
+
+public extension SDAI.INTEGER__Subtype
 {
 	// InitializableByGenerictype
 	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {

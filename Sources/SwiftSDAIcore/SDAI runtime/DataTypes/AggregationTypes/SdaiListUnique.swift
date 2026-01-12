@@ -8,12 +8,14 @@
 
 import Foundation
 
-public protocol SDAI__LIST_UNIQUE__type: SDAI__LIST__subtype {}
+extension SDAI {
+  public protocol LIST_UNIQUE__TypeBehavior: SDAI.LIST__Subtype {}
 
-public protocol SDAI__LIST_UNIQUE__subtype: SDAI__LIST_UNIQUE__type {}
+  public protocol LIST_UNIQUE__Subtype: SDAI.LIST_UNIQUE__TypeBehavior {}
+}
 
 extension SDAI {
-	public struct LIST_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI__LIST_UNIQUE__type
+	public struct LIST_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI.LIST_UNIQUE__TypeBehavior
 	{
 		
 		public typealias Supertype = SDAI.LIST<ELEMENT>
