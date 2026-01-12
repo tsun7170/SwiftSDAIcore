@@ -10,7 +10,7 @@ import Foundation
 
 //MARK: - SDAI.UnownedWrap
 extension SDAI {
-	public struct UnownedWrap<REF: SdaiObjectReference>: Hashable {
+	public struct UnownedWrap<REF: SDAI.ObjectReferenceType>: Hashable {
 		public unowned let reference: REF
 		public let objectId: ObjectIdentifier
 		public var object: REF.Object { reference.object }
@@ -33,7 +33,7 @@ extension SDAI {
 
 
 extension SDAI.UnownedWrap: SDAI.InitializableBySelectType where REF: SDAI.InitializableBySelectType {
-	public init?<S: SDAISelectType>(possiblyFrom select: S?) {
+	public init?<S: SDAI.SelectType>(possiblyFrom select: S?) {
 		guard let obj = REF.init(possiblyFrom: select) else { return nil }
 		self.init(obj)
 	}
@@ -41,12 +41,12 @@ extension SDAI.UnownedWrap: SDAI.InitializableBySelectType where REF: SDAI.Initi
 }
 
 extension SDAI.UnownedWrap: SDAI.InitializableByGenericType where REF: SDAI.InitializableByGenericType {
-	public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+	public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 		guard let obj = REF.init(fromGeneric: generic) else { return nil }
 		self.init(obj)
 	}
 
-	public static func convert<G: SDAIGenericType>(fromGeneric generic: G?) -> Self? {
+	public static func convert<G: SDAI.GenericType>(fromGeneric generic: G?) -> Self? {
 		guard let obj = REF.convert(fromGeneric: generic) else { return nil }
 		return Self(obj)
 	}
@@ -78,8 +78,8 @@ extension SDAI.UnownedWrap: SDAI.InitializableByP21Parameter where REF: SDAI.Ini
 }
 
 
-extension SDAI.UnownedWrap: SDAIGenericType, SdaiCacheableSource, Sendable
-where REF: SDAIGenericType {
+extension SDAI.UnownedWrap: SDAI.GenericType, SdaiCacheableSource, Sendable
+where REF: SDAI.GenericType {
 
 	public typealias FundamentalType = REF.FundamentalType
 	public typealias Value = REF.Value
@@ -111,22 +111,22 @@ where REF: SDAIGenericType {
 	public var integerValue: SDAI.INTEGER? { reference.integerValue }
 	public var genericEnumValue: SDAI.GenericEnumValue? { reference.genericEnumValue }
 	
-	public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {
+	public func arrayOptionalValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {
 		reference.arrayOptionalValue(elementType: elementType)
 	}
-	public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {
+	public func arrayValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {
 		reference.arrayValue(elementType: elementType)
 	}
-	public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {
+	public func listValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {
 		reference.listValue(elementType: elementType)
 	}
-	public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {
+	public func bagValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {
 		reference.bagValue(elementType: elementType)
 	}
-	public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {
+	public func setValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {
 		reference.setValue(elementType: elementType)
 	}
-	public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {
+	public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {
 		reference.enumValue(enumType: enumType)
 	}
 	

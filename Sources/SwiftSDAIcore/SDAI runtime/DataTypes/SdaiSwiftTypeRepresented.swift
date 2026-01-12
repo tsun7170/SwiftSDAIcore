@@ -9,24 +9,26 @@
 import Foundation
 
 
+extension SDAI {
+  public protocol SwiftType
+  {}
+}
+extension String: SDAI.SwiftType {}
+extension Int: SDAI.SwiftType {}
+extension Double: SDAI.SwiftType {}
+extension Bool: SDAI.SwiftType {}
 
-public protocol SDAISwiftType
-{}
-extension String: SDAISwiftType {}
-extension Int: SDAISwiftType {}
-extension Double: SDAISwiftType {}
-extension Bool: SDAISwiftType {}
 
-
-
-public protocol SDAISwiftTypeRepresented
-{
-	associatedtype SwiftType
-	var asSwiftType: SwiftType {get}	
+extension SDAI {
+  public protocol SwiftTypeRepresented
+  {
+    associatedtype SwiftType
+    var asSwiftType: SwiftType {get}
+  }
 }
 
-public extension SDAIDefinedType 
-where Supertype: SDAISwiftTypeRepresented, Self: SDAISwiftTypeRepresented, SwiftType == Supertype.SwiftType
+public extension SDAI.DefinedType 
+where Supertype: SDAI.SwiftTypeRepresented, Self: SDAI.SwiftTypeRepresented, SwiftType == Supertype.SwiftType
 {
 	var asSwiftType: SwiftType { return rep.asSwiftType }
 }

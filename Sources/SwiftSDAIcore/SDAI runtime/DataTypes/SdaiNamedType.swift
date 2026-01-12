@@ -8,7 +8,8 @@
 
 import Foundation
 
-
-public protocol SDAINamedType: SDAIBaseType 
-{}
+extension SDAI {
+  public protocol NamedType: SDAI.BaseType
+  {}
+}
 

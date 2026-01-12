@@ -8,5 +8,7 @@
 
 import Foundation
 
-public protocol SDAIBaseType
-{}
+extension SDAI {
+  public protocol BaseType
+  {}
+}

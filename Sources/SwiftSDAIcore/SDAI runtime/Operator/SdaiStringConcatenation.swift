@@ -25,13 +25,13 @@ public func + <T1: SDAI__STRING__type, U1: SDAI__STRING__type>(
 
 /// String Concatenation: String + Select = STRING
 ///
-public func + <T2: SDAI__STRING__type, U2: SDAISelectType>(
+public func + <T2: SDAI__STRING__type, U2: SDAI.SelectType>(
   lhs: T2?, rhs: U2?) -> SDAI.STRING?
 { lhs + rhs?.stringValue }
 
 /// String Concatenation: Select + String = STRING
 ///
-public func + <T3: SDAISelectType, U3: SDAI__STRING__type>(
+public func + <T3: SDAI.SelectType, U3: SDAI__STRING__type>(
   lhs: T3?, rhs: U3?) -> SDAI.STRING?
 { lhs?.stringValue + rhs }
 

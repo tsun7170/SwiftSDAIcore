@@ -39,7 +39,7 @@ where SwiftType: SDAI.InitializableByVoid
 }
 
 public extension SDAI.InitializableByVoid
-where Self: SDAIDefinedType, Supertype: SDAI.InitializableByVoid
+where Self: SDAI.DefinedType, Supertype: SDAI.InitializableByVoid
 {
   init() {
     let supertype = Supertype()

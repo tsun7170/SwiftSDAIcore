@@ -103,7 +103,7 @@ public extension SDAI.InitializableByP21Parameter
 
 //MARK: - init form ExchangeStructure.UntypedParameter
 public extension SDAI.InitializableByP21Parameter
-where Self: SDAIDefinedType
+where Self: SDAI.DefinedType
 {
 	init?(
 		p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter,
@@ -151,7 +151,7 @@ where Self: SDAI.EntityReference
 
 //MARK: - init from p21omittedParam
 public extension SDAI.InitializableByP21Parameter
-where Self: SDAIDefinedType
+where Self: SDAI.DefinedType
 {
 	init?(
 		p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure)

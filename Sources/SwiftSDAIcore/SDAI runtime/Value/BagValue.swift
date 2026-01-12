@@ -10,7 +10,7 @@ import Foundation
 
 //MARK: - Value comparison support
 extension SDAI {
-	public struct _BagValue<ELEMENT: SDAIGenericType>: SDAIValue
+	public struct _BagValue<ELEMENT: SDAI.GenericType>: SDAIValue
 	{
 		typealias ElementValue = ELEMENT.Value
 		typealias CountedSet = Dictionary<ElementValue,Int>

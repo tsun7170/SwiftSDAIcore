@@ -28,7 +28,7 @@ public protocol SdaiCacheableSource
 	var isCacheable: Bool {get}
 }
 
-public extension SdaiCacheableSource where Self: SDAIDefinedType
+public extension SdaiCacheableSource where Self: SDAI.DefinedType
 {
 	var isCacheable: Bool { rep.isCacheable }
 }
@@ -47,7 +47,7 @@ public protocol SdaiFunctionResultCacheController:
 
 
 extension SDAI {
-	public typealias ParameterType = SDAIGenericType
+	public typealias ParameterType = SDAI.GenericType
 
 	//MARK: - ParameterList
 	public struct ParameterList: SdaiCacheableSource, Hashable, Sendable {

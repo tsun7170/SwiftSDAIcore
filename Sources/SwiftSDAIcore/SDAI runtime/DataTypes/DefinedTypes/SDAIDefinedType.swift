@@ -9,18 +9,21 @@
 import Foundation
 
 //MARK: - Underlying Type base (8.6.3)
-public protocol SDAISelectCompatibleUnderlyingTypeBase: SDAIGenericType 
-where FundamentalType: SDAISelectCompatibleUnderlyingTypeBase
-{}
-
+extension SDAI {
+  public protocol SelectCompatibleUnderlyingTypeBase: SDAI.GenericType
+  where FundamentalType: SDAI.SelectCompatibleUnderlyingTypeBase
+  {}
+}
 
 
 //MARK: - Underlying Type excluding select type
-public protocol SDAIUnderlyingType: SDAISelectCompatibleUnderlyingTypeBase, SDAI.InitializableByDefinedType 
-{}
-public extension SDAIUnderlyingType 
+extension SDAI {
+  public protocol UnderlyingType: SDAI.SelectCompatibleUnderlyingTypeBase, SDAI.InitializableByDefinedType
+  {}
+}
+public extension SDAI.UnderlyingType
 {	
-	init?<T: SDAIUnderlyingType>(possiblyFrom underlyingType: T?) 
+	init?<T: SDAI.UnderlyingType>(possiblyFrom underlyingType: T?) 
 	{
 		if let fundamental = underlyingType?.asFundamentalType as? FundamentalType {
 			self.init(fundamental: fundamental)
@@ -35,35 +38,37 @@ public extension SDAIUnderlyingType
 
 
 //MARK: - Defined Type (8.3.2)
-public protocol SDAIDefinedType: SDAINamedType, SDAISelectCompatibleUnderlyingTypeBase
-{
-	associatedtype Supertype: SDAISelectCompatibleUnderlyingTypeBase 
-	where FundamentalType == Supertype.FundamentalType,
-				Value == Supertype.Value
-	
-	var rep: Supertype {get set}	
+extension SDAI {
+  public protocol DefinedType: SDAI.NamedType, SDAI.SelectCompatibleUnderlyingTypeBase
+  {
+    associatedtype Supertype: SDAI.SelectCompatibleUnderlyingTypeBase
+    where FundamentalType == Supertype.FundamentalType,
+          Value == Supertype.Value
+
+    var rep: Supertype {get set}
+  }
 }
-public extension SDAIDefinedType
+public extension SDAI.DefinedType
 { 
 	var asFundamentalType: FundamentalType { return rep.asFundamentalType }
 }
 
-public extension SDAIDefinedType where Self: Equatable, FundamentalType: Equatable
+public extension SDAI.DefinedType where Self: Equatable, FundamentalType: Equatable
 {
-	static func ==<T:SDAIUnderlyingType> (lhs: Self, rhs: T) -> Bool
+	static func ==<T:SDAI.UnderlyingType> (lhs: Self, rhs: T) -> Bool
 	where FundamentalType == T.FundamentalType
 	{ 
 		return lhs.asFundamentalType == rhs.asFundamentalType
 	}
 
-	static func ==<T:SDAIUnderlyingType> (lhs: T, rhs: Self) -> Bool
+	static func ==<T:SDAI.UnderlyingType> (lhs: T, rhs: Self) -> Bool
 	where FundamentalType == T.FundamentalType
 	{ 
 		return lhs.asFundamentalType == rhs.asFundamentalType
 	}
 }
 
-public extension SDAIDefinedType where Self: Sequence, FundamentalType: Sequence
+public extension SDAI.DefinedType where Self: Sequence, FundamentalType: Sequence
 {
 	func makeIterator() -> FundamentalType.Iterator { return self.asFundamentalType.makeIterator() }
 

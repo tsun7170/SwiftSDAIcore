@@ -9,16 +9,18 @@
 import Foundation
 
 //MARK: - String convertible
-public protocol SwiftStringConvertible
-{
-	var possiblyAsSwiftString: String? {get}
-	var asSwiftString: String {get}
+extension SDAI {
+  public protocol SwiftStringConvertible
+  {
+    var possiblyAsSwiftString: String? {get}
+    var asSwiftString: String {get}
+  }
+
+  public protocol SwiftStringRepresented: SDAI.SwiftStringConvertible
+  {}
 }
 
-public protocol SwiftStringRepresented: SwiftStringConvertible
-{}
-
-extension String: SwiftStringRepresented
+extension String: SDAI.SwiftStringRepresented
 {
 	public var possiblyAsSwiftString: String? { return self }
 	public var asSwiftString: String { return self }
@@ -26,35 +28,38 @@ extension String: SwiftStringRepresented
 
 
 //MARK: - STRING type (8.1.6)
-public protocol SDAIStringType: SDAISimpleType, SwiftStringConvertible,
-                                ExpressibleByStringLiteral, SDAI.InitializableByVoid
-where StringLiteralType == String
-{
-	var length: Int {get}
-	subscript<I: SDAI__INTEGER__type>(index: I?) -> SDAI.STRING? {get}
-	subscript(index: Int?) -> SDAI.STRING? {get}
-	subscript(range: ClosedRange<Int>?) -> SDAI.STRING? {get}
-	func ISLIKE<T:SDAIStringType>(PATTERN substring: T? ) -> SDAI.LOGICAL	// Express 'LIKE' operator translation
-	func ISLIKE(PATTERN substring: String? ) -> SDAI.LOGICAL	// Express 'LIKE' operator translation
-	var asSwiftString: String {get}
+extension SDAI {
+  public protocol StringType: SDAI.SimpleType, SDAI.SwiftStringConvertible,
+                                  ExpressibleByStringLiteral, SDAI.InitializableByVoid
+  where StringLiteralType == String
+  {
+    var length: Int {get}
+    subscript<I: SDAI__INTEGER__type>(index: I?) -> SDAI.STRING? {get}
+    subscript(index: Int?) -> SDAI.STRING? {get}
+    subscript(range: ClosedRange<Int>?) -> SDAI.STRING? {get}
+    func ISLIKE<T:SDAI.StringType>(PATTERN substring: T? ) -> SDAI.LOGICAL	// Express 'LIKE' operator translation
+    func ISLIKE(PATTERN substring: String? ) -> SDAI.LOGICAL	// Express 'LIKE' operator translation
+    var asSwiftString: String {get}
+  }
 }
-public extension SDAIStringType
+
+public extension SDAI.StringType
 {
 	subscript<I: SDAI__INTEGER__type>(index: I?) -> SDAI.STRING? {
 		return self[index?.asSwiftType]
 	}
 
-	func ISLIKE<T:SDAIStringType>(PATTERN substring: T? ) -> SDAI.LOGICAL{
+	func ISLIKE<T:SDAI.StringType>(PATTERN substring: T? ) -> SDAI.LOGICAL{
 		return self.ISLIKE(PATTERN: substring?.asSwiftString)
 	}
 }
-public extension SDAIStringType where SwiftType == String
+public extension SDAI.StringType where SwiftType == String
 {
 	var asSwiftString: String { return self.asSwiftType }
 	var possiblyAsSwiftString: String? { return self.asSwiftType }
 }
 
-public protocol SDAI__STRING__type: SDAIStringType, SwiftStringRepresented 
+public protocol SDAI__STRING__type: SDAI.StringType, SDAI.SwiftStringRepresented 
 where FundamentalType == SDAI.STRING,
 			Value == FundamentalType.Value,
 			SwiftType == FundamentalType.SwiftType
@@ -105,7 +110,7 @@ extension SDAI {
 		// CustomStringConvertible
 		public var description: String { "STRING(\(rep))" }
 		
-		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__STRING__type
+		// SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__STRING__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]
 		}
@@ -121,12 +126,12 @@ extension SDAI {
 		public var integerValue: SDAI.INTEGER? {nil}
 		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
 		
-		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
-		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
-		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
-		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
-		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
-		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
+		public func arrayOptionalValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+		public func arrayValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+		public func listValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
+		public func bagValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+		public func setValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+		public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		public static func validateWhereRules(
 			instance:Self?,
@@ -135,22 +140,22 @@ extension SDAI {
 
 		
 		// InitializableByGenerictype
-		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let stringValue = generic?.stringValue else { return nil }
 			self.init(stringValue)
 		}
 
-		// SDAIUnderlyingType\SDAISimpleType\SDAI__STRING__type
+		// SDAI.UnderlyingType\SDAI.SimpleType\SDAI__STRING__type
 		public static let typeName: String = "STRING"
 		public var asSwiftType: SwiftType { return rep }
 		
-		// SDAIGenericType
+		// SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(fundamental.rep)
 		}
 
-		// SDAISimpleType \SDAI__STRING__type
+		// SDAI.SimpleType \SDAI__STRING__type
 		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}

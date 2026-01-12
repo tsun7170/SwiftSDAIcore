@@ -15,7 +15,7 @@ extension SDAI {
 		OF entityType: ENTITY.Type,
 		FROM complexEntities: AnySequence<SDAI.ComplexEntity>
 	) -> SDAI.SET<ENTITY.PRef>
-  where ENTITY: SDAI.EntityReference & SDAIDualModeReference
+  where ENTITY: SDAI.EntityReference & SDAI.DualModeReference
 	{
 		let filtered = complexEntities.lazy.compactMap { $0.entityReference(entityType)?.pRef }
 		return SET(from: Set(filtered))

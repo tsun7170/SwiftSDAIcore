@@ -40,7 +40,7 @@ extension P21Decode.ExchangeStructure {
 		public unowned let exchangeStructure: P21Decode.ExchangeStructure
 		public let name: String
 		public let governingSchema: P21Decode.SchemaName
-		public private(set) var schema: SDAISchema.Type? = nil
+		public private(set) var schema: SDAI.SchemaType.Type? = nil
 		public private(set) var model: SDAIPopulationSchema.SdaiModel? = nil
 		
 		public var description: String {

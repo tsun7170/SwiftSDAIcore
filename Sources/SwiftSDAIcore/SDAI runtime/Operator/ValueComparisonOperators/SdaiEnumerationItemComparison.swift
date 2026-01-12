@@ -12,7 +12,7 @@ import Foundation
 
 /// Enumeration Item Value Equal: Enum .==. Enum = LOGICAL
 ///
-public func .==. <TE: SDAIEnumerationType,UE: SDAIEnumerationType>(
+public func .==. <TE: SDAI.EnumerationType,UE: SDAI.EnumerationType>(
   lhs: TE?, rhs: UE?) -> SDAI.LOGICAL
 where TE.FundamentalType == UE.FundamentalType
 {
@@ -22,14 +22,14 @@ where TE.FundamentalType == UE.FundamentalType
 
 /// Enumeration Item Value NotEqual: Enum .!=. Enum = LOGICAL
 ///
-public func .!=. <TE: SDAIEnumerationType,UE: SDAIEnumerationType>(
+public func .!=. <TE: SDAI.EnumerationType,UE: SDAI.EnumerationType>(
   lhs: TE?, rhs: UE?) -> SDAI.LOGICAL
 where TE.FundamentalType == UE.FundamentalType
 { !(lhs .==. rhs) }
 
 /// Enumeration Item Value GreaterThan: Enum \> Enum = LOGICAL
 ///
-public func >    <TE: SDAIEnumerationType,UE: SDAIEnumerationType>(
+public func >    <TE: SDAI.EnumerationType,UE: SDAI.EnumerationType>(
   lhs: TE?, rhs: UE?) -> SDAI.LOGICAL
 where TE.FundamentalType == UE.FundamentalType
 {
@@ -39,21 +39,21 @@ where TE.FundamentalType == UE.FundamentalType
 
 /// Enumeration Item Value LessThan: Enum \< Enum = LOGICAL
 ///
-public func <    <TE: SDAIEnumerationType,UE: SDAIEnumerationType>(
+public func <    <TE: SDAI.EnumerationType,UE: SDAI.EnumerationType>(
   lhs: TE?, rhs: UE?) -> SDAI.LOGICAL
 where TE.FundamentalType == UE.FundamentalType
 { rhs > lhs }
 
 /// Enumeration Item Value GreaterThanOrEqual: Enum \>= Enum = LOGICAL
 ///
-public func >=   <TE: SDAIEnumerationType,UE: SDAIEnumerationType>(
+public func >=   <TE: SDAI.EnumerationType,UE: SDAI.EnumerationType>(
   lhs: TE?, rhs: UE?) -> SDAI.LOGICAL
 where TE.FundamentalType == UE.FundamentalType
 { (lhs > rhs)||(lhs .==. rhs) }
 
 /// Enumeration Item Value LessThanOrEqual: Enum \<= Enum = LOGICAL
 ///
-public func <=   <TE: SDAIEnumerationType,UE: SDAIEnumerationType>(
+public func <=   <TE: SDAI.EnumerationType,UE: SDAI.EnumerationType>(
   lhs: TE?, rhs: UE?) -> SDAI.LOGICAL
 where TE.FundamentalType == UE.FundamentalType
 { (lhs < rhs)||(lhs .==. rhs) }
@@ -62,37 +62,37 @@ where TE.FundamentalType == UE.FundamentalType
 //MARK: enum vs. select
 /// Enumeration Item Value Equal: Enum .==. Select = LOGICAL
 ///
-public func .==. <TE: SDAIEnumerationType,US: SDAISelectType>(
+public func .==. <TE: SDAI.EnumerationType,US: SDAI.SelectType>(
   lhs: TE?, rhs: US?) -> SDAI.LOGICAL
 { lhs .==. rhs?.enumValue(enumType: TE.self) }
 
 /// Enumeration Item Value NotEqual: Enum .!=. Select = LOGICAL
 ///
-public func .!=. <TE: SDAIEnumerationType,US: SDAISelectType>(
+public func .!=. <TE: SDAI.EnumerationType,US: SDAI.SelectType>(
   lhs: TE?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
 /// Enumeration Item Value GreaterThan: Enum \> Select = LOGICAL
 ///
-public func >    <TE: SDAIEnumerationType,US: SDAISelectType>(
+public func >    <TE: SDAI.EnumerationType,US: SDAI.SelectType>(
   lhs: TE?, rhs: US?) -> SDAI.LOGICAL
 { lhs > rhs?.enumValue(enumType: TE.self) }
 
 /// Enumeration Item Value LessThan: Enum \< Select = LOGICAL
 ///
-public func <    <TE: SDAIEnumerationType,US: SDAISelectType>(
+public func <    <TE: SDAI.EnumerationType,US: SDAI.SelectType>(
   lhs: TE?, rhs: US?) -> SDAI.LOGICAL
 { rhs > lhs }
 
 /// Enumeration Item Value GreaterThanOrEqual: Enum \>= Select = LOGICAL
 ///
-public func >=   <TE: SDAIEnumerationType,US: SDAISelectType>(
+public func >=   <TE: SDAI.EnumerationType,US: SDAI.SelectType>(
   lhs: TE?, rhs: US?) -> SDAI.LOGICAL
 { (lhs > rhs)||(lhs .==. rhs) }
 
 /// Enumeration Item Value LessThanOrEqual: Enum \<= Select = LOGICAL
 ///
-public func <=   <TE: SDAIEnumerationType,US: SDAISelectType>(
+public func <=   <TE: SDAI.EnumerationType,US: SDAI.SelectType>(
   lhs: TE?, rhs: US?) -> SDAI.LOGICAL
 { (lhs < rhs)||(lhs .==. rhs) }
 
@@ -100,37 +100,37 @@ public func <=   <TE: SDAIEnumerationType,US: SDAISelectType>(
 //MARK: select vs. enum
 /// Enumeration Item Value Equal: Select .==. Enum = LOGICAL
 ///
-public func .==. <TS: SDAISelectType,UE: SDAIEnumerationType>(
+public func .==. <TS: SDAI.SelectType,UE: SDAI.EnumerationType>(
   lhs: TS?, rhs: UE?) -> SDAI.LOGICAL
 { rhs .==. lhs }
 
 /// Enumeration Item Value NotEqual: Select .!=. Enum = LOGICAL
 ///
-public func .!=. <TS: SDAISelectType,UE: SDAIEnumerationType>(
+public func .!=. <TS: SDAI.SelectType,UE: SDAI.EnumerationType>(
   lhs: TS?, rhs: UE?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
 /// Enumeration Item Value GreaterThan: Select \> Enum = LOGICAL
 ///
-public func >    <TS: SDAISelectType,UE: SDAIEnumerationType>(
+public func >    <TS: SDAI.SelectType,UE: SDAI.EnumerationType>(
   lhs: TS?, rhs: UE?) -> SDAI.LOGICAL
 { lhs?.enumValue(enumType: UE.self) > rhs }
 
 /// Enumeration Item Value LessThan: Select \< Enum = LOGICAL
 ///
-public func <    <TS: SDAISelectType,UE: SDAIEnumerationType>(
+public func <    <TS: SDAI.SelectType,UE: SDAI.EnumerationType>(
   lhs: TS?, rhs: UE?) -> SDAI.LOGICAL
 { rhs > lhs }
 
 /// Enumeration Item Value GreaterThanOrEqual: Select \>= Enum = LOGICAL
 ///
-public func >=   <TS: SDAISelectType,UE: SDAIEnumerationType>(
+public func >=   <TS: SDAI.SelectType,UE: SDAI.EnumerationType>(
   lhs: TS?, rhs: UE?) -> SDAI.LOGICAL
 { (lhs > rhs)||(lhs .==. rhs) }
 
 /// Enumeration Item Value LessThanOrEqual: Select \<= Enum = LOGICAL
 ///
-public func <=   <TS: SDAISelectType,UE: SDAIEnumerationType>(
+public func <=   <TS: SDAI.SelectType,UE: SDAI.EnumerationType>(
   lhs: TS?, rhs: UE?) -> SDAI.LOGICAL
 { (lhs < rhs)||(lhs .==. rhs) }
 

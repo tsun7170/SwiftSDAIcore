@@ -9,10 +9,12 @@
 import Foundation
 
 //MARK: - REAL type (8.1.2)
-public protocol SDAIRealType: SDAINumberType 
-{}
+extension SDAI {
+  public protocol RealType: SDAI.NumberType
+  {}
+}
 
-public protocol SDAI__REAL__type: SDAIRealType, SDAIDoubleRepresentedNumberType, ExpressibleByFloatLiteral
+public protocol SDAI__REAL__type: SDAI.RealType, SDAI.DoubleRepresentedNumberType, ExpressibleByFloatLiteral
 where FundamentalType == SDAI.REAL,
 			Value == FundamentalType.Value
 {
@@ -20,8 +22,8 @@ where FundamentalType == SDAI.REAL,
 	init(_ double: Double)
 	init?(_ int: Int?)
 	init(_ int: Int)
-	init?<T:SDAIRealType>(_ subtype: T?)
-	init<T:SDAIRealType>(_ subtype: T)
+	init?<T:SDAI.RealType>(_ subtype: T?)
+	init<T:SDAI.RealType>(_ subtype: T)
 	static var precision: SDAIDictionarySchema.Bound {get}
 }
 public extension SDAI__REAL__type
@@ -49,11 +51,11 @@ public extension SDAI__REAL__type
 	init(floatLiteral value: Double) {
 		self.init(from: value)
 	}
-	init?<T:SDAIRealType>(_ subtype: T?) {
+	init?<T:SDAI.RealType>(_ subtype: T?) {
 		guard let subtype = subtype else { return nil }
 		self.init(from: subtype.asSwiftDouble)
 	}
-	init<T:SDAIRealType>(_ subtype: T) {
+	init<T:SDAI.RealType>(_ subtype: T) {
 		self.init(from: subtype.asSwiftDouble)
 	}
 }
@@ -68,7 +70,7 @@ extension SDAI {
 		// CustomStringConvertible
 		public var description: String { "REAL(\(rep))" }
 		
-		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__Nfrom: UMBER__type\SDAI__REAL__type
+		// SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__Nfrom: UMBER__type\SDAI__REAL__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(from: Self.typeName), SDAI.STRING(from: NUMBER.typeName)]
 		}
@@ -88,12 +90,12 @@ extension SDAI {
 		}
 		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
 		
-		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
-		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
-		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
-		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
-		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
-		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
+		public func arrayOptionalValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+		public func arrayValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+		public func listValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
+		public func bagValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+		public func setValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+		public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		public static func validateWhereRules(
 			instance:Self?,
@@ -102,22 +104,22 @@ extension SDAI {
 
 		
 		// InitializableByGenerictype
-		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let realValue = generic?.realValue else { return nil }
 			self.init(realValue)
 		}
 		
-		// SDAIUnderlyingType \SDAISimpleType\SDAI__NUMBER__type\SDAI__REAL__type
+		// SDAI.UnderlyingType \SDAI.SimpleType\SDAI__NUMBER__type\SDAI__REAL__type
 		public static let typeName: String = "REAL"
 		public var asSwiftType: SwiftType { return rep }
 		
-		// SDAIGenericType
+		// SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			rep = fundamental.rep
 		}
 
-		// SDAISimpleType \SDAI__NUMBER__type\SDAI__REAL__type
+		// SDAI.SimpleType \SDAI__NUMBER__type\SDAI__REAL__type
 		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
@@ -134,7 +136,7 @@ extension SDAI {
 		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
-			if let rhs = rhs as? SwiftDoubleConvertible { return self.asSwiftDouble == rhs.asSwiftDouble }
+			if let rhs = rhs as? SDAI.SwiftDoubleConvertible { return self.asSwiftDouble == rhs.asSwiftDouble }
 			return false
 		}
 		

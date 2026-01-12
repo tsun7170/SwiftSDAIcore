@@ -10,9 +10,10 @@ import Foundation
 
 //MARK: - Constructed data types (8.4)
 
-public protocol SDAIConstructedType: SDAISelectCompatibleUnderlyingTypeBase 
-{}
-
+extension SDAI {
+  public protocol ConstructedType: SDAI.SelectCompatibleUnderlyingTypeBase
+  {}
+}
 
 
 

@@ -10,17 +10,19 @@ import Foundation
 
 
 //MARK: - array type (8.2.1)
-public protocol SDAIArrayType:
-  SDAIAggregationType, SDAIAggregateIndexingSettable,
-  SDAIUnderlyingType, SDAISwiftTypeRepresented,
-  SDAI.InitializableBySwifttypeAsArray, InitializableByArrayLiteral, SDAI.InitializableByGenericArray
-{
-  // SDAIDictionarySchema support
-  static var uniqueFlag: SDAI.BOOLEAN {get}
-  static var optionalFlag: SDAI.BOOLEAN {get}
+extension SDAI {
+  public protocol ArrayType:
+    SDAI.AggregationType, SDAI.AggregateIndexingSettable,
+    SDAI.UnderlyingType, SDAI.SwiftTypeRepresented,
+    SDAI.InitializableBySwifttypeAsArray, InitializableByArrayLiteral, SDAI.InitializableByGenericArray
+  {
+    // SDAIDictionarySchema support
+    static var uniqueFlag: SDAI.BOOLEAN {get}
+    static var optionalFlag: SDAI.BOOLEAN {get}
+  }
 }
 
-extension SDAIArrayType {
+extension SDAI.ArrayType {
   public var isCacheable: Bool {
     for elem in self.asAggregationSequence {
       if !elem.isCacheable { return false }
@@ -31,7 +33,7 @@ extension SDAIArrayType {
 
 
 //MARK: - ARRAY type
-public protocol SDAI__ARRAY__type: SDAIArrayType
+public protocol SDAI__ARRAY__type: SDAI.ArrayType
 where Element == ELEMENT,
 			FundamentalType == SDAI.ARRAY<ELEMENT>,
 			Value == FundamentalType.Value,
@@ -41,7 +43,7 @@ where Element == ELEMENT,
 //MARK: - SDAI.ARRAY
 extension SDAI {
 	
-	public struct ARRAY<ELEMENT:SDAIGenericType>: SDAI__ARRAY__type
+	public struct ARRAY<ELEMENT:SDAI.GenericType>: SDAI__ARRAY__type
 	{
 		public typealias SwiftType = Array<ELEMENT>
 		public typealias FundamentalType = Self
@@ -50,21 +52,21 @@ extension SDAI {
 		private var bound1: Int
 		private var bound2: Int
 		
-		// Equatable \Hashable\SDAIGenericType
+		// Equatable \Hashable\SDAI.GenericType
 		public static func == (lhs: SDAI.ARRAY<ELEMENT>, rhs: SDAI.ARRAY<ELEMENT>) -> Bool {
 			return lhs.rep == rhs.rep &&
 				lhs.bound1 == rhs.bound1 &&
 				lhs.bound2 == rhs.bound2
 		}
 		
-		// Hashable \SDAIGenericType
+		// Hashable \SDAI.GenericType
 		public func hash(into hasher: inout Hasher) {
 			hasher.combine(rep)
 			hasher.combine(bound1)
 			hasher.combine(bound2)
 		}
 
-		// SDAIGenericType
+		// SDAI.GenericType
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]
 		}
@@ -82,32 +84,32 @@ extension SDAI {
 		public var integerValue: SDAI.INTEGER? {nil}
 		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
 		
-		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {
+		public func arrayOptionalValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {
 			return ARRAY_OPTIONAL<ELEM>(bound1: self.loIndex, bound2: self.hiIndex, [self]) {
 				guard let conv = ELEM.convert(fromGeneric: $0) else { return (false,nil) }
 				return (true, conv.copy())
 			}
 		}
-		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {
+		public func arrayValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {
 			if let value = self as? ARRAY<ELEM> { return value.copy() }
 			return ARRAY<ELEM>(bound1: self.loIndex, bound2: self.hiIndex, [self]) { ELEM.convert(fromGeneric: $0.copy()) }
 		}
 		
-		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
-		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
-		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
-		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
+		public func listValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
+		public func bagValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+		public func setValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+		public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		public static func validateWhereRules(instance:Self?, prefix:SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
 			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix)
 		}
 
 
-		// SDAIUnderlyingType \SDAIAggregationType\SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY__type
+		// SDAI.UnderlyingType \SDAI.AggregationType\SDAI__ARRAY_OPTIONAL__type\SDAI__ARRAY__type
 		public static var typeName: String { return "ARRAY" }
 		public var asSwiftType: SwiftType { return self.copy().rep }
 		
-		// SDAIGenericType
+		// SDAI.GenericType
 		public func copy() -> Self {
 			return self
 		}
@@ -118,10 +120,10 @@ extension SDAI {
 			self.init(from: fundamental.asSwiftType, bound1: fundamental.loIndex, bound2: fundamental.hiIndex)
 		}
 		
-		// Sequence \SDAIAggregationType
+		// Sequence \SDAI.AggregationType
 		public func makeIterator() -> SwiftType.Iterator { return self.copy().rep.makeIterator() }
 
-		// SDAIAggregationType
+		// SDAI.AggregationType
 		public var hiBound: Int? { return bound2 }
 		public var hiIndex: Int { return bound2 }
 		public var loBound: Int { return bound1 }
@@ -156,17 +158,17 @@ extension SDAI {
 			return ARRAY_OPTIONAL(from: filtered, bound1: self.loIndex ,bound2: self.hiIndex)
 		}
 
-		// SDAIArrayOptionalType
+		// SDAI.ArrayOptionalType
 		public static var uniqueFlag: SDAI.BOOLEAN { false }
 		public static var optionalFlag: SDAI.BOOLEAN { false }
 	
 		// ARRAY specific
-		public func map<T:SDAIGenericType>(_ transform: (ELEMENT) -> T ) -> ARRAY<T> {
+		public func map<T:SDAI.GenericType>(_ transform: (ELEMENT) -> T ) -> ARRAY<T> {
 			let mapped = self.rep.map(transform)
 			return ARRAY<T>(from:mapped, bound1:self.bound1, bound2:self.bound2)
 		}
 
-		private init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(
+		private init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S:Sequence>(
 			bound1: I1, bound2: I2,
 			_ elements: [S], conv: (S.Element) -> ELEMENT? )
 		{
@@ -184,7 +186,7 @@ extension SDAI {
 		}
 		
 		// InitializableByGenerictype
-		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let fundamental = generic?.arrayValue(elementType: ELEMENT.self) else { return nil }
 			self.init(fundamental: fundamental)
 		}
@@ -197,7 +199,7 @@ extension SDAI {
 		
 		
 		// InitializableBySwifttypeAsArray
-		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+		public init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
 			from swiftValue: SwiftType, bound1: I1, bound2: I2)
 		{
 			self.bound1 = bound1.asSwiftInt
@@ -207,7 +209,7 @@ extension SDAI {
 		} 
 
 		// InitializableByArrayLiteral
-		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E:SDAIGenericType>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E:SDAI.GenericType>(
 			bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
 		{
 			self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT.convert(fromGeneric: $0) }
@@ -263,15 +265,15 @@ extension SDAI {
 	}
 }
 
-extension SDAI.ARRAY: SDAIFundamentalAggregationType {}
+extension SDAI.ARRAY: SDAI.FundamentalAggregationType {}
 
-extension SDAI.ARRAY: SDAIEntityReferenceYielding
-where ELEMENT: SDAIEntityReferenceYielding
+extension SDAI.ARRAY: SDAI.EntityReferenceYielding
+where ELEMENT: SDAI.EntityReferenceYielding
 {}
 
 
-extension SDAI.ARRAY: SDAIDualModeReference
-where ELEMENT: SDAIDualModeReference
+extension SDAI.ARRAY: SDAI.DualModeReference
+where ELEMENT: SDAI.DualModeReference
 {
 	public var pRef: SDAI.ARRAY<ELEMENT.PRef> {
 		let converted = self.map{ $0.pRef }
@@ -279,8 +281,8 @@ where ELEMENT: SDAIDualModeReference
 	}
 }
 
-extension SDAI.ARRAY: SDAIPersistentReference
-where ELEMENT: SDAIPersistentReference
+extension SDAI.ARRAY: SDAI.PersistentReference
+where ELEMENT: SDAI.PersistentReference
 {
 	public var aRef: SDAI.ARRAY<ELEMENT.ARef> {
 		let converted = self.map{ $0.aRef }
@@ -299,7 +301,7 @@ extension SDAI.ARRAY: SDAI.InitializableBySelecttypeArray
 where ELEMENT: SDAI.InitializableBySelectType
 {
 	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAISelectType
+	where T.ELEMENT: SDAI.SelectType
 	{
 		guard let arraytype = arraytype else { return nil }
 		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]){ ELEMENT.convert(sibling: $0) }
@@ -327,7 +329,7 @@ extension SDAI.ARRAY: SDAI.InitializableByDefinedtypeArray
 where ELEMENT: SDAI.InitializableByDefinedType
 {
 	public init?<T: SDAI__ARRAY__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType
+	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		guard let arraytype = arraytype else { return nil }
 		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { ELEMENT.convert(sibling: $0) }

@@ -11,33 +11,35 @@ import Foundation
 
 
 //MARK: - bag type (8.2.3)
-public protocol SDAIBagType:
-	SDAIAggregationType, SDAIUnderlyingType, SDAISwiftTypeRepresented, SwiftDictRepresentable,
-  SDAI.InitializableByEmptyListLiteral, SDAI.InitializableBySwifttypeAsList,
-	InitializableBySelecttypeAsList, InitializableByListLiteral,
-  SDAI.InitializableByGenericSet, SDAI.InitializableByGenericList, SDAI.InitializableByGenericBag, SDAI.InitializableByVoid
-{
-	mutating func add(member: ELEMENT?)
+extension SDAI {
+  public protocol BagType:
+    SDAI.AggregationType, SDAI.UnderlyingType, SDAI.SwiftTypeRepresented, SDAI.SwiftDictRepresentable,
+    SDAI.InitializableByEmptyListLiteral, SDAI.InitializableBySwifttypeAsList,
+    InitializableBySelecttypeAsList, InitializableByListLiteral,
+    SDAI.InitializableByGenericSet, SDAI.InitializableByGenericList, SDAI.InitializableByGenericBag, SDAI.InitializableByVoid
+  {
+    mutating func add(member: ELEMENT?)
 
-	/// remove one instance of member from the collection
-	/// - Parameter member: member to remove
-	/// - Returns: true when operation is successful
-	mutating func remove(member: ELEMENT?) -> Bool
+    /// remove one instance of member from the collection
+    /// - Parameter member: member to remove
+    /// - Returns: true when operation is successful
+    mutating func remove(member: ELEMENT?) -> Bool
 
-	/// remove all instances of member from the collection
-	/// - Parameter member: member to remove
-	/// - Returns: true when operation is successful
-	@discardableResult
-	mutating func removeAll(member: ELEMENT?) -> Bool
-	
-	//aggregate superset operator support
-	@discardableResult
-	func isSuperset<BAG: SDAIBagType>(of other: BAG) -> Bool 
-	where ELEMENT.FundamentalType == BAG.ELEMENT.FundamentalType
+    /// remove all instances of member from the collection
+    /// - Parameter member: member to remove
+    /// - Returns: true when operation is successful
+    @discardableResult
+    mutating func removeAll(member: ELEMENT?) -> Bool
+
+    //aggregate superset operator support
+    @discardableResult
+    func isSuperset<BAG: SDAI.BagType>(of other: BAG) -> Bool
+    where ELEMENT.FundamentalType == BAG.ELEMENT.FundamentalType
+  }
 }
 
-extension SDAIBagType {
-	public func isSuperset<B: SDAIBagType>(of other: B) -> Bool 
+extension SDAI.BagType {
+	public func isSuperset<B: SDAI.BagType>(of other: B) -> Bool 
 	where ELEMENT.FundamentalType == B.ELEMENT.FundamentalType {
 		let selfDict = self.asSwiftDict
 		let otherDict = other.asSwiftDict
@@ -58,9 +60,9 @@ extension SDAIBagType {
 }
 
 //MARK: - bag subtypes
-public extension SDAIDefinedType
-where Self: SDAIBagType,
-			Supertype: SDAIBagType,
+public extension SDAI.DefinedType
+where Self: SDAI.BagType,
+			Supertype: SDAI.BagType,
 			ELEMENT == Supertype.ELEMENT
 {
 	mutating func add(member: ELEMENT?) { rep.add(member: member) }
@@ -68,12 +70,12 @@ where Self: SDAIBagType,
 	mutating func remove(member: ELEMENT?) -> Bool { return rep.remove(member: member) }
 	@discardableResult
 	mutating func removeAll(member: ELEMENT?) -> Bool { return rep.removeAll(member: member) }
-	func isSuperset<BAG: SDAIBagType>(of other: BAG) -> Bool
+	func isSuperset<BAG: SDAI.BagType>(of other: BAG) -> Bool
 	where ELEMENT.FundamentalType == BAG.ELEMENT.FundamentalType { rep.isSuperset(of: other) }
 }
 
 //MARK: - BAG type
-public protocol SDAI__BAG__type: SDAIBagType
+public protocol SDAI__BAG__type: SDAI.BagType
 where Element == ELEMENT,
 			FundamentalType == SDAI.BAG<ELEMENT>,
 			Value == FundamentalType.Value,
@@ -90,13 +92,13 @@ where Element == ELEMENT,
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
 
-	func unionWith<U: SDAIBagType>(rhs: U) -> SDAI.BAG<ELEMENT>?
+	func unionWith<U: SDAI.BagType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
-	func unionWith<U: SDAIListType>(rhs: U) -> SDAI.BAG<ELEMENT>?
+	func unionWith<U: SDAI.ListType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
-	func unionWith<U: SDAIGenericType>(rhs: U) -> SDAI.BAG<ELEMENT>?
+	func unionWith<U: SDAI.GenericType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.FundamentalType
 
 	func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.BAG<ELEMENT>?
@@ -105,10 +107,10 @@ where Element == ELEMENT,
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
 
-	func differenceWith<U: SDAIBagType>(rhs: U) -> SDAI.BAG<ELEMENT>?
+	func differenceWith<U: SDAI.BagType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
-	func differenceWith<U: SDAIGenericType>(rhs: U) -> SDAI.BAG<ELEMENT>?
+	func differenceWith<U: SDAI.GenericType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.FundamentalType
 
 	func differenceWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.BAG<ELEMENT>?
@@ -129,22 +131,22 @@ where ELEMENT: SDAI.InitializableByComplexEntity {
 }
 public extension SDAI__BAG__type 
 where ELEMENT: SDAI.EntityReference {
-	func unionWith<U: SDAISelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
+	func unionWith<U: SDAI.SelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
 		return self.unionWith(rhs: rhs)
 	}
-	func differenceWith<U: SDAISelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
+	func differenceWith<U: SDAI.SelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
 		return self.differenceWith(rhs: rhs)
 	}
 }
 public extension SDAI__BAG__type 
-where ELEMENT: SDAIPersistentReference {
-	func unionWith<U: SDAISelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
+where ELEMENT: SDAI.PersistentReference {
+	func unionWith<U: SDAI.SelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
 		return self.unionWith(rhs: rhs)
 	}
-	func differenceWith<U: SDAISelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
+	func differenceWith<U: SDAI.SelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
 		return self.differenceWith(rhs: rhs)
 	}
@@ -153,7 +155,7 @@ where ELEMENT: SDAIPersistentReference {
 
 //MARK: - SDAI.BAG
 extension SDAI {
-	public struct BAG<ELEMENT:SDAIGenericType>: SDAI__BAG__type
+	public struct BAG<ELEMENT:SDAI.GenericType>: SDAI__BAG__type
 	{
 		public typealias SwiftType = Array<ELEMENT>
 		public typealias FundamentalType = Self
@@ -162,21 +164,21 @@ extension SDAI {
 		private var bound1: Int
 		private var bound2: Int?
 
-		// Equatable \Hashable\SDAIGenericType
+		// Equatable \Hashable\SDAI.GenericType
 		public static func == (lhs: SDAI.BAG<ELEMENT>, rhs: SDAI.BAG<ELEMENT>) -> Bool {
 			return lhs.rep == rhs.rep &&
 				lhs.bound1 == rhs.bound1 &&
 				lhs.bound2 == rhs.bound2
 		}
 		
-		// Hashable \SDAIGenericType
+		// Hashable \SDAI.GenericType
 		public func hash(into hasher: inout Hasher) {
 			hasher.combine(rep)
 			hasher.combine(bound1)
 			hasher.combine(bound2)
 		}
 
-		// SDAIGenericType
+		// SDAI.GenericType
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]
 		}
@@ -194,28 +196,28 @@ extension SDAI {
 		public var integerValue: SDAI.INTEGER? {nil}
 		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
 
-		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
-		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
-		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
+		public func arrayOptionalValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+		public func arrayValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+		public func listValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
 
-		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {
+		public func bagValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {
 			if let value = self as? BAG<ELEM> { return value.copy() }
 			return BAG<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM.convert(fromGeneric: $0.copy()) }
 		}
 
-		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
-		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
+		public func setValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+		public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		public static func validateWhereRules(instance:Self?, prefix:SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
 			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix)
 		}
 
 		
-		// SDAIUnderlyingType \SDAIAggregationType\SDAI__BAG__type
+		// SDAI.UnderlyingType \SDAI.AggregationType\SDAI__BAG__type
 		public static var typeName: String { return "BAG" }
 		public var asSwiftType: SwiftType { return self.copy().rep }
 		
-		// SDAIGenericType
+		// SDAI.GenericType
 		public func copy() -> Self {
 			return self
 		}
@@ -226,10 +228,10 @@ extension SDAI {
 			self.init(from: fundamental.asSwiftType, bound1: fundamental.loBound, bound2: fundamental.hiBound)
 		}
 
-		// Sequence \SDAIAggregationType\SDAI__BAG__type
+		// Sequence \SDAI.AggregationType\SDAI__BAG__type
 		public func makeIterator() -> SwiftType.Iterator { return self.copy().rep.makeIterator() }
 
-		// SDAIAggregationType \SDAI__BAG__type
+		// SDAI.AggregationType \SDAI__BAG__type
 		public var hiBound: Int? { return bound2 }
 		public var hiIndex: Int { return size }
 		public var loBound: Int { return bound1 }
@@ -256,7 +258,7 @@ extension SDAI {
 								 bound1:self.loBound, bound2: self.hiBound)
 		}
 		
-		// SDAIBagType
+		// SDAI.BagType
 		public mutating func add(member: ELEMENT?) {
 			guard let member = member else {return}
 			rep.append(member)
@@ -286,7 +288,7 @@ extension SDAI {
 			return result
 		}
 		
-		// SwiftDictRepresentable
+		// SDAI.SwiftDictRepresentable
 		public var asSwiftDict: Dictionary<ELEMENT.FundamentalType, Int> {
 			return Dictionary<ELEMENT.FundamentalType,Int>( self.lazy.map{($0.asFundamentalType, 1)},
 																											uniquingKeysWith: {$0 + $1} )
@@ -298,12 +300,12 @@ extension SDAI {
 		}
 		
 		// BAG specific
-		public func map<T:SDAIGenericType>(_ transform: (ELEMENT) -> T ) -> BAG<T> {
+		public func map<T:SDAI.GenericType>(_ transform: (ELEMENT) -> T ) -> BAG<T> {
 			let mapped = self.rep.map(transform)
 			return BAG<T>(from:mapped, bound1:self.bound1, bound2:self.bound2)
 		}
 		
-		internal init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(
+		internal init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S:Sequence>(
 			bound1: I1, bound2: I2?,
 			_ elements: [S], conv: (S.Element) -> ELEMENT? )
 		{
@@ -321,13 +323,13 @@ extension SDAI {
 		}
 		
 		// InitializableByGenerictype
-		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let fundamental = generic?.bagValue(elementType: ELEMENT.self) else { return nil }
 			self.init(fundamental: fundamental)
 		}
 
 		// InitializableByGenericSet
-		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
 			bound1: I1, bound2: I2?, generic settype: T?)
 		{
 			guard let settype = settype else { return nil }
@@ -335,7 +337,7 @@ extension SDAI {
 		}
 
 		// InitializableByGenericBag
-		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
 			bound1: I1, bound2: I2?, generic bagtype: T?)
 		{
 			guard let bagtype = bagtype else { return nil }
@@ -343,7 +345,7 @@ extension SDAI {
 		}
 		
 		// InitializableByGenericList
-		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
 			bound1: I1, bound2: I2?, generic listtype: T?)
 		{
 			guard let listtype = listtype else { return nil }
@@ -351,14 +353,14 @@ extension SDAI {
 		}
 
 		// InitializableByEmptyListLiteral
-		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+		public init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
 			bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE)
 		{
 			self.init(from: SwiftType(), bound1: bound1, bound2: bound2)
 		}
 
 		// InitializableBySwifttypeAsList
-		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+		public init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
 			from swiftValue: SwiftType, bound1: I1, bound2: I2?)
 		{
 			self.bound1 = bound1.possiblyAsSwiftInt ?? 0
@@ -367,7 +369,7 @@ extension SDAI {
 		}
 
 		// InitializableBySelecttypeAsList
-		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S: SDAISelectType>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(
 			bound1: I1, bound2: I2?, _ select: S?)
 		{
 			guard let fundamental = Self.init(possiblyFrom: select) else { return nil }
@@ -375,7 +377,7 @@ extension SDAI {
 		}
 
 		// InitializableByListLiteral
-		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
 			bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
 		{
 			self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT.convert(fromGeneric: $0) }
@@ -384,7 +386,7 @@ extension SDAI {
 		
 		//MARK: Aggregation operator support
 		//MARK: Intersection
-		private func intersectionWith<S: SwiftDictRepresentable>(other: S) -> [ELEMENT.FundamentalType]
+		private func intersectionWith<S: SDAI.SwiftDictRepresentable>(other: S) -> [ELEMENT.FundamentalType]
 		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
 			var result: [ELEMENT.FundamentalType] = []
 			let selfDict = self.asSwiftDict
@@ -416,7 +418,7 @@ extension SDAI {
 		}
 		
 		//MARK: Union
-		private func unionWith<S: SDAIAggregationSequence>(other: S) -> SwiftType
+		private func unionWith<S: SDAI.AggregationSequence>(other: S) -> SwiftType
 		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
 //			assert(self.observer == nil)
 			var result = self.rep
@@ -424,19 +426,19 @@ extension SDAI {
 			return result
 		}
 		
-		public func unionWith<U: SDAIBagType>(rhs: U) -> SDAI.BAG<ELEMENT>? 
+		public func unionWith<U: SDAI.BagType>(rhs: U) -> SDAI.BAG<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.unionWith(other: rhs)
 			return BAG(from: result, bound1: 0, bound2: _Infinity)
 		}
 
-		public func unionWith<U: SDAIListType>(rhs: U) -> SDAI.BAG<ELEMENT>?
+		public func unionWith<U: SDAI.ListType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.unionWith(other: rhs)
 			return BAG(from: result, bound1: 0, bound2: _Infinity)
 		}
 
-		public func unionWith<U: SDAIGenericType>(rhs: U) -> SDAI.BAG<ELEMENT>?
+		public func unionWith<U: SDAI.GenericType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 		where ELEMENT.FundamentalType == U.FundamentalType {
 			var result = self.rep
 			result.append(ELEMENT.convert(from: rhs.asFundamentalType))
@@ -466,7 +468,7 @@ extension SDAI {
 		}
 
 		//MARK: Difference
-		private func differenceWith<S: SwiftDictRepresentable>(other: S) -> [ELEMENT.FundamentalType]
+		private func differenceWith<S: SDAI.SwiftDictRepresentable>(other: S) -> [ELEMENT.FundamentalType]
 		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
 			var result: [ELEMENT.FundamentalType] = []
 			let selfDict = self.asSwiftDict
@@ -485,13 +487,13 @@ extension SDAI {
 			return result
 		}
 
-		public func differenceWith<U: SDAIBagType>(rhs: U) -> SDAI.BAG<ELEMENT>? 
+		public func differenceWith<U: SDAI.BagType>(rhs: U) -> SDAI.BAG<ELEMENT>? 
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.differenceWith(other: rhs)
 			return BAG(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
 
-		public func differenceWith<U: SDAIGenericType>(rhs: U) -> SDAI.BAG<ELEMENT>?
+		public func differenceWith<U: SDAI.GenericType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 		where ELEMENT.FundamentalType == U.FundamentalType {
 			var selfDict = self.asSwiftDict
 			if let selfCount = selfDict[rhs.asFundamentalType] {
@@ -577,15 +579,15 @@ extension SDAI {
 }
 
 
-extension SDAI.BAG: SDAIFundamentalAggregationType {}
+extension SDAI.BAG: SDAI.FundamentalAggregationType {}
 
-extension SDAI.BAG: SDAIEntityReferenceYielding
-where ELEMENT: SDAIEntityReferenceYielding
+extension SDAI.BAG: SDAI.EntityReferenceYielding
+where ELEMENT: SDAI.EntityReferenceYielding
 { }
 
 
-extension SDAI.BAG: SDAIDualModeReference
-where ELEMENT: SDAIDualModeReference
+extension SDAI.BAG: SDAI.DualModeReference
+where ELEMENT: SDAI.DualModeReference
 {
 	public var pRef: SDAI.BAG<ELEMENT.PRef> {
 		let converted = self.map{ $0.pRef }
@@ -593,8 +595,8 @@ where ELEMENT: SDAIDualModeReference
 	}
 }
 
-extension SDAI.BAG: SDAIPersistentReference
-where ELEMENT: SDAIPersistentReference
+extension SDAI.BAG: SDAI.PersistentReference
+where ELEMENT: SDAI.PersistentReference
 {
 	public var aRef: SDAI.BAG<ELEMENT.ARef> {
 		let converted = self.map{ $0.aRef }
@@ -613,17 +615,17 @@ where ELEMENT: SDAIPersistentReference
 extension SDAI.BAG: SDAI.InitializableBySelecttypeBag, SDAI.InitializableBySelecttypeSet
 where ELEMENT: SDAI.InitializableBySelectType
 {
-	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, _ bagtype: T?) 
-	where T.ELEMENT: SDAISelectType
+	where T.ELEMENT: SDAI.SelectType
 	{
 		guard let bagtype = bagtype else { return nil }
 		self.init(bound1: bound1, bound2: bound2, [bagtype]){ ELEMENT.convert(sibling: $0) }
 	}
 	
-	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
 		bound1: I1, bound2: I2?, _ settype: T?)
-	where T.ELEMENT: SDAISelectType
+	where T.ELEMENT: SDAI.SelectType
 	{
 		guard let settype = settype else { return nil }
 		self.init(bound1: bound1, bound2: bound2, [settype]){ ELEMENT.convert(sibling: $0) }
@@ -635,7 +637,7 @@ where ELEMENT: SDAI.InitializableBySelectType
 extension SDAI.BAG: SDAI.InitializableByEntityBag, SDAI.InitializableByEntitySet
 where ELEMENT: SDAI.InitializableByComplexEntity
 {
-	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -645,7 +647,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 		}		
 	}
 
-	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
 		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -655,9 +657,9 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 		}		
 	}
 
-	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)
-	where T.ELEMENT: SDAIPersistentReference,
+	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
 		guard let bagtype = bagtype else { return nil }
@@ -666,9 +668,9 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 		}
 	}
 
-	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
 		bound1: I1, bound2: I2?, _ settype: T?)
-	where T.ELEMENT: SDAIPersistentReference,
+	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
 		guard let settype = settype else { return nil }
@@ -683,17 +685,17 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 extension SDAI.BAG: SDAI.InitializableByDefinedtypeBag, SDAI.InitializableByDefinedtypeSet 
 where ELEMENT: SDAI.InitializableByDefinedType
 {
-	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)
-	where T.ELEMENT: SDAIUnderlyingType
+	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		guard let bagtype = bagtype else { return nil }
 		self.init(bound1: bound1, bound2: bound2, [bagtype]) { ELEMENT.convert(sibling: $0) }
 	}
 	
-	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
 		bound1: I1, bound2: I2?, _ settype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType
+	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		guard let settype = settype else { return nil }
 		self.init(bound1: bound1, bound2: bound2, [settype]) { ELEMENT.convert(sibling: $0) }

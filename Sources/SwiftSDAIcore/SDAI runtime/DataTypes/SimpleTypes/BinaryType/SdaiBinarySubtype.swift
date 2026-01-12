@@ -9,13 +9,13 @@
 import Foundation
 
 //MARK: - BINARY subtype (8.1.7, 8.3.2)
-public protocol SDAI__BINARY__subtype: SDAI__BINARY__type, SDAIDefinedType
+public protocol SDAI__BINARY__subtype: SDAI__BINARY__type, SDAI.DefinedType
 where Supertype: SDAI__BINARY__type
 {}
 public extension SDAI__BINARY__subtype
 {
 	// InitializableByGenerictype
-	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType.convert(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
 	}
@@ -26,7 +26,7 @@ public extension SDAI__BINARY__subtype
     self.init(fundamental: fundamental)
   }
 
-  // SDAISimpleType \SDAI__BINARY__type\SDAI__BINARY__subtype
+  // SDAI.SimpleType \SDAI__BINARY__type\SDAI__BINARY__subtype
 	init(from swiftValue: SwiftType) {
 		self.init(fundamental: FundamentalType(from: swiftValue))
 	}

@@ -12,12 +12,12 @@ extension SDAI {
 	@dynamicMemberLookup
 	public final class PersistentEntityReference<EREF>:
     GenericPersistentEntityReference, @unchecked Sendable,
-		SDAIPersistentReference,
+		SDAI.PersistentReference,
 		InitializableByComplexEntity,
-		SDAIEntityReferenceYielding
+		SDAI.EntityReferenceYielding
   where EREF: SDAI.EntityReference & SDAI.InitializableByP21Parameter
 	{
-		//MARK: SDAIPersistentReference
+		//MARK: SDAI.PersistentReference
 		public typealias ARef = EREF
 
 		public var aRef: EREF { self.instance }
@@ -170,7 +170,7 @@ extension SDAI {
 
 
 		//MARK: group reference
-		public func GROUP_REF<SUPER:EntityReference & SDAIDualModeReference>(
+		public func GROUP_REF<SUPER:EntityReference & SDAI.DualModeReference>(
 			_ super_ref: SUPER.Type
 		) -> SUPER.PRef?
 		{
@@ -181,7 +181,7 @@ extension SDAI {
 
 
 		//MARK: InitializableByGenericType
-		public required convenience init?<G: SDAIGenericType>(
+		public required convenience init?<G: SDAI.GenericType>(
       fromGeneric generic: G?)
     {
 			if let pref = generic as? Self {
@@ -225,7 +225,7 @@ extension SDAI {
 
 
 
-//MARK: SDAIGenericType
+//MARK: SDAI.GenericType
 
     public convenience required init(
       fundamental eref: FundamentalType)
@@ -236,7 +236,7 @@ extension SDAI {
 
     public class override var ERefType: EntityReference.Type { EREF.self }
 
-//MARK: SDAIEntityReferenceYielding
+//MARK: SDAI.EntityReferenceYielding
 		public var entityReferences: AnySequence<SDAI.EntityReference> {
 			self.eval?.entityReferences ?? AnySequence()
 		}
@@ -252,7 +252,7 @@ extension SDAI {
 }//SDAI
 
 extension SDAI.PersistentEntityReference
-where EREF: SDAISimpleEntityType
+where EREF: SDAI.SimpleEntityType
 {
 	public convenience init?(_ partial: EREF.SimplePartialEntity?)
 	{

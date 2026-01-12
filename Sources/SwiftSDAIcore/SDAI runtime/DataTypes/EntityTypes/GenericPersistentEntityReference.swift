@@ -10,7 +10,7 @@ import Foundation
 extension SDAI {
 
   public class GenericPersistentEntityReference: @unchecked Sendable,
-  SDAIGenericType,
+  SDAI.GenericType,
   Hashable, CustomStringConvertible
   {
     internal let complexReference: ComplexEntityReference
@@ -167,7 +167,7 @@ extension SDAI {
     }
 
     //MAREK: InitializableByGenericType
-    public required convenience init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+    public required convenience init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
       if let pref = generic as? Self {
         self.init(pref.complexReference)
       }
@@ -179,7 +179,7 @@ extension SDAI {
       }
     }
 
-    public class func convert<G: SDAIGenericType>(fromGeneric generic: G?) -> Self?
+    public class func convert<G: SDAI.GenericType>(fromGeneric generic: G?) -> Self?
     {
       guard let eref = ERefType.convert(fromGeneric: generic) else { return nil }
 
@@ -214,7 +214,7 @@ extension SDAI {
     }
 
 
-    //MARK: SDAIGenericType
+    //MARK: SDAI.GenericType
     public func copy() -> Self
     {
       self
@@ -255,12 +255,12 @@ extension SDAI {
     public var integerValue: SDAI.INTEGER? {nil}
     public var genericEnumValue: SDAI.GenericEnumValue? {nil}
 
-    public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
-    public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
-    public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
-    public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
-    public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
-    public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
+    public func arrayOptionalValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+    public func arrayValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+    public func listValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
+    public func bagValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+    public func setValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+    public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
     public static func validateWhereRules(
       instance: SDAI.GenericPersistentEntityReference?,

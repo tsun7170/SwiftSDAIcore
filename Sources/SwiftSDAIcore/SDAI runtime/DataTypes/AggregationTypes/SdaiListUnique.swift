@@ -13,7 +13,7 @@ public protocol SDAI__LIST_UNIQUE__type: SDAI__LIST__subtype {}
 public protocol SDAI__LIST_UNIQUE__subtype: SDAI__LIST_UNIQUE__type {}
 
 extension SDAI {
-	public struct LIST_UNIQUE<ELEMENT:SDAIGenericType>: SDAI__LIST_UNIQUE__type
+	public struct LIST_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI__LIST_UNIQUE__type
 	{
 		
 		public typealias Supertype = SDAI.LIST<ELEMENT>
@@ -34,7 +34,7 @@ extension SDAI {
 			rep = Supertype(fundamental: fundamental)
 		}
 		
-		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let repval = generic?.listValue(elementType: ELEMENT.self) else { return nil }
 			rep = repval
 		}
@@ -59,10 +59,10 @@ extension SDAI {
 }
 
 
-extension SDAI.LIST_UNIQUE: SDAIEntityReferenceYielding
-where ELEMENT: SDAIEntityReferenceYielding
+extension SDAI.LIST_UNIQUE: SDAI.EntityReferenceYielding
+where ELEMENT: SDAI.EntityReferenceYielding
 {}
 
-extension SDAI.LIST_UNIQUE: SDAIDualModeReference
-where ELEMENT: SDAIDualModeReference
+extension SDAI.LIST_UNIQUE: SDAI.DualModeReference
+where ELEMENT: SDAI.DualModeReference
 {}

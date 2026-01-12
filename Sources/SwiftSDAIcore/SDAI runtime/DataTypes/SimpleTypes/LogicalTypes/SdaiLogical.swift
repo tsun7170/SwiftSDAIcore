@@ -8,31 +8,34 @@
 
 import Foundation
 
-public protocol SwiftBoolConvertible
-{
-	var possiblyAsSwiftBool: Bool? {get}
-	var asSwiftBool: Bool {get}
+extension SDAI {
+  public protocol SwiftBoolConvertible
+  {
+    var possiblyAsSwiftBool: Bool? {get}
+    var asSwiftBool: Bool {get}
+  }
 }
-
 
 //MARK: - LOGICAL type (8.1.4)
-public protocol SDAILogicalType: SDAISimpleType, ExpressibleByBooleanLiteral,
-                                 SwiftBoolConvertible, SDAI.InitializableByVoid
-{
-	var isTRUE: Bool {get}
-	var isFALSE: Bool {get}
-	var isUNKNOWN: Bool {get}
-	var possiblyAsSwiftBool: Bool? {get}
+extension SDAI {
+  public protocol LogicalType: SDAI.SimpleType, ExpressibleByBooleanLiteral,
+                                   SDAI.SwiftBoolConvertible, SDAI.InitializableByVoid
+  {
+    var isTRUE: Bool {get}
+    var isFALSE: Bool {get}
+    var isUNKNOWN: Bool {get}
+    var possiblyAsSwiftBool: Bool? {get}
+  }
 }
 
-public protocol SDAI__LOGICAL__type: SDAILogicalType, ExpressibleByNilLiteral 
+public protocol SDAI__LOGICAL__type: SDAI.LogicalType, ExpressibleByNilLiteral
 where FundamentalType == SDAI.LOGICAL,
 			Value == FundamentalType.Value,
 			SwiftType == FundamentalType.SwiftType
 {
 	init(_ bool: Bool?)
-	init<T:SDAILogicalType>(_ subtype: T?)
-	init<T:SDAILogicalType>(_ subtype: T)
+	init<T:SDAI.LogicalType>(_ subtype: T?)
+	init<T:SDAI.LogicalType>(_ subtype: T)
 }
 public extension SDAI__LOGICAL__type
 {
@@ -52,10 +55,10 @@ public extension SDAI__LOGICAL__type
 	init(nilLiteral: ()) {
 		self.init(from: nil as SwiftType)
 	}
-	init<T:SDAILogicalType>(_ subtype: T?) {
+	init<T:SDAI.LogicalType>(_ subtype: T?) {
 		self.init(from: subtype?.possiblyAsSwiftBool)
 	}
-	init<T:SDAILogicalType>(_ subtype: T) {
+	init<T:SDAI.LogicalType>(_ subtype: T) {
 		self.init(from: subtype.possiblyAsSwiftBool)
 	}
 }
@@ -78,7 +81,7 @@ extension SDAI {
 			}
 		}
 		
-		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__LOGICAL__type
+		// SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__LOGICAL__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(from: Self.typeName)]
 		}
@@ -99,12 +102,12 @@ extension SDAI {
 		public var integerValue: SDAI.INTEGER? {nil}
 		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
 		
-		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
-		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
-		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
-		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
-		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
-		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
+		public func arrayOptionalValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+		public func arrayValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+		public func listValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
+		public func bagValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+		public func setValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+		public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		public static func validateWhereRules(
 			instance:Self?,
@@ -112,22 +115,22 @@ extension SDAI {
 		) -> SDAIPopulationSchema.WhereRuleValidationRecords { return [:] }
 
 		// InitializableByGenerictype
-		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let logicalValue = generic?.logicalValue else { return nil }
 			self.init(logicalValue)
 		}
 
-		// SDAIUnderlyingType \SDAISimpleType\SDAI__LOGICAL__type
+		// SDAI.UnderlyingType \SDAI.SimpleType\SDAI__LOGICAL__type
 		public static let typeName: String = "LOGICAL"
 		public var asSwiftType: SwiftType { return rep }
 		
-		// SDAIGenericType
+		// SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(fundamental.rep)
 		}
 
-		// SDAISimpleType \SDAI__LOGICAL__type
+		// SDAI.SimpleType \SDAI__LOGICAL__type
 		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
@@ -136,7 +139,7 @@ extension SDAI {
 		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
-			if let rhs = rhs as? SwiftBoolConvertible { return self.possiblyAsSwiftBool == rhs.possiblyAsSwiftBool }
+			if let rhs = rhs as? SDAI.SwiftBoolConvertible { return self.possiblyAsSwiftBool == rhs.possiblyAsSwiftBool }
 			return false
 		}
 		

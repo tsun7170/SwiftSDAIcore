@@ -14,7 +14,7 @@ public enum P21Decode {
 	public typealias ValueInstanceName = Int
 	public typealias ConstantName = String
 	public typealias SchemaName = ExchangeStructure.HeaderSection.FILE_SCHEMA.SCHEMA_NAME
-	public typealias SchemaList = KeyValuePairs<SchemaName,SDAISchema.Type>
+	public typealias SchemaList = KeyValuePairs<SchemaName,SDAI.SchemaType.Type>
 	
 	/// p21 stream error info
 	public struct P21Error: Error, Equatable {

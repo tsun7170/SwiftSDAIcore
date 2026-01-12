@@ -126,7 +126,7 @@ extension SDAIDictionarySchema {
 				self.supertypes.append(supertype)
 			}
 
-			public func addAttribute<ENT: SDAI.EntityReference,T: SDAIGenericType>(
+			public func addAttribute<ENT: SDAI.EntityReference,T: SDAI.GenericType>(
 				name:ExpressId,
 				keyPath: KeyPath<ENT,T>,
 				kind: AttributeKind,
@@ -142,7 +142,7 @@ extension SDAIDictionarySchema {
 				self.attributes[name] = attrdef
 			}
 
-			public func addAttribute<ENT: SDAI.EntityReference,T: SDAIGenericType>(
+			public func addAttribute<ENT: SDAI.EntityReference,T: SDAI.GenericType>(
 				name:ExpressId,
 				keyPath: KeyPath<ENT,T?>,
 				kind: AttributeKind,

@@ -13,13 +13,13 @@ import Foundation
 //MARK: numeric type vs. numeric type
 /// Numeric Instance Equal: Int .===. Int = LOGICAL
 ///
-public func .===. <TI: SDAIIntRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+public func .===. <TI: SDAI.IntRepresentedNumberType, UI: SDAI.IntRepresentedNumberType>(
   lhs: TI?, rhs: UI?) -> SDAI.LOGICAL
 { lhs .==. rhs }
 
 /// Numeric Instance NotEqual: Int .!==. Int = LOGICAL
 ///
-public func .!==. <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresentedNumberType>(
+public func .!==. <T: SDAI.IntRepresentedNumberType, U: SDAI.IntRepresentedNumberType>(
   lhs: T?, rhs: U?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -27,13 +27,13 @@ public func .!==. <T: SDAIIntRepresentedNumberType, U: SDAIIntRepresentedNumberT
 
 /// Numeric Instance Equal: Int .===. Double = LOGICAL
 ///
-public func .===. <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+public func .===. <TI: SDAI.IntRepresentedNumberType, UD: SDAI.DoubleRepresentedNumberType>(
   lhs: TI?, rhs: UD?) -> SDAI.LOGICAL
 { lhs .==. rhs }
 
 /// Numeric Instance NotEqual: Int .!==. Double = LOGICAL
 ///
-public func .!==. <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+public func .!==. <TI: SDAI.IntRepresentedNumberType, UD: SDAI.DoubleRepresentedNumberType>(
   lhs: TI?, rhs: UD?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -41,13 +41,13 @@ public func .!==. <TI: SDAIIntRepresentedNumberType, UD: SDAIDoubleRepresentedNu
 
 /// Numeric Instance Equal: Double .===. Double = LOGICAL
 ///
-public func .===. <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+public func .===. <TD: SDAI.DoubleRepresentedNumberType, UD: SDAI.DoubleRepresentedNumberType>(
   lhs: TD?, rhs: UD?) -> SDAI.LOGICAL
 { lhs .==. rhs }
 
 /// Numeric Instance NotEqual: Double .!==. Double = LOGICAL
 ///
-public func .!==. <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresentedNumberType>(
+public func .!==. <TD: SDAI.DoubleRepresentedNumberType, UD: SDAI.DoubleRepresentedNumberType>(
   lhs: TD?, rhs: UD?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -55,13 +55,13 @@ public func .!==. <TD: SDAIDoubleRepresentedNumberType, UD: SDAIDoubleRepresente
 
 /// Numeric Instance Equal: Double .===. Int = LOGICAL
 ///
-public func .===. <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+public func .===. <TD: SDAI.DoubleRepresentedNumberType, UI: SDAI.IntRepresentedNumberType>(
   lhs: TD?, rhs: UI?) -> SDAI.LOGICAL
 { lhs .==. rhs }
 
 /// Numeric Instance NotEqual: Double .!==. Int = LOGICAL
 ///
-public func .!==. <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresentedNumberType>(
+public func .!==. <TD: SDAI.DoubleRepresentedNumberType, UI: SDAI.IntRepresentedNumberType>(
   lhs: TD?, rhs: UI?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -69,26 +69,26 @@ public func .!==. <TD: SDAIDoubleRepresentedNumberType, UI: SDAIIntRepresentedNu
 //MARK: numeric vs. select
 /// Numeric Instance Equal: Int .===. Select = LOGICAL
 ///
-public func .===. <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+public func .===. <TI: SDAI.IntRepresentedNumberType, US: SDAI.SelectType>(
   lhs: TI?, rhs: US?) -> SDAI.LOGICAL
 { lhs .==. rhs }
 
 /// Numeric Instance NotEqual: Int .!==. Select = LOGICAL
 ///
-public func .!==. <TI: SDAIIntRepresentedNumberType, US: SDAISelectType>(
+public func .!==. <TI: SDAI.IntRepresentedNumberType, US: SDAI.SelectType>(
   lhs: TI?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
 
 /// Numeric Instance Equal: Double .===. Select = LOGICAL
 ///
-public func .===. <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+public func .===. <TD: SDAI.DoubleRepresentedNumberType, US: SDAI.SelectType>(
   lhs: TD?, rhs: US?) -> SDAI.LOGICAL
 { lhs .==. rhs }
 
 /// Numeric Instance NotEqual: Double .!==. Select = LOGICAL
 ///
-public func .!==. <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
+public func .!==. <TD: SDAI.DoubleRepresentedNumberType, US: SDAI.SelectType>(
   lhs: TD?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -96,26 +96,26 @@ public func .!==. <TD: SDAIDoubleRepresentedNumberType, US: SDAISelectType>(
 //MARK: select vs. numeric
 /// Numeric Instance Equal: Select .===. Int = LOGICAL
 ///
-public func .===. <TS: SDAISelectType, UI: SDAIIntRepresentedNumberType>(
+public func .===. <TS: SDAI.SelectType, UI: SDAI.IntRepresentedNumberType>(
   lhs: TS?, rhs: UI?) -> SDAI.LOGICAL
 { rhs .===. lhs }
 
 /// Numeric Instance NotEqual: Select .!==. Int = LOGICAL
 ///
-public func .!==. <TS: SDAISelectType, UI: SDAIIntRepresentedNumberType>(
+public func .!==. <TS: SDAI.SelectType, UI: SDAI.IntRepresentedNumberType>(
   lhs: TS?, rhs: UI?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
 
 /// Numeric Instance Equal: Select .===. Double = LOGICAL
 ///
-public func .===. <TS: SDAISelectType, UD: SDAIDoubleRepresentedNumberType>(
+public func .===. <TS: SDAI.SelectType, UD: SDAI.DoubleRepresentedNumberType>(
   lhs: TS?, rhs: UD?) -> SDAI.LOGICAL
 { rhs .===. lhs }
 
 /// Numeric Instance NotEqual: Select .!==. Double = LOGICAL
 ///
-public func .!==. <TS: SDAISelectType, UD: SDAIDoubleRepresentedNumberType>(
+public func .!==. <TS: SDAI.SelectType, UD: SDAI.DoubleRepresentedNumberType>(
   lhs: TS?, rhs: UD?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -123,13 +123,13 @@ public func .!==. <TS: SDAISelectType, UD: SDAIDoubleRepresentedNumberType>(
 //MARK: logical type vs. logical type
 /// Logical Instance Equal: Logical .===. Logical = LOGICAL
 ///
-public func .===. <TL: SDAILogicalType, UL: SDAILogicalType>(
+public func .===. <TL: SDAI.LogicalType, UL: SDAI.LogicalType>(
   lhs: TL?, rhs: UL?) -> SDAI.LOGICAL
 { lhs .==. rhs }
 
 /// Logical Instance NotEqual: Logical .!==. Logical = LOGICAL
 ///
-public func .!==. <TL: SDAILogicalType, UL: SDAILogicalType>(
+public func .!==. <TL: SDAI.LogicalType, UL: SDAI.LogicalType>(
   lhs: TL?, rhs: UL?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -137,13 +137,13 @@ public func .!==. <TL: SDAILogicalType, UL: SDAILogicalType>(
 //MARK: logical type vs. select
 /// Logical Instance Equal: Logical .===. Select = LOGICAL
 ///
-public func .===. <TL: SDAILogicalType, US: SDAISelectType>(
+public func .===. <TL: SDAI.LogicalType, US: SDAI.SelectType>(
   lhs: TL?, rhs: US?) -> SDAI.LOGICAL
 { lhs .==. rhs }
 
 /// Logical Instance NotEqual: Logical .!==. Select = LOGICAL
 ///
-public func .!==. <TL: SDAILogicalType, US: SDAISelectType>(
+public func .!==. <TL: SDAI.LogicalType, US: SDAI.SelectType>(
   lhs: TL?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -151,13 +151,13 @@ public func .!==. <TL: SDAILogicalType, US: SDAISelectType>(
 //MARK: select vs. logical type
 /// Logical Instance Equal: Select .===. Logical = LOGICAL
 ///
-public func .===. <TS: SDAISelectType, UL: SDAILogicalType>(
+public func .===. <TS: SDAI.SelectType, UL: SDAI.LogicalType>(
   lhs: TS?, rhs: UL?) -> SDAI.LOGICAL
 { rhs .===. lhs }
 
 /// Logical Instance NotEqual: Select .!==. Logical = LOGICAL
 ///
-public func .!==. <TS: SDAISelectType, UL: SDAILogicalType>(
+public func .!==. <TS: SDAI.SelectType, UL: SDAI.LogicalType>(
   lhs: TS?, rhs: UL?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -165,13 +165,13 @@ public func .!==. <TS: SDAISelectType, UL: SDAILogicalType>(
 //MARK: string type vs. string type
 /// String Instance Equal: String .===. String = LOGICAL
 ///
-public func .===. <TX: SwiftStringRepresented, UX: SwiftStringRepresented>(
+public func .===. <TX: SDAI.SwiftStringRepresented, UX: SDAI.SwiftStringRepresented>(
   lhs: TX?, rhs: UX?) -> SDAI.LOGICAL
 { lhs .==. rhs }
 
 /// String Instance NotEqual: String .!==. String = LOGICAL
 ///
-public func .!==. <TX: SwiftStringRepresented, UX: SwiftStringRepresented>(
+public func .!==. <TX: SDAI.SwiftStringRepresented, UX: SDAI.SwiftStringRepresented>(
   lhs: TX?, rhs: UX?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -179,13 +179,13 @@ public func .!==. <TX: SwiftStringRepresented, UX: SwiftStringRepresented>(
 //MARK: string type vs. select
 /// String Instance Equal: String .===. Select = LOGICAL
 ///
-public func .===. <TX: SwiftStringRepresented, US: SDAISelectType>(
+public func .===. <TX: SDAI.SwiftStringRepresented, US: SDAI.SelectType>(
   lhs: TX?, rhs: US?) -> SDAI.LOGICAL
 { lhs .==. rhs }
 
 /// String Instance NotEqual: String .!==. Select = LOGICAL
 ///
-public func .!==. <TX: SwiftStringRepresented, US: SDAISelectType>(
+public func .!==. <TX: SDAI.SwiftStringRepresented, US: SDAI.SelectType>(
   lhs: TX?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -193,13 +193,13 @@ public func .!==. <TX: SwiftStringRepresented, US: SDAISelectType>(
 //MARK: select vs. string type
 /// String Instance Equal: Select .===. String = LOGICAL
 ///
-public func .===. <TS: SDAISelectType, UX: SwiftStringRepresented>(
+public func .===. <TS: SDAI.SelectType, UX: SDAI.SwiftStringRepresented>(
   lhs: TS?, rhs: UX?) -> SDAI.LOGICAL
 { rhs .===. lhs }
 
 /// String Instance NotEqual: Select .!==. String = LOGICAL
 ///
-public func .!==. <TS: SDAISelectType, UX: SwiftStringRepresented>(
+public func .!==. <TS: SDAI.SelectType, UX: SDAI.SwiftStringRepresented>(
   lhs: TS?, rhs: UX?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -207,13 +207,13 @@ public func .!==. <TS: SDAISelectType, UX: SwiftStringRepresented>(
 //MARK: binary type vs. binary type
 /// Binary Instance Equal: Binary .===. Binary = LOGICAL
 ///
-public func .===. <TB: SDAIBinaryType, UB: SDAIBinaryType>(
+public func .===. <TB: SDAI.BinaryType, UB: SDAI.BinaryType>(
   lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
 { lhs .==. rhs }
 
 /// Binary Instance NotEqual: Binary .!==. Binary = LOGICAL
 ///
-public func .!==. <TB: SDAIBinaryType, UB: SDAIBinaryType>(
+public func .!==. <TB: SDAI.BinaryType, UB: SDAI.BinaryType>(
   lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -221,13 +221,13 @@ public func .!==. <TB: SDAIBinaryType, UB: SDAIBinaryType>(
 //MARK: binary type vs. select
 /// Binary Instance Equal: Binary .===. Select = LOGICAL
 ///
-public func .===. <TB: SDAIBinaryType, US: SDAISelectType>(
+public func .===. <TB: SDAI.BinaryType, US: SDAI.SelectType>(
   lhs: TB?, rhs: US?) -> SDAI.LOGICAL
 { lhs .==. rhs }
 
 /// Binary Instance NotEqual: Binary .!==. Select = LOGICAL
 ///
-public func .!==. <TB: SDAIBinaryType, US: SDAISelectType>(
+public func .!==. <TB: SDAI.BinaryType, US: SDAI.SelectType>(
   lhs: TB?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -235,13 +235,13 @@ public func .!==. <TB: SDAIBinaryType, US: SDAISelectType>(
 //MARK: select vs. binary type
 /// Binary Instance Equal: Select .===. Binary = LOGICAL
 ///
-public func .===. <TS: SDAISelectType, UB: SDAIBinaryType>(
+public func .===. <TS: SDAI.SelectType, UB: SDAI.BinaryType>(
   lhs: TS?, rhs: UB?) -> SDAI.LOGICAL
 { rhs .===. lhs }
 
 /// Binary Instance NotEqual: Select .!==. Binary = LOGICAL
 ///
-public func .!==. <TS: SDAISelectType, UB: SDAIBinaryType>(
+public func .!==. <TS: SDAI.SelectType, UB: SDAI.BinaryType>(
   lhs: TS?, rhs: UB?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -249,14 +249,14 @@ public func .!==. <TS: SDAISelectType, UB: SDAIBinaryType>(
 //MARK: enum type vs. enum type
 /// Enumeration Instance Equal: Enum .===. Enum = LOGICAL
 ///
-public func .===. <TE: SDAIEnumerationType, UE: SDAIEnumerationType>(
+public func .===. <TE: SDAI.EnumerationType, UE: SDAI.EnumerationType>(
   lhs: TE?, rhs: UE?) -> SDAI.LOGICAL
 where TE.FundamentalType == UE.FundamentalType
 { lhs .==. rhs }
 
 /// Enumeration Instance NotEqual: Enum .!==. Enum = LOGICAL
 ///
-public func .!==. <TE: SDAIEnumerationType, UE: SDAIEnumerationType>(
+public func .!==. <TE: SDAI.EnumerationType, UE: SDAI.EnumerationType>(
   lhs: TE?, rhs: UE?) -> SDAI.LOGICAL
 where TE.FundamentalType == UE.FundamentalType
 { !(lhs .===. rhs) }
@@ -265,13 +265,13 @@ where TE.FundamentalType == UE.FundamentalType
 //MARK: enum type vs. select
 /// Enumeration Instance Equal: Enum .===. Select = LOGICAL
 ///
-public func .===. <TE: SDAIEnumerationType,US: SDAISelectType>(
+public func .===. <TE: SDAI.EnumerationType,US: SDAI.SelectType>(
   lhs: TE?, rhs: US?) -> SDAI.LOGICAL
 { lhs .==. rhs }
 
 /// Enumeration Instance NotEqual: Enum .!==. Select = LOGICAL
 ///
-public func .!==. <TE: SDAIEnumerationType,US: SDAISelectType>(
+public func .!==. <TE: SDAI.EnumerationType,US: SDAI.SelectType>(
   lhs: TE?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -279,13 +279,13 @@ public func .!==. <TE: SDAIEnumerationType,US: SDAISelectType>(
 //MARK: select vs. enum type
 /// Enumeration Instance Equal: Select .===. Enum = LOGICAL
 ///
-public func .===. <TS: SDAISelectType,UE: SDAIEnumerationType>(
+public func .===. <TS: SDAI.SelectType,UE: SDAI.EnumerationType>(
   lhs: TS?, rhs: UE?) -> SDAI.LOGICAL
 { rhs .===. lhs }
 
 /// Enumeration Instance NotEqual: Select .!==. Enum = LOGICAL
 ///
-public func .!==. <TS: SDAISelectType,UE: SDAIEnumerationType>(
+public func .!==. <TS: SDAI.SelectType,UE: SDAI.EnumerationType>(
   lhs: TS?, rhs: UE?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
@@ -293,7 +293,7 @@ public func .!==. <TS: SDAISelectType,UE: SDAIEnumerationType>(
 //MARK: select vs. select
 /// Generic Instance Equal: Select .===. Select = LOGICAL
 ///
-public func .===. <TS: SDAISelectType, US: SDAISelectType>(
+public func .===. <TS: SDAI.SelectType, US: SDAI.SelectType>(
   lhs: TS?, rhs: US?) -> SDAI.LOGICAL
 {
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
@@ -302,7 +302,7 @@ public func .===. <TS: SDAISelectType, US: SDAISelectType>(
 
 /// Generic Instance NotEqual: Select .!==. Select = LOGICAL
 ///
-public func .!==. <TS: SDAISelectType, US: SDAISelectType>(
+public func .!==. <TS: SDAI.SelectType, US: SDAI.SelectType>(
   lhs: TS?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 

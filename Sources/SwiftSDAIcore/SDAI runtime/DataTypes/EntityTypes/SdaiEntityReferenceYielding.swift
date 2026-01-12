@@ -7,20 +7,22 @@
 
 import Foundation
 
-public protocol SDAIEntityReferenceYielding
-{
-  var entityReferences: AnySequence<SDAI.EntityReference> { get }
+extension SDAI {
+  public protocol EntityReferenceYielding
+  {
+    var entityReferences: AnySequence<SDAI.EntityReference> { get }
 
-  var persistentEntityReferences: AnySequence<SDAI.GenericPersistentEntityReference> { get }
+    var persistentEntityReferences: AnySequence<SDAI.GenericPersistentEntityReference> { get }
 
-	func isHolding(entityReference: SDAI.EntityReference) -> Bool
+    func isHolding(entityReference: SDAI.EntityReference) -> Bool
 
+  }
 }
 
-//MARK: - SDAIDefinedType extension
-public extension SDAIDefinedType
-where Self: SDAIEntityReferenceYielding,
-			Supertype: SDAIEntityReferenceYielding
+//MARK: - SDAI.DefinedType extension
+public extension SDAI.DefinedType
+where Self: SDAI.EntityReferenceYielding,
+			Supertype: SDAI.EntityReferenceYielding
 {
   var entityReferences: AnySequence<SDAI.EntityReference> {
     return rep.entityReferences

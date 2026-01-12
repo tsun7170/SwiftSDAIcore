@@ -7,52 +7,60 @@
 
 import Foundation
 
-public protocol SdaiNumberRepType : SignedNumeric, Strideable
-{}
-extension Double: SdaiNumberRepType {}
-extension Int: SdaiNumberRepType {}
+extension SDAI {
+  public protocol NumberRepType : SignedNumeric, Strideable
+  {}
+}
+
+extension Double: SDAI.NumberRepType {}
+extension Int: SDAI.NumberRepType {}
 
 //MARK: - Double represented
-public protocol SDAIDoubleRepresented
-{
-	var asSwiftDouble: Double {get}
+extension SDAI {
+  public protocol DoubleRepresented
+  {
+    var asSwiftDouble: Double {get}
+  }
 }
 
 //MARK: - Int represented
-public protocol SDAIIntRepresented: SwiftDoubleConvertible
-{
-	var asSwiftInt: Int {get}
+extension SDAI {
+  public protocol IntRepresented: SDAI.SwiftDoubleConvertible
+  {
+    var asSwiftInt: Int {get}
+  }
 }
-
 
 //MARK: - Double convertible
-public protocol SwiftDoubleConvertible
-{
-	var possiblyAsSwiftDouble: Double? {get}
-	var asSwiftDouble: Double {get}
+extension SDAI {
+  public protocol SwiftDoubleConvertible
+  {
+    var possiblyAsSwiftDouble: Double? {get}
+    var asSwiftDouble: Double {get}
+  }
 }
 
-extension Double: SwiftDoubleConvertible, SDAIDoubleRepresented
+extension Double: SDAI.SwiftDoubleConvertible, SDAI.DoubleRepresented
 {
 	public var asSwiftDouble: Double { return self }
 	public var possiblyAsSwiftDouble: Double? { return self }
 }
 
-extension Int: SwiftDoubleConvertible
+extension Int: SDAI.SwiftDoubleConvertible
 {
 	public var possiblyAsSwiftDouble: Double? { return Double(self) }
 	public var asSwiftDouble: Double { return Double(self) }
 }
 
-public extension SwiftDoubleConvertible
-where Self: SDAIDoubleRepresentedNumberType
+public extension SDAI.SwiftDoubleConvertible
+where Self: SDAI.DoubleRepresentedNumberType
 {
 	var possiblyAsSwiftDouble: Double? { return self.asSwiftType }
 	var asSwiftDouble: Double { return self.asSwiftType }
 }
 
-public extension SwiftDoubleConvertible
-where Self: SDAIIntRepresentedNumberType
+public extension SDAI.SwiftDoubleConvertible
+where Self: SDAI.IntRepresentedNumberType
 {
 	var possiblyAsSwiftDouble: Double? { return Double(self.asSwiftType) }
 	var asSwiftDouble: Double { return Double(self.asSwiftType) }
@@ -60,20 +68,22 @@ where Self: SDAIIntRepresentedNumberType
 
 
 //MARK: - Int convertible
-public protocol SwiftIntConvertible
-{
-	var possiblyAsSwiftInt: Int? {get}
-	var asSwiftInt: Int {get}
+extension SDAI {
+  public protocol SwiftIntConvertible
+  {
+    var possiblyAsSwiftInt: Int? {get}
+    var asSwiftInt: Int {get}
+  }
 }
 
-extension Int: SwiftIntConvertible, SDAIIntRepresented
+extension Int: SDAI.SwiftIntConvertible, SDAI.IntRepresented
 {
 	public var asSwiftInt: Int { return self }
 	public var possiblyAsSwiftInt: Int? { return self }
 }
 
-public extension SwiftIntConvertible
-where Self: SDAIIntRepresentedNumberType
+public extension SDAI.SwiftIntConvertible
+where Self: SDAI.IntRepresentedNumberType
 {
 	var possiblyAsSwiftInt: Int? { return self.asSwiftType }
 	var asSwiftInt: Int { return self.asSwiftType }
@@ -81,19 +91,21 @@ where Self: SDAIIntRepresentedNumberType
 
 
 //MARK: - NUMBER type (8.1.1)
-public protocol SDAINumberType: SDAISimpleType, ExpressibleByIntegerLiteral, SwiftDoubleConvertible, SDAI.InitializableByVoid
-where SwiftType: SdaiNumberRepType
-{}
+extension SDAI {
+  public protocol NumberType: SDAI.SimpleType, ExpressibleByIntegerLiteral, SDAI.SwiftDoubleConvertible, SDAI.InitializableByVoid
+  where SwiftType: SDAI.NumberRepType
+  {}
 
-public protocol SDAIDoubleRepresentedNumberType: SDAINumberType, SDAIDoubleRepresented 
-where SwiftType == Double
-{}
+  public protocol DoubleRepresentedNumberType: SDAI.NumberType, SDAI.DoubleRepresented
+  where SwiftType == Double
+  {}
 
-public protocol SDAIIntRepresentedNumberType: SDAINumberType, SDAIIntRepresented 
-where SwiftType == Int
-{}
+  public protocol IntRepresentedNumberType: SDAI.NumberType, SDAI.IntRepresented
+  where SwiftType == Int
+  {}
+}
 
-public protocol SDAI__NUMBER__type: SDAIDoubleRepresentedNumberType, ExpressibleByFloatLiteral
+public protocol SDAI__NUMBER__type: SDAI.DoubleRepresentedNumberType, ExpressibleByFloatLiteral
 where FundamentalType == SDAI.NUMBER,
 			Value == FundamentalType.Value
 {
@@ -101,8 +113,8 @@ where FundamentalType == SDAI.NUMBER,
 	init(_ double: Double)
 	init?(_ int: Int?)
 	init(_ int: Int)
-	init?<T:SDAINumberType>(_ subtype: T?)
-	init<T:SDAINumberType>(_ subtype: T)
+	init?<T:SDAI.NumberType>(_ subtype: T?)
+	init<T:SDAI.NumberType>(_ subtype: T)
 }
 public extension SDAI__NUMBER__type
 {
@@ -129,11 +141,11 @@ public extension SDAI__NUMBER__type
 	init(floatLiteral value: Double) {
 		self.init(from: value)
 	}
-	init?<T:SDAINumberType>(_ subtype: T?) {
+	init?<T:SDAI.NumberType>(_ subtype: T?) {
 		guard let subtype = subtype else { return nil }
 		self.init(from: subtype.asSwiftDouble)
 	}
-	init<T:SDAINumberType>(_ subtype: T) {
+	init<T:SDAI.NumberType>(_ subtype: T) {
 		self.init(from: subtype.asSwiftDouble)
 	}
 }
@@ -148,7 +160,7 @@ extension SDAI {
 		// CustomStringConvertible
 		public var description: String { "NUMBER(\(rep))" }
 		
-		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__NUMBER__type
+		// SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__NUMBER__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(from: Self.typeName)]
 		}
@@ -168,12 +180,12 @@ extension SDAI {
 		}
 		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
 		
-		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
-		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
-		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
-		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
-		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
-		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
+		public func arrayOptionalValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+		public func arrayValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+		public func listValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
+		public func bagValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+		public func setValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+		public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		public static func validateWhereRules(
 			instance:Self?,
@@ -182,24 +194,24 @@ extension SDAI {
 
 		
 		// InitializableByGenerictype
-		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let numberValue = generic?.numberValue else { return nil }
 			self.init(numberValue)
 		}
 		
 		
-		// SDAIUnderlyingType \SDAISimpleType\SDAI__NUMBER__type
+		// SDAI.UnderlyingType \SDAI.SimpleType\SDAI__NUMBER__type
 		public static let typeName: String = "NUMBER"
 		public var asSwiftType: SwiftType { return rep }
 		
-		// SDAIGenericType
+		// SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(fundamental.rep)
 		}
 
 
-		// SDAISimpleType \SDAI__NUMBER__type
+		// SDAI.SimpleType \SDAI__NUMBER__type
 		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
@@ -208,7 +220,7 @@ extension SDAI {
 		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
-			if let rhs = rhs as? SwiftDoubleConvertible { return self.asSwiftDouble == rhs.asSwiftDouble }
+			if let rhs = rhs as? SDAI.SwiftDoubleConvertible { return self.asSwiftDouble == rhs.asSwiftDouble }
 			return false
 		}
 		

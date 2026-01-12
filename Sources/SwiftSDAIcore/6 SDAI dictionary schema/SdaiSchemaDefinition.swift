@@ -66,7 +66,7 @@ extension SDAIDictionarySchema {
     /// the constants declared in the schema.
     public let constants: [ExpressId: @Sendable () -> SDAI.GENERIC]
 
-    public let schema: SDAISchema.Type
+    public let schema: SDAI.SchemaType.Type
 
 
     public var uniquenessRules: some Collection<SDAIDictionarySchema.UniquenessRule> {
@@ -76,13 +76,13 @@ extension SDAIDictionarySchema {
     //MARK: prototype for instance construction
     public class Prototype {
       internal let name: ExpressId
-      internal let schema: SDAISchema.Type
+      internal let schema: SDAI.SchemaType.Type
       internal var identification: InfoObjectId?
       internal private(set) var entities: [ExpressId:EntityDefinition] = [:]
       internal private(set) var globalRules: [ExpressId:GlobalRule] = [:]
       internal private(set) var constants: [ExpressId:@Sendable () -> SDAI.GENERIC] = [:]
 
-      public init(name: ExpressId, schema: SDAISchema.Type) {
+      public init(name: ExpressId, schema: SDAI.SchemaType.Type) {
         self.name = name
         self.schema = schema
       }
@@ -105,7 +105,7 @@ extension SDAIDictionarySchema {
         globalRules[name] = ruleDef
       }
 
-      public func addConstant<T:SDAIGenericType>(
+      public func addConstant<T:SDAI.GenericType>(
         name:ExpressId,
         value: @Sendable @escaping @autoclosure () -> T )
       {

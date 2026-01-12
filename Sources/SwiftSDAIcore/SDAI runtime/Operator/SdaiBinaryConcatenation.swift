@@ -13,7 +13,7 @@ import Foundation
 //MARK: - Binary indexing operator support (12.3.1)
 /// Binary Indexing: IntRep ... IntRep
 ///
-public func ... <T1: SDAIIntRepresentedNumberType, U1: SDAIIntRepresentedNumberType>(
+public func ... <T1: SDAI.IntRepresentedNumberType, U1: SDAI.IntRepresentedNumberType>(
   lhs: T1?, rhs: U1?) -> ClosedRange<Int>?
 {
   guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -22,7 +22,7 @@ public func ... <T1: SDAIIntRepresentedNumberType, U1: SDAIIntRepresentedNumberT
 
 /// Binary Indexing: IntRep ... Int
 ///
-public func ... <T2: SDAIIntRepresentedNumberType>(
+public func ... <T2: SDAI.IntRepresentedNumberType>(
   lhs: T2?, rhs: Int?) -> ClosedRange<Int>?
 {
   guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -31,7 +31,7 @@ public func ... <T2: SDAIIntRepresentedNumberType>(
 
 /// Binary Indexing: Int ... IntRep
 ///
-public func ... <U3: SDAIIntRepresentedNumberType>(
+public func ... <U3: SDAI.IntRepresentedNumberType>(
   lhs: Int?, rhs: U3?) -> ClosedRange<Int>?
 {
   guard let lhs = lhs, let rhs = rhs else { return nil }

@@ -10,22 +10,24 @@ import Foundation
 
 //MARK: - ENUMERATION TYPE base (8.4.1)
 
-public protocol SDAIEnumerationType: SDAIConstructedType, SDAIUnderlyingType
-where Value == FundamentalType, 
-			FundamentalType: SDAIEnumerationType, 
-			FundamentalType: RawRepresentable, 
-			FundamentalType.RawValue == SDAI.ENUMERATION
-{}
+extension SDAI {
+  public protocol EnumerationType: SDAI.ConstructedType, SDAI.UnderlyingType
+  where Value == FundamentalType,
+          FundamentalType: SDAI.EnumerationType,
+          FundamentalType: RawRepresentable,
+          FundamentalType.RawValue == SDAI.ENUMERATION
+  {}
+}
 
-public extension SDAIEnumerationType
+public extension SDAI.EnumerationType
 {
-	// SDAIGenericType
+	// SDAI.GenericType
 	func copy() -> Self { return self }
 	var isCacheable: Bool { return true }
 	var value: Value { self.asFundamentalType }
 }
 
-public extension SDAIEnumerationType
+public extension SDAI.EnumerationType
 where Self: SDAIValue
 {
 	// SDAIValue

@@ -9,19 +9,23 @@
 import Foundation
 import Synchronization
 
-//MARK: - SDAIEntityReferenceType
-public protocol SDAIEntityReferenceType {
-	var complexEntity: SDAI.ComplexEntity {get}
-	init?(complex complexEntity: SDAI.ComplexEntity?)
+//MARK: - SDAI.EntityReferenceType
+extension SDAI {
+  public protocol EntityReferenceType {
+    var complexEntity: SDAI.ComplexEntity {get}
+    init?(complex complexEntity: SDAI.ComplexEntity?)
+  }
 }
 
 
 
-//MARK: - SDAISimpleEntityType
-public protocol SDAISimpleEntityType {
-	associatedtype SimplePartialEntity: SDAI.PartialEntity
+//MARK: - SDAI.SimpleEntityType
+extension SDAI {
+  public protocol SimpleEntityType {
+    associatedtype SimplePartialEntity: SDAI.PartialEntity
 
-	init?(_ partial: SimplePartialEntity)
+    init?(_ partial: SimplePartialEntity)
+  }
 }
 
 
@@ -33,13 +37,13 @@ extension SDAI {
 
 	open class EntityReference:
 		SDAI.UnownedReference<SDAI.ComplexEntity>,
-		SDAINamedType, SDAIEntityReferenceType, SDAIGenericType,
+		SDAI.NamedType, SDAI.EntityReferenceType, SDAI.GenericType,
 		InitializableByComplexEntity,
-		SDAIEntityReferenceYielding,
+		SDAI.EntityReferenceYielding,
 		SdaiCacheHolder,
 		CustomStringConvertible, @unchecked Sendable
 	{
-		//MARK: SDAIEntityReferenceType
+		//MARK: SDAI.EntityReferenceType
 		public var complexEntity: ComplexEntity {self.object}
 
     internal var complexReference: ComplexEntityReference {
@@ -95,7 +99,7 @@ extension SDAI {
 			return model.mode == .readOnly
 		}
 		
-		//MARK: SDAIGenericType
+		//MARK: SDAI.GenericType
     public typealias FundamentalType = EntityReference
 
     public var asFundamentalType: FundamentalType {
@@ -132,12 +136,12 @@ extension SDAI {
 			return self
 		}
 
-		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
-		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
-		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
-		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
-		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
-		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
+		public func arrayOptionalValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+		public func arrayValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+		public func listValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
+		public func bagValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+		public func setValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+		public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 
 		//MARK: validation related
@@ -174,7 +178,7 @@ extension SDAI {
 			return result
 		}
 
-		//MARK: SDAIEntityReferenceYielding
+		//MARK: SDAI.EntityReferenceYielding
 		public final var entityReferences: AnySequence<SDAI.EntityReference> {
 			AnySequence( CollectionOfOne(self) )
 		}
@@ -200,7 +204,7 @@ extension SDAI {
 		}
 
 		//MARK: group reference
-		public func GROUP_REF<SUPER:EntityReference & SDAIDualModeReference>(
+		public func GROUP_REF<SUPER:EntityReference & SDAI.DualModeReference>(
 			_ super_ref: SUPER.Type
 		) -> SUPER.PRef?
 		{
@@ -212,8 +216,8 @@ extension SDAI {
 		public func referencingEntities<SourceEntity,AttributeValue>(
 			for attribute: KeyPath<SourceEntity,AttributeValue>
 		) -> some Collection<SourceEntity.PRef>
-		where SourceEntity: EntityReference & SDAIDualModeReference,
-					AttributeValue: SDAIEntityReferenceYielding
+		where SourceEntity: EntityReference & SDAI.DualModeReference,
+					AttributeValue: SDAI.EntityReferenceYielding
 		{
 			guard let session = SDAISessionSchema.activeSession else {
 				SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
@@ -249,8 +253,8 @@ extension SDAI {
 		public func referencingEntities<SourceEntity,AttributeValue>(
 			for attribute: KeyPath<SourceEntity,AttributeValue?>
 		) -> some Collection<SourceEntity.PRef>
-		where SourceEntity: EntityReference & SDAIDualModeReference,
-					AttributeValue: SDAIEntityReferenceYielding
+		where SourceEntity: EntityReference & SDAI.DualModeReference,
+					AttributeValue: SDAI.EntityReferenceYielding
 		{
 			guard let session = SDAISessionSchema.activeSession else {
 				SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
@@ -286,8 +290,8 @@ extension SDAI {
 		public func referencingEntity<SourceEntity,AttributeValue>(
 			for attribute: KeyPath<SourceEntity,AttributeValue>
 		) -> SourceEntity.PRef?
-		where SourceEntity: EntityReference & SDAIDualModeReference,
-					AttributeValue: SDAIEntityReferenceYielding
+		where SourceEntity: EntityReference & SDAI.DualModeReference,
+					AttributeValue: SDAI.EntityReferenceYielding
 		{
 			guard let session = SDAISessionSchema.activeSession else {
 				SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
@@ -322,8 +326,8 @@ extension SDAI {
 		public func referencingEntity<SourceEntity,AttributeValue>(
 			for attribute: KeyPath<SourceEntity,AttributeValue?>
 		) -> SourceEntity.PRef?
-		where SourceEntity: EntityReference & SDAIDualModeReference,
-					AttributeValue: SDAIEntityReferenceYielding
+		where SourceEntity: EntityReference & SDAI.DualModeReference,
+					AttributeValue: SDAI.EntityReferenceYielding
 		{
 			guard let session = SDAISessionSchema.activeSession else {
 				SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "can not access SDAISessionSchema.activeSession")
@@ -538,12 +542,12 @@ extension SDAI {
 
     
 		//MARK: InitializableByGenericType
-		required public convenience init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		required public convenience init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let entityRef = generic?.entityReference else { return nil }
 			self.init(complex: entityRef.complexEntity)
 		}
 		
-		public class func convert<G: SDAIGenericType>(fromGeneric generic: G?) -> Self? {
+		public class func convert<G: SDAI.GenericType>(fromGeneric generic: G?) -> Self? {
 			guard let generic = generic else { return nil }
 			
 			if let entityref = generic.entityReference {
@@ -567,7 +571,7 @@ extension SDAI {
 		}
 
 		public static func convert<PREF>(sibling source: PREF?) -> Self?
-		where PREF: SDAIPersistentReference,
+		where PREF: SDAI.PersistentReference,
 					PREF.ARef: EntityReference
 		{
 			return self.convert(sibling: source?.optionalARef)

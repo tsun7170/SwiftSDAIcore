@@ -14,7 +14,7 @@ public protocol SDAI__ARRAY_OPTIONAL_UNIQUE__subtype: SDAI__ARRAY_OPTIONAL_UNIQU
 
 //MARK: - SDAI.ARRAY_OPTIONAL_UNIQUE
 extension SDAI {
-	public struct ARRAY_OPTIONAL_UNIQUE<ELEMENT:SDAIGenericType>: SDAI__ARRAY_OPTIONAL_UNIQUE__type
+	public struct ARRAY_OPTIONAL_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI__ARRAY_OPTIONAL_UNIQUE__type
 	{
 		
 		public typealias Supertype = SDAI.ARRAY_OPTIONAL<ELEMENT>
@@ -32,12 +32,12 @@ extension SDAI {
 			rep = Supertype(fundamental: fundamental)
 		}
 		
-		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let repval = generic?.arrayOptionalValue(elementType: ELEMENT.self) else { return nil }
 			rep = repval
 		}
 
-		// SDAIArrayOptionalType
+		// SDAI.ArrayOptionalType
 		public static var uniqueFlag: SDAI.BOOLEAN { true }
 		public static var optionalFlag: SDAI.BOOLEAN { true }
 		
@@ -60,11 +60,11 @@ extension SDAI {
 	
 }
 
-extension SDAI.ARRAY_OPTIONAL_UNIQUE: SDAIEntityReferenceYielding
-where ELEMENT: SDAIEntityReferenceYielding
+extension SDAI.ARRAY_OPTIONAL_UNIQUE: SDAI.EntityReferenceYielding
+where ELEMENT: SDAI.EntityReferenceYielding
 {}
 
-extension SDAI.ARRAY_OPTIONAL_UNIQUE: SDAIDualModeReference
-where ELEMENT: SDAIDualModeReference
+extension SDAI.ARRAY_OPTIONAL_UNIQUE: SDAI.DualModeReference
+where ELEMENT: SDAI.DualModeReference
 {}
 

@@ -10,17 +10,19 @@ import Foundation
 
 
 //MARK: - INTEGER type (8.1.3)
-public protocol SDAIIntegerType: SDAIRealType, SwiftIntConvertible
-{}
+extension SDAI {
+  public protocol IntegerType: SDAI.RealType, SDAI.SwiftIntConvertible
+  {}
+}
 
-public protocol SDAI__INTEGER__type: SDAIIntegerType, SDAIIntRepresentedNumberType
+public protocol SDAI__INTEGER__type: SDAI.IntegerType, SDAI.IntRepresentedNumberType
 where FundamentalType == SDAI.INTEGER,
 			Value == FundamentalType.Value
 {
 	init?(_ int: Int?)
 	init(_ int: Int)
-	init?<T:SDAIIntegerType>(_ subtype: T?)
-	init<T:SDAIIntegerType>(_ subtype: T)
+	init?<T:SDAI.IntegerType>(_ subtype: T?)
+	init<T:SDAI.IntegerType>(_ subtype: T)
 }
 public extension SDAI__INTEGER__type
 {
@@ -38,11 +40,11 @@ public extension SDAI__INTEGER__type
 	init(integerLiteral value: Int) {
 		self.init(from: value)
 	}
-	init?<T:SDAIIntegerType>(_ subtype: T?) {
+	init?<T:SDAI.IntegerType>(_ subtype: T?) {
 		guard let subtype = subtype else { return nil }
 		self.init(from: subtype.asSwiftInt)
 	}
-	init<T:SDAIIntegerType>(_ subtype: T) {
+	init<T:SDAI.IntegerType>(_ subtype: T) {
 		self.init(from: subtype.asSwiftInt)
 	}
 }
@@ -57,7 +59,7 @@ extension SDAI {
 		// CustomStringConvertible
 		public var description: String { "INTEGER(\(rep))" }
 		
-		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
+		// SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(from: Self.typeName), SDAI.STRING(from: REAL.typeName), SDAI.STRING(from: NUMBER.typeName)]
 		}
@@ -73,12 +75,12 @@ extension SDAI {
 		public var integerValue: SDAI.INTEGER? { self }
 		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
 		
-		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
-		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
-		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
-		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
-		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
-		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
+		public func arrayOptionalValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+		public func arrayValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+		public func listValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
+		public func bagValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+		public func setValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+		public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		public static func validateWhereRules(
 			instance:Self?,
@@ -87,22 +89,22 @@ extension SDAI {
 
 		
 		// InitializableByGenerictype
-		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let integerValue = generic?.integerValue else { return nil }
 			self.init(integerValue)
 		}
 		
-		// SDAIUnderlyingType \SDAISimpleType\SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
+		// SDAI.UnderlyingType \SDAI.SimpleType\SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
 		public static let typeName: String = "INTEGER"
 		public var asSwiftType: SwiftType { return rep }
 		
-		// SDAIGenericType
+		// SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(fundamental.rep)
 		}
 
-		// SDAISimpleType \SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
+		// SDAI.SimpleType \SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
 		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
@@ -111,12 +113,12 @@ extension SDAI {
 		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
-			if let rhs = rhs as? SwiftIntConvertible { return self.asSwiftInt == rhs.asSwiftInt }
+			if let rhs = rhs as? SDAI.SwiftIntConvertible { return self.asSwiftInt == rhs.asSwiftInt }
 			return false
 		}
 		
 		// INTEGER specific
-		public init?(truncating real: SDAIDoubleRepresented?) {
+		public init?(truncating real: SDAI.DoubleRepresented?) {
 			guard let double = real?.asSwiftDouble else { return nil }
 			self.init(Int(double))
 		}

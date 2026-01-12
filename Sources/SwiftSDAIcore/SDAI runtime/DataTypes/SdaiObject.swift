@@ -9,12 +9,13 @@
 import Foundation
 import Synchronization
 
-public protocol SdaiObjectReference: AnyObject, Sendable {
-	associatedtype Object: AnyObject & Sendable
-	var object: Object {get}
-	var objectId: ObjectIdentifier {get}
+extension SDAI {
+  public protocol ObjectReferenceType: AnyObject, Sendable {
+    associatedtype Object: AnyObject & Sendable
+    var object: Object {get}
+    var objectId: ObjectIdentifier {get}
+  }
 }
-
 
 extension SDAI {
 
@@ -23,7 +24,7 @@ extension SDAI {
 
 
 	//MARK: - SDAI.ObjectReference
-	open class ObjectReference<OBJ: Object>: SdaiObjectReference, Hashable {
+	open class ObjectReference<OBJ: Object>: SDAI.ObjectReferenceType, Hashable {
 		public let object: OBJ
 		public var objectId: ObjectIdentifier { ObjectIdentifier(object) }
 		
@@ -43,7 +44,7 @@ extension SDAI {
 
 
 	//MARK: - SDAI.UnownedReference
-	open class UnownedReference<OBJ: Object>: SdaiObjectReference, Hashable {
+	open class UnownedReference<OBJ: Object>: SDAI.ObjectReferenceType, Hashable {
 		public unowned let object: OBJ
 		public let objectId: ObjectIdentifier
 		

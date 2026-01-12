@@ -10,17 +10,19 @@ import Foundation
 
 //MARK: - SELECT TYPE base (8.4.2)
 
-public protocol SDAISelectType:
-	SDAIConstructedType,
-  SDAI.InitializableByDefinedType, SDAI.InitializableByComplexEntity,
-	SwiftDoubleConvertible, SwiftIntConvertible, SwiftStringConvertible, SwiftBoolConvertible,
-	SDAIEntityReferenceYielding,
-	SDAIAggregationBehavior
-where Value == FundamentalType,
-			FundamentalType: SDAISelectType
-{}
+extension SDAI {
+  public protocol SelectType:
+    SDAI.ConstructedType,
+    SDAI.InitializableByDefinedType, SDAI.InitializableByComplexEntity,
+    SDAI.SwiftDoubleConvertible, SDAI.SwiftIntConvertible, SDAI.SwiftStringConvertible, SDAI.SwiftBoolConvertible,
+    SDAI.EntityReferenceYielding,
+    SDAI.AggregationBehavior
+  where Value == FundamentalType,
+        FundamentalType: SDAI.SelectType
+  {}
+}
 
-public extension SDAISelectType
+public extension SDAI.SelectType
 {
 	// SdaiCacheableSource
 	var isCacheable: Bool {
@@ -30,7 +32,7 @@ public extension SDAISelectType
 		return true
 	}
 	
-	// SDAIGenericType
+	// SDAI.GenericType
 	var value: Value { self.asFundamentalType }
 	
 	init?<G: SDAI.EntityReference>(_ generic: G?){
@@ -39,31 +41,31 @@ public extension SDAISelectType
 	}
 
 	init?<PREF>(_ pref: PREF?)
-	where PREF: SDAIPersistentReference,
+	where PREF: SDAI.PersistentReference,
 	PREF.ARef: SDAI.EntityReference
 	{
 		self.init(pref?.optionalARef)
 	}
 
 
-	// SwiftDoubleConvertible
+	// SDAI.SwiftDoubleConvertible
 	var possiblyAsSwiftDouble: Double? { self.realValue?.asSwiftType }
 	var asSwiftDouble: Double { SDAI.UNWRAP(self.possiblyAsSwiftDouble) }
 	
-	// SwiftIntConvertible,
+	// SDAI.SwiftIntConvertible,
 	var possiblyAsSwiftInt: Int? { self.integerValue?.asSwiftType }
 	var asSwiftInt: Int { SDAI.UNWRAP(self.possiblyAsSwiftInt) }
 	
-	// SwiftStringConvertible, 
+	// SDAI.SwiftStringConvertible, 
 	var possiblyAsSwiftString: String? { self.stringValue?.asSwiftType }
 	var asSwiftString: String { SDAI.UNWRAP(self.possiblyAsSwiftString) }
 	
-	// SwiftBoolConvertible
+	// SDAI.SwiftBoolConvertible
 	var possiblyAsSwiftBool: Bool? { self.logicalValue?.asSwiftType }
 	var asSwiftBool: Bool { SDAI.UNWRAP(self.possiblyAsSwiftBool) }	
 	
 	// group reference
-	func GROUP_REF<SUPER:SDAI.EntityReference & SDAIDualModeReference>(
+	func GROUP_REF<SUPER:SDAI.EntityReference & SDAI.DualModeReference>(
 		_ entity_ref: SUPER.Type) -> SUPER.PRef?
 	{
 		guard let complex = self.entityReference?.complexEntity else { return nil }
@@ -72,7 +74,7 @@ public extension SDAISelectType
 	
 }
 
-public extension SDAIDefinedType where Self: SDAISelectType {
+public extension SDAI.DefinedType where Self: SDAI.SelectType {
 	// SDAIGenericTypeBase
 	func copy() -> Self {
 		var copied = self

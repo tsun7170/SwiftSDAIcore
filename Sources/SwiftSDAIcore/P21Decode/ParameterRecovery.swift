@@ -35,7 +35,7 @@ extension P21Decode.ExchangeStructure {
 	///   - parameter: parameter specification
 	/// - Returns: recovered parameter value
 	///
-	public func recoverRequiredParameter<T: SDAIGenericType>(
+	public func recoverRequiredParameter<T: SDAI.GenericType>(
 		as type: T.Type,
 		from parameter: Parameter
 	) -> ParameterRecoveryResult<T>
@@ -46,7 +46,7 @@ extension P21Decode.ExchangeStructure {
       fallback: nil)
 	}
 
-  public func recoverRequiredParameter<T: SDAIGenericType & SDAI.InitializableByVoid>(
+  public func recoverRequiredParameter<T: SDAI.GenericType & SDAI.InitializableByVoid>(
     as type: T.Type,
     from parameter: Parameter
   ) -> ParameterRecoveryResult<T>
@@ -57,7 +57,7 @@ extension P21Decode.ExchangeStructure {
       fallback: type.init())
   }
 
-  private func _recoverRequiredParameter<T: SDAIGenericType>(
+  private func _recoverRequiredParameter<T: SDAI.GenericType>(
     as type: T.Type,
     from parameter: Parameter,
     fallback: T?
@@ -109,7 +109,7 @@ extension P21Decode.ExchangeStructure {
 	///   - type: type of entity attribute
 	///   - parameter: parameter specification
 	/// - Returns: recovered parameter value
-	public func recoverOmittableParameter<T: SDAIGenericType>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T?> {
+	public func recoverOmittableParameter<T: SDAI.GenericType>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T?> {
 		switch parameter {
 		case .typedParameter(let typedParam):
 			guard let recovered = T(p21typedParam: typedParam, from: self)
@@ -148,7 +148,7 @@ extension P21Decode.ExchangeStructure {
 	///   - type: type of entity attribute
 	///   - parameter: parameter specification
 	/// - Returns: recovered parameter value
-	public func recoverOptionalParameter<T: SDAIGenericType>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T?> {
+	public func recoverOptionalParameter<T: SDAI.GenericType>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T?> {
 		switch parameter {
 		case .untypedParameter(let untyped):
 			if untyped == .noValue {
@@ -181,7 +181,7 @@ extension P21Decode.ExchangeStructure {
 	///   - type: type of entity attribute
 	///   - parameter: parameter specification
 	/// - Returns: recovered parameter value
-	public func recoverOmittableOptionalParameter<T: SDAIGenericType>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T?> {
+	public func recoverOmittableOptionalParameter<T: SDAI.GenericType>(as type: T.Type, from parameter: Parameter) -> ParameterRecoveryResult<T?> {
 		switch parameter {
 		case .typedParameter(_), .untypedParameter(_):
 			let recovered = T(p21param: parameter, from: self)

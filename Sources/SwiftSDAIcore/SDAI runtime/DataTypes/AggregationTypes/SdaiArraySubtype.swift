@@ -9,17 +9,17 @@
 import Foundation
 
 //MARK: - ARRAY subtype (8.2.1, 8.3.2)
-public protocol SDAI__ARRAY__subtype: SDAI__ARRAY__type, SDAIDefinedType
+public protocol SDAI__ARRAY__subtype: SDAI__ARRAY__type, SDAI.DefinedType
 where Supertype: SDAI__ARRAY__type
 {}
 public extension SDAI__ARRAY__subtype
 {
-	// SDAIArrayOptionalType
+	// SDAI.ArrayOptionalType
 	static var uniqueFlag: SDAI.BOOLEAN { Supertype.uniqueFlag }
 	static var optionalFlag: SDAI.BOOLEAN { Supertype.optionalFlag }
 	
 	// InitializableByGenerictype
-	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType.convert(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
 	}
@@ -31,14 +31,14 @@ public extension SDAI__ARRAY__subtype
 
 	
 	// InitializableBySwifttypeAsArray
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+	init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
 		from swiftValue: SwiftType, bound1: I1, bound2: I2)
 	{
 		self.init(fundamental: FundamentalType(from: swiftValue, bound1: bound1, bound2: bound2) )
 	} 
 	
 	// InitializableByArrayLiteral
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
 		bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
@@ -52,7 +52,7 @@ public extension SDAI__ARRAY__subtype
 where ELEMENT: SDAI.InitializableBySelectType
 {
 	init?<T:SDAI__ARRAY__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAISelectType
+	where T.ELEMENT: SDAI.SelectType
 	{
 		self.init(fundamental: FundamentalType(arraytype) )
 	}
@@ -71,7 +71,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 	}
 
 	init?<T: SDAI__ARRAY__type>(_ arraytype: T?)
-	where T.ELEMENT: SDAIPersistentReference,
+	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
 		self.init(fundamental: FundamentalType(arraytype) )
@@ -84,7 +84,7 @@ public extension SDAI__ARRAY__subtype
 where ELEMENT: SDAI.InitializableByDefinedType
 {
 	init?<T:SDAI__ARRAY__type>(_ arraytype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType
+	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		self.init(fundamental: FundamentalType(arraytype) )
 	}

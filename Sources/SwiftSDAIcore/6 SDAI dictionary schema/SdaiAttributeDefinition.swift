@@ -83,7 +83,7 @@ extension SDAIDictionarySchema {
 	}
 
 
-	public class Attribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: SDAI.Object, SDAIAttributeType, CustomStringConvertible, AttributeFixable, @unchecked Sendable
+	public class Attribute<ENT: SDAI.EntityReference, BaseType: SDAI.GenericType>: SDAI.Object, SDAIAttributeType, CustomStringConvertible, AttributeFixable, @unchecked Sendable
 	{
 		// CustomStringConvertible
 		public var description: String {
@@ -129,7 +129,7 @@ extension SDAIDictionarySchema {
     ) -> AnySequence<SDAI.GenericPersistentEntityReference>?
     {
       guard let entity = entityInstance as? ENT,
-            let attrValue = self.value(for: entity) as? SDAIEntityReferenceYielding
+            let attrValue = self.value(for: entity) as? SDAI.EntityReferenceYielding
       else { return nil }
 
       let attrYieldingPRefs = attrValue.persistentEntityReferences
@@ -146,7 +146,7 @@ extension SDAIDictionarySchema {
 	
 	
 	//MARK: - specialization for optional attribute value type
-	public final class OptionalAttribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: Attribute<ENT,BaseType>, @unchecked Sendable
+	public final class OptionalAttribute<ENT: SDAI.EntityReference, BaseType: SDAI.GenericType>: Attribute<ENT,BaseType>, @unchecked Sendable
 	{
 		internal init(byFreezing prototype: Prototype )
 		{
@@ -200,7 +200,7 @@ extension SDAIDictionarySchema {
 
 	
 	//MARK: - specialization for non-optional attribute value type
-	public final class NonOptionalAttribute<ENT: SDAI.EntityReference, BaseType: SDAIGenericType>: Attribute<ENT,BaseType>, @unchecked Sendable
+	public final class NonOptionalAttribute<ENT: SDAI.EntityReference, BaseType: SDAI.GenericType>: Attribute<ENT,BaseType>, @unchecked Sendable
 	{
 		internal init(byFreezing prototype: Prototype )
 		{

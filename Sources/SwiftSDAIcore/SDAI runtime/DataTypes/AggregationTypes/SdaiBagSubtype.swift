@@ -10,7 +10,7 @@ import Foundation
 
 
 //MARK: - BAG subtypes (8.2.3, 8.3.2)
-public protocol SDAI__BAG__subtype: SDAI__BAG__type, SDAIDefinedType
+public protocol SDAI__BAG__subtype: SDAI__BAG__type, SDAI.DefinedType
 where Supertype: SDAI__BAG__type
 {}
 
@@ -27,13 +27,13 @@ public extension SDAI__BAG__subtype
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.intersectionWith(rhs: rhs) }
 
 
-	func unionWith<U: SDAIBagType>(rhs: U) -> SDAI.BAG<ELEMENT>?
+	func unionWith<U: SDAI.BagType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(rhs: rhs) }
 
-	func unionWith<U: SDAIListType>(rhs: U) -> SDAI.BAG<ELEMENT>?
+	func unionWith<U: SDAI.ListType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(rhs: rhs) }
 
-	func unionWith<U: SDAIGenericType>(rhs: U) -> SDAI.BAG<ELEMENT>?
+	func unionWith<U: SDAI.GenericType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.FundamentalType { rep.unionWith(rhs: rhs) }
 
 	func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.BAG<ELEMENT>? { rep.unionWith(rhs: rhs) }
@@ -42,10 +42,10 @@ public extension SDAI__BAG__subtype
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(rhs: rhs) }
 
 
-	func differenceWith<U: SDAIBagType>(rhs: U) -> SDAI.BAG<ELEMENT>?
+	func differenceWith<U: SDAI.BagType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.differenceWith(rhs: rhs) }
 
-	func differenceWith<U: SDAIGenericType>(rhs: U) -> SDAI.BAG<ELEMENT>?
+	func differenceWith<U: SDAI.GenericType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.FundamentalType { rep.differenceWith(rhs: rhs) }
 
 	func differenceWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.BAG<ELEMENT>? { rep.differenceWith(rhs: rhs) }
@@ -54,55 +54,55 @@ public extension SDAI__BAG__subtype
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.differenceWith(rhs: rhs) }
 
 	// InitializableByGenerictype
-	init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType.convert(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
 	}
 	
 	// InitializableByGenericSet
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
 		bound1: I1, bound2: I2?, generic settype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: settype))
 	}
 
 	// InitializableByGenericBag
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, generic bagtype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: bagtype))
 	}
 
 	// InitializableByGenericList
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
 		bound1: I1, bound2: I2?, generic listtype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: listtype))
 	}
 
 	// InitializableByEmptyListLiteral
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+	init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
 		bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, emptyLiteral) )
 	} 
 
 	// InitializableBySwifttypeAsList
-	init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+	init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
 		from swiftValue: SwiftType, bound1: I1, bound2: I2?)
 	{
 		self.init(fundamental: FundamentalType(from: swiftValue, bound1: bound1, bound2: bound2) )
 	} 
 	
 	// InitializableBySelecttypeAsList
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S: SDAISelectType>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(
 		bound1: I1, bound2: I2?, _ select: S?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, select) )
 	}
 
 	// InitializableByListLiteral
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
 		bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
@@ -113,16 +113,16 @@ public extension SDAI__BAG__subtype
 public extension SDAI__BAG__subtype
 where ELEMENT: SDAI.InitializableBySelectType
 {
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T:SDAI__BAG__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)
-	where T.ELEMENT: SDAISelectType
+	where T.ELEMENT: SDAI.SelectType
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, bagtype) )
 	}
 
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T:SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI__SET__type>(
 		bound1: I1, bound2: I2?, _ settype: T?) 
-	where T.ELEMENT: SDAISelectType
+	where T.ELEMENT: SDAI.SelectType
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, settype) )
 	}
@@ -133,14 +133,14 @@ where ELEMENT: SDAI.InitializableBySelectType
 public extension SDAI__BAG__subtype
 where ELEMENT: SDAI.InitializableByComplexEntity
 {
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, bagtype) )
 	}	
 
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
 		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -148,17 +148,17 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 	}	
 
 
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)
-	where T.ELEMENT: SDAIPersistentReference,
+	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, bagtype) )
 	}	
 
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
 		bound1: I1, bound2: I2?, _ settype: T?)
-	where T.ELEMENT: SDAIPersistentReference,
+	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, settype) )
@@ -170,16 +170,16 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 public extension SDAI__BAG__subtype
 where ELEMENT: SDAI.InitializableByDefinedType
 {
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T:SDAI__BAG__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI__BAG__type>(
 		bound1: I1, bound2: I2?, _ bagtype: T?)
-	where T.ELEMENT: SDAIUnderlyingType
+	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, bagtype) )
 	}	
 
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T:SDAI__SET__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI__SET__type>(
 		bound1: I1, bound2: I2?, _ settype: T?) 
-	where T.ELEMENT: SDAIUnderlyingType
+	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, settype) )
 	}

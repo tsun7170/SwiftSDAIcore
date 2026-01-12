@@ -24,7 +24,7 @@ extension SDAI {
 	/// The insertion follows the existing element at position P, so when P = 0, E becomes the first element.
 	/// # Conditions : 
 	/// 0 ≤ P ≤ SIZEOF(L) 
-	public static func INSERT<LISTTYPE: SDAIListType, GEN: SDAIGenericType, Integer: SwiftIntConvertible>( L: inout LISTTYPE?, E: GEN?, P: Integer? ) 
+	public static func INSERT<LISTTYPE: SDAI.ListType, GEN: SDAI.GenericType, Integer: SDAI.SwiftIntConvertible>( L: inout LISTTYPE?, E: GEN?, P: Integer? ) 
 	{
 		guard let E = LISTTYPE.ELEMENT.convert(fromGeneric: E), let P = P?.possiblyAsSwiftInt else { return }
 		L?.insert(element: E, at: P)
@@ -40,7 +40,7 @@ extension SDAI {
 	/// L is modified by removing the element found at the specified position P.
 	/// # Conditions : 
 	/// 1 ≤ P ≤ SIZEOF(L) 
-	public static func REMOVE<LISTTYPE: SDAIListType, Integer: SwiftIntConvertible>( L: inout LISTTYPE?, P: Integer? ) 
+	public static func REMOVE<LISTTYPE: SDAI.ListType, Integer: SDAI.SwiftIntConvertible>( L: inout LISTTYPE?, P: Integer? ) 
 	{
 		guard let P = P?.possiblyAsSwiftInt else { return }
 		L?.remove(at: P)

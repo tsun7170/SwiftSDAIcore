@@ -25,7 +25,7 @@ public extension SDAI.InitializableByComplexEntity
 	}
 
   init?<PREF>(possiblyFrom pref: PREF?)
-  where PREF: SDAIPersistentReference,
+  where PREF: SDAI.PersistentReference,
         PREF.ARef: SDAI.EntityReference
   {
     self.init(possiblyFrom: pref?.optionalARef?.complexEntity)
@@ -49,7 +49,7 @@ public extension SDAI.InitializableByComplexEntity
 	}
 
 	static func convert<PREF>(sibling: PREF?) -> Self?
-	where PREF: SDAIPersistentReference,
+	where PREF: SDAI.PersistentReference,
 				PREF.ARef: SDAI.EntityReference
 	{
 		if let sibling = sibling as? Self {
@@ -77,13 +77,13 @@ where Self: SDAI.EntityReference
 extension SDAI {
   public protocol InitializableByEntityList
   {
-    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
       bound1: I1, bound2: I2?, _ listtype: T?)
     where T.ELEMENT: SDAI.EntityReference
 
-    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
       bound1: I1, bound2: I2?, _ listtype: T?)
-    where T.ELEMENT: SDAIPersistentReference,
+    where T.ELEMENT: SDAI.PersistentReference,
     T.ELEMENT.ARef: SDAI.EntityReference
 
   }
@@ -98,7 +98,7 @@ public extension SDAI.InitializableByEntityList
 	}
 
 	init?<T: SDAI__LIST__type>(_ listtype: T?)
-	where T.ELEMENT: SDAIPersistentReference,
+	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
 		guard let listtype = listtype else { return nil }
@@ -110,13 +110,13 @@ public extension SDAI.InitializableByEntityList
 extension SDAI {
   public protocol InitializableByEntityBag
   {
-    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
       bound1: I1, bound2: I2?, _ bagtype: T?)
     where T.ELEMENT: SDAI.EntityReference
 
-    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__BAG__type>(
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__BAG__type>(
       bound1: I1, bound2: I2?, _ bagtype: T?)
-    where T.ELEMENT: SDAIPersistentReference,
+    where T.ELEMENT: SDAI.PersistentReference,
     T.ELEMENT.ARef: SDAI.EntityReference
 
   }
@@ -131,7 +131,7 @@ public extension SDAI.InitializableByEntityBag
 	}
 	
 	init?<T: SDAI__BAG__type>(_ bagtype: T?)
-	where T.ELEMENT: SDAIPersistentReference,
+	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
 		guard let bagtype = bagtype else { return nil }
@@ -143,13 +143,13 @@ public extension SDAI.InitializableByEntityBag
 extension SDAI {
   public protocol InitializableByEntitySet
   {
-    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
       bound1: I1, bound2: I2?, _ settype: T?)
     where T.ELEMENT: SDAI.EntityReference
 
-    init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__SET__type>(
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__SET__type>(
       bound1: I1, bound2: I2?, _ settype: T?)
-    where T.ELEMENT: SDAIPersistentReference,
+    where T.ELEMENT: SDAI.PersistentReference,
     T.ELEMENT.ARef: SDAI.EntityReference
   }
 }
@@ -163,7 +163,7 @@ public extension SDAI.InitializableByEntitySet
 	}
 
 	init?<T: SDAI__SET__type>(_ settype: T?)
-	where T.ELEMENT: SDAIPersistentReference,
+	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
 		guard let settype = settype else { return nil }
@@ -180,13 +180,13 @@ extension SDAI {
     where T.ELEMENT: SDAI.EntityReference
 
     init?<T: SDAI__ARRAY_OPTIONAL__type>(_ arraytype: T?)
-    where T.ELEMENT: SDAIPersistentReference,
+    where T.ELEMENT: SDAI.PersistentReference,
     T.ELEMENT.ARef: SDAI.EntityReference
   }
 }
 public extension SDAI.InitializableByEntityArrayOptional
 {
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY_OPTIONAL__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__ARRAY_OPTIONAL__type>(
 		bound1: I1, bound2: I2, _ arraytype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -197,9 +197,9 @@ public extension SDAI.InitializableByEntityArrayOptional
 		self.init(arraytype)
 	}
 
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY_OPTIONAL__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__ARRAY_OPTIONAL__type>(
 		bound1: I1, bound2: I2, _ arraytype: T?)
-	where T.ELEMENT: SDAIPersistentReference,
+	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
 		guard let arraytype = arraytype, 
@@ -219,13 +219,13 @@ extension SDAI {
     where T.ELEMENT: SDAI.EntityReference
 
     init?<T: SDAI__ARRAY__type>(_ arraytype: T?)
-    where T.ELEMENT: SDAIPersistentReference,
+    where T.ELEMENT: SDAI.PersistentReference,
     T.ELEMENT.ARef: SDAI.EntityReference
   }
 }
 public extension SDAI.InitializableByEntityArray
 {
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__ARRAY__type>(
 		bound1: I1, bound2: I2, _ arraytype: T?) 
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -236,9 +236,9 @@ public extension SDAI.InitializableByEntityArray
 		self.init(arraytype)
 	}
 
-	init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__ARRAY__type>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__ARRAY__type>(
 		bound1: I1, bound2: I2, _ arraytype: T?)
-	where T.ELEMENT: SDAIPersistentReference,
+	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
 		guard let arraytype = arraytype, 

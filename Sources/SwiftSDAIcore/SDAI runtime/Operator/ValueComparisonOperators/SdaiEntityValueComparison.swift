@@ -31,13 +31,13 @@ public func .!=. (
 
 /// Entity Value Equal: Entity .==. Select = LOGICAL
 ///
-public func .==. <US: SDAISelectType>(
+public func .==. <US: SDAI.SelectType>(
   lhs: SDAI.EntityReference?, rhs: US?) -> SDAI.LOGICAL
 { lhs .==. rhs?.entityReference }
 
 /// Entity Value NotEqual: Entity .!=. Select = LOGICAL
 ///
-public func .!=. <US: SDAISelectType>(
+public func .!=. <US: SDAI.SelectType>(
   lhs: SDAI.EntityReference?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
@@ -45,13 +45,13 @@ public func .!=. <US: SDAISelectType>(
 //MARK: select vs. entity ref
 /// Entity Value Equal: Select .==. Entity = LOGICAL
 ///
-public func .==. <TS: SDAISelectType>(
+public func .==. <TS: SDAI.SelectType>(
   lhs: TS?, rhs: SDAI.EntityReference?) -> SDAI.LOGICAL
 { rhs .==. lhs }
 
 /// Entity Value NotEqual: Select .!=. Entity = LOGICAL
 ///
-public func .!=. <TS: SDAISelectType>(
+public func .!=. <TS: SDAI.SelectType>(
   lhs: TS?, rhs: SDAI.EntityReference?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
@@ -101,26 +101,26 @@ public func .!=. <U>(
 //MARK: pref vs. select
 /// Entity Value Equal: PRef .==. Select = LOGICAL
 ///
-public func .==. <T,US:SDAISelectType>(
+public func .==. <T,US:SDAI.SelectType>(
   lhs: SDAI.PersistentEntityReference<T>?, rhs: US?) -> SDAI.LOGICAL
 { lhs?.eval .==. rhs }
 
 /// Entity Value NotEqual: PRef .!=. Select = LOGICAL
 ///
-public func .!=. <T,US:SDAISelectType>(
+public func .!=. <T,US:SDAI.SelectType>(
   lhs: SDAI.PersistentEntityReference<T>?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
 //MARK: select vs. pref
 /// Entity Value Equal: Select .==. PRef = LOGICAL
 ///
-public func .==. <TS:SDAISelectType,U>(
+public func .==. <TS:SDAI.SelectType,U>(
   lhs: TS?, rhs: SDAI.PersistentEntityReference<U>?) -> SDAI.LOGICAL
 { rhs .==. lhs }
 
 /// Entity Value NotEqual: Select .!=. PRef = LOGICAL
 ///
-public func .!=. <TS:SDAISelectType,U>(
+public func .!=. <TS:SDAI.SelectType,U>(
   lhs: TS?, rhs: SDAI.PersistentEntityReference<U>?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 

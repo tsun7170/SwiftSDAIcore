@@ -16,21 +16,21 @@ extension SDAIDictionarySchema {
 	/// 
 	/// A BaseType is a selection of a SimpleType, an AggregationType, or a NamedType.
 	/// These are the data types that may be used as the value for an attribute or as an element of an aggregate. 
-	public typealias BaseType = SDAIBaseType
+	public typealias BaseType = SDAI.BaseType
 
 	
 	/// ISO 10303-22 (6.3.2) constructed_type
 	/// 
 	/// A ConstructedType is a selection of an EnumerationType or a SelectType.
 	/// These are data types with a syntactic structure that are used to provide a representation of an EXPRESS defined data type. 
-	public typealias ConstructedType = SDAIConstructedType
+	public typealias ConstructedType = SDAI.ConstructedType
 	
 	
 	/// ISO 10303-22 (6.3.3) underlying_type
 	/// 
 	/// An UnderlyingType is a selection of a SimpleType, an AggregationType, a DefinedType, or a ConstructedType.
 	/// These are the data types that are used to provide the representation of an EXPRESS defined data type.  
-	public typealias UnderlyingType = SDAIUnderlyingType
+	public typealias UnderlyingType = SDAI.UnderlyingType
 
 	
 	/// ISO 10303-22 (6.3.6) express_id
@@ -97,14 +97,14 @@ extension SDAIDictionarySchema {
 	/// 
 	/// A DefinedType is a NamedType establishing a type as the result of the EXPRESS TYPE declaration.
 	/// A DefinedType has a name and a domain.  
-	public typealias DefinedType = SDAIDefinedType
+	public typealias DefinedType = SDAI.DefinedType
 	
 	
 
 	/// ISO 10303-22 (6.4.20) simple_type
 	/// 
 	/// A SimpleType is an EXPRESS unstructured, built-in base type.  
-	public typealias SimpleType = SDAISimpleType
+	public typealias SimpleType = SDAI.SimpleType
 
 	/// ISO 10303-22 (6.4.21) number_type
 	/// 
@@ -156,26 +156,26 @@ extension SDAIDictionarySchema {
 	/// ISO 10303-33 (6.4.28) enumeration_type
 	/// 
 	/// AN EnumerationType represents the EXPRESS ENUMERATION type.   
-	public typealias EnumerationType = SDAIEnumerationType
+	public typealias EnumerationType = SDAI.EnumerationType
 
 	
 	/// ISO 10303-22 (6.4.29) select_type
 	/// 
 	/// A SelectType represents the EXPRESS SELECT type.    
-	public typealias SelectType = SDAISelectType
+	public typealias SelectType = SDAI.SelectType
 	
 
 	/// ISO 10303-22 (6.4.30) aggregation_type
 	/// 
 	/// An AggregationType is an EXPRESS data type whose values are collections of other values of a given base type.  
-	public typealias AggregationType = SDAIAggregationType
+	public typealias AggregationType = SDAI.AggregationType
 	
 	
 	/// ISO 10303-22 (6.4.31) variable_size_agregation_type
 	/// 
 	/// A VariableSizeAggregationType is an AggregationType that may be declared as having a variable number of elements.
 	/// The number of elements is bounded from below and may be bounded from above. 
-	public typealias VariableSizeAggregationType = SDAIAggregationType
+	public typealias VariableSizeAggregationType = SDAI.AggregationType
 
 	
 	/// ISO 10303-22 (6.4.32) set_type
@@ -204,7 +204,7 @@ extension SDAIDictionarySchema {
 	///An array has lower and upper index values.
 	///The elements of an array are required to be unique if the UNIQUE keyword was specified.
 	///An array may contain indeterminate values at one or more index positions if the OPTIONAL keyword was specified. 
-	public typealias ArrayType = SDAIArrayOptionalType
+	public typealias ArrayType = SDAI.ArrayOptionalType
 
 	
 	/// ISO 10303-22 (6.4.36) bound

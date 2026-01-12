@@ -602,8 +602,8 @@ extension SDAI {
     }
 
 		public func usedIn<ENT, R>( as role: KeyPath<ENT,R> ) -> Array<ENT.PRef>
-		where ENT: EntityReference & SDAIDualModeReference,
-					R:   SDAIGenericType
+		where ENT: EntityReference & SDAI.DualModeReference,
+					R:   SDAI.GenericType
     {
       var result: Set<ENT.PRef> = []
 
@@ -620,7 +620,7 @@ extension SDAI {
           let entityPRef = entity.pRef
           if result.contains(entityPRef) { continue }
 
-          guard let attr = entity[keyPath: role] as? SDAIEntityReferenceYielding
+          guard let attr = entity[keyPath: role] as? SDAI.EntityReferenceYielding
           else { continue }
 
           for attrPRef in attr.persistentEntityReferences {
@@ -638,8 +638,8 @@ extension SDAI {
 
 
 		public func usedIn<ENT, R>( as role: KeyPath<ENT,R?> ) -> Array<ENT.PRef>
-		where ENT: EntityReference & SDAIDualModeReference,
-					R:   SDAIGenericType
+		where ENT: EntityReference & SDAI.DualModeReference,
+					R:   SDAI.GenericType
     {
       var result: Set<ENT.PRef> = []
 
@@ -656,7 +656,7 @@ extension SDAI {
           let entityPRef = entity.pRef
           if result.contains(entityPRef) { continue }
 
-          guard let attr = entity[keyPath: role] as? SDAIEntityReferenceYielding
+          guard let attr = entity[keyPath: role] as? SDAI.EntityReferenceYielding
           else { continue }
 
           for attrPRef in attr.persistentEntityReferences {

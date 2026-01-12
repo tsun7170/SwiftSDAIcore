@@ -10,10 +10,12 @@ import Foundation
 
 //MARK: - Simple data types (8.1)
 
-public protocol SDAISimpleType: SDAIUnderlyingType, SDAIBaseType, SDAI.InitializableBySwiftType, SDAISwiftTypeRepresented 
-{}
+extension SDAI {
+  public protocol SimpleType: SDAI.UnderlyingType, SDAI.BaseType, SDAI.InitializableBySwiftType, SDAI.SwiftTypeRepresented
+  {}
+}
 
-public extension SDAISimpleType 
+public extension SDAI.SimpleType
 {
 	func copy() -> Self { return self }
 	var isCacheable: Bool { return true }

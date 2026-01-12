@@ -13,17 +13,19 @@ import Foundation
 
 
 //MARK: - list type (8.2.2)
-public protocol SDAIListType:
-	SDAIAggregationType, SDAIAggregateIndexingSettable, SDAIUnderlyingType, SDAISwiftTypeRepresented,
-  SDAI.InitializableByEmptyListLiteral, SDAI.InitializableBySwifttypeAsList, InitializableBySelecttypeAsList,
-  InitializableByListLiteral, SDAI.InitializableByGenericList, SDAI.InitializableByVoid
-{
-	// Built-in procedure support
-	mutating func insert(element: ELEMENT, at position: Int)
-	mutating func remove(at position: Int)
+extension SDAI {
+  public protocol ListType:
+    SDAI.AggregationType, SDAI.AggregateIndexingSettable, SDAI.UnderlyingType, SDAI.SwiftTypeRepresented,
+    SDAI.InitializableByEmptyListLiteral, SDAI.InitializableBySwifttypeAsList, InitializableBySelecttypeAsList,
+    InitializableByListLiteral, SDAI.InitializableByGenericList, SDAI.InitializableByVoid
+  {
+    // Built-in procedure support
+    mutating func insert(element: ELEMENT, at position: Int)
+    mutating func remove(at position: Int)
+  }
 }
 
-extension SDAIListType {
+extension SDAI.ListType {
 	public var isCacheable: Bool {
 		for elem in self.asAggregationSequence {
 			if !elem.isCacheable { return false }
@@ -34,7 +36,7 @@ extension SDAIListType {
 
 
 //MARK: - LIST type
-public protocol SDAI__LIST__type: SDAIListType
+public protocol SDAI__LIST__type: SDAI.ListType
 where Element == ELEMENT,
 			FundamentalType == SDAI.LIST<ELEMENT>,
 			Value == FundamentalType.Value,
@@ -44,13 +46,13 @@ where Element == ELEMENT,
 	static var uniqueFlag: SDAI.BOOLEAN {get}
 	
 	// Aggregation operator support
-	func appendWith<U: SDAIListType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
+	func appendWith<U: SDAI.ListType>(rhs: U) -> SDAI.LIST<ELEMENT>? 
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
-	func appendWith<U: SDAIGenericType>(rhs: U) -> SDAI.LIST<ELEMENT>?
+	func appendWith<U: SDAI.GenericType>(rhs: U) -> SDAI.LIST<ELEMENT>?
 	where ELEMENT.FundamentalType == U.FundamentalType
 
-	func prependWith<U: SDAIGenericType>(lhs: U) -> SDAI.LIST<ELEMENT>?
+	func prependWith<U: SDAI.GenericType>(lhs: U) -> SDAI.LIST<ELEMENT>?
 	where ELEMENT.FundamentalType == U.FundamentalType
 
 	func appendWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>?
@@ -76,22 +78,22 @@ where ELEMENT: SDAI.InitializableByComplexEntity {
 }
 public extension SDAI__LIST__type 
 where ELEMENT: SDAI.EntityReference {
-	func appendWith<U: SDAISelectType>(rhs: U) -> SDAI.LIST<ELEMENT>? {
+	func appendWith<U: SDAI.SelectType>(rhs: U) -> SDAI.LIST<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
 		return self.appendWith(rhs: rhs)
 	}
-	func prependWith<T: SDAISelectType>(lhs: T) -> SDAI.LIST<ELEMENT>? {
+	func prependWith<T: SDAI.SelectType>(lhs: T) -> SDAI.LIST<ELEMENT>? {
 		guard let lhs = ELEMENT(possiblyFrom: lhs) else { return nil }
 		return self.prependWith(lhs: lhs)
 	}
 }
 public extension SDAI__LIST__type 
-where ELEMENT: SDAIPersistentReference {
-	func appendWith<U: SDAISelectType>(rhs: U) -> SDAI.LIST<ELEMENT>? {
+where ELEMENT: SDAI.PersistentReference {
+	func appendWith<U: SDAI.SelectType>(rhs: U) -> SDAI.LIST<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
 		return self.appendWith(rhs: rhs)
 	}
-	func prependWith<T: SDAISelectType>(lhs: T) -> SDAI.LIST<ELEMENT>? {
+	func prependWith<T: SDAI.SelectType>(lhs: T) -> SDAI.LIST<ELEMENT>? {
 		guard let lhs = ELEMENT(possiblyFrom: lhs) else { return nil }
 		return self.prependWith(lhs: lhs)
 	}
@@ -101,7 +103,7 @@ where ELEMENT: SDAIPersistentReference {
 //MARK: - SDAI.LIST
 extension SDAI {
 	
-	public struct LIST<ELEMENT:SDAIGenericType>: SDAI__LIST__type
+	public struct LIST<ELEMENT:SDAI.GenericType>: SDAI__LIST__type
 	{
 		public typealias SwiftType = Array<ELEMENT>
 		public typealias FundamentalType = Self
@@ -110,21 +112,21 @@ extension SDAI {
 		private var bound1: Int
 		private var bound2: Int?
 
-		// Equatable \Hashable\SDAIGenericType
+		// Equatable \Hashable\SDAI.GenericType
 		public static func == (lhs: SDAI.LIST<ELEMENT>, rhs: SDAI.LIST<ELEMENT>) -> Bool {
 			return lhs.rep == rhs.rep &&
 				lhs.bound1 == rhs.bound1 &&
 				lhs.bound2 == rhs.bound2
 		}
 		
-		// Hashable \SDAIGenericType
+		// Hashable \SDAI.GenericType
 		public func hash(into hasher: inout Hasher) {
 			hasher.combine(rep)
 			hasher.combine(bound1)
 			hasher.combine(bound2)
 		}
 
-		// SDAIGenericType
+		// SDAI.GenericType
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]
 		}
@@ -142,28 +144,28 @@ extension SDAI {
 		public var integerValue: SDAI.INTEGER? {nil}
 		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
 
-		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
-		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+		public func arrayOptionalValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+		public func arrayValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
 		
-		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {
+		public func listValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {
 			if let value = self as? LIST<ELEM> { return value.copy() }
 			return LIST<ELEM>(bound1: self.loBound, bound2: self.hiBound, [self]) { ELEM.convert(fromGeneric: $0.copy()) }
 		}
 		
-		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
-		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
-		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
+		public func bagValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+		public func setValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+		public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		public static func validateWhereRules(instance:Self?, prefix:SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
 			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix)
 		}
 
 
-		// SDAIUnderlyingType
+		// SDAI.UnderlyingType
 		public static var typeName: String { return "LIST" }
 		public var asSwiftType: SwiftType { return self.copy().rep }
 		
-		// SDAIGenericType
+		// SDAI.GenericType
 		public func copy() -> Self {
 			return self
 		}
@@ -174,10 +176,10 @@ extension SDAI {
 			self.init(from: fundamental.asSwiftType, bound1: fundamental.loBound, bound2: fundamental.hiBound)
 		}
 		
-		// Sequence \SDAIAggregationType
+		// Sequence \SDAI.AggregationType
 		public func makeIterator() -> SwiftType.Iterator { return self.copy().rep.makeIterator() }
 
-		// SDAIAggregationType
+		// SDAI.AggregationType
 		public var hiBound: Int? { return bound2 }
 		public var hiIndex: Int { return size }
 		public var loBound: Int { return bound1 }
@@ -213,12 +215,12 @@ extension SDAI {
 		public static var uniqueFlag: BOOLEAN {false}
 		
 		// LIST specific
-		public func map<T:SDAIGenericType>(_ transform: (ELEMENT) -> T ) -> LIST<T> {
+		public func map<T:SDAI.GenericType>(_ transform: (ELEMENT) -> T ) -> LIST<T> {
 			let mapped = self.rep.map(transform)
 			return LIST<T>(from:mapped, bound1:self.bound1, bound2:self.bound2)
 		}
 		
-		private init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S:Sequence>(bound1: I1, bound2: I2?, _ elements: [S], conv: (S.Element) -> ELEMENT? )
+		private init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S:Sequence>(bound1: I1, bound2: I2?, _ elements: [S], conv: (S.Element) -> ELEMENT? )
 		{
 			var swiftValue = SwiftType()
 			if let hi = bound2?.possiblyAsSwiftInt {
@@ -235,13 +237,13 @@ extension SDAI {
 		
 		
 		// InitializableByGenerictype
-		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let fundamental = generic?.listValue(elementType: ELEMENT.self) else { return nil }
 			self.init(fundamental: fundamental)
 		}
 
 		// InitializableByGenericList
-		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
 			bound1: I1, bound2: I2?, generic listtype: T?)
 		{
 			guard let listtype = listtype else { return nil }
@@ -249,14 +251,14 @@ extension SDAI {
 		}
 		
 		// InitializableByEmptyListLiteral
-		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+		public init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
 			bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE)
 		{
 			self.init(from: SwiftType(), bound1: bound1, bound2: bound2)
 		} 
 
 		// InitializableBySwifttypeAsList
-		public init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+		public init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
 			from swiftValue: SwiftType, bound1: I1, bound2: I2?)
 		{
 			self.bound1 = bound1.possiblyAsSwiftInt ?? 0
@@ -265,7 +267,7 @@ extension SDAI {
 		}
 		
 		// InitializableBySelecttypeAsList
-		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, S: SDAISelectType>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(
 			bound1: I1, bound2: I2?, _ select: S?)
 		{
 			guard let fundamental = Self.init(possiblyFrom: select) else { return nil }
@@ -273,7 +275,7 @@ extension SDAI {
 		}
 
 		// InitializableByListLiteral
-		public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, E: SDAIGenericType>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
 			bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
 		{
 			self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT.convert(fromGeneric: $0) }
@@ -294,14 +296,14 @@ extension SDAI {
 
 		//MARK: Aggregation operator support
 		//MARK: Union
-		private func append<S: SDAIAggregationSequence>(other: S) -> SwiftType
+		private func append<S: SDAI.AggregationSequence>(other: S) -> SwiftType
 		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
 			var result = self.rep
 			result.append(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0.asFundamentalType) } )
 			return result
 		}
 
-		private func prepend<S: SDAIAggregationSequence>(other: S) -> SwiftType
+		private func prepend<S: SDAI.AggregationSequence>(other: S) -> SwiftType
 		where S.ELEMENT.FundamentalType == ELEMENT.FundamentalType {
 			var result = self.rep
 			result.insert(contentsOf: other.asAggregationSequence.lazy.map{ ELEMENT.convert(from: $0.asFundamentalType) }, at: 0 )
@@ -309,20 +311,20 @@ extension SDAI {
 		}
 
 
-		public func appendWith<U: SDAIListType>(rhs: U) -> SDAI.LIST<ELEMENT>?
+		public func appendWith<U: SDAI.ListType>(rhs: U) -> SDAI.LIST<ELEMENT>?
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.append(other: rhs)
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 
-		public func appendWith<U: SDAIGenericType>(rhs: U) -> SDAI.LIST<ELEMENT>?
+		public func appendWith<U: SDAI.GenericType>(rhs: U) -> SDAI.LIST<ELEMENT>?
 		where ELEMENT.FundamentalType == U.FundamentalType {
 			var result = self.rep
 			result.append(ELEMENT.convert(from: rhs.asFundamentalType))
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 
-		public func prependWith<U: SDAIGenericType>(lhs: U) -> SDAI.LIST<ELEMENT>?
+		public func prependWith<U: SDAI.GenericType>(lhs: U) -> SDAI.LIST<ELEMENT>?
 		where ELEMENT.FundamentalType == U.FundamentalType {
 			var result = self.rep
 			result.insert(ELEMENT.convert(from: lhs.asFundamentalType), at: 0 )
@@ -417,14 +419,14 @@ extension SDAI {
 }
 
 
-extension SDAI.LIST: SDAIFundamentalAggregationType{}
+extension SDAI.LIST: SDAI.FundamentalAggregationType{}
 
-extension SDAI.LIST: SDAIEntityReferenceYielding
-where ELEMENT: SDAIEntityReferenceYielding
+extension SDAI.LIST: SDAI.EntityReferenceYielding
+where ELEMENT: SDAI.EntityReferenceYielding
 { }
 
-extension SDAI.LIST: SDAIDualModeReference
-where ELEMENT: SDAIDualModeReference
+extension SDAI.LIST: SDAI.DualModeReference
+where ELEMENT: SDAI.DualModeReference
 {
 	public var pRef: SDAI.LIST<ELEMENT.PRef> {
 		let converted = self.map{ $0.pRef }
@@ -432,8 +434,8 @@ where ELEMENT: SDAIDualModeReference
 	}
 }
 
-extension SDAI.LIST: SDAIPersistentReference
-where ELEMENT: SDAIPersistentReference
+extension SDAI.LIST: SDAI.PersistentReference
+where ELEMENT: SDAI.PersistentReference
 {
 	public var aRef: SDAI.LIST<ELEMENT.ARef> {
 		let converted = self.map{ $0.aRef }
@@ -451,9 +453,9 @@ where ELEMENT: SDAIPersistentReference
 extension SDAI.LIST: SDAI.InitializableBySelecttypeList
 where ELEMENT: SDAI.InitializableBySelectType
 {	
-	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
 		bound1: I1, bound2: I2?, _ listtype: T?)
-	where T.ELEMENT: SDAISelectType
+	where T.ELEMENT: SDAI.SelectType
 	{
 		guard let listtype = listtype else { return nil }
 		self.init(bound1: bound1, bound2: bound2, [listtype]){ ELEMENT.convert(sibling: $0) }
@@ -464,7 +466,7 @@ where ELEMENT: SDAI.InitializableBySelectType
 extension SDAI.LIST: SDAI.InitializableByEntityList
 where ELEMENT: SDAI.InitializableByComplexEntity
 {
-	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
 		bound1: I1, bound2: I2?, _ listtype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -474,9 +476,9 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 		}		
 	}
 
-	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
 		bound1: I1, bound2: I2?, _ listtype: T?)
-	where T.ELEMENT: SDAIPersistentReference,
+	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
 		guard let listtype = listtype else { return nil }
@@ -492,9 +494,9 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 extension SDAI.LIST: SDAI.InitializableByDefinedtypeList
 where ELEMENT: SDAI.InitializableByDefinedType
 {
-	public init?<I1: SwiftIntConvertible, I2: SwiftIntConvertible, T: SDAI__LIST__type>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI__LIST__type>(
 		bound1: I1, bound2: I2?, _ listtype: T?)
-	where T.ELEMENT: SDAIUnderlyingType
+	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		guard let listtype = listtype else { return nil }
 		self.init(bound1:bound1, bound2:bound2, [listtype]) {

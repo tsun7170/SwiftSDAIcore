@@ -13,7 +13,7 @@ import Foundation
 //MARK: array vs. array
 /// Aggregate Value Equal: Array .==. Array = LOGICAL
 ///
-public func .==. <TA: SDAIArrayOptionalType, UA: SDAIArrayOptionalType>(
+public func .==. <TA: SDAI.ArrayOptionalType, UA: SDAI.ArrayOptionalType>(
   lhs: TA?, rhs: UA?) -> SDAI.LOGICAL
 {
 	return SDAI.LOGICAL( lhs?.value.isValueEqualOptionally(to: rhs?.value) )
@@ -21,7 +21,7 @@ public func .==. <TA: SDAIArrayOptionalType, UA: SDAIArrayOptionalType>(
 
 /// Aggregate Value NotEqual: Array .!=. Array = LOGICAL
 ///
-public func .!=. <TA: SDAIArrayOptionalType, UA: SDAIArrayOptionalType>(
+public func .!=. <TA: SDAI.ArrayOptionalType, UA: SDAI.ArrayOptionalType>(
   lhs: TA?, rhs: UA?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
@@ -29,13 +29,13 @@ public func .!=. <TA: SDAIArrayOptionalType, UA: SDAIArrayOptionalType>(
 //MARK: array vs. select
 /// Aggregate Value Equal: Array .==. Select = LOGICAL
 ///
-public func .==. <TA: SDAIArrayOptionalType, US: SDAISelectType>(
+public func .==. <TA: SDAI.ArrayOptionalType, US: SDAI.SelectType>(
   lhs: TA?, rhs: US?) -> SDAI.LOGICAL
 { lhs .==. rhs?.arrayOptionalValue(elementType: SDAI.GENERIC.self) }
 
 /// Aggregate Value NotEqual: Array .==. Select = LOGICAL
 ///
-public func .!=. <TA: SDAIArrayOptionalType, US: SDAISelectType>(
+public func .!=. <TA: SDAI.ArrayOptionalType, US: SDAI.SelectType>(
   lhs: TA?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
@@ -43,13 +43,13 @@ public func .!=. <TA: SDAIArrayOptionalType, US: SDAISelectType>(
 //MARK: select vs. array
 /// Aggregate Value Equal: Select .==. Array = LOGICAL
 ///
-public func .==. <TS: SDAISelectType, UA: SDAIArrayOptionalType>(
+public func .==. <TS: SDAI.SelectType, UA: SDAI.ArrayOptionalType>(
   lhs: TS?, rhs: UA?) -> SDAI.LOGICAL
 { rhs .==. lhs }
 
 /// Aggregate Value NotEqual: Select .==. Array = LOGICAL
 ///
-public func .!=. <TS: SDAISelectType, UA: SDAIArrayOptionalType>(
+public func .!=. <TS: SDAI.SelectType, UA: SDAI.ArrayOptionalType>(
   lhs: TS?, rhs: UA?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
@@ -57,7 +57,7 @@ public func .!=. <TS: SDAISelectType, UA: SDAIArrayOptionalType>(
 //MARK: list vs. list
 /// Aggregate Value Equal: List .==. List = LOGICAL
 ///
-public func .==. <TL: SDAIListType, UL: SDAIListType>(
+public func .==. <TL: SDAI.ListType, UL: SDAI.ListType>(
   lhs: TL?, rhs: UL?) -> SDAI.LOGICAL
 {
 	return SDAI.LOGICAL( lhs?.value.isValueEqualOptionally(to: rhs?.value) )
@@ -65,7 +65,7 @@ public func .==. <TL: SDAIListType, UL: SDAIListType>(
 
 /// Aggregate Value NotEqual: List .==. List = LOGICAL
 ///
-public func .!=. <TL: SDAIListType, UL: SDAIListType>(
+public func .!=. <TL: SDAI.ListType, UL: SDAI.ListType>(
   lhs: TL?, rhs: UL?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
@@ -73,7 +73,7 @@ public func .!=. <TL: SDAIListType, UL: SDAIListType>(
 //MARK: list vs. aggregate
 /// Aggregate Value Equal: List .==. Aggregate = LOGICAL
 ///
-public func .==. <TL: SDAIListType, UG: SDAIAggregationInitializer>(
+public func .==. <TL: SDAI.ListType, UG: SDAIAggregationInitializer>(
   lhs: TL?, rhs: UG?) -> SDAI.LOGICAL
 {
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
@@ -90,7 +90,7 @@ public func .==. <TL: SDAIListType, UG: SDAIAggregationInitializer>(
 
 /// Aggregate Value NotEqual: List .==. Aggregate = LOGICAL
 ///
-public func .!=. <TL: SDAIListType, UG: SDAIAggregationInitializer>(
+public func .!=. <TL: SDAI.ListType, UG: SDAIAggregationInitializer>(
   lhs: TL?, rhs: UG?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
@@ -98,13 +98,13 @@ public func .!=. <TL: SDAIListType, UG: SDAIAggregationInitializer>(
 //MARK: aggregate vs. list
 /// Aggregate Value Equal: Aggregate .==. List = LOGICAL
 ///
-public func .==. <TG: SDAIAggregationInitializer, UL: SDAIListType>(
+public func .==. <TG: SDAIAggregationInitializer, UL: SDAI.ListType>(
   lhs: TG?, rhs: UL?) -> SDAI.LOGICAL
 { rhs .==. lhs }
 
 /// Aggregate Value NotEqual: Aggregate .==. List = LOGICAL
 ///
-public func .!=. <TG: SDAIAggregationInitializer, UL: SDAIListType>(
+public func .!=. <TG: SDAIAggregationInitializer, UL: SDAI.ListType>(
   lhs: TG?, rhs: UL?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
@@ -112,13 +112,13 @@ public func .!=. <TG: SDAIAggregationInitializer, UL: SDAIListType>(
 //MARK: list vs. select
 /// Aggregate Value Equal: List .==. Select = LOGICAL
 ///
-public func .==. <TL: SDAIListType, US: SDAISelectType>(
+public func .==. <TL: SDAI.ListType, US: SDAI.SelectType>(
   lhs: TL?, rhs: US?) -> SDAI.LOGICAL
 { lhs .==. rhs?.listValue(elementType: SDAI.GENERIC.self) }
 
 /// Aggregate Value NotEqual: List .==. Select = LOGICAL
 ///
-public func .!=. <TL: SDAIListType, US: SDAISelectType>(
+public func .!=. <TL: SDAI.ListType, US: SDAI.SelectType>(
   lhs: TL?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
@@ -126,13 +126,13 @@ public func .!=. <TL: SDAIListType, US: SDAISelectType>(
 //MARK: select vs. list
 /// Aggregate Value Equal: Select .==. List = LOGICAL
 ///
-public func .==. <TS: SDAISelectType, UL: SDAIListType>(
+public func .==. <TS: SDAI.SelectType, UL: SDAI.ListType>(
   lhs: TS?, rhs: UL?) -> SDAI.LOGICAL
 { rhs .==. lhs }
 
 /// Aggregate Value NotEqual: Select .==. List = LOGICAL
 ///
-public func .!=. <TS: SDAISelectType, UL: SDAIListType>(
+public func .!=. <TS: SDAI.SelectType, UL: SDAI.ListType>(
   lhs: TS?, rhs: UL?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
@@ -140,7 +140,7 @@ public func .!=. <TS: SDAISelectType, UL: SDAIListType>(
 //MARK: (bag or set) vs. (bag or set)
 /// Aggregate Value Equal: Bag/Set .==. Bag/Set = LOGICAL
 ///
-public func .==. <TB: SDAIBagType, UB: SDAIBagType>(
+public func .==. <TB: SDAI.BagType, UB: SDAI.BagType>(
   lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
 {
 	return SDAI.LOGICAL( lhs?.value.isValueEqualOptionally(to: rhs?.value) )
@@ -148,7 +148,7 @@ public func .==. <TB: SDAIBagType, UB: SDAIBagType>(
 
 /// Aggregate Value NotEqual: Bag/Set .==. Bag/Set = LOGICAL
 ///
-public func .!=. <TB: SDAIBagType, UB: SDAIBagType>(
+public func .!=. <TB: SDAI.BagType, UB: SDAI.BagType>(
   lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
@@ -156,13 +156,13 @@ public func .!=. <TB: SDAIBagType, UB: SDAIBagType>(
 //MARK: (bag or set) vs. select
 /// Aggregate Value Equal: Bag/Set .==. Select = LOGICAL
 ///
-public func .==. <TB: SDAIBagType, US: SDAISelectType>(
+public func .==. <TB: SDAI.BagType, US: SDAI.SelectType>(
   lhs: TB?, rhs: US?) -> SDAI.LOGICAL
 { lhs .==. rhs?.bagValue(elementType: SDAI.GENERIC.self) }
 
 /// Aggregate Value NotEqual: Bag/Set .==. Select = LOGICAL
 ///
-public func .!=. <TB: SDAIBagType, US: SDAISelectType>(
+public func .!=. <TB: SDAI.BagType, US: SDAI.SelectType>(
   lhs: TB?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
@@ -170,13 +170,13 @@ public func .!=. <TB: SDAIBagType, US: SDAISelectType>(
 //MARK: select vs. (bag or set)
 /// Aggregate Value Equal: Select .==. Bag/Set = LOGICAL
 ///
-public func .==. <TS: SDAISelectType, UB: SDAIBagType>(
+public func .==. <TS: SDAI.SelectType, UB: SDAI.BagType>(
   lhs: TS?, rhs: UB?) -> SDAI.LOGICAL
 { rhs .==. lhs }
 
 /// Aggregate Value NotEqual: Select .==. Bag/Set = LOGICAL
 ///
-public func .!=. <TS: SDAISelectType, UB: SDAIBagType>(
+public func .!=. <TS: SDAI.SelectType, UB: SDAI.BagType>(
   lhs: TS?, rhs: UB?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
@@ -184,7 +184,7 @@ public func .!=. <TS: SDAISelectType, UB: SDAIBagType>(
 //MARK: (bag or set) vs. aggregate
 /// Aggregate Value Equal: Bag/Set .==. Aggregate = LOGICAL
 ///
-public func .==. <TB: SDAIBagType, UG: SDAIAggregationInitializer>(
+public func .==. <TB: SDAI.BagType, UG: SDAIAggregationInitializer>(
   lhs: TB?, rhs: UG?) -> SDAI.LOGICAL
 {
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
@@ -203,7 +203,7 @@ public func .==. <TB: SDAIBagType, UG: SDAIAggregationInitializer>(
 
 /// Aggregate Value NotEqual: Bag/Set .==. Aggregate = LOGICAL
 ///
-public func .!=. <TB: SDAIBagType, UG: SDAIAggregationInitializer>(
+public func .!=. <TB: SDAI.BagType, UG: SDAIAggregationInitializer>(
   lhs: TB?, rhs: UG?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
@@ -211,12 +211,12 @@ public func .!=. <TB: SDAIBagType, UG: SDAIAggregationInitializer>(
 //MARK: aggregate vs. (bag or set)
 /// Aggregate Value Equal: Aggregate .==. Bag/Set = LOGICAL
 ///
-public func .==. <TG: SDAIAggregationInitializer, UB: SDAIBagType>(
+public func .==. <TG: SDAIAggregationInitializer, UB: SDAI.BagType>(
   lhs: TG?, rhs: UB?) -> SDAI.LOGICAL
 { rhs .==. lhs }
 
 /// Aggregate Value NotEqual: Aggregate .==. Bag/Set = LOGICAL
 ///
-public func .!=. <TG: SDAIAggregationInitializer, UB: SDAIBagType>(
+public func .!=. <TG: SDAIAggregationInitializer, UB: SDAI.BagType>(
   lhs: TG?, rhs: UB?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }

@@ -67,7 +67,7 @@ extension P21Decode {
 		///
 		public init?(
 			output repository: SDAISessionSchema.SdaiRepository,
-			schemaList: KeyValuePairs<SchemaName,SDAISchema.Type>,
+			schemaList: KeyValuePairs<SchemaName,SDAI.SchemaType.Type>,
 			monitor: ActivityMonitor? = nil,
 			foreignReferenceResolver: ForeignReferenceResolver = ForeignReferenceResolver() )
 		{

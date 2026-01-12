@@ -30,7 +30,7 @@ extension P21Decode {
 		nonisolated(unsafe)
 		public internal(set) var entityInstanceRegistry: [EntityInstanceName:EntityInstanceRecord] = [:]
 		nonisolated(unsafe)
-		public private(set) var schemaRegistry: [SchemaName:SDAISchema.Type] = [:]
+		public private(set) var schemaRegistry: [SchemaName:SDAI.SchemaType.Type] = [:]
 		
 		public var sdaiModels: some Collection<SDAIPopulationSchema.SdaiModel> {
 			let models = dataSections.lazy.compactMap{ $0.model }
@@ -91,7 +91,7 @@ extension P21Decode {
 			return upper
 		}
 		
-		public func register(schemaName: SchemaName, schema: SDAISchema.Type) -> Bool {
+		public func register(schemaName: SchemaName, schema: SDAI.SchemaType.Type) -> Bool {
 			let canon = canonicalSchemaName(schemaName)
 			if let old = schemaRegistry.updateValue(schema, forKey: canon) {
 				self.error = "duplicated schema name(\(canon)) detected with definition(\(schema.schemaDefinition.name)), old definition = (\(old.schemaDefinition.name))"
@@ -179,7 +179,7 @@ extension P21Decode {
 
 		public func resolve(
 			schemaName: SchemaName
-		) -> SDAISchema.Type?
+		) -> SDAI.SchemaType.Type?
 		{
       push(context: .schemaName(schemaName: schemaName))
       defer { popContext() }

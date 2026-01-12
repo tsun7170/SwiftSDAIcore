@@ -13,7 +13,7 @@ import Foundation
 /// The SDAI parameter data schema provides conceptual descriptions of the data that is passed as parameters or manipulated through the SDAI.   
 public enum SDAIParameterDataSchema {
 	
-	public typealias Primitive = SDAIGenericType
+	public typealias Primitive = SDAI.GenericType
 	public typealias StringValue = String
 	public typealias IntegerValue = Int
 	public typealias BooleanValue = Bool
@@ -45,10 +45,10 @@ public enum SDAIParameterDataSchema {
 
 	/// ISO 10303-22 (9.4.11) aggregate_instance
 	public struct AggregateInstance: Sendable {
-		public let definition: any SDAIAggregationType.Type
-		public let contents: any SDAIAggregationType
+		public let definition: any SDAI.AggregationType.Type
+		public let contents: any SDAI.AggregationType
 
-		public init<AGG: SDAIAggregationType>(_ aggregate: AGG) {
+		public init<AGG: SDAI.AggregationType>(_ aggregate: AGG) {
 			self.definition = AGG.self
 			self.contents = aggregate
 		}

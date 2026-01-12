@@ -7,23 +7,24 @@
 
 import Foundation
 
-public protocol SDAIDualModeReference: SDAIGenericType
-{
-	associatedtype PRef: SDAIPersistentReference
+extension SDAI {
+  public protocol DualModeReference: SDAI.GenericType
+  {
+    associatedtype PRef: SDAI.PersistentReference
 
-	var pRef: PRef { get }
+    var pRef: PRef { get }
+  }
+
+  public protocol PersistentReference: SDAI.GenericType
+  {
+    associatedtype ARef: SDAI.GenericType
+
+    var aRef: ARef { get }
+
+    var optionalARef: ARef? { get }
+
+  }
 }
-
-public protocol SDAIPersistentReference: SDAIGenericType
-{
-  associatedtype ARef: SDAIGenericType
-
-	var aRef: ARef { get }
-
-	var optionalARef: ARef? { get }
-
-}
-
 
 
 extension SDAI {
@@ -75,10 +76,10 @@ extension SDAI {
   }//enum
 }//extension
 
-//MARK: - SDAIDefinedType extension
-public extension SDAIDefinedType
-where Self: SDAIDualModeReference,
-			FundamentalType: SDAIDualModeReference
+//MARK: - SDAI.DefinedType extension
+public extension SDAI.DefinedType
+where Self: SDAI.DualModeReference,
+			FundamentalType: SDAI.DualModeReference
 {
 	var pRef: FundamentalType.PRef {
 		return self.asFundamentalType.pRef

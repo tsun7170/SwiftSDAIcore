@@ -13,7 +13,7 @@ import Foundation
 //MARK: string type vs. string type
 /// String Value Equal: String .==. String = LOGICAL
 ///
-public func .==. <TX: SwiftStringRepresented, UX: SwiftStringRepresented>(
+public func .==. <TX: SDAI.SwiftStringRepresented, UX: SDAI.SwiftStringRepresented>(
   lhs: TX?, rhs: UX?) -> SDAI.LOGICAL
 {
 	guard let lhs = lhs?.possiblyAsSwiftString, let rhs = rhs?.possiblyAsSwiftString else { return SDAI.UNKNOWN }
@@ -22,13 +22,13 @@ public func .==. <TX: SwiftStringRepresented, UX: SwiftStringRepresented>(
 
 /// String Value NotEqual: String .!=. String = LOGICAL
 ///
-public func .!=. <TX: SwiftStringRepresented, UX: SwiftStringRepresented>(
+public func .!=. <TX: SDAI.SwiftStringRepresented, UX: SDAI.SwiftStringRepresented>(
   lhs: TX?, rhs: UX?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
 /// String Value GreaterThan: String \> String = LOGICAL
 ///
-public func >    <TX: SwiftStringRepresented, UX: SwiftStringRepresented>(
+public func >    <TX: SDAI.SwiftStringRepresented, UX: SDAI.SwiftStringRepresented>(
   lhs: TX?, rhs: UX?) -> SDAI.LOGICAL
 {
 	guard let lhs = lhs?.possiblyAsSwiftString, let rhs = rhs?.possiblyAsSwiftString else { return SDAI.UNKNOWN }
@@ -37,19 +37,19 @@ public func >    <TX: SwiftStringRepresented, UX: SwiftStringRepresented>(
 
 /// String Value LessThan: String \< String = LOGICAL
 ///
-public func <    <TX: SwiftStringRepresented, UX: SwiftStringRepresented>(
+public func <    <TX: SDAI.SwiftStringRepresented, UX: SDAI.SwiftStringRepresented>(
   lhs: TX?, rhs: UX?) -> SDAI.LOGICAL
 { rhs > lhs }
 
 /// String Value GreaterThanOrEqual: String \>= String = LOGICAL
 ///
-public func >=   <TX: SwiftStringRepresented, UX: SwiftStringRepresented>(
+public func >=   <TX: SDAI.SwiftStringRepresented, UX: SDAI.SwiftStringRepresented>(
   lhs: TX?, rhs: UX?) -> SDAI.LOGICAL
 { (lhs > rhs)||(lhs .==. rhs) }
 
 /// String Value LessThanOrEqual: String \<=> String = LOGICAL
 ///
-public func <=   <TX: SwiftStringRepresented, UX: SwiftStringRepresented>(
+public func <=   <TX: SDAI.SwiftStringRepresented, UX: SDAI.SwiftStringRepresented>(
   lhs: TX?, rhs: UX?) -> SDAI.LOGICAL
 { (lhs < rhs)||(lhs .==. rhs) }
 
@@ -57,37 +57,37 @@ public func <=   <TX: SwiftStringRepresented, UX: SwiftStringRepresented>(
 //MARK: select type vs. string type
 /// String Value Equal: Select .==. String = LOGICAL
 ///
-public func .==. <TS: SDAISelectType, UX: SwiftStringRepresented>(
+public func .==. <TS: SDAI.SelectType, UX: SDAI.SwiftStringRepresented>(
   lhs: TS?, rhs: UX?) -> SDAI.LOGICAL
 { lhs?.stringValue .==. rhs }
 
 /// String Value NotEqual: Select .!=. String = LOGICAL
 ///
-public func .!=. <TS: SDAISelectType, UX: SwiftStringRepresented>(
+public func .!=. <TS: SDAI.SelectType, UX: SDAI.SwiftStringRepresented>(
   lhs: TS?, rhs: UX?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
 /// String Value GreaterThan: Select \> String = LOGICAL
 ///
-public func >    <TS: SDAISelectType, UX: SwiftStringRepresented>(
+public func >    <TS: SDAI.SelectType, UX: SDAI.SwiftStringRepresented>(
   lhs: TS?, rhs: UX?) -> SDAI.LOGICAL
 { lhs?.stringValue > rhs }
 
 /// String Value LessThan: select \< String = LOGICAL
 ///
-public func <    <TS: SDAISelectType, UX: SwiftStringRepresented>(
+public func <    <TS: SDAI.SelectType, UX: SDAI.SwiftStringRepresented>(
   lhs: TS?, rhs: UX?) -> SDAI.LOGICAL
 { rhs > lhs }
 
 /// String Value GreaterThanOrEqual: Select \>= String = LOGICAL
 ///
-public func >=   <TS: SDAISelectType, UX: SwiftStringRepresented>(
+public func >=   <TS: SDAI.SelectType, UX: SDAI.SwiftStringRepresented>(
   lhs: TS?, rhs: UX?) -> SDAI.LOGICAL
 { (lhs > rhs)||(lhs .==. rhs) }
 
 /// String Value LessThanOrEqual: Select \<=> String = LOGICAL
 ///
-public func <=   <TS: SDAISelectType, UX: SwiftStringRepresented>(
+public func <=   <TS: SDAI.SelectType, UX: SDAI.SwiftStringRepresented>(
   lhs: TS?, rhs: UX?) -> SDAI.LOGICAL
 { (lhs < rhs)||(lhs .==. rhs) }
 
@@ -95,37 +95,37 @@ public func <=   <TS: SDAISelectType, UX: SwiftStringRepresented>(
 //MARK: string type vs. select type
 /// String Value Equal: String .==. Select = LOGICAL
 ///
-public func .==. <TX: SwiftStringRepresented, US: SDAISelectType>(
+public func .==. <TX: SDAI.SwiftStringRepresented, US: SDAI.SelectType>(
   lhs: TX?, rhs: US?) -> SDAI.LOGICAL
 { rhs .==. lhs }
 
 /// String Value NotEqual: String .!=. Select = LOGICAL
 ///
-public func .!=. <TX: SwiftStringRepresented, US: SDAISelectType>(
+public func .!=. <TX: SDAI.SwiftStringRepresented, US: SDAI.SelectType>(
   lhs: TX?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
 /// String Value GreaterThan: String \> Select = LOGICAL
 ///
-public func >    <TX: SwiftStringRepresented, US: SDAISelectType>(
+public func >    <TX: SDAI.SwiftStringRepresented, US: SDAI.SelectType>(
   lhs: TX?, rhs: US?) -> SDAI.LOGICAL
 { lhs > rhs?.stringValue }
 
 /// String Value LessThan: String \< Select = LOGICAL
 ///
-public func <    <TX: SwiftStringRepresented, US: SDAISelectType>(
+public func <    <TX: SDAI.SwiftStringRepresented, US: SDAI.SelectType>(
   lhs: TX?, rhs: US?) -> SDAI.LOGICAL
 { rhs > lhs }
 
 /// String Value GreaterThanOrEqual: String \>= Select = LOGICAL
 ///
-public func >=   <TX: SwiftStringRepresented, US: SDAISelectType>(
+public func >=   <TX: SDAI.SwiftStringRepresented, US: SDAI.SelectType>(
   lhs: TX?, rhs: US?) -> SDAI.LOGICAL
 { (lhs > rhs)||(lhs .==. rhs) }
 
 /// String Value LessThanOrEqual: String \<=> Select = LOGICAL
 ///
-public func <=   <TX: SwiftStringRepresented, US: SDAISelectType>(
+public func <=   <TX: SDAI.SwiftStringRepresented, US: SDAI.SelectType>(
   lhs: TX?, rhs: US?) -> SDAI.LOGICAL
 { (lhs < rhs)||(lhs .==. rhs) }
 

@@ -32,7 +32,7 @@ extension SDAI {
   {
     associatedtype SwiftType
 
-    init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+    init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
       from swiftValue: SwiftType,
       bound1: I1,
       bound2: I2?)
@@ -43,10 +43,10 @@ public extension SDAI.InitializableBySwifttypeAsList
 	init(from swiftValue: SwiftType) { 
 		self.init(from: swiftValue, bound1: 0, bound2: nil as Int?) 
 	}
-	init<I2: SwiftIntConvertible>(from swiftValue: SwiftType, bound2: I2?) {
+	init<I2: SDAI.SwiftIntConvertible>(from swiftValue: SwiftType, bound2: I2?) {
 		self.init(from: swiftValue, bound1: 0, bound2: bound2) 
 	}
-	init<I1: SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1) {
+	init<I1: SDAI.SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1) {
 		self.init(from: swiftValue, bound1: bound1, bound2: nil as Int?) 
 	}
 }
@@ -57,7 +57,7 @@ extension SDAI {
   {
     associatedtype SwiftType
     
-    init<I1: SwiftIntConvertible, I2: SwiftIntConvertible>(
+    init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
       from swiftValue: SwiftType,
       bound1: I1,
       bound2: I2)

@@ -8,23 +8,26 @@
 import Foundation
 
 //MARK: - BINARY type (8.1.7)
-public protocol SDAIBinaryType: SDAISimpleType, ExpressibleByStringLiteral,
-                                SDAI.InitializableByVoid
-where StringLiteralType == String
-{
-	var blength: Int {get}
-	subscript<I: SDAI__INTEGER__type>(index: I?) -> SDAI.BINARY? {get}
-	subscript(index: Int?) -> SDAI.BINARY? {get}
-	subscript(range: ClosedRange<Int>?) -> SDAI.BINARY? {get}
+extension SDAI {
+  public protocol BinaryType: SDAI.SimpleType, ExpressibleByStringLiteral,
+                                  SDAI.InitializableByVoid
+  where StringLiteralType == String
+  {
+    var blength: Int {get}
+    subscript<I: SDAI__INTEGER__type>(index: I?) -> SDAI.BINARY? {get}
+    subscript(index: Int?) -> SDAI.BINARY? {get}
+    subscript(range: ClosedRange<Int>?) -> SDAI.BINARY? {get}
 
+  }
 }
-public extension SDAIBinaryType
+
+public extension SDAI.BinaryType
 {
 	subscript<I: SDAI__INTEGER__type>(index: I?) -> SDAI.BINARY? { return self[index?.asSwiftType] }
 }
 
 
-public protocol SDAI__BINARY__type: SDAIBinaryType
+public protocol SDAI__BINARY__type: SDAI.BinaryType
 where FundamentalType == SDAI.BINARY,
 			Value == FundamentalType.Value,
 			SwiftType == FundamentalType.SwiftType
@@ -68,7 +71,7 @@ extension SDAI {
 		// CustomStringConvertible
 		public var description: String { "BINARY(\(rep))" }
 		
-		// SDAIGenericType \SDAIUnderlyingType\SDAISimpleType\SDAI__BINARY__type
+		// SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__BINARY__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(from: Self.typeName)]
 		}
@@ -84,12 +87,12 @@ extension SDAI {
 		public var integerValue: SDAI.INTEGER? {nil}
 		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
 		
-		public func arrayOptionalValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
-		public func arrayValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
-		public func listValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
-		public func bagValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
-		public func setValue<ELEM:SDAIGenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
-		public func enumValue<ENUM:SDAIEnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
+		public func arrayOptionalValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {nil}
+		public func arrayValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY<ELEM>? {nil}
+		public func listValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.LIST<ELEM>? {nil}
+		public func bagValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.BAG<ELEM>? {nil}
+		public func setValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
+		public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
 		public static func validateWhereRules(
 			instance:Self?,
@@ -98,22 +101,22 @@ extension SDAI {
 
 		
 		// InitializableByGenerictype
-		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let binaryValue = generic?.binaryValue else { return nil }
 			self.init(binaryValue)
 		}
 		
-		// SDAIUnderlyingType \SDAISimpleType\SDAI__BINARY__type
+		// SDAI.UnderlyingType \SDAI.SimpleType\SDAI__BINARY__type
 		public static let typeName: String = "BINARY"
 		public var asSwiftType: SwiftType { return rep }
 		
-		// SDAIGenericType
+		// SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(from: fundamental.rep)
 		}
 
-		// SDAISimpleType \SDAI__BINARY__type
+		// SDAI.SimpleType \SDAI__BINARY__type
 		public init(from swiftValue: SwiftType) {
 			assert(Self.isValidValue(value: swiftValue))
 			rep = swiftValue

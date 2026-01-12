@@ -44,7 +44,7 @@ final class SwiftSDAIcoreTests: XCTestCase {
 			rep = Supertype(fundamental: fundamental)
 		}
 
-		public init?<G: SDAIGenericType>(fromGeneric generic: G?) {
+		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let repval = generic?.stringValue else { return nil }
 			rep = repval
 		}

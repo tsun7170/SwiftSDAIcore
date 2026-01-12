@@ -10,7 +10,7 @@ import Foundation
 
 //MARK: - Value comparison support
 extension SDAI {
-	public struct _ArrayValue<ELEMENT: SDAIGenericType>: SDAIValue
+	public struct _ArrayValue<ELEMENT: SDAI.GenericType>: SDAIValue
 	{
 		typealias ElementValue = ELEMENT.Value
 		
