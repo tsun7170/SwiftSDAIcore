@@ -9,48 +9,54 @@
 import Foundation
 import Synchronization
 
-//MARK: - SdaiCacheHolder
-public protocol SdaiCacheHolder
-{
-	func notifyReadWriteModeChanged(sdaiModel: SDAIPopulationSchema.SdaiModel) async
+//MARK: - SDAI.CacheHolder
+extension SDAI {
+  public protocol CacheHolder
+  {
+    func notifyReadWriteModeChanged(sdaiModel: SDAIPopulationSchema.SdaiModel) async
 
-	func notifyApplicationDomainChanged(relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance) async
+    func notifyApplicationDomainChanged(relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance) async
 
-  func terminateCachingTask()
+    func terminateCachingTask()
 
-  func toCompleteCachingTask() async
+    func toCompleteCachingTask() async
+  }
 }
 
 
-//MARK: - SdaiCacheableSource
-public protocol SdaiCacheableSource
-{
-	var isCacheable: Bool {get}
+//MARK: - SDAI.CacheableSource
+extension SDAI {
+  public protocol CacheableSource
+  {
+    var isCacheable: Bool {get}
+  }
 }
 
-public extension SdaiCacheableSource where Self: SDAI.DefinedType
+public extension SDAI.CacheableSource
+where Self: SDAI.DefinedType
 {
 	var isCacheable: Bool { rep.isCacheable }
 }
 
 
-//MARK: - SdaiFunctionResultCacheController
-public protocol SdaiFunctionResultCacheController:
-  SdaiCacheableSource,
-  AnyObject, Sendable
-{
-  var approximationLevel: Int {get}
-	func register(cache: SDAI.FunctionResultCache)
-	func resetCaches() async
+//MARK: - SDAI.FunctionResultCacheController
+extension SDAI {
+  public protocol FunctionResultCacheController:
+    SDAI.CacheableSource,
+    AnyObject, Sendable
+  {
+    var approximationLevel: Int {get}
+    func register(cache: SDAI.FunctionResultCache)
+    func resetCaches() async
+  }
 }
-
 
 
 extension SDAI {
 	public typealias ParameterType = SDAI.GenericType
 
 	//MARK: - ParameterList
-	public struct ParameterList: SdaiCacheableSource, Hashable, Sendable {
+	public struct ParameterList: SDAI.CacheableSource, Hashable, Sendable {
 
 		private let params:[(any ParameterType)?]
 
@@ -113,7 +119,7 @@ extension SDAI {
 		}
 
     public let label: String
-		private let controller: SdaiFunctionResultCacheController
+		private let controller: SDAI.FunctionResultCacheController
 
     private typealias CacheValue = (value:any Sendable, level:Int)
 
@@ -175,7 +181,7 @@ extension SDAI {
 
     public init(
       label: String,
-      controller: SdaiFunctionResultCacheController)
+      controller: SDAI.FunctionResultCacheController)
     {
       self.label = label
       self.controller = controller
@@ -284,7 +290,7 @@ extension SDAI {
   public static let sessionFunctionResultCacheController = SessionFunctionResultCacheControllerAdapter()
 
   public final class SessionFunctionResultCacheControllerAdapter:
-    SdaiFunctionResultCacheController
+    SDAI.FunctionResultCacheController
   {
     private let functionCaches = Mutex<[SDAI.FunctionResultCache]>([])
 
@@ -298,7 +304,7 @@ extension SDAI {
       }
     }
 
-    private var activeController: SdaiFunctionResultCacheController? {
+    private var activeController: SDAI.FunctionResultCacheController? {
       guard let session = SDAISessionSchema.activeSession
       else { return nil }
 

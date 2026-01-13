@@ -89,7 +89,7 @@ extension P21Decode {
 //			repository: SDAISessionSchema.SdaiRepository,
 			transaction: SDAISessionSchema.SdaiTransactionRW
 		) -> [SDAIPopulationSchema.SdaiModel]?
-		where CHARSTREAM: CharacterStream //IteratorProtocol, CHARSTREAM.Element == Character
+		where CHARSTREAM: P21Decode.CharacterStream //IteratorProtocol, CHARSTREAM.Element == Character
 		{
 			guard let session = transaction.owningSession else {
 				SDAI.raiseErrorAndContinue(.TR_NAVL(transaction), detail: "transaction in invalid state")

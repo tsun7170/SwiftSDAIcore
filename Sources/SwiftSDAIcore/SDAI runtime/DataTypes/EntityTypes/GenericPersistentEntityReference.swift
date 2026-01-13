@@ -241,7 +241,7 @@ extension SDAI {
       return result
     }
 
-    public var value: some SDAIValue {
+    public var value: some SDAI.Value {
       self.complexEntity!.value
     }
 

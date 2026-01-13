@@ -35,14 +35,14 @@ public extension SDAI.LIST__Subtype
 	func prependWith<U: SDAI.GenericType>(lhs: U) -> SDAI.LIST<ELEMENT>?
 	where ELEMENT.FundamentalType == U.FundamentalType { rep.prependWith(lhs: lhs) }
 
-	func appendWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>? { rep.appendWith(rhs: rhs) }
+	func appendWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.LIST<ELEMENT>? { rep.appendWith(rhs: rhs) }
 
-	func prependWith<U: SDAI__GENERIC__type>(lhs: U) -> SDAI.LIST<ELEMENT>? { rep.prependWith(lhs: lhs) }
+	func prependWith<U: SDAI.GENERIC__TypeBehavior>(lhs: U) -> SDAI.LIST<ELEMENT>? { rep.prependWith(lhs: lhs) }
 
-	func appendWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>?
+	func appendWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.appendWith(rhs: rhs) }
 
-	func prependWith<U: SDAIAggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>?
+	func prependWith<U: SDAI.AggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.prependWith(lhs: lhs) }
 	
 	// InitializableByGenerictype
@@ -73,14 +73,14 @@ public extension SDAI.LIST__Subtype
 		self.init(fundamental: FundamentalType(from: swiftValue, bound1: bound1, bound2: bound2) )
 	} 
 	
-	// InitializableBySelecttypeAsList
+	// SDAI.InitializableBySelecttypeAsList
 	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(
 		bound1: I1, bound2: I2?, _ select: S?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, select) )
 	}
 
-	// InitializableByListLiteral
+	// SDAI.InitializableByListLiteral
 	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
 		bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
 	{

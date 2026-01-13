@@ -8,13 +8,17 @@
 
 import Foundation
 
-public protocol CharacterStream: IteratorProtocol where Self.Element == Character {}
+extension P21Decode {
+  public protocol CharacterStream: IteratorProtocol
+  where Self.Element == Character
+  {}
 
-extension String.Iterator : CharacterStream {}
+  public typealias AnyCharacterStream = AnyIterator<Character>
+}
 
-public typealias AnyCharacterStream = AnyIterator<Character>
+extension String.Iterator : P21Decode.CharacterStream {}
 
-extension AnyIterator: CharacterStream where Element == Character {}
+extension AnyIterator: P21Decode.CharacterStream where Element == Character {}
 
 
 
@@ -44,7 +48,7 @@ extension P21Decode {
 		internal private(set) var lineNumber: Int = 1
 		
 		internal init<CHARSTREAM>(charStream: CHARSTREAM, monitor: ActivityMonitor? = nil) 
-		where CHARSTREAM: CharacterStream //IteratorProtocol, CHARSTREAM.Element == Character
+		where CHARSTREAM: P21Decode.CharacterStream //IteratorProtocol, CHARSTREAM.Element == Character
 		{
 			self.charStream = AnyIterator(charStream)
 			self.activityMonitor = monitor

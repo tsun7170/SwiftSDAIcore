@@ -64,7 +64,7 @@ public extension SDAI.REAL__TypeBehavior
 }
 
 extension SDAI {
-	public struct REAL: SDAI.REAL__TypeBehavior, SDAIValue, CustomStringConvertible
+	public struct REAL: SDAI.REAL__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Double
 		public typealias FundamentalType = Self
@@ -135,8 +135,8 @@ extension SDAI {
 			rep = SwiftType(value)
 		}
 		
-		// SDAIValue
-		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
+		// SDAI.Value
+		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
 			if let rhs = rhs as? SDAI.SwiftDoubleConvertible { return self.asSwiftDouble == rhs.asSwiftDouble }

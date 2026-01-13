@@ -17,7 +17,7 @@ extension SDAIPopulationSchema {
 	/// # Formal propositions:
   /// UR1: The name shall be unique within the repository containing the SdaiModel.
 	/// 
-	public actor SdaiModel: SDAI.Object, SdaiCacheHolder, Sendable
+	public actor SdaiModel: SDAI.Object, SDAI.CacheHolder, Sendable
 	{
 
 		//MARK: Attribute definitions:
@@ -173,7 +173,7 @@ extension SDAIPopulationSchema {
 			return fallback
 		}
 
-		//MARK: SdaiCacheHolder related
+		//MARK: SDAI.CacheHolder related
     nonisolated
 		public func notifyApplicationDomainChanged(
 			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance
@@ -240,7 +240,7 @@ extension SDAIPopulationSchema {
 	/** # Informal propositions: 
 	IP1: The set SdaiModelContents.instances contains the same entity instances as the union of the set of extents SdaiModelContents.populatedFolders contains.
 	*/
-	public final class SdaiModelContents: SDAI.Object, /*SdaiCacheHolder,*/ Sendable
+	public final class SdaiModelContents: SDAI.Object, /*SDAI.CacheHolder,*/ Sendable
 	{
 
 		//MARK: Attribute definitions:
@@ -433,7 +433,7 @@ extension SDAIPopulationSchema {
       self.clearComplexEntities()
 		}
 
-		//MARK: SdaiCacheHolder related
+		//MARK: SDAI.CacheHolder related
 		public func notifyReadWriteModeChanged(
 			sdaiModel: SDAIPopulationSchema.SdaiModel
 		)

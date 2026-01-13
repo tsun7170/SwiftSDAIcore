@@ -10,7 +10,7 @@ import Foundation
 
 //MARK: - Value comparison support
 extension SDAI {
-	public struct _ArrayValue<ELEMENT: SDAI.GenericType>: SDAIValue
+	public struct _ArrayValue<ELEMENT: SDAI.GenericType>: SDAI.Value
 	{
 		typealias ElementValue = ELEMENT.Value
 		
@@ -19,24 +19,24 @@ extension SDAI {
 		var size: Int { hiIndex - loIndex + 1 }
 		let elements: AnySequence<ElementValue?>
 
-		// Equatable \Hashable\SDAIValue
+		// Equatable \Hashable\SDAI.Value
 		public static func == (lhs: _ArrayValue<ELEMENT>, rhs: _ArrayValue<ELEMENT>) -> Bool {
 			return lhs.isValueEqual(to: rhs)
 		}
 		
-		// Hashable \SDAIValue
+		// Hashable \SDAI.Value
 		public func hash(into hasher: inout Hasher) {
 			var visited = Set<SDAI.ComplexEntity>()
 			self.hashAsValue(into: &hasher, visited: &visited)
 		}
 		
-		// SDAIValue
-		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool {
+		// SDAI.Value
+		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool {
 			var visited = Set<SDAI.ComplexPair>()
 			return self.isValueEqual(to: rhs, visited: &visited)
 		}
 		
-		public func isValueEqualOptionally<T: SDAIValue>(to rhs: T?) -> Bool? {
+		public func isValueEqualOptionally<T: SDAI.Value>(to rhs: T?) -> Bool? {
 			var visited = Set<SDAI.ComplexPair>()
 			return self.isValueEqualOptionally(to: rhs, visited: &visited)
 		}
@@ -47,7 +47,7 @@ extension SDAI {
 			elements.forEach { $0?.hashAsValue(into: &hasher, visited: &complexEntities) }
 		}
 		
-		public func isValueEqual<T: SDAIValue>(to rhs: T, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool {
+		public func isValueEqual<T: SDAI.Value>(to rhs: T, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool {
 			guard let rav = rhs as? Self else { return false }
 			if rav.loIndex != self.loIndex || rav.hiIndex != self.hiIndex { return false }
 
@@ -58,7 +58,7 @@ extension SDAI {
 			}
 		}
 		
-		public func isValueEqualOptionally<T: SDAIValue>(to rhs: T?, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool? {
+		public func isValueEqualOptionally<T: SDAI.Value>(to rhs: T?, visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool? {
 			guard let rhs = rhs else { return nil }
 			guard let rav = rhs as? Self else { return false }
 			if rav.loIndex != self.loIndex || rav.hiIndex != self.hiIndex { return false }

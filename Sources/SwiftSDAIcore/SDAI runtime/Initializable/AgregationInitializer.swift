@@ -44,21 +44,25 @@ extension SDAI {
 
 
 //MARK: - Aggregation Initializer Element type
-public protocol SDAI__AIE__element: Hashable {
-	associatedtype Wrapped: SDAI.GenericType
-	var unsafelyUnwrapped: Wrapped {get}
-	init(_ some: Wrapped)
+extension SDAI {
+  public protocol AIE__ElementType: Hashable {
+    associatedtype Wrapped: SDAI.GenericType
+    var unsafelyUnwrapped: Wrapped {get}
+    init(_ some: Wrapped)
+  }
+
+  public protocol AIE__TypeBehavior: Sequence
+  where Element: SDAI.AIE__ElementType
+  {
+    associatedtype ELEMENT = Element.Wrapped
+    var count: Int {get}
+  }
 }
 
-public protocol SDAI__AIE__type: Sequence where Element: SDAI__AIE__element
-{
-	associatedtype ELEMENT = Element.Wrapped
-	var count: Int {get}
-}
-extension Optional: SDAI__AIE__element 
+extension Optional: SDAI.AIE__ElementType
 where Wrapped: SDAI.GenericType
 {}
-extension SDAI.AggregationInitializerElement: SDAI__AIE__type where Element: SDAI__AIE__element {}
+extension SDAI.AggregationInitializerElement: SDAI.AIE__TypeBehavior where Element: SDAI.AIE__ElementType {}
 
 public extension SDAI {
 	typealias AggregationInitializerElement<E> = Repeated<E?>
@@ -88,17 +92,19 @@ public extension SDAI {
 
 
 //MARK: - Aggregation Initializer
-public protocol SDAIAggregationInitializer: Sequence, SDAI.SwiftDictRepresentable, SDAI.AggregationSequence
-where Element: SDAI__AIE__type, ELEMENT == Element.Element.Wrapped
-{}
+extension SDAI {
+  public protocol AggregationInitializer: Sequence, SDAI.SwiftDictRepresentable, SDAI.AggregationSequence
+  where Element: SDAI.AIE__TypeBehavior, ELEMENT == Element.Element.Wrapped
+  {}
+}
 
-extension Array: SDAIAggregationInitializer, SDAI.SwiftDictRepresentable, SDAI.AggregationSequence
-where Element: SDAI__AIE__type
+extension Array: SDAI.AggregationInitializer, SDAI.SwiftDictRepresentable, SDAI.AggregationSequence
+where Element: SDAI.AIE__TypeBehavior
 {
 	public typealias ELEMENT = Element.Element.Wrapped
 }
 
-public extension SDAIAggregationInitializer
+public extension SDAI.AggregationInitializer
 {
 	func CONTAINS(elem: ELEMENT?) -> SDAI.LOGICAL {
 		guard let elem = elem else { return SDAI.UNKNOWN }
@@ -131,7 +137,7 @@ public extension SDAIAggregationInitializer
 
 
 //MARK: - extension per ELEMENT type
-public extension SDAIAggregationInitializer 
+public extension SDAI.AggregationInitializer 
 where ELEMENT: SDAI.InitializableBySelectType
 {
 	func CONTAINS<T: SDAI.SelectType>(_ elem: T?) -> SDAI.LOGICAL {
@@ -139,7 +145,7 @@ where ELEMENT: SDAI.InitializableBySelectType
 	}
 }
 
-public extension SDAIAggregationInitializer 
+public extension SDAI.AggregationInitializer 
 where ELEMENT: SDAI.InitializableByComplexEntity
 {
 	func CONTAINS(_ elem: SDAI.EntityReference?) -> SDAI.LOGICAL {
@@ -152,7 +158,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 	}
 }
 
-public extension SDAIAggregationInitializer 
+public extension SDAI.AggregationInitializer 
 where ELEMENT: SDAI.InitializableByDefinedType
 {
 	func CONTAINS<T: SDAI.UnderlyingType>(_ elem: T?) -> SDAI.LOGICAL {
@@ -160,7 +166,7 @@ where ELEMENT: SDAI.InitializableByDefinedType
 	}
 }
 
-public extension SDAIAggregationInitializer 
+public extension SDAI.AggregationInitializer 
 where ELEMENT: SDAI.InitializableBySwiftType
 {
 	func CONTAINS<T>(_ elem: T?) -> SDAI.LOGICAL 
@@ -170,7 +176,7 @@ where ELEMENT: SDAI.InitializableBySwiftType
 	}
 }
 
-public extension SDAIAggregationInitializer
+public extension SDAI.AggregationInitializer
 where ELEMENT: SDAI.SwiftType
 {
 	func CONTAINS<T: SDAI.SwiftTypeRepresented>(_ elem: T?) -> SDAI.LOGICAL 
@@ -182,12 +188,15 @@ where ELEMENT: SDAI.SwiftType
 
 
 //MARK: - from list literal (with optional bounds)
-public protocol InitializableByListLiteral
-{
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
-		bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
+extension SDAI {
+  public protocol InitializableByListLiteral
+  {
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
+      bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
+  }
 }
-public extension InitializableByListLiteral
+
+public extension SDAI.InitializableByListLiteral
 {
 	init?<E: SDAI.GenericType>(_ elements: [SDAI.AggregationInitializerElement<E>]) 
 	{
@@ -196,8 +205,10 @@ public extension InitializableByListLiteral
 }
 
 //MARK: - from array literal (with required bounds)
-public protocol InitializableByArrayLiteral
-{
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
-		bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
+extension SDAI {
+  public protocol InitializableByArrayLiteral
+  {
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
+      bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
+  }
 }

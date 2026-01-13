@@ -18,7 +18,7 @@ extension SDAI {
 		return agg.CONTAINS(elem: aggelem)
 	}
 	
-	public static func aggregate<AGG:SDAIAggregationInitializer, ELEM:SDAI.GenericType>(_ agg:AGG?, contains elem:ELEM?) -> SDAI.LOGICAL 
+	public static func aggregate<AGG:SDAI.AggregationInitializer, ELEM:SDAI.GenericType>(_ agg:AGG?, contains elem:ELEM?) -> SDAI.LOGICAL 
 	{
 		guard let agg = agg, let elem = elem else { return SDAI.UNKNOWN }
 		guard let aggelem = AGG.ELEMENT.convert(fromGeneric: elem) else { return SDAI.FALSE }

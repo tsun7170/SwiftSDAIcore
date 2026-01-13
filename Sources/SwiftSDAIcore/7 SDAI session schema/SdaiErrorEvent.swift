@@ -204,7 +204,7 @@ extension SDAI {
 
 		case EX_NSUP(SDAIDictionarySchema.Bound)
 
-		case AT_NVLD(SDAIAttributeType)
+		case AT_NVLD(SDAIDictionarySchema.AttributeType)
 		case AT_NDEF
 
 		case SI_DUP(SDAIPopulationSchema.SchemaInstance)

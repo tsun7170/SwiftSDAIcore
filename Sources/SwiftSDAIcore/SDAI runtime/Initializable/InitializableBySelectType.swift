@@ -40,17 +40,20 @@ where Self: SDAI.InitializableByGenericType
 }
 
 //MARK: - from select type as list (with optional bounds)
-public protocol InitializableBySelecttypeAsList
-{
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(bound1: I1, bound2: I2?, _ select: S?)	
+extension SDAI {
+  public protocol InitializableBySelecttypeAsList
+  {
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(bound1: I1, bound2: I2?, _ select: S?)
+  }
 }
 
 //MARK: - from select type as array (with required bounds)
-public protocol InitializableBySelecttypeAsArray
-{
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(bound1: I1, bound2: I2, _ select: S?)	
+extension SDAI {
+  public protocol InitializableBySelecttypeAsArray
+  {
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(bound1: I1, bound2: I2, _ select: S?)	
+  }
 }
-
 
 
 

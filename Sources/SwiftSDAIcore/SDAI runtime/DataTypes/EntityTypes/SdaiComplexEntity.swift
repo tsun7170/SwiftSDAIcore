@@ -23,7 +23,7 @@ extension SDAI {
 	
 	//MARK: - ComplexEntity
 	public class ComplexEntity:
-		SDAI.Object, SdaiCacheHolder,
+		SDAI.Object, SDAI.CacheHolder,
 		CustomStringConvertible, @unchecked Sendable
 	{
 		private enum EntityReferenceStatus {
@@ -340,9 +340,9 @@ extension SDAI {
 		
 		private func findEssentialRoles(
       in entity: SDAI.EntityReference
-    ) -> some Collection<SDAIAttributeType>
+    ) -> some Collection<SDAIDictionarySchema.AttributeType>
 		{
-			var roles:[SDAIAttributeType] = []
+			var roles:[SDAIDictionarySchema.AttributeType] = []
 			let entityDef = entity.definition
       let selfPRef = GenericPersistentEntityReference(self)
 
@@ -375,7 +375,7 @@ extension SDAI {
 			return result
 		}
 		
-		//MARK: SdaiCacheHolder related
+		//MARK: SDAI.CacheHolder related
 		public func notifyApplicationDomainChanged(
 			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance
 		) async

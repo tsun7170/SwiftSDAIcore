@@ -14,7 +14,7 @@ extension SDAI {
   public protocol ArrayType:
     SDAI.AggregationType, SDAI.AggregateIndexingSettable,
     SDAI.UnderlyingType, SDAI.SwiftTypeRepresented,
-    SDAI.InitializableBySwifttypeAsArray, InitializableByArrayLiteral, SDAI.InitializableByGenericArray
+    SDAI.InitializableBySwifttypeAsArray, SDAI.InitializableByArrayLiteral, SDAI.InitializableByGenericArray
   {
     // SDAIDictionarySchema support
     static var uniqueFlag: SDAI.BOOLEAN {get}
@@ -210,7 +210,7 @@ extension SDAI {
 			assert(rep.count == self.size)
 		} 
 
-		// InitializableByArrayLiteral
+		// SDAI.InitializableByArrayLiteral
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E:SDAI.GenericType>(
 			bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
 		{

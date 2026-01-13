@@ -20,8 +20,8 @@ extension SDAIDictionarySchema {
 	/// UR1: the object identification for a schema shall be unique.
 	///
 	public final class SchemaDefinition:  SDAI.Object,
-																				SdaiFunctionResultCacheController,
-																				SdaiCacheHolder,
+																				SDAI.FunctionResultCacheController,
+																				SDAI.CacheHolder,
 																				Sendable
   {
 

@@ -35,9 +35,9 @@ extension SDAIDictionarySchema {
 		/// the attributes that are declared or redeclared (see ISO 10303-11: 9.2.3.4) in the entity type.
 		/// 
 		/// Attributes inherited from supertypes DO appear as elements of this set. Attributes to be introduced in the declared subtypes also DO appear as elements of this set. This set is populated for instances of EntityDefinition established by the EXPRESS ANDOR or AND supertype constraint.  
-		public let attributes: [ExpressId:SDAIAttributeType]
+		public let attributes: [ExpressId:SDAIDictionarySchema.AttributeType]
 
-    public let entityYieldingEssentialAttributes: [SDAIAttributeType]
+    public let entityYieldingEssentialAttributes: [SDAIDictionarySchema.AttributeType]
 
 		public let uniquenessRules: [ExpressId:UniquenessRule]
 

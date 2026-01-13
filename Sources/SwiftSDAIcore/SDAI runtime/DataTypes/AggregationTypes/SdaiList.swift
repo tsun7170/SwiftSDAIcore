@@ -16,8 +16,8 @@ import Foundation
 extension SDAI {
   public protocol ListType:
     SDAI.AggregationType, SDAI.AggregateIndexingSettable, SDAI.UnderlyingType, SDAI.SwiftTypeRepresented,
-    SDAI.InitializableByEmptyListLiteral, SDAI.InitializableBySwifttypeAsList, InitializableBySelecttypeAsList,
-    InitializableByListLiteral, SDAI.InitializableByGenericList, SDAI.InitializableByVoid
+    SDAI.InitializableByEmptyListLiteral, SDAI.InitializableBySwifttypeAsList, SDAI.InitializableBySelecttypeAsList,
+    SDAI.InitializableByListLiteral, SDAI.InitializableByGenericList, SDAI.InitializableByVoid
   {
     // Built-in procedure support
     mutating func insert(element: ELEMENT, at position: Int)
@@ -56,14 +56,14 @@ extension SDAI {
     func prependWith<U: SDAI.GenericType>(lhs: U) -> SDAI.LIST<ELEMENT>?
     where ELEMENT.FundamentalType == U.FundamentalType
 
-    func appendWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>?
+    func appendWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.LIST<ELEMENT>?
 
-    func prependWith<U: SDAI__GENERIC__type>(lhs: U) -> SDAI.LIST<ELEMENT>?
+    func prependWith<U: SDAI.GENERIC__TypeBehavior>(lhs: U) -> SDAI.LIST<ELEMENT>?
 
-    func appendWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>?
+    func appendWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>?
     where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
-    func prependWith<U: SDAIAggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>?
+    func prependWith<U: SDAI.AggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>?
     where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
   }
 }
@@ -268,7 +268,7 @@ extension SDAI {
 			self.rep = swiftValue
 		}
 		
-		// InitializableBySelecttypeAsList
+		// SDAI.InitializableBySelecttypeAsList
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(
 			bound1: I1, bound2: I2?, _ select: S?)
 		{
@@ -276,7 +276,7 @@ extension SDAI {
 			self.init(from: fundamental.asSwiftType, bound1:bound1, bound2:bound2)
 		}
 
-		// InitializableByListLiteral
+		// SDAI.InitializableByListLiteral
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
 			bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
 		{
@@ -333,7 +333,7 @@ extension SDAI {
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 
-		public func appendWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.LIST<ELEMENT>? {
+		public func appendWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.LIST<ELEMENT>? {
 			if let rhs = rhs.listValue(elementType: ELEMENT.self) {
 				return self.appendWith(rhs: rhs)
 			}
@@ -343,7 +343,7 @@ extension SDAI {
 			return nil
 		}
 
-		public func prependWith<U: SDAI__GENERIC__type>(lhs: U) -> SDAI.LIST<ELEMENT>? {
+		public func prependWith<U: SDAI.GENERIC__TypeBehavior>(lhs: U) -> SDAI.LIST<ELEMENT>? {
 			if let lhs = lhs.listValue(elementType: ELEMENT.self) {
 				let result = self.prepend(other: lhs)
 				return LIST(from: result, bound1: 0, bound2: _Infinity)
@@ -354,13 +354,13 @@ extension SDAI {
 			return nil
 		}
 
-		public func appendWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>?
+		public func appendWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>?
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.append(other: rhs)
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 
-		public func prependWith<U: SDAIAggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>?
+		public func prependWith<U: SDAI.AggregationInitializer>(lhs: U) -> SDAI.LIST<ELEMENT>?
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.prepend(other: lhs)
 			return LIST(from: result, bound1: 0, bound2: _Infinity)

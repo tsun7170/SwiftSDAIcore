@@ -28,10 +28,10 @@ public extension SDAI.EnumerationType
 }
 
 public extension SDAI.EnumerationType
-where Self: SDAIValue
+where Self: SDAI.Value
 {
-	// SDAIValue
-	func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
+	// SDAI.Value
+	func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool 
 	{
 		if let rhs = rhs as? Self { return self == rhs }
 		return false

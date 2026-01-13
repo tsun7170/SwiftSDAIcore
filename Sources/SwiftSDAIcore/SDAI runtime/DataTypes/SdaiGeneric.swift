@@ -172,17 +172,18 @@ fileprivate final class _GenericBox<G: SDAI.GenericType>: _AnyGenericBox, @unche
 
 
 //MARK: - SDAI__GENERIC__type
-public protocol SDAI__GENERIC__type:
-	SDAI.GenericType,
-	SDAI.EntityReferenceYielding,
-	SDAI.DualModeReference,
-	SDAI.PersistentReference
-{}
-
+extension SDAI {
+  public protocol GENERIC__TypeBehavior:
+    SDAI.GenericType,
+    SDAI.EntityReferenceYielding,
+    SDAI.DualModeReference,
+    SDAI.PersistentReference
+  {}
+}
 
 //MARK: - SDAI.GENERIC
 extension SDAI {
-	public struct GENERIC: SDAI__GENERIC__type, CustomStringConvertible
+	public struct GENERIC: SDAI.GENERIC__TypeBehavior, CustomStringConvertible
 	{
 		public typealias FundamentalType = Self
 		public typealias Value = GenericValue
@@ -216,7 +217,7 @@ extension SDAI {
 			self.init(generic)
 		}
 		
-		//MARK: SdaiCacheableSource
+		//MARK: SDAI.CacheableSource
 		public var isCacheable: Bool { box.isCacheable }
 		
 		//MARK: SDAI.GenericType

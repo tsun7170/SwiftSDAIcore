@@ -23,7 +23,7 @@ extension P21Decode {
 			output repository: SDAISessionSchema.SdaiRepository,
 			foreignReferenceResolver: ForeignReferenceResolver,
 			monitor: ActivityMonitor? = nil)
-		where CHARSTREAM: CharacterStream
+		where CHARSTREAM: P21Decode.CharacterStream
 		{
 			self.activityMonitor = monitor
 			

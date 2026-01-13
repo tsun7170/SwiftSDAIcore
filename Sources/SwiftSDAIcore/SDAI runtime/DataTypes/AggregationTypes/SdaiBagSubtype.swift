@@ -25,7 +25,7 @@ public extension SDAI.BAG__Subtype
 	func intersectionWith<U: SDAI.SET__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.intersectionWith(rhs: rhs) }
 
-	func intersectionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.BAG<ELEMENT>?
+	func intersectionWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.intersectionWith(rhs: rhs) }
 
 
@@ -38,9 +38,9 @@ public extension SDAI.BAG__Subtype
 	func unionWith<U: SDAI.GenericType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.FundamentalType { rep.unionWith(rhs: rhs) }
 
-	func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.BAG<ELEMENT>? { rep.unionWith(rhs: rhs) }
+	func unionWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.BAG<ELEMENT>? { rep.unionWith(rhs: rhs) }
 
-	func unionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.BAG<ELEMENT>?
+	func unionWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(rhs: rhs) }
 
 
@@ -50,9 +50,9 @@ public extension SDAI.BAG__Subtype
 	func differenceWith<U: SDAI.GenericType>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.FundamentalType { rep.differenceWith(rhs: rhs) }
 
-	func differenceWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.BAG<ELEMENT>? { rep.differenceWith(rhs: rhs) }
+	func differenceWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.BAG<ELEMENT>? { rep.differenceWith(rhs: rhs) }
 
-	func differenceWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.BAG<ELEMENT>?
+	func differenceWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.BAG<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.differenceWith(rhs: rhs) }
 
 	// InitializableByGenerictype
@@ -96,14 +96,14 @@ public extension SDAI.BAG__Subtype
 		self.init(fundamental: FundamentalType(from: swiftValue, bound1: bound1, bound2: bound2) )
 	} 
 	
-	// InitializableBySelecttypeAsList
+	// SDAI.InitializableBySelecttypeAsList
 	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(
 		bound1: I1, bound2: I2?, _ select: S?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, select) )
 	}
 
-	// InitializableByListLiteral
+	// SDAI.InitializableByListLiteral
 	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
 		bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
 	{

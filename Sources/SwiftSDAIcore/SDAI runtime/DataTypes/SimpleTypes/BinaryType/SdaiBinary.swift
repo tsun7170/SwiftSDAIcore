@@ -65,7 +65,7 @@ public extension SDAI.BINARY__TypeBehavior
 
 
 extension SDAI {
-	public struct BINARY: SDAI.BINARY__TypeBehavior, SDAIValue, CustomStringConvertible
+	public struct BINARY: SDAI.BINARY__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Array<Int8>
 		public typealias FundamentalType = Self
@@ -160,8 +160,8 @@ extension SDAI {
 			return true
 		}
 		
-		// SDAIValue
-		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
+		// SDAI.Value
+		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
 			return false

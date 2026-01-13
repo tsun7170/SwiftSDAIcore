@@ -10,51 +10,53 @@ import Foundation
 
 
 /// ISO 10303-22 (6.4.13) attribute
-public protocol SDAIAttributeType: Sendable {
-	/// the name of the attribute. (6.4.13)
-	var name: SDAIDictionarySchema.ExpressId { get }
+extension SDAIDictionarySchema {
+  public protocol AttributeType: Sendable {
+    /// the name of the attribute. (6.4.13)
+    var name: SDAIDictionarySchema.ExpressId { get }
 
-	/// the entity type in which the attribute is declared. (6.4.13)
-	var parentEntity: SDAIDictionarySchema.EntityDefinition { get }
-	
-	/// the data type of the result of the attribute value derivation. (6.4.14)
-	/// the data type referenced by the attribute. (6.4.15)
-	/// the referencing entity type defining the forward relationship; the source of the relationship. (6.4.16) 
-	var domain: Any.Type { get }
-	
-	/// flag distinguishing the derived(6.4.14)/explicit(6.4.15)/inverse(6.4.16) attributes, redeclaring(6.4.14)(6.4.15), optional_flag(6.4.15)
-	var kind: SDAIDictionarySchema.AttributeKind { get }
-	
-	/// name of attribute domain, qualified with the originating schema.
-	var typeName: String { get }
-	/// name of attribute domain, without originating schema qualification.
-	var bareTypeName: String { get }
-	
-	/// flag distinguishing where the attribute is defined (super/this/sub)
-	var source: SDAIDictionarySchema.AttributeSource { get }
-	
-	/// flag indicating if the attribute value may yield entity reference.
-	var mayYieldEntityReference: Bool { get }
-	
-	/// attribute name fully qualified with originating schema and entity names.
-	var qualifiedAttributeName: SDAIDictionarySchema.ExpressId { get }
-	
-	/// ISO 10303-22 (10.10.1) Get attribute
-	/// 
-	/// This operation returns the value of an attribute of an entityInstance. If no value exists for the attribute (because it has never been assigned or has been unset, whether or not the attribute is optional) the value returned is not defined by ISO 10303-22 and the VA-NSET error shall be generated.
-	///
-	/// - Parameter entityInstance: The entity instance from which to obtain an attribute value.
-	/// - Returns: attribute value wrapped in SDAI.GENERIC
-	///
-	func genericValue(for entityInstance: SDAI.EntityReference) -> SDAI.GENERIC?
-  
-  /// persistent entity references for the entities contained in the attribute value
-  ///
-  /// to support USEDIN() function evaluations
-  /// - Parameter entityInstance: The entity instance from which to obtain an attribute value.
-  /// - Returns: sequence of persistent entity references
-  ///
-  func persistentEntityReferences(for entityInstance: SDAI.EntityReference) ->  AnySequence<SDAI.GenericPersistentEntityReference>?
+    /// the entity type in which the attribute is declared. (6.4.13)
+    var parentEntity: SDAIDictionarySchema.EntityDefinition { get }
+
+    /// the data type of the result of the attribute value derivation. (6.4.14)
+    /// the data type referenced by the attribute. (6.4.15)
+    /// the referencing entity type defining the forward relationship; the source of the relationship. (6.4.16)
+    var domain: Any.Type { get }
+
+    /// flag distinguishing the derived(6.4.14)/explicit(6.4.15)/inverse(6.4.16) attributes, redeclaring(6.4.14)(6.4.15), optional_flag(6.4.15)
+    var kind: SDAIDictionarySchema.AttributeKind { get }
+
+    /// name of attribute domain, qualified with the originating schema.
+    var typeName: String { get }
+    /// name of attribute domain, without originating schema qualification.
+    var bareTypeName: String { get }
+
+    /// flag distinguishing where the attribute is defined (super/this/sub)
+    var source: SDAIDictionarySchema.AttributeSource { get }
+
+    /// flag indicating if the attribute value may yield entity reference.
+    var mayYieldEntityReference: Bool { get }
+
+    /// attribute name fully qualified with originating schema and entity names.
+    var qualifiedAttributeName: SDAIDictionarySchema.ExpressId { get }
+
+    /// ISO 10303-22 (10.10.1) Get attribute
+    ///
+    /// This operation returns the value of an attribute of an entityInstance. If no value exists for the attribute (because it has never been assigned or has been unset, whether or not the attribute is optional) the value returned is not defined by ISO 10303-22 and the VA-NSET error shall be generated.
+    ///
+    /// - Parameter entityInstance: The entity instance from which to obtain an attribute value.
+    /// - Returns: attribute value wrapped in SDAI.GENERIC
+    ///
+    func genericValue(for entityInstance: SDAI.EntityReference) -> SDAI.GENERIC?
+
+    /// persistent entity references for the entities contained in the attribute value
+    ///
+    /// to support USEDIN() function evaluations
+    /// - Parameter entityInstance: The entity instance from which to obtain an attribute value.
+    /// - Returns: sequence of persistent entity references
+    ///
+    func persistentEntityReferences(for entityInstance: SDAI.EntityReference) ->  AnySequence<SDAI.GenericPersistentEntityReference>?
+  }
 }
 
 extension SDAIDictionarySchema {
@@ -76,14 +78,14 @@ extension SDAIDictionarySchema {
 	
 	//MARK: - implementation base class
 	internal protocol SDAIAttributePrototype {
-		func freeze() -> SDAIAttributeType
+		func freeze() -> SDAIDictionarySchema.AttributeType
 	}
 	internal protocol AttributeFixable {
 		func fixup(parentEntity: EntityDefinition)
 	}
 
 
-	public class Attribute<ENT: SDAI.EntityReference, BaseType: SDAI.GenericType>: SDAI.Object, SDAIAttributeType, CustomStringConvertible, AttributeFixable, @unchecked Sendable
+	public class Attribute<ENT: SDAI.EntityReference, BaseType: SDAI.GenericType>: SDAI.Object, SDAIDictionarySchema.AttributeType, CustomStringConvertible, AttributeFixable, @unchecked Sendable
 	{
 		// CustomStringConvertible
 		public var description: String {
@@ -108,7 +110,7 @@ extension SDAIDictionarySchema {
 			self._parentEntity = parentEntity
 		}
 
-		//MARK: SDAIAttributeType
+		//MARK: SDAIDictionarySchema.AttributeType
 		public var domain: Any.Type { BaseType.self }
 		public var typeName: String { BaseType.typeName }
 		public var bareTypeName: String { BaseType.bareTypeName }
@@ -168,7 +170,7 @@ extension SDAIDictionarySchema {
 		//MARK: prototype for instance construction
 		internal class Prototype: SDAIAttributePrototype
 		{
-			func freeze() -> any SDAIAttributeType
+			func freeze() -> any SDAIDictionarySchema.AttributeType
 			{
 				return OptionalAttribute(byFreezing: self)
 			}
@@ -222,7 +224,7 @@ extension SDAIDictionarySchema {
 		//MARK: prototype for instance construction
 		internal class Prototype: SDAIAttributePrototype
 		{
-			func freeze() -> any SDAIAttributeType
+			func freeze() -> any SDAIDictionarySchema.AttributeType
 			{
 				return NonOptionalAttribute(byFreezing: self)
 			}

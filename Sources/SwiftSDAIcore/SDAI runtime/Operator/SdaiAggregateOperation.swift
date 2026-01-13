@@ -78,11 +78,11 @@ where T3.ELEMENT.FundamentalType == U3.ELEMENT.FundamentalType
 /// 
 /// - Parameters:
 ///   - lhs: The left-hand side operand, an optional aggregate conforming to `SDAI__BAG__type`.
-///   - rhs: The right-hand side operand, an optional aggregate initializer conforming to `SDAIAggregationInitializer`.
+///   - rhs: The right-hand side operand, an optional aggregate initializer conforming to `SDAI.AggregationInitializer`.
 /// - Returns: A new `SDAI.BAG` containing the intersection of elements from both `lhs` and `rhs`, or `nil` if either operand is `nil`.
 /// - Note: The element types of the operands must have the same `FundamentalType`.
 /// - Discussion: This operator implements the intersection operation as described in section 12.6.2 of the formal specification. It may be overloaded for other aggregate type combinations as defined by the standard.
-public func * <T4: SDAI.BAG__TypeBehavior, U4: SDAIAggregationInitializer>(
+public func * <T4: SDAI.BAG__TypeBehavior, U4: SDAI.AggregationInitializer>(
 	lhs: T4?, rhs: U4?) -> SDAI.BAG<T4.ELEMENT>?
 where T4.ELEMENT.FundamentalType == U4.ELEMENT.FundamentalType
 {
@@ -96,12 +96,12 @@ where T4.ELEMENT.FundamentalType == U4.ELEMENT.FundamentalType
 /// Computes the intersection of two aggregate values, returning a new aggregate containing only the elements common to both operands.
 ///
 /// - Parameters:
-///   - lhs: The left-hand side operand, an optional aggregate conforming to `SDAIAggregationInitializer`.
+///   - lhs: The left-hand side operand, an optional aggregate conforming to `SDAI.AggregationInitializer`.
 ///   - rhs: The right-hand side operand, an optional aggregate conforming to `SDAI__BAG__type` aggregate protocol.
 /// - Returns: A new aggregate containing the intersection of elements from both `lhs` and `rhs`, or `nil` if either operand is `nil`.
 /// - Note: The element types of the operands must have the same `FundamentalType`.
 /// - Discussion: This operator implements the intersection operation as described in section 12.6.2 of the formal specification, for aggregate types that include aggregation initializers.
-public func * <T5: SDAIAggregationInitializer, U5: SDAI.BAG__TypeBehavior>(
+public func * <T5: SDAI.AggregationInitializer, U5: SDAI.BAG__TypeBehavior>(
 	lhs: T5?, rhs: U5?) -> SDAI.BAG<U5.ELEMENT>?
 where T5.ELEMENT.FundamentalType == U5.ELEMENT.FundamentalType
 {
@@ -119,11 +119,11 @@ where T5.ELEMENT.FundamentalType == U5.ELEMENT.FundamentalType
 /// 
 /// - Parameters:
 ///   - lhs: The left-hand side operand, an optional aggregate conforming to `SDAI__SET__type`.
-///   - rhs: The right-hand side operand, an optional aggregate conforming to `SDAIAggregationInitializer`.
+///   - rhs: The right-hand side operand, an optional aggregate conforming to `SDAI.AggregationInitializer`.
 /// - Returns: A new `SDAI.SET` containing the intersection of elements from both `lhs` and `rhs`, or `nil` if either operand is `nil`.
 /// - Note: The element types of the operands must have the same `FundamentalType`.
 /// - Discussion: The result type is always a `SET`, as defined by the standard, for the intersection of a set and either another `SET` or a `BAG`.
-public func * <T6: SDAI.SET__TypeBehavior, U6: SDAIAggregationInitializer>(
+public func * <T6: SDAI.SET__TypeBehavior, U6: SDAI.AggregationInitializer>(
 	lhs: T6?, rhs: U6?) -> SDAI.SET<T6.ELEMENT>?
 where T6.ELEMENT.FundamentalType == U6.ELEMENT.FundamentalType
 {
@@ -140,12 +140,12 @@ where T6.ELEMENT.FundamentalType == U6.ELEMENT.FundamentalType
 /// It is applicable to combinations of `BAG`, `SET`, and general aggregate types, depending on the types of the operands.
 /// 
 /// - Parameters:
-///   - lhs: The left-hand side operand, an optional aggregate conforming to `SDAIAggregationInitializer`.
+///   - lhs: The left-hand side operand, an optional aggregate conforming to `SDAI.AggregationInitializer`.
 ///   - rhs: The right-hand side operand, an optional aggregate conforming to `SDAI__SET__type`.
 /// - Returns: A new aggregate containing the intersection of elements from both `lhs` and `rhs`, or `nil` if either operand is `nil`.
 /// - Note: The element types of the operands must have the same `FundamentalType`.
 /// - Discussion: The result type depends on the operand types, as defined by the standard. For example, the intersection of a `SET` and another aggregate yields a `SET`, while other combinations may yield different types.
-public func * <T7: SDAIAggregationInitializer, U7: SDAI.SET__TypeBehavior>(
+public func * <T7: SDAI.AggregationInitializer, U7: SDAI.SET__TypeBehavior>(
 	lhs: T7?, rhs: U7?) -> SDAI.SET<U7.ELEMENT>?
 where T7.ELEMENT.FundamentalType == U7.ELEMENT.FundamentalType
 {
@@ -192,7 +192,7 @@ where T3.ELEMENT.FundamentalType == U3.FundamentalType
 
 /// Aggregate Union: BAG\<Generic\> + GENERIC = Bag
 ///
-public func + <T4: SDAI.BAG__TypeBehavior, U4: SDAI__GENERIC__type>(
+public func + <T4: SDAI.BAG__TypeBehavior, U4: SDAI.GENERIC__TypeBehavior>(
 	lhs: T4?, rhs: U4?) -> SDAI.BAG<T4.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -275,7 +275,7 @@ where T11.FundamentalType == U11.ELEMENT.FundamentalType
 
 /// Aggregate Union: GENERIC + BAG\<Generic\> = BAG
 ///
-public func + <T12: SDAI__GENERIC__type, U12: SDAI.BAG__TypeBehavior>	(
+public func + <T12: SDAI.GENERIC__TypeBehavior, U12: SDAI.BAG__TypeBehavior>	(
 	lhs: T12?, rhs: U12?) -> SDAI.BAG<U12.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -383,7 +383,7 @@ where T21.ELEMENT.FundamentalType == U21.FundamentalType
 
 /// Aggregate Union: SET\<Generic\> + GENERIC = SET
 ///
-public func + <T22: SDAI.SET__TypeBehavior, U22: SDAI__GENERIC__type>(
+public func + <T22: SDAI.SET__TypeBehavior, U22: SDAI.GENERIC__TypeBehavior>(
 	lhs: T22?, rhs: U22?) -> SDAI.SET<T22.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -466,7 +466,7 @@ where T29.FundamentalType == U29.ELEMENT.FundamentalType
 
 /// Aggregate Union: GENERIC + SET\<Generic\> = SET
 ///
-public func + <T30: SDAI__GENERIC__type, U30: SDAI.SET__TypeBehavior>(
+public func + <T30: SDAI.GENERIC__TypeBehavior, U30: SDAI.SET__TypeBehavior>(
 	lhs: T30?, rhs: U30?) -> SDAI.SET<U30.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -560,7 +560,7 @@ where T38.ELEMENT.FundamentalType == U38.FundamentalType
 
 /// Aggregate Union: LIST\<Generic\> + GENERIC = List
 ///
-public func + <T39: SDAI.LIST__TypeBehavior, U39: SDAI__GENERIC__type>(
+public func + <T39: SDAI.LIST__TypeBehavior, U39: SDAI.GENERIC__TypeBehavior>(
 	lhs: T39?, rhs: U39?) -> SDAI.LIST<T39.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -643,7 +643,7 @@ where T46.FundamentalType == U46.ELEMENT.FundamentalType
 
 /// Aggregate Union: GENERIC + LIST\<Generic\> = List
 ///
-public func + <T47: SDAI__GENERIC__type, U47: SDAI.LIST__TypeBehavior>(
+public func + <T47: SDAI.GENERIC__TypeBehavior, U47: SDAI.LIST__TypeBehavior>(
 	lhs: T47?, rhs: U47?) -> SDAI.LIST<U47.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -716,7 +716,7 @@ where U53.ELEMENT: SDAI.PersistentReference
 //MARK: Bag + Aggregate = Bag
 /// Aggregate Union: Bag + Aggregate = BAG
 ///
-public func + <T54: SDAI.BAG__TypeBehavior, U54: SDAIAggregationInitializer>(
+public func + <T54: SDAI.BAG__TypeBehavior, U54: SDAI.AggregationInitializer>(
 	lhs: T54?, rhs: U54?) -> SDAI.BAG<T54.ELEMENT>?
 where T54.ELEMENT.FundamentalType == U54.ELEMENT.FundamentalType
 {
@@ -727,7 +727,7 @@ where T54.ELEMENT.FundamentalType == U54.ELEMENT.FundamentalType
 //MARK: Aggregate + Bag = Bag
 /// Aggregate Union: Aggregate + Bag = BAG
 ///
-public func + <T55: SDAIAggregationInitializer, U55: SDAI.BAG__TypeBehavior>(
+public func + <T55: SDAI.AggregationInitializer, U55: SDAI.BAG__TypeBehavior>(
 	lhs: T55?, rhs: U55?) -> SDAI.BAG<U55.ELEMENT>?
 where T55.ELEMENT.FundamentalType == U55.ELEMENT.FundamentalType
 {
@@ -738,7 +738,7 @@ where T55.ELEMENT.FundamentalType == U55.ELEMENT.FundamentalType
 //MARK: Set + Aggregate = Set
 /// Aggregate Union: Set + Aggregate = SET
 ///
-public func + <T56: SDAI.SET__TypeBehavior, U56: SDAIAggregationInitializer>(
+public func + <T56: SDAI.SET__TypeBehavior, U56: SDAI.AggregationInitializer>(
 	lhs: T56?, rhs: U56?) -> SDAI.SET<T56.ELEMENT>?
 where T56.ELEMENT.FundamentalType == U56.ELEMENT.FundamentalType
 {
@@ -749,7 +749,7 @@ where T56.ELEMENT.FundamentalType == U56.ELEMENT.FundamentalType
 //MARK: Aggregate + Set = Set
 /// Aggregate Union: Aggregate + Set = SET
 ///
-public func + <T57: SDAIAggregationInitializer, U57: SDAI.SET__TypeBehavior>(
+public func + <T57: SDAI.AggregationInitializer, U57: SDAI.SET__TypeBehavior>(
 	lhs: T57?, rhs: U57?) -> SDAI.SET<U57.ELEMENT>?
 where T57.ELEMENT.FundamentalType == U57.ELEMENT.FundamentalType
 {
@@ -760,7 +760,7 @@ where T57.ELEMENT.FundamentalType == U57.ELEMENT.FundamentalType
 //MARK: List + Aggregate = List
 /// Aggregate Union: List + Aggregate = List
 ///
-public func + <T58: SDAI.LIST__TypeBehavior, U58: SDAIAggregationInitializer>(
+public func + <T58: SDAI.LIST__TypeBehavior, U58: SDAI.AggregationInitializer>(
 	lhs: T58?, rhs: U58?) -> SDAI.LIST<T58.ELEMENT>?
 where T58.ELEMENT.FundamentalType == U58.ELEMENT.FundamentalType
 {
@@ -771,7 +771,7 @@ where T58.ELEMENT.FundamentalType == U58.ELEMENT.FundamentalType
 //MARK: Aggregate + List = List
 /// Aggregate Union: Aggregate + List = List
 ///
-public func + <T59: SDAIAggregationInitializer, U59: SDAI.LIST__TypeBehavior>(
+public func + <T59: SDAI.AggregationInitializer, U59: SDAI.LIST__TypeBehavior>(
 	lhs: T59?, rhs: U59?) -> SDAI.LIST<U59.ELEMENT>?
 where T59.ELEMENT.FundamentalType == U59.ELEMENT.FundamentalType
 {
@@ -810,7 +810,7 @@ where T2.ELEMENT.FundamentalType == U2.FundamentalType
 
 /// Aggregate Difference: BAG\<Generic\> - GENERIC = BAG
 ///
-public func - <T3: SDAI.BAG__TypeBehavior, U3: SDAI__GENERIC__type>(
+public func - <T3: SDAI.BAG__TypeBehavior, U3: SDAI.GENERIC__TypeBehavior>(
 	lhs: T3?, rhs: U3?) -> SDAI.BAG<T3.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -905,7 +905,7 @@ where T11.ELEMENT.FundamentalType == U11.FundamentalType
 
 /// Aggregate Difference: SET\<Generic\> - GENERIC = SET
 ///
-public func - <T12: SDAI.SET__TypeBehavior, U12: SDAI__GENERIC__type>(
+public func - <T12: SDAI.SET__TypeBehavior, U12: SDAI.GENERIC__TypeBehavior>(
 	lhs: T12?, rhs: U12?) -> SDAI.SET<T12.ELEMENT>?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
@@ -979,7 +979,7 @@ where T18.ELEMENT: SDAI.PersistentReference
 //MARK: Bag - Aggregate = Bag
 /// Aggregate Difference: Bag - Aggregate = BAG
 ///
-public func - <T19: SDAI.BAG__TypeBehavior, U19: SDAIAggregationInitializer>(
+public func - <T19: SDAI.BAG__TypeBehavior, U19: SDAI.AggregationInitializer>(
 	lhs: T19?, rhs: U19?) -> SDAI.BAG<T19.ELEMENT>?
 where T19.ELEMENT.FundamentalType == U19.ELEMENT.FundamentalType
 {
@@ -990,7 +990,7 @@ where T19.ELEMENT.FundamentalType == U19.ELEMENT.FundamentalType
 //MARK: Set - Aggregate = Set
 /// Aggregate Difference: Set - Aggregate = SET
 ///
-public func - <T20: SDAI.SET__TypeBehavior, U20: SDAIAggregationInitializer>	(
+public func - <T20: SDAI.SET__TypeBehavior, U20: SDAI.AggregationInitializer>	(
 	lhs: T20?, rhs: U20?) -> SDAI.SET<T20.ELEMENT>?
 where T20.ELEMENT.FundamentalType == U20.ELEMENT.FundamentalType
 {

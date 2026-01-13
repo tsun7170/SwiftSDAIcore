@@ -40,7 +40,7 @@ extension SDAI {
 		SDAI.NamedType, SDAI.EntityReferenceType, SDAI.GenericType,
 		InitializableByComplexEntity,
 		SDAI.EntityReferenceYielding,
-		SdaiCacheHolder,
+		SDAI.CacheHolder,
 		CustomStringConvertible, @unchecked Sendable
 	{
 		//MARK: SDAI.EntityReferenceType
@@ -360,7 +360,7 @@ extension SDAI {
 			return nil
 		}
 
-		//MARK: SdaiCacheHolder related
+		//MARK: SDAI.CacheHolder related
 		public func notifyApplicationDomainChanged(
 			relatedTo schemaInstance: SDAIPopulationSchema.SchemaInstance
 		) async

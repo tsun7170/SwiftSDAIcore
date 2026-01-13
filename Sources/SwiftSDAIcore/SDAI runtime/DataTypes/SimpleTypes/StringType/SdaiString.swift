@@ -105,7 +105,7 @@ public extension SDAI.STRING__TypeBehavior
 }
 
 extension SDAI {
-	public struct STRING: SDAI.STRING__TypeBehavior, SDAIValue, CustomStringConvertible
+	public struct STRING: SDAI.STRING__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = String
 		public typealias FundamentalType = Self
@@ -230,8 +230,8 @@ extension SDAI {
 		}
 		
 
-		// SDAIValue
-		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
+		// SDAI.Value
+		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
 			return false

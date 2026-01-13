@@ -27,7 +27,7 @@ extension SDAI {
     func intersectionWith<U: SDAI.BagType>(rhs: U) -> SDAI.SET<ELEMENT>?
     where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
-    func intersectionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
+    func intersectionWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
     where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
 
@@ -40,9 +40,9 @@ extension SDAI {
     func unionWith<U: SDAI.GenericType>(rhs: U) -> SDAI.SET<ELEMENT>?
     where ELEMENT.FundamentalType == U.FundamentalType
 
-    func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>?
+    func unionWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>?
 
-    func unionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
+    func unionWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
     where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
 
@@ -52,9 +52,9 @@ extension SDAI {
     func differenceWith<U: SDAI.GenericType>(rhs: U) -> SDAI.SET<ELEMENT>?
     where ELEMENT.FundamentalType == U.FundamentalType
 
-    func differenceWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>?
+    func differenceWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>?
 
-    func differenceWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
+    func differenceWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
     where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
   }
 }
@@ -302,7 +302,7 @@ extension SDAI {
 			self.rep = swiftValue
 		}
 		
-		// InitializableBySelecttypeAsList
+		// SDAI.InitializableBySelecttypeAsList
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(
 			bound1: I1, bound2: I2?, _ select: S?)
 		{
@@ -310,7 +310,7 @@ extension SDAI {
 			self.init(from: fundamental.asSwiftType, bound1:bound1, bound2:bound2)
 		}
 
-		// InitializableByListLiteral
+		// SDAI.InitializableByListLiteral
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E:SDAI.GenericType>(
 			bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
 		{
@@ -342,7 +342,7 @@ extension SDAI {
 			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
 		}
 
-		public func intersectionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
+		public func intersectionWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.intersectionWith(other: rhs)
 			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }
@@ -378,7 +378,7 @@ extension SDAI {
 			return SET(from: result, bound1: 0, bound2: _Infinity)
 		}
 
-		public func unionWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>? {
+		public func unionWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>? {
 			if let rhs = rhs.listValue(elementType: ELEMENT.self) {
 				return self.unionWith(rhs: rhs)
 			}
@@ -394,7 +394,7 @@ extension SDAI {
 			return nil
 		}
 
-		public func unionWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
+		public func unionWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.unionWith(other: rhs)
 			return SET(from: result, bound1: 0, bound2: _Infinity)
@@ -436,7 +436,7 @@ extension SDAI {
 			) { ELEMENT.convert(from: $0) }
 		}
 
-		public func differenceWith<U: SDAI__GENERIC__type>(rhs: U) -> SDAI.SET<ELEMENT>? {
+		public func differenceWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>? {
 			if let rhs = rhs.setValue(elementType: ELEMENT.self) {
 				return self.differenceWith(rhs: rhs)
 			}
@@ -449,7 +449,7 @@ extension SDAI {
 			return nil
 		}
 
-		public func differenceWith<U: SDAIAggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
+		public func differenceWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
 		where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType {
 			let result = self.differenceWith(other: rhs)
 			return SET(bound1: 0, bound2: _Infinity, [result]){ ELEMENT.convert(from: $0) }

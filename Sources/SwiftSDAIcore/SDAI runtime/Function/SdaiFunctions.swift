@@ -430,7 +430,7 @@ extension SDAI {
 	/// - Returns: 
 	/// 	-	a) When V is an ARRAY the returned value is its declared number of elements in the aggregation data type.
 	/// 	-	b) When V is a BAG, LIST or SET, the returned value is the actual number of elements in the aggregate value.
-	public static func SIZEOF<AI: SDAIAggregationInitializer>(_ V: AI?) -> INTEGER?
+	public static func SIZEOF<AI: SDAI.AggregationInitializer>(_ V: AI?) -> INTEGER?
 	{
 		return INTEGER(  V?.reduce(0, {$0 + $1.count})  )
 	}

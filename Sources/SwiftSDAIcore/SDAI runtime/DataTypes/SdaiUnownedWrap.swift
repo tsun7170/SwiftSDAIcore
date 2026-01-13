@@ -78,7 +78,7 @@ extension SDAI.UnownedWrap: SDAI.InitializableByP21Parameter where REF: SDAI.Ini
 }
 
 
-extension SDAI.UnownedWrap: SDAI.GenericType, SdaiCacheableSource, Sendable
+extension SDAI.UnownedWrap: SDAI.GenericType, SDAI.CacheableSource, Sendable
 where REF: SDAI.GenericType {
 
 	public typealias FundamentalType = REF.FundamentalType

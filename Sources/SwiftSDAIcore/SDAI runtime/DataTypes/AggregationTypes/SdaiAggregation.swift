@@ -146,14 +146,6 @@ extension SDAI {
 }
 
 
-//MARK: - aggregation iteration
-extension SDAI {
-	public enum IterControl {
-		case next
-		case stop
-	}
-}
-
 
 //MARK: - extension per ELEMENT type
 public extension SDAI.AggregationType

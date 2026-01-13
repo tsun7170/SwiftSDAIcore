@@ -8,32 +8,34 @@
 
 import Foundation
 
-public protocol SDAIValue: Hashable//, Sendable
-{
-	func isValueEqual<T: SDAIValue>(
-		to rhs: T) -> Bool	// NEED TO IMPLEMENT
+extension SDAI {
+  public protocol Value: Hashable//, Sendable
+  {
+    func isValueEqual<T: SDAI.Value>(
+      to rhs: T) -> Bool	// NEED TO IMPLEMENT
 
-	func isValueEqualOptionally<T: SDAIValue>(
-		to rhs: T?) -> Bool?
+    func isValueEqualOptionally<T: SDAI.Value>(
+      to rhs: T?) -> Bool?
 
 
 
-	func hashAsValue(
-		into hasher: inout Hasher,
-		visited complexEntities: inout Set<SDAI.ComplexEntity>)
+    func hashAsValue(
+      into hasher: inout Hasher,
+      visited complexEntities: inout Set<SDAI.ComplexEntity>)
 
-	func isValueEqual<T: SDAIValue>(
-		to rhs: T,
-		visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool
+    func isValueEqual<T: SDAI.Value>(
+      to rhs: T,
+      visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool
 
-	func isValueEqualOptionally<T: SDAIValue>(
-		to rhs: T?,
-		visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool?
+    func isValueEqualOptionally<T: SDAI.Value>(
+      to rhs: T?,
+      visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool?
+  }
 }
 
-public extension SDAIValue
+public extension SDAI.Value
 {
-	func isValueEqualOptionally<T: SDAIValue>(
+	func isValueEqualOptionally<T: SDAI.Value>(
 		to rhs: T?) -> Bool?
 	{
 		guard let rhs = rhs else { return nil }
@@ -47,14 +49,14 @@ public extension SDAIValue
 		self.hash(into: &hasher)
 	}
 
-	func isValueEqual<T: SDAIValue>(
+	func isValueEqual<T: SDAI.Value>(
 		to rhs: T,
 		visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool
 	{
 		self.isValueEqual(to: rhs)
 	}
 
-	func isValueEqualOptionally<T: SDAIValue>(
+	func isValueEqualOptionally<T: SDAI.Value>(
 		to rhs: T?,
 		visited comppairs: inout Set<SDAI.ComplexPair>) -> Bool?
 	{
@@ -70,9 +72,9 @@ extension SDAI
 	public typealias GenericValue = AnyHashable
 }
 
-extension SDAI.GenericValue: SDAIValue //, @unchecked @retroactive Sendable
+extension SDAI.GenericValue: SDAI.Value //, @unchecked @retroactive Sendable
 {
-	public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool {
+	public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool {
 		return self == rhs as AnyHashable
 	}
 

@@ -34,7 +34,7 @@ public enum SDAIParameterDataSchema {
 		case sdaiSchemaInstance(SDAIPopulationSchema.SchemaInstance)
 
 		case sdaiEntityDefinition(SDAIDictionarySchema.EntityDefinition)
-		case sdaiAttribute(SDAIAttributeType)
+		case sdaiAttribute(SDAIDictionarySchema.AttributeType)
 		case sdaiBound(SDAIDictionarySchema.Bound)
 
 	}

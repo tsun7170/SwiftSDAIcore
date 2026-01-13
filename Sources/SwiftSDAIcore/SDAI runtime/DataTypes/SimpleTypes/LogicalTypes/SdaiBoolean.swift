@@ -65,7 +65,7 @@ public extension SDAI.BOOLEAN__TypeBehavior
 }
 
 extension SDAI {
-	public struct BOOLEAN : SDAI.BOOLEAN__TypeBehavior, SDAIValue, CustomStringConvertible
+	public struct BOOLEAN : SDAI.BOOLEAN__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Bool
 		public typealias FundamentalType = Self
@@ -124,8 +124,8 @@ extension SDAI {
 			rep = swiftValue
 		}
 		
-		// SDAIValue
-		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
+		// SDAI.Value
+		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
 			if let rhs = rhs as? SDAI.SwiftBoolConvertible { return self.possiblyAsSwiftBool == rhs.possiblyAsSwiftBool }

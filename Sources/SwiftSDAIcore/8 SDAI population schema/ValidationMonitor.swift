@@ -144,7 +144,7 @@ extension SDAIPopulationSchema {
 
 
 	public typealias InstanceReferenceDomainValidationRecord =
-	(definition: SDAIAttributeType, value: SDAI.GENERIC?, result: SDAI.LOGICAL)
+	(definition: SDAIDictionarySchema.AttributeType, value: SDAI.GENERIC?, result: SDAI.LOGICAL)
 
 	public struct InstanceReferenceDomainValidationResult: CustomStringConvertible, Sendable {
 		public var description: String {

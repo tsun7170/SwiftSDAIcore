@@ -51,7 +51,7 @@ public extension SDAI.ARRAY_OPTIONAL__Subtype
 		self.init(fundamental: FundamentalType(from: swiftValue, bound1: bound1, bound2: bound2) )
 	} 
 	
-	// InitializableByArrayLiteral
+	// SDAI.InitializableByArrayLiteral
 	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
 		bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
 	{

@@ -10,7 +10,7 @@ import Foundation
 
 extension SDAI.EntityReference {
 	
-	public typealias AttributeTuple = (definition: SDAIAttributeType, value: SDAI.GENERIC?)
+	public typealias AttributeTuple = (definition: SDAIDictionarySchema.AttributeType, value: SDAI.GENERIC?)
 
 	public class AttributeList : CustomStringConvertible 
 	{
@@ -32,7 +32,7 @@ extension SDAI.EntityReference {
 		
     internal init(
       entity: SDAI.EntityReference,
-      attributeDefs: some Collection<SDAIAttributeType>)
+      attributeDefs: some Collection<SDAIDictionarySchema.AttributeType>)
     {
 			for attrDef in attributeDefs {
 //				loggerSDAI.debug("evaluating attribute[\(attrDef.name)] of entity[\(entityDef.name)] #\(entity.complexEntity.p21name) ")

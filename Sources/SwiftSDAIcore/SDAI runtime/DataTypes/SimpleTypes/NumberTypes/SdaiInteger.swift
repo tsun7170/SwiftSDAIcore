@@ -53,7 +53,7 @@ public extension SDAI.INTEGER__TypeBehavior
 }
 
 extension SDAI {
-	public struct INTEGER: SDAI.INTEGER__TypeBehavior, SDAIValue, CustomStringConvertible
+	public struct INTEGER: SDAI.INTEGER__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Int
 		public typealias FundamentalType = Self
@@ -112,8 +112,8 @@ extension SDAI {
 			rep = swiftValue
 		}
 		
-		// SDAIValue
-		public func isValueEqual<T: SDAIValue>(to rhs: T) -> Bool 
+		// SDAI.Value
+		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool 
 		{
 			if let rhs = rhs as? Self { return self == rhs }
 			if let rhs = rhs as? SDAI.SwiftIntConvertible { return self.asSwiftInt == rhs.asSwiftInt }
