@@ -12,8 +12,8 @@ import Foundation
 
 /// Binary Value Equal: Binary .==. Binary = LOGICAL
 ///
-public func .==. <TB: SDAI.BinaryType, UB: SDAI.BinaryType>(
-  lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
+public func .==. <TBi: SDAI.BinaryType, UBi: SDAI.BinaryType>(
+  lhs: TBi?, rhs: UBi?) -> SDAI.LOGICAL
 {
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	for idx in 1 ... min(lhs.blength, rhs.blength) {
@@ -27,14 +27,14 @@ public func .==. <TB: SDAI.BinaryType, UB: SDAI.BinaryType>(
 
 /// Binary Value NotEqual: Binary .!=. Binary = LOGICAL
 ///
-public func .!=. <TB: SDAI.BinaryType, UB: SDAI.BinaryType>(
-  lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
+public func .!=. <TBi: SDAI.BinaryType, UBi: SDAI.BinaryType>(
+  lhs: TBi?, rhs: UBi?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
 /// Binary Value GreaterThan: Binary \> Binary = LOGICAL
 ///
-public func >    <TB: SDAI.BinaryType, UB: SDAI.BinaryType>(
-  lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
+public func >    <TBi: SDAI.BinaryType, UBi: SDAI.BinaryType>(
+  lhs: TBi?, rhs: UBi?) -> SDAI.LOGICAL
 {
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	for idx in 1 ... min(lhs.blength, rhs.blength) {
@@ -48,20 +48,20 @@ public func >    <TB: SDAI.BinaryType, UB: SDAI.BinaryType>(
 
 /// Binary Value LessThan: Binary \< Binary = LOGICAL
 ///
-public func <    <TB: SDAI.BinaryType, UB: SDAI.BinaryType>(
-  lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
+public func <    <TBi: SDAI.BinaryType, UBi: SDAI.BinaryType>(
+  lhs: TBi?, rhs: UBi?) -> SDAI.LOGICAL
 { rhs > lhs }
 
 /// Binary Value GreaterThanOrEqual: Binary \>= Binary = LOGICAL
 ///
-public func >=   <TB: SDAI.BinaryType, UB: SDAI.BinaryType>(
-  lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
+public func >=   <TBi: SDAI.BinaryType, UBi: SDAI.BinaryType>(
+  lhs: TBi?, rhs: UBi?) -> SDAI.LOGICAL
 { (lhs > rhs)||(lhs .==. rhs) }
 
 /// Binary Value LessThanOrEqual: Binary \<= Binary = LOGICAL
 ///
-public func <=   <TB: SDAI.BinaryType, UB: SDAI.BinaryType>(
-  lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
+public func <=   <TBi: SDAI.BinaryType, UBi: SDAI.BinaryType>(
+  lhs: TBi?, rhs: UBi?) -> SDAI.LOGICAL
 { (lhs < rhs)||(lhs .==. rhs) }
 
 
@@ -69,38 +69,38 @@ public func <=   <TB: SDAI.BinaryType, UB: SDAI.BinaryType>(
 
 /// Binary Value Equal: Binary .==. Select = LOGICAL
 ///
-public func .==. <TB: SDAI.BinaryType, US: SDAI.SelectType>(
-  lhs: TB?, rhs: US?) -> SDAI.LOGICAL
+public func .==. <TBi: SDAI.BinaryType, US: SDAI.SelectType>(
+  lhs: TBi?, rhs: US?) -> SDAI.LOGICAL
 { lhs .==. rhs?.binaryValue }
 
 /// Binary Value NotEqual: Binary .!=. Select = LOGICAL
 ///
-public func .!=. <TB: SDAI.BinaryType, US: SDAI.SelectType>(
-  lhs: TB?, rhs: US?) -> SDAI.LOGICAL
+public func .!=. <TBi: SDAI.BinaryType, US: SDAI.SelectType>(
+  lhs: TBi?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
 /// Binary Value GreaterThan: Binary \> Select = LOGICAL
 ///
-public func >    <TB: SDAI.BinaryType, US: SDAI.SelectType>(
-  lhs: TB?, rhs: US?) -> SDAI.LOGICAL
+public func >    <TBi: SDAI.BinaryType, US: SDAI.SelectType>(
+  lhs: TBi?, rhs: US?) -> SDAI.LOGICAL
 { lhs > rhs?.binaryValue }
 
 /// Binary Value LessThan: Binary \< Select = LOGICAL
 ///
-public func <    <TB: SDAI.BinaryType, US: SDAI.SelectType>(
-  lhs: TB?, rhs: US?) -> SDAI.LOGICAL
+public func <    <TBi: SDAI.BinaryType, US: SDAI.SelectType>(
+  lhs: TBi?, rhs: US?) -> SDAI.LOGICAL
 { rhs > lhs }
 
 /// Binary Value GreaterThanOrEqual: Binary \>= Select = LOGICAL
 ///
-public func >=   <TB: SDAI.BinaryType, US: SDAI.SelectType>(
-  lhs: TB?, rhs: US?) -> SDAI.LOGICAL
+public func >=   <TBi: SDAI.BinaryType, US: SDAI.SelectType>(
+  lhs: TBi?, rhs: US?) -> SDAI.LOGICAL
 { (lhs > rhs)||(lhs .==. rhs) }
 
 /// Binary Value LessThanOrEqual: Binary \<= Select = LOGICAL
 ///
-public func <=   <TB: SDAI.BinaryType, US: SDAI.SelectType>(
-  lhs: TB?, rhs: US?) -> SDAI.LOGICAL
+public func <=   <TBi: SDAI.BinaryType, US: SDAI.SelectType>(
+  lhs: TBi?, rhs: US?) -> SDAI.LOGICAL
 { (lhs < rhs)||(lhs .==. rhs) }
 
 
@@ -108,37 +108,37 @@ public func <=   <TB: SDAI.BinaryType, US: SDAI.SelectType>(
 
 /// Binary Value Equal: Select .==. Binary = LOGICAL
 ///
-public func .==. <TS: SDAI.SelectType, UB: SDAI.BinaryType>(
-  lhs: TS?, rhs: UB?) -> SDAI.LOGICAL
+public func .==. <TS: SDAI.SelectType, UBi: SDAI.BinaryType>(
+  lhs: TS?, rhs: UBi?) -> SDAI.LOGICAL
 { rhs .==. lhs }
 
 /// Binary Value NotEqual: Select .!=. Binary = LOGICAL
 ///
-public func .!=. <TS: SDAI.SelectType, UB: SDAI.BinaryType>(
-  lhs: TS?, rhs: UB?) -> SDAI.LOGICAL
+public func .!=. <TS: SDAI.SelectType, UBi: SDAI.BinaryType>(
+  lhs: TS?, rhs: UBi?) -> SDAI.LOGICAL
 { !(lhs .==. rhs) }
 
 /// Binary Value GreaterThan: Select \> Binary = LOGICAL
 ///
-public func >    <TS: SDAI.SelectType, UB: SDAI.BinaryType>(
-  lhs: TS?, rhs: UB?) -> SDAI.LOGICAL
+public func >    <TS: SDAI.SelectType, UBi: SDAI.BinaryType>(
+  lhs: TS?, rhs: UBi?) -> SDAI.LOGICAL
 { lhs?.binaryValue > rhs }
 
 /// Binary Value LessThan: Select \< Binary = LOGICAL
 ///
-public func <    <TS: SDAI.SelectType, UB: SDAI.BinaryType>(
-  lhs: TS?, rhs: UB?) -> SDAI.LOGICAL
+public func <    <TS: SDAI.SelectType, UBi: SDAI.BinaryType>(
+  lhs: TS?, rhs: UBi?) -> SDAI.LOGICAL
 { rhs > lhs }
 
 /// Binary Value GreaterThanOrEqual: Select \>= Binary = LOGICAL
 ///
-public func >=   <TS: SDAI.SelectType, UB: SDAI.BinaryType>(
-  lhs: TS?, rhs: UB?) -> SDAI.LOGICAL
+public func >=   <TS: SDAI.SelectType, UBi: SDAI.BinaryType>(
+  lhs: TS?, rhs: UBi?) -> SDAI.LOGICAL
 { (lhs > rhs)||(lhs .==. rhs) }
 
 /// Binary Value LessThanOrEqual: Select \<= Binary = LOGICAL
 ///
-public func <=   <TS: SDAI.SelectType, UB: SDAI.BinaryType>(
-  lhs: TS?, rhs: UB?) -> SDAI.LOGICAL
+public func <=   <TS: SDAI.SelectType, UBi: SDAI.BinaryType>(
+  lhs: TS?, rhs: UBi?) -> SDAI.LOGICAL
 { (lhs < rhs)||(lhs .==. rhs) }
 

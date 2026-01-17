@@ -35,6 +35,48 @@ extension SDAI {
 	public typealias EntityName = SDAIDictionarySchema.ExpressId
 	public typealias AttributeName = SDAIDictionarySchema.ExpressId
 
+  /// Represents a reference to an SDAI entity instance within a model's population.
+  ///
+  /// `EntityReference` is the principal class for referencing and managing
+  /// EXPRESS entity instances (as defined in ISO 10303-11 and ISO 10303-22).
+  /// It provides functionality for referencing complex entities, managing
+  /// persistent and temporary states, cache handling for derived attributes,
+  /// and introspection of entity definitions and instance relationships.
+  ///
+  /// ## Responsibilities
+  /// - References a `ComplexEntity` instance and provides access to its model and definition.
+  /// - Manages persistent labeling for identification across persistent storage and sessions.
+  /// - Provides caching and cache management for derived attribute values.
+  /// - Supports referencing and resolving relationships (including inverse attributes) with other entities.
+  /// - Enables validation of WHERE rules recursively through entity attributes.
+  /// - Supports conversion and initialization from other generic or complex entities.
+  /// - Integrates with population and schema models for access and introspection.
+  ///
+  /// ## Key Properties
+  /// - `complexEntity`: The primary complex entity referenced.
+  /// - `definition`: The EXPRESS entity definition this reference corresponds to.
+  /// - `persistentLabel`: String identifier for persistent storage.
+  /// - `entityReferences`: Returns the entity reference(s) represented by this object.
+  /// - `cacheController` and cache-related APIs for managing derived attribute values.
+  ///
+  /// ## Usage
+  /// `EntityReference` is typically subclassed for concrete EXPRESS entity types,
+  /// and is not intended to be used directly. It underpins the typed entity reference system
+  /// and supports generic manipulation of SDAI entity instances.
+  ///
+  /// ## Conformance
+  /// - `SDAI.NamedType`
+  /// - `SDAI.EntityReferenceType`
+  /// - `SDAI.GenericType`
+  /// - `InitializableByComplexEntity`
+  /// - `SDAI.EntityReferenceYielding`
+  /// - `SDAI.CacheHolder`
+  /// - `CustomStringConvertible`
+  /// - `@unchecked Sendable`
+  ///
+  /// ## Standard References
+  /// - ISO 10303-11: EXPRESS language
+  /// - ISO 10303-22: SDAI interface
 	open class EntityReference:
 		SDAI.UnownedReference<SDAI.ComplexEntity>,
 		SDAI.NamedType, SDAI.EntityReferenceType, SDAI.GenericType,
@@ -389,6 +431,23 @@ extension SDAI {
 
 
 		//MARK: derived attribute value caching
+    /// Represents a cached value for a derived attribute in an SDAI entity reference.
+    ///
+    /// `CachedValue` is used to store the result of evaluating a derived attribute,
+    /// allowing efficient reuse and avoiding redundant computation. The value is
+    /// wrapped in a type-erased, `Sendable` container to support safe concurrency.
+    ///
+    /// - Important: The underlying value may be any type that conforms to `Sendable`,
+    ///   and is typically set and retrieved by the entity's cache management APIs.
+    ///
+    /// - SeeAlso: `EntityReference.cachedValue(derivedAttributeName:)`
+    ///
+    /// - Parameters:
+    ///   - value: The cached value, type-erased as `any Sendable`. May be `nil` if
+    ///     the attribute hasn't been computed or cached yet.
+    ///
+    /// - Concurrency: `CachedValue` is `Sendable` and can be transported across
+    ///   concurrency domains safely.
 		public struct CachedValue: Sendable {
 			public let value: (any Sendable)?
 

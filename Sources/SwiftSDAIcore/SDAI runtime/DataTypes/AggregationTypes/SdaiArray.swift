@@ -11,6 +11,25 @@ import Foundation
 
 //MARK: - array type (8.2.1)
 extension SDAI {
+  /// A protocol representing an ARRAY aggregation type as defined in the SDAI standard (ISO 10303-11, 8.2.1).
+  ///
+  /// Conforming types must provide the necessary interfaces for aggregate behavior, indexing, type representation,
+  /// and initialization from Swift types and array literals. This protocol is intended for types that represent
+  /// fixed or variable-size collections of homogeneous values, with optional and uniqueness characteristics
+  /// specified at the type level.
+  ///
+  /// - Conforms to:
+  ///   - `SDAI.AggregationType`: Basic aggregation (collection) interface.
+  ///   - `SDAI.AggregateIndexingSettable`: Allows mutation of elements by index.
+  ///   - `SDAI.UnderlyingType`: Identifies the underlying fundamental type for the array.
+  ///   - `SDAI.SwiftTypeRepresented`: Supports conversion to and from a native Swift representation.
+  ///   - `SDAI.InitializableBySwifttypeAsArray`: Can be initialized from a native Swift array type.
+  ///   - `SDAI.InitializableByArrayLiteral`: Can be initialized using Swift array literals.
+  ///   - `SDAI.InitializableByGenericArray`: Can be initialized from another generic array type.
+  ///
+  /// - SDAIDictionarySchema support:
+  ///   - `uniqueFlag`: Indicates whether the aggregate enforces uniqueness of its elements.
+  ///   - `optionalFlag`: Indicates whether the aggregate allows optional (absent) elements.
   public protocol ArrayType:
     SDAI.AggregationType, SDAI.AggregateIndexingSettable,
     SDAI.UnderlyingType, SDAI.SwiftTypeRepresented,
@@ -45,6 +64,41 @@ extension SDAI {
 //MARK: - SDAI.ARRAY
 extension SDAI {
 	
+  /// A generic fixed-size or variable-size array type conforming to the SDAI (ISO 10303-11) ARRAY aggregation concept.
+  ///
+  /// The `ARRAY` structure provides storage for a collection of homogeneous elements with user-specified lower and upper bounds,
+  /// and supports random access via integer indices. The bounds may be fixed or variable at runtime, and the element type must
+  /// conform to `SDAI.GenericType`.
+  ///
+  /// - Generic Parameter:
+  ///   - ELEMENT: The type of elements contained in the array. Must conform to `SDAI.GenericType`.
+  ///
+  /// - Aggregation Semantics:
+  ///   - Indices run from a configurable lower bound (`bound1`) to upper bound (`bound2`), inclusive.
+  ///   - The size of the array is `bound2 - bound1 + 1`.
+  ///   - Implements value semantics and supports copy-on-write via struct copying.
+  ///   - Conforms to protocols enabling conversion to and from Swift array types, array literals, and generic SDAI arrays.
+  ///   - Provides interfaces for aggregate-specific behavior, such as querying, mapping, and membership testing.
+  ///
+  /// - Example Usage:
+  ///   ```swift
+  ///   let arr = SDAI.ARRAY<SDAI.INTEGER>(from: [1, 2, 3], bound1: 1, bound2: 3)
+  ///   let value = arr[2] // Access element at index 2
+  ///   ```
+  ///
+  /// - Standard References:
+  ///   - ISO 10303-11: 8.2.1 ARRAY aggregation type
+  ///
+  /// - Conforms To:
+  ///   - `SDAI.ARRAY__TypeBehavior`
+  ///   - `Equatable`, `Hashable`
+  ///   - `SDAI.GenericType` and related array/initialization protocols
+  ///
+  /// - SeeAlso:
+  ///   - `SDAI.ArrayType`
+  ///   - `SDAI.ARRAY_OPTIONAL`
+  ///   - `SDAI.LIST`, `SDAI.BAG`, `SDAI.SET`
+  ///   - [ISO 10303-11, 8.2.1](https://www.steptools.com/stds/stp_aim/html/t_expgeneric_array.html)
 	public struct ARRAY<ELEMENT:SDAI.GenericType>: SDAI.ARRAY__TypeBehavior
 	{
 		public typealias SwiftType = Array<ELEMENT>

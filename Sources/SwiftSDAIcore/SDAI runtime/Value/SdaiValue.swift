@@ -9,6 +9,7 @@
 import Foundation
 
 extension SDAI {
+  
   public protocol Value: Hashable//, Sendable
   {
     func isValueEqual<T: SDAI.Value>(

@@ -11,6 +11,24 @@ import Foundation
 
 //MARK: - set type (8.2.4)
 extension SDAI {
+  /// A protocol representing the SDAI SET type, which is an unordered collection of unique elements.
+  /// 
+  /// `SetType` conforms to `SDAI.BagType`, inheriting the capabilities of a bag (multi-set), 
+  /// but restricts the collection to contain no duplicate elements, thus enforcing set semantics.
+  /// 
+  /// Use this protocol to represent and work with sets in the context of SDAI aggregate types.
+  /// 
+  /// - Note: According to the SDAI (Standard Data Access Interface) specification, a SET is an unordered aggregation
+  ///   of unique elements, where the cardinality may be bounded or unbounded. 
+  /// 
+  /// Conformance Requirements:
+  /// - Must inherit from `SDAI.BagType`, but must ensure uniqueness of elements.
+  /// 
+  /// Related types:
+  /// - `SDAI.SET` provides a concrete implementation of the set aggregate.
+  /// - `SDAI.BagType` provides the base protocol for bag/collection types.
+  /// 
+  /// See also: ISO 10303-22 (SDAI) Section 8.2.4 "SET aggregate type".
   public protocol SetType: SDAI.BagType
   {}
 }
@@ -96,6 +114,34 @@ where ELEMENT: SDAI.PersistentReference {
 
 //MARK: - SDAI.SET
 extension SDAI {
+  /// A concrete implementation of the SDAI `SET` aggregate type, representing an unordered collection of unique elements.
+  ///
+  /// `SDAI.SET` conforms to the `SDAI.SET__TypeBehavior` protocol and provides the full set of behaviors and operations 
+  /// expected from a set in the context of SDAI (Standard Data Access Interface) aggregates:
+  ///  - Enforces uniqueness of elements (no duplicates).
+  ///  - Maintains unordered storage of elements.
+  ///  - Supports queries, set operators (union, intersection, difference), and element containment checks.
+  ///  - Allows construction from various sources: other aggregates, Swift sets, sequences, and EXPRESS list literals.
+  ///  - Provides conversions to and from generic SDAI types, as well as EXPRESS type system bridging.
+  ///
+  /// - Type Parameters:
+  ///   - `ELEMENT`: The type of elements stored in the set, which must conform to `SDAI.GenericType`.
+  ///
+  /// - Features:
+  ///    - Set algebra: `unionWith`, `intersectionWith`, `differenceWith` for combining and comparing sets.
+  ///    - Querying and mapping: `QUERY` for element filtering and `map`/`compactMap` for transformation.
+  ///    - EXPRESS-compliant cardinality: optional lower and upper bounds for enforcing element count limits.
+  ///    - Support for EXPRESS aggregate initializers and P21 (STEP Physical File) decoding.
+  ///
+  /// - Notes:
+  ///    - The `SET` type is used to express the semantics of the EXPRESS `SET` aggregate type in ISO 10303-22 (SDAI).
+  ///    - The type ensures that all stored elements are unique, rejecting insertions of duplicates.
+  ///    - As with all SDAI aggregate types, type-safe bridging to and from Swift native types and EXPRESS types is provided.
+  ///
+  /// - See also:
+  ///    - `SDAI.SetType`, the protocol for general set behavior.
+  ///    - `SDAI.BagType`, for multisets (with duplicates).
+  ///    - ISO 10303-22 (SDAI), section 8.2.4 "SET aggregate type".
 	public struct SET<ELEMENT:SDAI.GenericType>: SDAI.SET__TypeBehavior
 	{
 		public typealias SwiftType = Set<ELEMENT>

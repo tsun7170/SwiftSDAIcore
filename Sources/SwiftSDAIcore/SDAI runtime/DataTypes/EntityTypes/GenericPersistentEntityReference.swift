@@ -9,6 +9,46 @@ import Foundation
 
 extension SDAI {
 
+  /// A persistent, generic reference to an SDAI complex entity, which can refer to either a persistent or a temporary entity instance.
+  ///
+  /// `GenericPersistentEntityReference` wraps a `ComplexEntityReference` (either persistent or temporary), allowing type-erased, hashable, and Sendable references to complex entities.
+  /// 
+  /// ### Purpose
+  /// - Used for referencing entities in a model in a generic, persistent, and type-safe manner.
+  /// - Designed to be compatible with the SDAI (Standard Data Access Interface) model population and referencing mechanisms.
+  /// - Encapsulates both persistent (model-backed) and temporary (in-memory) entity references.
+  ///
+  /// ### Hashability & Equality
+  /// - Hashes and compares based on the underlying `ComplexEntityReference`.
+  ///
+  /// ### Initialization
+  /// - Can be initialized from a `ComplexEntityReference`, an entity reference, or an SDAI complex entity.
+  /// - Supports initialization from P21 exchange structures for interchange operations.
+  ///
+  /// ### Dereferencing
+  /// - Provides methods to resolve and fetch the underlying entity from model/session context.
+  /// - Can retrieve the owning model, model ID, or the resolved entity.
+  ///
+  /// ### Type-Erasure & Conversion
+  /// - Implements `SDAI.GenericType` so it can be used polymorphically.
+  /// - Provides support for fundamental type access, copying, and conversion from other generic types.
+  ///
+  /// ### P21 Interchange Support
+  /// - Supports initialization from STEP P21 exchange format parameters.
+  ///
+  /// ### Value Semantics
+  /// - Exposes type members and the underlying value in SDAI terms.
+  /// - Most property accessors for primitive types (`stringValue`, `numberValue`, etc.) return nil, as this represents an entity reference.
+  ///
+  /// ### Cacheability
+  /// - Indicates whether the reference is cacheable (persistent references are, temporary are not).
+  ///
+  /// ### Thread Safety
+  /// - Marked as `@unchecked Sendable` due to the underlying entity model interaction.
+  ///
+  /// ### Usage Notes
+  /// - Designed primarily for infrastructure and population schema operations within the SDAI system.
+  /// - Should not be instantiated directly by users except in advanced scenarios involving custom population or referencing.
   public class GenericPersistentEntityReference: @unchecked Sendable,
   SDAI.GenericType,
   Hashable, CustomStringConvertible

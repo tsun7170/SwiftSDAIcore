@@ -12,6 +12,23 @@ import Synchronization
 extension SDAI {
 	
 	//MARK: - PartialComplexEntity
+  /// `PartialComplexEntity` is a specialized subclass of `ComplexEntity` that represents a partial or incomplete complex entity instance within the SDAI data model.
+  /// 
+  /// This type is primarily used internally to construct entities that are not fully defined or are only partially present in a given context, such as during schema traversal or temporary transformations.
+  /// 
+  /// - Warning: This class is intended for use by the implementation and should not be instantiated directly by typical users of the SDAI API.
+  /// 
+  /// ## Characteristics
+  /// - Always reports itself as partial via the `isPartial` property.
+  /// - Suppresses broadcasting of creation and deletion events (overrides notification methods as no-ops).
+  /// - Used for temporary, in-memory complex entities, typically created on demand for intermediate processing.
+  /// 
+  /// ## Thread Safety
+  /// - Marked as `@unchecked Sendable`, indicating that the implementation is designed for concurrent contexts but does not enforce thread safety at compile time.
+  /// 
+  /// ## See Also
+  /// - ``SDAI.ComplexEntity``
+  /// - SDAI specification for complex entity handling.
 	public final class PartialComplexEntity: ComplexEntity, @unchecked Sendable
 	{
 		override fileprivate func broadcastCreated() {}
@@ -22,6 +39,35 @@ extension SDAI {
 	}
 	
 	//MARK: - ComplexEntity
+  /// `ComplexEntity` represents an instance of a complex entity within the SDAI data model. 
+  /// A complex entity in SDAI is composed of multiple partial entities, each corresponding to a participating entity in a complex type definition.
+  ///
+  /// This class provides mechanisms for accessing the constituent partial entities, entity references, and handling persistence, temporary instances, and caching operations. 
+  /// It also includes methods for schema-specific role analysis, usage queries, and where-rule validation, all designed to be thread-safe and efficient for large model populations.
+  ///
+  /// - Important: This is a base class for complex entity instances and is not intended for direct instantiation except by the SDAI framework.
+  ///
+  /// ## Characteristics
+  /// - Maintains a collection of partial entities that form the complex entity.
+  /// - Provides accessors for entity references, including persistent and leaf references.
+  /// - Supports creation of both persistent and temporary complex entities, with proper registration in their owning model.
+  /// - Offers methods for finding roles, usage (usedIn), and membership queries, respecting schema relationships and associations.
+  /// - Implements thread-safe caching for usedIn queries and other expensive computations.
+  /// - Adheres to the `SDAI.CacheHolder` protocol for handling schema or domain changes.
+  /// - Supports express built-in operations and where-rule validation.
+  ///
+  /// ## Thread Safety
+  /// - Uses a `Mutex` to protect shared mutable state and caches.
+  /// - Marked as `@unchecked Sendable`, indicating that it is designed for concurrency but relies on implementation discipline for thread safety.
+  ///
+  /// ## Usage
+  /// Typically constructed internally during model decoding, duplication, or temporary transformations. 
+  /// Methods are provided for reading entity state, analyzing schema relationships, and performing queries as needed by the SDAI API.
+  ///
+  /// ## See Also
+  /// - ``SDAI.PartialEntity``
+  /// - ``SDAI.PartialComplexEntity``
+  /// - SDAI specification for complex entity population and reference handling.
 	public class ComplexEntity:
 		SDAI.Object, SDAI.CacheHolder,
 		CustomStringConvertible, @unchecked Sendable

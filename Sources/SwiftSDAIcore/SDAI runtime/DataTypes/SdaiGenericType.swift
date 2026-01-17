@@ -9,6 +9,7 @@
 import Foundation
 
 extension SDAI {
+  
   public protocol GenericType: Hashable, SDAI.InitializableBySelectType, SDAI.InitializableByP21Parameter, SDAI.CacheableSource, Sendable
   {
     associatedtype FundamentalType: SDAI.GenericType

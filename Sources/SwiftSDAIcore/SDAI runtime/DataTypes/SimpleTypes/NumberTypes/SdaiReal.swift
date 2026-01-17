@@ -10,6 +10,7 @@ import Foundation
 
 //MARK: - REAL type (8.1.2)
 extension SDAI {
+
   public protocol RealType: SDAI.NumberType
   {}
 }
@@ -64,6 +65,7 @@ public extension SDAI.REAL__TypeBehavior
 }
 
 extension SDAI {
+  
 	public struct REAL: SDAI.REAL__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Double

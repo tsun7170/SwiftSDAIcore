@@ -12,6 +12,31 @@ extension SDAI {
 	
 	
 	//MARK: - PartialEntity
+  /// `PartialEntity` is an abstract superclass representing a fundamental, incomplete
+  /// building block of an entity in the SDAI (Standard Data Access Interface) framework.
+  /// 
+  /// This class is designed to be subclassed by concrete entity types, and cannot be 
+  /// instantiated directly. It provides essential reflection, identity, and comparison 
+  /// behaviors common to all entity types, as well as support for exchange structure 
+  /// decoding, dynamic attribute management, and complex entity aggregation.
+  /// 
+  /// - Note: This class conforms to `CustomStringConvertible` for debugging and logging,
+  ///   and is marked `@unchecked Sendable` to allow subclassing for concurrent use, 
+  ///   though concrete subclasses should ensure their own safety.
+  /// 
+  /// - Key Responsibilities:
+  ///   - Declares core type and identity properties for entity reflection and schema
+  ///     integration.
+  ///   - Provides initializers for abstract usage, copying, and exchange structure decoding.
+  ///   - Supplies customizable mechanisms for hashing, equality, and optional equality
+  ///     required by value semantics in complex entities.
+  ///   - Offers hooks for notification when a partial entity is added to or removed from
+  ///     a complex entity aggregation.
+  ///   - Exposes a method to allow subclasses to fix up attributes when complex entities
+  ///     are composed or derived.
+  /// 
+  /// Subclasses must define concrete implementations for the abstract properties and 
+  /// behaviors, particularly the static `entityReferenceType` property.
 	open class PartialEntity: SDAI.Object, CustomStringConvertible, @unchecked Sendable
 	{
 		public typealias TypeIdentity = SDAIDictionarySchema.EntityDefinition

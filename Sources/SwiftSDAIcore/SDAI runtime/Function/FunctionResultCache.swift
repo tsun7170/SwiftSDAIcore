@@ -11,6 +11,23 @@ import Synchronization
 
 //MARK: - SDAI.CacheHolder
 extension SDAI {
+  /// A protocol for objects that hold and manage caches within the SDAI framework,
+  /// providing notification hooks for changes in read/write mode and application domain,
+  /// as well as methods for managing the lifecycle of caching tasks.
+  ///
+  /// Conforming types are expected to implement concurrency-safe logic for responding
+  /// to changes in model state or schema instance, and to manage asynchronous cache update
+  /// tasks, including their termination and completion.
+  ///
+  /// - Note: All notification and cache management methods are asynchronous and/or
+  ///   concurrency-aware, supporting integration with async/await and structured concurrency.
+  ///
+  /// - SeeAlso: 
+  ///   - ``notifyReadWriteModeChanged(sdaiModel:)``
+  ///   - ``notifyApplicationDomainChanged(relatedTo:)``
+  ///   - ``terminateCachingTask()``
+  ///   - ``toCompleteCachingTask()``
+  ///
   public protocol CacheHolder
   {
     func notifyReadWriteModeChanged(sdaiModel: SDAIPopulationSchema.SdaiModel) async
@@ -26,6 +43,21 @@ extension SDAI {
 
 //MARK: - SDAI.CacheableSource
 extension SDAI {
+  /// A protocol indicating that a type can be considered for caching within the SDAI framework.
+  ///
+  /// Types conforming to `CacheableSource` specify whether their instances are eligible to have their computed
+  /// results cached. This is usually used as a mechanism to optimize function results, reduce recomputation,
+  /// and enable efficient reuse of previously computed values while ensuring correctness when cacheability
+  /// is dependent on the underlying data's stability or validity.
+  ///
+  /// - Note: The `isCacheable` property should reflect whether an instance's value is suitable for caching
+  ///   based on its current state and structure. For composite or referenced types, cacheability may depend
+  ///   on the cacheability of their components.
+  ///
+  /// - Important: Implementations must ensure that `isCacheable` returns `true` only if the instance
+  ///   is immutable or its value is otherwise guaranteed not to change unexpectedly within the caching context.
+  ///
+  /// - SeeAlso: ``SDAI.FunctionResultCache``, ``SDAI.FunctionResultCacheController``
   public protocol CacheableSource
   {
     var isCacheable: Bool {get}
@@ -41,6 +73,7 @@ where Self: SDAI.DefinedType
 
 //MARK: - SDAI.FunctionResultCacheController
 extension SDAI {
+  
   public protocol FunctionResultCacheController:
     SDAI.CacheableSource,
     AnyObject, Sendable
@@ -111,6 +144,19 @@ extension SDAI {
 
 	
 	//MARK: - FunctionResultCache	
+  /// An actor class that manages the caching of function results for a given set of parameters,
+  /// supporting concurrency-safe, multi-lane storage, deferred cache updates, and cache invalidation.
+  ///
+  /// The cache is designed to work in conjunction with a controller conforming to
+  /// ``SDAI.FunctionResultCacheController``, enabling approximated results and cacheability checks.
+  /// 
+  /// - Caching lanes (0–3) are selected based on the hash of the parameter list to minimize lock contention.
+  /// - Updates are performed asynchronously, with only one update task per parameter list allowed at a time.
+  /// - Cache values are stored with an associated "approximation level", supporting use cases where results
+  ///   of varying accuracy or completeness may be cached and retrieved.
+  /// - Tasks updating the cache may be cancelled or awaited for completion, enabling robust cache lifecycle management.
+  /// - The cache supports resetting and task termination, ensuring stale or obsolete data is efficiently removed.
+  /// - This type is `Sendable` and concurrency-safe by design, using Swift actors and mutexes.
 	public actor FunctionResultCache: Sendable
 	{
 		public enum Result {
@@ -289,6 +335,16 @@ extension SDAI {
   //MARK: - session cache controller adapter
   public static let sessionFunctionResultCacheController = SessionFunctionResultCacheControllerAdapter()
 
+  /// An adapter class that bridges session-level function result cache control to the currently active session's governing schema controller.
+  ///
+  /// `SessionFunctionResultCacheControllerAdapter` acts as a proxy for managing multiple `SDAI.FunctionResultCache` instances associated with a session,
+  /// supporting cache registration and reset operations. It defers cacheability and approximation level queries to the `governingSchema` of the current active session.
+  /// This enables seamless integration of cache management into session lifecycles, ensuring that cache behavior is consistent with the context and schema of the active session.
+  ///
+  /// - Registers individual function result caches, allowing them to be reset collectively when needed.
+  /// - Forwards `isCacheable` and `approximationLevel` properties to the session's governing schema controller, if one is active.
+  /// - Provides concurrency-safe cache registration and reset functionality.
+  /// - Typically used as a singleton instance via `SDAI.sessionFunctionResultCacheController`.
   public final class SessionFunctionResultCacheControllerAdapter:
     SDAI.FunctionResultCacheController
   {

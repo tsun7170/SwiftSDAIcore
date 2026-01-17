@@ -348,8 +348,9 @@ extension SDAISessionSchema.SdaiTransaction {
 	/// 
 	/// - Parameters:
 	///   - instance: The schema instance bounding the test.
-	///   - object: The application instance to test.
-	///
+  ///   - object: The application instance to test.
+  ///   - option: mode of validation result recording.
+  ///
 	/// - Returns: result of validation, including logical value indicating TRUE if all the assigned attributes of _object_ are to entity instances in _instance_, FALSE if not, and UNKNOWN if any required explicit attribute values are unset that could reference an entity instance.
 	///
 	public func validateInstanceReferenceDomain(

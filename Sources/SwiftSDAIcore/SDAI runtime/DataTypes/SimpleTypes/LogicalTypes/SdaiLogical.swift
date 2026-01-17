@@ -9,6 +9,15 @@
 import Foundation
 
 extension SDAI {
+  /// A protocol that defines conversion to a Swift `Bool` value.
+  /// 
+  /// Types conforming to `SwiftBoolConvertible` provide access to their value as an optional or non-optional Swift `Bool`.
+  /// This enables interoperability between custom logical or boolean types and standard Swift boolean logic.
+  /// 
+  /// - Properties:
+  ///   - possiblyAsSwiftBool: Returns the value as a Swift `Bool?`, or `nil` if the value is unknown or undefined.
+  ///   - asSwiftBool: Returns the value as a non-optional Swift `Bool`. 
+  ///     May provide a default value (e.g., `false`) or otherwise unwrap when the value is not representable as a standard `Bool`.
   public protocol SwiftBoolConvertible
   {
     var possiblyAsSwiftBool: Bool? {get}
@@ -18,6 +27,22 @@ extension SDAI {
 
 //MARK: - LOGICAL type (8.1.4)
 extension SDAI {
+  /// A protocol that defines the behavior and requirements of the EXPRESS `LOGICAL` type (section 8.1.4).
+  ///
+  /// Conforming types represent logical values which may be `TRUE`, `FALSE`, or `UNKNOWN` (i.e., indeterminate).
+  ///
+  /// Types adopting `LogicalType` must support interoperability with Swift boolean logic and initialization from boolean literals.
+  /// - Inherits from:
+  ///    - `SDAI.SimpleType`: Ensures EXPRESS simple type behavior.
+  ///    - `ExpressibleByBooleanLiteral`: Enables initialization from Swift `true` or `false`.
+  ///    - `SDAI.SwiftBoolConvertible`: Allows conversion to Swift `Bool` and `Bool?`.
+  ///    - `SDAI.InitializableByVoid`: Allows initialization with no arguments, typically for an `UNKNOWN` value.
+  ///
+  /// - Properties:
+  ///   - `isTRUE`: `true` if the value is logically `TRUE`, `false` otherwise.
+  ///   - `isFALSE`: `true` if the value is logically `FALSE`, `false` otherwise.
+  ///   - `isUNKNOWN`: `true` if the value is logically `UNKNOWN`, `false` otherwise.
+  ///   - `possiblyAsSwiftBool`: Returns the value as an optional Swift `Bool?`, or `nil` if the value is `UNKNOWN`.
   public protocol LogicalType: SDAI.SimpleType, ExpressibleByBooleanLiteral,
                                    SDAI.SwiftBoolConvertible, SDAI.InitializableByVoid
   {
@@ -67,6 +92,43 @@ public extension SDAI.LOGICAL__TypeBehavior
 }
 
 extension SDAI {
+  /// Represents the EXPRESS `LOGICAL` type, which can be `TRUE`, `FALSE`, or `UNKNOWN`.
+  /// 
+  /// The `LOGICAL` type models three-valued logic, where a value may be explicitly `true`, `false`, or indeterminate/unknown (`nil`).
+  /// It is used to interoperate with EXPRESS schemas and files, such as ISO 10303-21 ("STEP") data.
+  /// 
+  /// - Conforms to:
+  ///   - ``SDAI.LOGICAL__TypeBehavior``: Provides EXPRESS LOGICAL semantics and Swift interoperability.
+  ///   - ``SDAI.Value``: Allows for EXPRESS value comparison and manipulation.
+  ///   - `CustomStringConvertible`: Presents human-readable descriptions for debugging and logging.
+  /// 
+  /// - Type Aliases:
+  ///   - `SwiftType`: The associated Swift type, which is `Bool?`.
+  ///   - `FundamentalType`: Self-referential; used for generic constraints.
+  /// 
+  /// - Properties:
+  ///   - `rep`: The internal representation, as a `Bool?` — `true`, `false`, or `nil` for `UNKNOWN`.
+  ///   - `typeMembers`: The set of EXPRESS type names for this value.
+  ///   - `value`: The fundamental value for generic processing.
+  ///   - `entityReference`, `stringValue`, `binaryValue`, `logicalValue`, etc.: EXPRESS-typed value accessors for type-safe conversions.
+  ///   - `asSwiftType`: The value as a Swift `Bool?`.
+  ///   - `asFundamentalType`: The value as its fundamental type.
+  /// 
+  /// - Initialization:
+  ///   - From a Swift `Bool?`, another EXPRESS logical type, a cardinal value, or from STEP/P21 exchange structure parameters.
+  ///   - Supports initialization as `UNKNOWN` (i.e., `nil`) with a default initializer.
+  /// 
+  /// - EXPRESS Interoperability:
+  ///   - Implements parsing and mapping of STEP/P21 file representation (`.enumeration`, `.rhsOccurrenceName`, `.noValue`).
+  ///   - Supports conversion to and from cardinal values (e.g., 0 = `FALSE`, 2 = `TRUE`, others = `UNKNOWN`).
+  /// 
+  /// - Logical Value Operations:
+  ///   - Supports value comparison (`isValueEqual`) with other EXPRESS types or Swift logical values.
+  ///   - Provides methods for working with arrays, lists, bags, and sets, though these return `nil` as `LOGICAL` is scalarlike.
+  /// 
+  /// - Usage:
+  ///   - Use `LOGICAL(true)` or `LOGICAL(false)` for definite values, or `LOGICAL()`/`LOGICAL(nil)` for `UNKNOWN`.
+  ///   - Useful when EXPRESS logic needs to be mapped into or out of Swift code with support for indeterminate values.
 	public struct LOGICAL : SDAI.LOGICAL__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		

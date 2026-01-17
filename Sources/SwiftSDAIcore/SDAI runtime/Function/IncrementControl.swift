@@ -11,6 +11,7 @@ import Foundation
 //MARK: - Increment control (13.9.1)
 
 extension SDAI {
+  
 	public struct IncrementControl<ELEMENT: SDAI.NumberType>: Sequence, IteratorProtocol
 	{
 		public typealias SwiftType = ELEMENT.SwiftType

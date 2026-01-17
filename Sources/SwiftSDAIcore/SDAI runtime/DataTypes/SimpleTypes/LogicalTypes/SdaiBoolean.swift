@@ -11,6 +11,14 @@ import Foundation
 
 //MARK: - BOOLEAN type (8.1.5)
 extension SDAI {
+  /// A protocol representing the EXPRESS `BOOLEAN` type as specified in ISO 10303-11 (8.1.5).
+  ///
+  /// Conforming types provide the interface for handling logical boolean values
+  /// in the STEP data model, extending the requirements of `SDAI.LogicalType`.
+  ///
+  /// Use `BooleanType` to define types that encapsulate true/false logic
+  /// in accordance with the EXPRESS specification, supporting interoperability
+  /// with other logical types in the SDAI framework.
   public protocol BooleanType: SDAI.LogicalType
   {}
 }
@@ -65,6 +73,27 @@ public extension SDAI.BOOLEAN__TypeBehavior
 }
 
 extension SDAI {
+  /// A concrete implementation of the EXPRESS `BOOLEAN` type as specified in ISO 10303-11 (8.1.5).
+  ///
+  /// `BOOLEAN` is a value type that represents logical Boolean (`true` or `false`) values within the
+  /// STEP data model, in conformance with SDAI's type system. It provides interoperability
+  /// with other logical and generic types defined in the SDAI framework, and is used to encapsulate
+  /// true/false logic in EXPRESS schemas.
+  ///
+  /// ### Features
+  /// - Represents standard Boolean logic with two states: `TRUE` or `FALSE`.
+  /// - Provides conversion between Swift `Bool` and STEP `BOOLEAN` values.
+  /// - Supports initialization from other SDAI logical types and P21 exchange parameters.
+  /// - Implements the `SDAI.Value` protocol for type-erased value handling and comparison.
+  /// - Conforms to `CustomStringConvertible` for readable debugging output.
+  ///
+  /// ### Usage
+  /// Use `SDAI.BOOLEAN` for EXPRESS schema attributes, entity fields, and other contexts where a
+  /// logical Boolean value is required by the STEP data model or ISO 10303-11 specification.
+  ///
+  /// ### Related Types
+  /// - `SDAI.LOGICAL` — EXPRESS logical type supporting `TRUE`, `FALSE`, and `UNKNOWN`.
+  /// - `SDAI.BooleanType` — The protocol defining the EXPRESS Boolean type interface.
 	public struct BOOLEAN : SDAI.BOOLEAN__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Bool

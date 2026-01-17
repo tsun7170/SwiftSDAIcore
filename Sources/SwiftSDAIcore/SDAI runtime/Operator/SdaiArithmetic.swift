@@ -29,7 +29,7 @@ import Foundation
 /// Arithmetic Addition: Int + Int = INTEGER
 ///
 public func +   <TI: SDAI.IntRepresentedNumberType, UI: SDAI.IntRepresented>(
-  lhs: TI?, rhs: UI?) -> SDAI.INTEGER?
+  _ lhs: TI?, _ rhs: UI?) -> SDAI.INTEGER?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return SDAI.INTEGER( lhs.asSwiftInt + rhs.asSwiftInt )

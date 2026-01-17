@@ -11,6 +11,12 @@ import Foundation
 
 //MARK: - INTEGER type (8.1.3)
 extension SDAI {
+  /// A protocol representing the EXPRESS `INTEGER` type as defined in section 8.1.3.
+  /// 
+  /// Conforming types represent integer values and provide integration with SDAI's number system.
+  /// 
+  /// - Note: This protocol inherits from `SDAI.RealType` and `SDAI.SwiftIntConvertible`, 
+  ///         ensuring compatibility with real number representations and Swift `Int` conversion.
   public protocol IntegerType: SDAI.RealType, SDAI.SwiftIntConvertible
   {}
 }
@@ -53,6 +59,29 @@ public extension SDAI.INTEGER__TypeBehavior
 }
 
 extension SDAI {
+  /// A structure representing the EXPRESS `INTEGER` type as defined in section 8.1.3 of the SDAI standard.
+  ///
+  /// The `INTEGER` type is a fundamental numeric type in EXPRESS schemas. This Swift representation provides
+  /// integration with the SDAI number system, supporting type conversions, value comparisons, EXPRESS type
+  /// system interoperability, and Part 21 (STEP file) parameter decoding.
+  ///
+  /// ## Key Features:
+  /// - Represents the EXPRESS `INTEGER` value as a Swift `Int`.
+  /// - Provides initializers from Swift integer values, conforming SDAI integer-like types, and Part 21 parameters.
+  /// - Supports conversion to other numeric types in the SDAI system (`NUMBER`, `REAL`), and provides
+  ///   value extraction for EXPRESS collections and optional types.
+  /// - Implements EXPRESS type metadata, such as `typeName` and `typeMembers`.
+  /// - Conforms to `SDAI.INTEGER__TypeBehavior`, enabling use in generic SDAI routines and type-safe EXPRESS modeling.
+  /// - Implements `CustomStringConvertible` for user-friendly debugging and display.
+  ///
+  /// ## Typical Usage:
+  /// Use `SDAI.INTEGER` when representing EXPRESS integer values, when converting between EXPRESS and Swift
+  /// integer types, or when parsing STEP/Part 21 files and handling integer primitives.
+  ///
+  /// - Note: SDAI.INTEGER interoperates with EXPRESS `REAL` and `NUMBER` types, but does not coerce fractional
+  ///   values on assignment; truncation of real values must be explicit.
+  ///
+  /// - SeeAlso: [ISO 10303-11:2004, Section 8.1.3 INTEGER](https://www.iso.org/standard/38047.html)
 	public struct INTEGER: SDAI.INTEGER__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Int

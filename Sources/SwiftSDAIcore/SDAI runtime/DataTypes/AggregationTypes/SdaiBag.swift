@@ -12,6 +12,33 @@ import Foundation
 
 //MARK: - bag type (8.2.3)
 extension SDAI {
+  /// A protocol representing the behavior of an SDAI `BAG` aggregate type, which is an unordered collection allowing duplicate elements.
+  /// 
+  /// `BagType` provides requirements for mutating and querying the bag, 
+  /// including adding and removing elements, and checking superset relationships. 
+  /// It also adopts several protocols to support initialization from various sources and representations.
+  /// 
+  /// Conforming types must also fulfill the requirements of:
+  /// - `SDAI.AggregationType`
+  /// - `SDAI.UnderlyingType`
+  /// - `SDAI.SwiftTypeRepresented`
+  /// - `SDAI.SwiftDictRepresentable`
+  /// - `SDAI.InitializableByEmptyListLiteral`
+  /// - `SDAI.InitializableBySwifttypeAsList`
+  /// - `SDAI.InitializableBySelecttypeAsList`
+  /// - `SDAI.InitializableByListLiteral`
+  /// - `SDAI.InitializableByGenericSet`
+  /// - `SDAI.InitializableByGenericList`
+  /// - `SDAI.InitializableByGenericBag`
+  /// - `SDAI.InitializableByVoid`
+  ///
+  /// ### Requirements
+  /// - `add(member:)`: Adds a new element to the bag.
+  /// - `remove(member:)`: Removes a single occurrence of the element from the bag, if present.
+  /// - `removeAll(member:)`: Removes all occurrences of the element from the bag, if present.
+  /// - `isSuperset(of:)`: Determines if the bag is a superset of another bag (i.e., contains all elements of the other bag, with at least as many occurrences for each).
+  ///
+  /// The `ELEMENT` associated type represents the type of elements in the bag, and must conform to `SDAI.GenericType`. 
   public protocol BagType:
     SDAI.AggregationType, SDAI.UnderlyingType, SDAI.SwiftTypeRepresented, SDAI.SwiftDictRepresentable,
     SDAI.InitializableByEmptyListLiteral, SDAI.InitializableBySwifttypeAsList,
@@ -158,6 +185,28 @@ where ELEMENT: SDAI.PersistentReference {
 
 //MARK: - SDAI.BAG
 extension SDAI {
+  /// `BAG` is a generic structure representing the SDAI `BAG` aggregate type, which is an unordered collection that allows duplicate elements.
+  /// 
+  /// The `BAG` type conforms to various protocols, allowing it to interoperate with other aggregate and generic types 
+  /// in the SDAI framework. Its primary purpose is to model an unordered collection of elements where the same element 
+  /// may appear multiple times, and the count of each element is significant.
+  /// 
+  /// # Generic Parameters
+  /// - `ELEMENT`: The element type contained by the `BAG`. This must conform to `SDAI.GenericType`.
+  /// 
+  /// # Features
+  /// - Allows storing multiple instances of the same element.
+  /// - Provides protocol conformances for initialization from other aggregates, generic collections, and literals.
+  /// - Supports standard aggregate operations such as union, intersection, and difference with other `BAG`-like and aggregate types.
+  /// - Maintains lower and optional upper bounds on the number of elements, reflecting EXPRESS aggregate constraints.
+  /// - Offers access to elements via subscript and supports sequence iteration.
+  /// - Implements methods for adding, removing (single or all instances), and querying elements.
+  /// - Provides conversion and mapping utilities to facilitate use in generic aggregate algorithms.
+  /// - Integrates with STEP Part 21 (P21) parameter decoding.
+  ///
+  /// # Usage
+  /// Use `SDAI.BAG<ElementType>` to represent unordered collections that can contain duplicate values, 
+  /// typically when translating EXPRESS `BAG` types or dealing with data exchange in the SDAI/STEP domain.
 	public struct BAG<ELEMENT:SDAI.GenericType>: SDAI.BAG__TypeBehavior
 	{
 		public typealias SwiftType = Array<ELEMENT>

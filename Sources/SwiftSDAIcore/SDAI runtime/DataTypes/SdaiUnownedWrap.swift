@@ -10,6 +10,7 @@ import Foundation
 
 //MARK: - SDAI.UnownedWrap
 extension SDAI {
+  
 	public struct UnownedWrap<REF: SDAI.ObjectReferenceType>: Hashable {
 		public unowned let reference: REF
 		public let objectId: ObjectIdentifier

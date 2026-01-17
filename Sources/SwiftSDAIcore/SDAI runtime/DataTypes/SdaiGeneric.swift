@@ -183,6 +183,7 @@ extension SDAI {
 
 //MARK: - SDAI.GENERIC
 extension SDAI {
+  
 	public struct GENERIC: SDAI.GENERIC__TypeBehavior, CustomStringConvertible
 	{
 		public typealias FundamentalType = Self

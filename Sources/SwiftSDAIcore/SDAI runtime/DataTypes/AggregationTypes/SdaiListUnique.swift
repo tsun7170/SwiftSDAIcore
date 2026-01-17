@@ -15,6 +15,41 @@ extension SDAI {
 }
 
 extension SDAI {
+  /// A value type representing a unique-valued ordered collection of elements conforming to `SDAI.GenericType`, 
+  /// corresponding to the EXPRESS `LIST OF ... UNIQUE` aggregate.
+  /// 
+  /// `LIST_UNIQUE` enforces uniqueness of its elements, while preserving their order. 
+  /// This aggregate type is commonly used for EXPRESS lists with the `UNIQUE` constraint, 
+  /// ensuring no duplicate values exist within the collection.
+  /// 
+  /// - Note: This is a wrapper around `SDAI.LIST` that asserts uniqueness, and provides EXPRESS-style 
+  ///   type name reporting, uniqueness validation, and conformance to related protocols.
+  /// 
+  /// ## Type Parameters:
+  /// - `ELEMENT`: The element type, which must conform to `SDAI.GenericType`.
+  /// 
+  /// ## EXPRESS Specification Mapping:
+  /// - EXPRESS: `LIST [lower:Upper] OF <ELEMENT> UNIQUE`
+  /// - Swift: `SDAI.LIST_UNIQUE<ELEMENT>`
+  /// 
+  /// ## Example:
+  /// ```swift
+  /// let items = SDAI.LIST_UNIQUE<SDAI.STRING>(fundamental: ["A", "B", "C"])
+  /// ```
+  /// 
+  /// ## Protocol Conformance:
+  /// - `SDAI.LIST_UNIQUE__TypeBehavior`
+  /// - `SDAI.LIST_UNIQUE__Subtype`
+  /// - `SDAI.EntityReferenceYielding` (when `ELEMENT` does)
+  /// - `SDAI.DualModeReference` (when `ELEMENT` does)
+  /// 
+  /// ## See Also:
+  /// - `SDAI.LIST`
+  /// - `SDAI.SET`
+  ///
+  /// ## Uniqueness Constraint:
+  /// - The static method `UNIQUENESS(SELF:)` checks for element uniqueness, 
+  ///   returning an EXPRESS `LOGICAL` value.
 	public struct LIST_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI.LIST_UNIQUE__TypeBehavior
 	{
 		

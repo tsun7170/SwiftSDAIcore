@@ -14,6 +14,35 @@ import Foundation
 
 //MARK: - list type (8.2.2)
 extension SDAI {
+  /// A protocol representing a generic SDAI LIST aggregation type, as defined by the EXPRESS data modeling language.
+  /// 
+  /// Conforming types must provide standard aggregation behaviors, index-based access, and type conversions, as well as support initialization from various literal and generic sources.
+  /// 
+  /// - Conforms To:
+  ///     - `SDAI.AggregationType`
+  ///     - `SDAI.AggregateIndexingSettable`
+  ///     - `SDAI.UnderlyingType`
+  ///     - `SDAI.SwiftTypeRepresented`
+  ///     - `SDAI.InitializableByEmptyListLiteral`
+  ///     - `SDAI.InitializableBySwifttypeAsList`
+  ///     - `SDAI.InitializableBySelecttypeAsList`
+  ///     - `SDAI.InitializableByListLiteral`
+  ///     - `SDAI.InitializableByGenericList`
+  ///     - `SDAI.InitializableByVoid`
+  ///
+  /// You can use the `ListType` protocol to generically represent EXPRESS LIST types in Swift, allowing for:
+  /// - Aggregation operations and indexing
+  /// - Initialization from various EXPRESS-conformant data sources
+  /// - Support for built-in mutating procedures such as `insert(element:at:)` and `remove(at:)`
+  ///
+  /// ### Required Methods
+  /// - `mutating func insert(element: ELEMENT, at position: Int)`
+  ///     - Inserts a new element at the specified position.
+  /// - `mutating func remove(at position: Int)`
+  ///     - Removes the element at the specified position.
+  /// 
+  /// ### Typical Usage
+  /// This protocol is intended for types that model EXPRESS LIST types and need to support the full range of aggregation and mutability operations expected in such lists.
   public protocol ListType:
     SDAI.AggregationType, SDAI.AggregateIndexingSettable, SDAI.UnderlyingType, SDAI.SwiftTypeRepresented,
     SDAI.InitializableByEmptyListLiteral, SDAI.InitializableBySwifttypeAsList, SDAI.InitializableBySelecttypeAsList,
@@ -105,6 +134,31 @@ where ELEMENT: SDAI.PersistentReference {
 //MARK: - SDAI.LIST
 extension SDAI {
 	
+  /// A concrete type representing the EXPRESS LIST aggregation in the SDAI system.
+  ///
+  /// The `LIST` type models an ordered, indexable, variable-size collection of elements of a uniform type, as defined by the EXPRESS data modeling language. It provides full support for EXPRESS aggregation semantics, including bounds, insertion and removal, and type conversions.
+  ///
+  /// - Type Parameter:
+  ///   - ELEMENT: The type of elements contained within the list, conforming to `SDAI.GenericType`.
+  ///
+  /// ## Features
+  /// - Index-based access and mutation, following EXPRESS 1-based indexing.
+  /// - Initialization from Swift arrays, EXPRESS-compatible sources, and various literal types.
+  /// - Conformance to `SDAI.ListType` and related protocols, supporting generic aggregation behaviors.
+  /// - EXPRESS built-in procedures `insert(element:at:)` and `remove(at:)`.
+  /// - Aggregation operators for combining and transforming lists.
+  /// - Optional bounds, allowing for lists with or without upper limits on size.
+  /// - Supports EXPRESS type conversions and selection from generic or select types.
+  ///
+  /// ## Usage
+  /// Use `SDAI.LIST` where an ordered, express-compatible collection is required, particularly for EXPRESS `LIST` attributes, parameters, or variables.
+  ///
+  /// ## Example
+  /// ```swift
+  /// let numbers = SDAI.LIST<SDAI.INTEGER>(from: [1, 2, 3, 4], bound1: 1, bound2: 4)
+  /// numbers.insert(element: 5, at: 5)
+  /// let firstElement = numbers[1] // 1-based indexing
+  /// ```
 	public struct LIST<ELEMENT:SDAI.GenericType>: SDAI.LIST__TypeBehavior
 	{
 		public typealias SwiftType = Array<ELEMENT>

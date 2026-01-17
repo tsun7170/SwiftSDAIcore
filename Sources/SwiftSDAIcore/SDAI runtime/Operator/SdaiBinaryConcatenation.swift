@@ -11,7 +11,7 @@ import Foundation
 
 
 //MARK: - Binary indexing operator support (12.3.1)
-/// Binary Indexing: IntRep ... IntRep
+/// Range Indexing: IntRep ... IntRep
 ///
 public func ... <T1: SDAI.IntRepresentedNumberType, U1: SDAI.IntRepresentedNumberType>(
   lhs: T1?, rhs: U1?) -> ClosedRange<Int>?
@@ -20,7 +20,7 @@ public func ... <T1: SDAI.IntRepresentedNumberType, U1: SDAI.IntRepresentedNumbe
   return lhs.asSwiftInt ... rhs.asSwiftInt
 }
 
-/// Binary Indexing: IntRep ... Int
+/// Range Indexing: IntRep ... Int
 ///
 public func ... <T2: SDAI.IntRepresentedNumberType>(
   lhs: T2?, rhs: Int?) -> ClosedRange<Int>?
@@ -29,7 +29,7 @@ public func ... <T2: SDAI.IntRepresentedNumberType>(
   return lhs.asSwiftInt ... rhs.asSwiftInt
 }
 
-/// Binary Indexing: Int ... IntRep
+/// Range Indexing: Int ... IntRep
 ///
 public func ... <U3: SDAI.IntRepresentedNumberType>(
   lhs: Int?, rhs: U3?) -> ClosedRange<Int>?
@@ -45,8 +45,8 @@ public func ... <U3: SDAI.IntRepresentedNumberType>(
 
 /// Binary Concatenation: Binary + Binary = BINARY
 /// 
-public func + <T: SDAI.BINARY__TypeBehavior, U: SDAI.BINARY__TypeBehavior>(
-  lhs: T?, rhs: U?) -> SDAI.BINARY?
+public func + <TBi: SDAI.BINARY__TypeBehavior, UBi: SDAI.BINARY__TypeBehavior>(
+  lhs: TBi?, rhs: UBi?) -> SDAI.BINARY?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }
 	return SDAI.BINARY( from: lhs.asSwiftType + rhs.asSwiftType )

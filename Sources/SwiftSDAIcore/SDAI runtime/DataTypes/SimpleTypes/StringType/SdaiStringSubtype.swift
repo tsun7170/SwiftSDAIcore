@@ -38,5 +38,5 @@ public extension SDAI.STRING__Subtype
 	var length: Int { return rep.length }
 	subscript(index: Int?) -> SDAI.STRING? { return rep[index] }
 	subscript(range: ClosedRange<Int>?) -> SDAI.STRING? { return rep[range] }
-	func ISLIKE(PATTERN substring: SwiftType? ) -> SDAI.LOGICAL { rep.ISLIKE(PATTERN: substring) }
+	func ISLIKE(PATTERN substring: String? ) -> SDAI.LOGICAL { rep.ISLIKE(PATTERN: substring) }
 }

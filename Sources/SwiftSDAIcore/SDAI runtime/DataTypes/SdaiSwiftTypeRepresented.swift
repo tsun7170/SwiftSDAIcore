@@ -10,6 +10,7 @@ import Foundation
 
 
 extension SDAI {
+
   public protocol SwiftType
   {}
 }
@@ -20,6 +21,7 @@ extension Bool: SDAI.SwiftType {}
 
 
 extension SDAI {
+  
   public protocol SwiftTypeRepresented
   {
     associatedtype SwiftType

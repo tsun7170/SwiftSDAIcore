@@ -60,7 +60,7 @@ extension P21Decode {
 		/// p21 character stream decoder constructor
 		/// 
 		/// - Parameters:
-		///   - output: SDAI repository to which the decoded entities are stored
+    ///   - repository: SDAI repository to which the decoded entities are stored
 		///   - schemaList: list of known STEP schema
 		///   - monitor: decoder activity monitor pulg-in object
 		///   - foreignReferenceResolver: foreign reference resolver pulg-in object
@@ -80,7 +80,7 @@ extension P21Decode {
 		//MARK: decoding operation
 		/// decode a given character stream according to ISO 10303-21 and known STEP schemas
 		/// - Parameter charStream: p21 character stream
-		/// - Parameter repository: repository to which decoded models are stored
+    /// 
 		/// - Parameter transaction: RW transaction for decoding action
 		/// - Returns: array of SDAI models decoded
 		/// 

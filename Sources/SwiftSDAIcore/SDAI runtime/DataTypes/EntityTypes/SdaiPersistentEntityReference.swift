@@ -9,6 +9,31 @@ import Foundation
 
 extension SDAI {
 	//MARK: - persistent entity reference
+  /// A reference type for handling persistent entity references in the SDAI system.
+  /// 
+  /// `PersistentEntityReference` is a dynamically-typed, thread-safe, and sendable class that encapsulates
+  /// both persistent and temporary references to complex entities. It allows safe dereferencing and access
+  /// to the underlying entity instance using dynamic member lookup, and provides a variety of initialization
+  /// options for interoperability with complex entities, entity references, and STEP P21 exchange structures.
+  ///
+  /// - Note: This class supports both persistent (database-managed) and temporary (in-memory) entity references, 
+  ///   and provides safe accessors that raise errors in cases where dereferencing is impossible or unsafe. It is 
+  ///   generic over an entity reference type (`EREF`) which must conform to `SDAI.EntityReference` as well as 
+  ///   certain initialization protocols.
+  /// - Dynamic Member Lookup: Properties and substructures of the underlying entity can be accessed via dynamic 
+  ///   member lookup, returning `nil` when the entity is not available.
+  /// - Interoperability: Provides initializers to build persistent references from generic types, STEP Part 21 
+  ///   parameters, or other persistent references.
+  /// - Protocol Conformance: Conforms to protocols for persistent references, initialization from complex entities, 
+  ///   and yielding entity references for collection-like access patterns.
+  /// - Thread Safety: Declared as `@unchecked Sendable` for use across concurrency domains. It is 
+  ///   the caller's responsibility to ensure correct concurrency handling for the lifecycle of references.
+  ///
+  /// Typical use cases are in STEP data exchange, object persistence, and model traversal in the SDAI system.
+  ///
+  /// - Parameters:
+  ///   - EREF: The concrete entity reference type being encapsulated. Must conform to `SDAI.EntityReference`
+  ///     and `SDAI.InitializableByP21Parameter`.
 	@dynamicMemberLookup
 	public final class PersistentEntityReference<EREF>:
     GenericPersistentEntityReference, @unchecked Sendable,

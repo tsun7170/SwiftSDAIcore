@@ -10,6 +10,7 @@ import Foundation
 
 //MARK: - String convertible
 extension SDAI {
+
   public protocol SwiftStringConvertible
   {
     var possiblyAsSwiftString: String? {get}
@@ -29,15 +30,86 @@ extension String: SDAI.SwiftStringRepresented
 
 //MARK: - STRING type (8.1.6)
 extension SDAI {
+
   public protocol StringType: SDAI.SimpleType, SDAI.SwiftStringConvertible,
                                   ExpressibleByStringLiteral, SDAI.InitializableByVoid
   where StringLiteralType == String
   {
+    /// The number of characters contained in the string value.
+    /// - Note: This represents the length of the string as defined in the SDAI specification.
+    /// - Returns: An `Int` value indicating the total count of characters.
     var length: Int {get}
+
+    /// Accesses the character at the specified position in the string, using 1-based indexing as defined in the SDAI specification.
+    ///
+    /// - Parameter index: The position of the character to access, where the first character is at position 1.
+    /// - Returns: An optional `SDAI.STRING` containing the character at the specified index, or `nil` if the index is `nil`, less than 1, or greater than the string's length.
+    ///
+    /// - Note: The index is 1-based (not 0-based like typical Swift strings). If the index is out of bounds or `nil`, this subscript returns `nil`.
     subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> SDAI.STRING? {get}
+
+    /// Accesses the character at the specified position in the string, using 1-based indexing as defined in the SDAI specification.
+    /// 
+    /// - Parameter index: The position of the character to access, where the first character is at position 1.
+    /// - Returns: An optional `SDAI.STRING` containing the character at the specified index, or `nil` if the index is `nil`, less than 1, or greater than the string's length.
+    /// 
+    /// - Note: The index is 1-based (not 0-based like typical Swift strings). If the index is out of bounds or `nil`, this subscript returns `nil`.
     subscript(index: Int?) -> SDAI.STRING? {get}
+
+    /// Accesses a substring within the receiver, using 1-based indexing as defined in the SDAI specification.
+    ///
+    /// - Parameter range: A closed range specifying the starting and ending positions of the substring, where the first character is at position 1.
+    /// - Returns: An optional `SDAI.STRING` containing the substring defined by the range, or `nil` if `range` is `nil`, the lower bound is less than 1, or the upper bound exceeds the string's length.
+    ///
+    /// - Note: The range is 1-based (not 0-based like typical Swift strings). If the specified range is out of bounds or `nil`, this subscript returns `nil`.
     subscript(range: ClosedRange<Int>?) -> SDAI.STRING? {get}
+
+    /// Evaluates whether the receiver matches the given pattern string, using the EXPRESS 'LIKE' operator semantics (ISO 10303-11:12.2.5).
+    ///
+    /// - Parameter substring: The pattern string to match against, or `nil`.
+    /// - Returns: A `SDAI.LOGICAL` value indicating whether the receiver matches the pattern (`TRUE`), does not match (`FALSE`), or if the result is indeterminate (`UNKNOWN`).
+    ///
+    /// - Discussion:
+    ///   The EXPRESS 'LIKE' pattern supports special characters:
+    ///   - `"!"`: Negates the next pattern element.
+    ///   - `"@"`: Matches an alphabetic character.
+    ///   - `"^"`: Matches an uppercase letter.
+    ///   - `"?"`: Matches any single character.
+    ///   - `"&"`: Succeeds if the current pattern state matches.
+    ///   - `"#"`: Matches a numeric digit.
+    ///   - `"$"`: Matches a sequence of whitespace.
+    ///   - `"*"`: Matches any sequence of zero or more characters.
+    ///   - `"\\"`: Escapes the next character to match it literally.
+    ///
+    ///   If `substring` is `nil`, the function returns `SDAI.UNKNOWN`.
+    ///   If the receiver matches the pattern, the result is `SDAI.TRUE`.
+    ///   If the receiver does not match, the result is `SDAI.FALSE`.
+    ///
+    ///   The pattern is applied from left to right. Matching is case-sensitive unless pattern symbols dictate otherwise.
     func ISLIKE<T:SDAI.StringType>(PATTERN substring: T? ) -> SDAI.LOGICAL	// Express 'LIKE' operator translation
+
+    /// Evaluates whether the receiver matches the given pattern string, using the EXPRESS 'LIKE' operator semantics (ISO 10303-11:12.2.5).
+    ///
+    /// - Parameter substring: The pattern string to match against, or `nil`.
+    /// - Returns: A `SDAI.LOGICAL` value indicating whether the receiver matches the pattern (`TRUE`), does not match (`FALSE`), or if the result is indeterminate (`UNKNOWN`).
+    ///
+    /// - Discussion:
+    ///   The EXPRESS 'LIKE' pattern supports special characters:
+    ///   - `"!"`: Negates the next pattern element.
+    ///   - `"@"`: Matches an alphabetic character.
+    ///   - `"^"`: Matches an uppercase letter.
+    ///   - `"?"`: Matches any single character.
+    ///   - `"&"`: Succeeds if the current pattern state matches.
+    ///   - `"#"`: Matches a numeric digit.
+    ///   - `"$"`: Matches a sequence of whitespace.
+    ///   - `"*"`: Matches any sequence of zero or more characters.
+    ///   - `"\\"`: Escapes the next character to match it literally.
+    ///
+    ///   If `substring` is `nil`, the function returns `SDAI.UNKNOWN`.
+    ///   If the receiver matches the pattern, the result is `SDAI.TRUE`.
+    ///   If the receiver does not match, the result is `SDAI.FALSE`.
+    ///
+    ///   The pattern is applied from left to right. Matching is case-sensitive unless pattern symbols dictate otherwise.
     func ISLIKE(PATTERN substring: String? ) -> SDAI.LOGICAL	// Express 'LIKE' operator translation
     var asSwiftString: String {get}
   }
@@ -105,6 +177,7 @@ public extension SDAI.STRING__TypeBehavior
 }
 
 extension SDAI {
+  
 	public struct STRING: SDAI.STRING__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = String

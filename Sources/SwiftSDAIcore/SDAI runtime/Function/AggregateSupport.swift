@@ -8,24 +8,33 @@
 
 import Foundation
 
-//MARK: Membership operator (12.2.3)
 
 extension SDAI {
-	public static func aggregate<AGG:SDAI.AggregationType, ELEM:SDAI.GenericType>(_ agg:AGG?, contains elem:ELEM?) -> SDAI.LOGICAL
+  //MARK: Membership operator (12.2.3)
+
+  public static func aggregate<AGG:SDAI.AggregationType, ELEM:SDAI.GenericType>(
+    _ agg:AGG?,
+    contains elem:ELEM?) -> SDAI.LOGICAL
 	{
 		guard let agg = agg, let elem = elem else { return SDAI.UNKNOWN }
 		guard let aggelem = AGG.ELEMENT.convert(fromGeneric: elem) else { return SDAI.FALSE }
 		return agg.CONTAINS(elem: aggelem)
 	}
 	
-	public static func aggregate<AGG:SDAI.AggregationInitializer, ELEM:SDAI.GenericType>(_ agg:AGG?, contains elem:ELEM?) -> SDAI.LOGICAL 
+	public static func aggregate<AGG:SDAI.AggregationInitializer, ELEM:SDAI.GenericType>(
+    _ agg:AGG?,
+    contains elem:ELEM?) -> SDAI.LOGICAL
 	{
 		guard let agg = agg, let elem = elem else { return SDAI.UNKNOWN }
 		guard let aggelem = AGG.ELEMENT.convert(fromGeneric: elem) else { return SDAI.FALSE }
 		return agg.CONTAINS(elem: aggelem)
 	}
-	
-	public static func validateAggregateElementsWhereRules<AGG:SDAI.AggregationType>(_ agg:AGG?, prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL] {
+
+  //MARK: where rule validation
+	public static func validateAggregateElementsWhereRules<AGG:SDAI.AggregationType>(
+    _ agg:AGG?,
+    prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL]
+  {
 		var result:[SDAI.WhereLabel:SDAI.LOGICAL] = [:]
 		guard let agg = agg else { return result }
 		

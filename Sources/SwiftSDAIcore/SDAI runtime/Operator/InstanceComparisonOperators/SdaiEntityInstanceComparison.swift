@@ -31,30 +31,30 @@ public func .!==. (
 //MARK: entity ref vs. select
 /// Entity Instance Equal: Entity .===. Select = LOGICAL
 ///
-public func .===. <U: SDAI.SelectType>(
-  lhs: SDAI.EntityReference?, rhs: U?) -> SDAI.LOGICAL
+public func .===. <US: SDAI.SelectType>(
+  lhs: SDAI.EntityReference?, rhs: US?) -> SDAI.LOGICAL
 {
 	return lhs .===. rhs?.entityReference
 }
 
 /// Entity Instance NotEqual: Entity .!==. Select = LOGICAL
 ///
-public func .!==. <U: SDAI.SelectType>(
-  lhs: SDAI.EntityReference?, rhs: U?) -> SDAI.LOGICAL
+public func .!==. <US: SDAI.SelectType>(
+  lhs: SDAI.EntityReference?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
 
 //MARK: select vs. entity ref
 /// Entity Instance Equal: Select .===. Entity = LOGICAL
 ///
-public func .===. <T: SDAI.SelectType>(
-  lhs: T?, rhs: SDAI.EntityReference?) -> SDAI.LOGICAL
+public func .===. <TS: SDAI.SelectType>(
+  lhs: TS?, rhs: SDAI.EntityReference?) -> SDAI.LOGICAL
 { rhs .===. lhs }
 
 /// Entity Instance NotEqual: Select .!==. Entity = LOGICAL
 ///
-public func .!==. <T: SDAI.SelectType>(
-  lhs: T?, rhs: SDAI.EntityReference?) -> SDAI.LOGICAL
+public func .!==. <TS: SDAI.SelectType>(
+  lhs: TS?, rhs: SDAI.EntityReference?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
 
@@ -122,27 +122,27 @@ public func .!==. <U>(
 //MARK: pref vs. select
 /// Entity Instance Equal: PRef .===. Select = LOGICAL
 ///
-public func .===. <T,U:SDAI.SelectType>(
-  lhs: SDAI.PersistentEntityReference<T>?, rhs: U?) -> SDAI.LOGICAL
+public func .===. <T,US:SDAI.SelectType>(
+  lhs: SDAI.PersistentEntityReference<T>?, rhs: US?) -> SDAI.LOGICAL
 { lhs?.eval .===. rhs }
 
 /// Entity Instance NotEqual: PRef .!==. Select = LOGICAL
 ///
-public func .!==. <T,U:SDAI.SelectType>(
-  lhs: SDAI.PersistentEntityReference<T>?, rhs: U?) -> SDAI.LOGICAL
+public func .!==. <T,US:SDAI.SelectType>(
+  lhs: SDAI.PersistentEntityReference<T>?, rhs: US?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 
 
 //MARK: select vs. pref
 /// Entity Instance Equal: Select .===. PRef = LOGICAL
 ///
-public func .===. <T:SDAI.SelectType,U>(
-  lhs: T?, rhs: SDAI.PersistentEntityReference<U>?) -> SDAI.LOGICAL
+public func .===. <TS:SDAI.SelectType,U>(
+  lhs: TS?, rhs: SDAI.PersistentEntityReference<U>?) -> SDAI.LOGICAL
 { rhs .===. lhs }
 
 /// Entity Instance NotEqual: Select .!==. PRef = LOGICAL
 ///
-public func .!==. <T:SDAI.SelectType,U>(
-  lhs: T?, rhs: SDAI.PersistentEntityReference<U>?) -> SDAI.LOGICAL
+public func .!==. <TS:SDAI.SelectType,U>(
+  lhs: TS?, rhs: SDAI.PersistentEntityReference<U>?) -> SDAI.LOGICAL
 { !(lhs .===. rhs) }
 

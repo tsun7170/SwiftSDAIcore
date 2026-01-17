@@ -11,8 +11,8 @@ import Foundation
 extension SDAI {
 	//MARK: -
 	public struct ComplexPair: Hashable {
-		var l: ComplexEntity
-		var r: ComplexEntity
+		public let l: ComplexEntity
+		public let r: ComplexEntity
 	}
 	
 	public struct _ComplexEntityValue: SDAI.Value

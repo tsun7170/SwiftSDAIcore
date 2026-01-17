@@ -16,6 +16,24 @@ extension SDAI {
 
 //MARK: - SDAI.ARRAY_OPTIONAL_UNIQUE
 extension SDAI {
+  /// A concrete implementation of an ARRAY type in SDAI (ISO 10303-11) with optional lower/upper bounds and a uniqueness constraint.
+  /// 
+  /// `ARRAY_OPTIONAL_UNIQUE` is a value type that models an array whose indices may be optional (i.e., lower and/or upper bounds can be omitted), and elements must be unique. It is parameterized by an element type that conforms to `SDAI.GenericType`.
+  ///
+  /// - Parameters:
+  ///   - ELEMENT: The type of the array's elements, constrained to conform to `SDAI.GenericType`.
+  ///
+  /// ## Features
+  /// - Enforces that all elements are unique (no duplicates).
+  /// - Allows for optional lower and upper index bounds, following EXPRESS array semantics.
+  /// - Provides type aliases and conveniences for handling the fundamental storage, element, and Swift bridging types.
+  /// - Validates uniqueness and other where-rules at runtime.
+  ///
+  /// ## Usage
+  /// Use `ARRAY_OPTIONAL_UNIQUE` when you need to model EXPRESS arrays that are permitted to have optional index bounds and require all elements to be unique.
+  ///
+  /// ## EXPRESS Specification Reference
+  /// - `ARRAY [lo:?..hi:?] OF <element_type> UNIQUE`
 	public struct ARRAY_OPTIONAL_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI.ARRAY_OPTIONAL_UNIQUE__TypeBehavior
 	{
 		

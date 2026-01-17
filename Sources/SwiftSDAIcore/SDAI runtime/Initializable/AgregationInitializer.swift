@@ -93,6 +93,22 @@ public extension SDAI {
 
 //MARK: - Aggregation Initializer
 extension SDAI {
+  /// A protocol representing an aggregation initializer, which defines requirements for types that can be initialized from a sequence of aggregation elements.
+  /// 
+  /// Conforming types must satisfy the following:
+  /// - Conform to `Sequence`.
+  /// - Conform to `SDAI.SwiftDictRepresentable`.
+  /// - Conform to `SDAI.AggregationSequence`.
+  /// - Its `Element` must conform to `SDAI.AIE__TypeBehavior`.
+  /// - Its `ELEMENT` associated type is the unwrapped type of `Element`.
+  ///
+  /// `AggregationInitializer` is typically used to represent collections that aggregate values,
+  /// supporting operations such as element containment checks, queries using logical expressions,
+  /// and conversion to dictionary or aggregation sequence representations. 
+  ///
+  /// Extensions provide specialized containment logic based on the nature of `ELEMENT` (e.g., select types, entity types, defined types, Swift types).
+  ///
+  /// - SeeAlso: `SDAI.AIE__TypeBehavior`, `SDAI.SwiftDictRepresentable`, `SDAI.AggregationSequence`
   public protocol AggregationInitializer: Sequence, SDAI.SwiftDictRepresentable, SDAI.AggregationSequence
   where Element: SDAI.AIE__TypeBehavior, ELEMENT == Element.Element.Wrapped
   {}

@@ -8,6 +8,19 @@
 import Foundation
 
 extension SDAI {
+
+  /// A protocol that represents numeric types suitable for use in the SDAI framework.
+  /// 
+  /// `NumberRepType` combines the capabilities of signed numbers and types that can be  
+  /// traversed by a stride, making it suitable for representing both integer and floating-
+  /// point numeric types. Conforming types must support arithmetic operations, comparison, 
+  /// and stride-based operations.
+  ///
+  /// Types conforming to `NumberRepType` include standard Swift types like `Int` and `Double`.
+  ///
+  /// - Conforms To:
+  ///   - `SignedNumeric`: Enables arithmetic operations and handling of signed values.
+  ///   - `Strideable`: Enables calculation and traversal of values at regular intervals (strides).
   public protocol NumberRepType : SignedNumeric, Strideable
   {}
 }
@@ -17,6 +30,15 @@ extension Int: SDAI.NumberRepType {}
 
 //MARK: - Double represented
 extension SDAI {
+
+  /// A protocol for types that can be represented as a `Double`.
+  ///
+  /// Types conforming to `DoubleRepresented` must provide a computed property, `asSwiftDouble`,
+  /// exposing their value as a Swift `Double`. This enables conversion and interoperability
+  /// with APIs and logic that operate on floating-point numbers, regardless of the underlying type.
+  ///
+  /// Conformance to this protocol is useful for types that natively store or can losslessly convert
+  /// to a `Double` value, facilitating generic numeric operations within the SDAI framework.
   public protocol DoubleRepresented
   {
     var asSwiftDouble: Double {get}
@@ -25,6 +47,18 @@ extension SDAI {
 
 //MARK: - Int represented
 extension SDAI {
+
+  /// A protocol for types that can be represented as an `Int`.
+  ///
+  /// Types conforming to `IntRepresented` must provide a computed property, `asSwiftInt`,
+  /// exposing their value as a Swift `Int`. This enables conversion and interoperability
+  /// with APIs and logic that operate on integer values, regardless of the underlying type.
+  ///
+  /// Conformance to this protocol is useful for types that natively store or can losslessly convert
+  /// to an `Int` value, facilitating generic numeric operations within the SDAI framework.
+  ///
+  /// - Conforms To:
+  ///   - `SwiftDoubleConvertible`: Enables conversion to a `Double` representation.
   public protocol IntRepresented: SDAI.SwiftDoubleConvertible
   {
     var asSwiftInt: Int {get}
@@ -33,6 +67,7 @@ extension SDAI {
 
 //MARK: - Double convertible
 extension SDAI {
+
   public protocol SwiftDoubleConvertible
   {
     var possiblyAsSwiftDouble: Double? {get}
@@ -69,6 +104,7 @@ where Self: SDAI.IntRepresentedNumberType
 
 //MARK: - Int convertible
 extension SDAI {
+
   public protocol SwiftIntConvertible
   {
     var possiblyAsSwiftInt: Int? {get}
@@ -92,6 +128,7 @@ where Self: SDAI.IntRepresentedNumberType
 
 //MARK: - NUMBER type (8.1.1)
 extension SDAI {
+
   public protocol NumberType: SDAI.SimpleType, ExpressibleByIntegerLiteral, SDAI.SwiftDoubleConvertible, SDAI.InitializableByVoid
   where SwiftType: SDAI.NumberRepType
   {}
@@ -154,6 +191,7 @@ public extension SDAI.NUMBER__TypeBehavior
 }
 
 extension SDAI {
+  
 	public struct NUMBER: SDAI.NUMBER__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Double

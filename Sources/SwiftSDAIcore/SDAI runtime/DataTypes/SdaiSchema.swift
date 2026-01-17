@@ -11,6 +11,7 @@ import Foundation
 
 //MARK: - schema
 extension SDAI {
+  
   public protocol SchemaType: Sendable {
     static var schemaDefinition: SDAIDictionarySchema.SchemaDefinition {get}
   }

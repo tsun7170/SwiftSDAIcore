@@ -9,6 +9,7 @@
 import Foundation
 
 extension SDAI {
+  
   public protocol NamedType: SDAI.BaseType
   {}
 }

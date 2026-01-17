@@ -16,6 +16,23 @@ extension SDAI {
 
 //MARK: - SDAI.ARRAY_UNIQUE
 extension SDAI {
+  /// A collection type representing an ARRAY with unique elements, conforming to the EXPRESS "ARRAY UNIQUE" aggregation construct.
+  /// 
+  /// `ARRAY_UNIQUE` is a generic, value-semantic type that enforces uniqueness of its elements, as required by the EXPRESS `ARRAY UNIQUE` declaration.
+  /// It wraps an underlying `SDAI.ARRAY` and adds a uniqueness constraint, ensuring that all elements in the array are distinct.
+  /// 
+  /// - Type Parameter:
+  ///   - ELEMENT: The type of elements contained in the array, which must conform to `SDAI.GenericType`.
+  /// 
+  /// ## EXPRESS Reference
+  /// In the EXPRESS language, `ARRAY UNIQUE` specifies an array in which all values must be unique. This type helps model such constructs in Swift.
+  /// 
+  /// ## Features
+  /// - Provides value semantics and sequence iteration.
+  /// - Enforces uniqueness of elements using a runtime check.
+  /// - Offers conformance to relevant SDAI protocols for schema population, entity referencing, and dual mode reference (if applicable).
+  /// 
+  /// Use `SDAI.ARRAY_UNIQUE` when you need to represent an EXPRESS `ARRAY UNIQUE` type in your Swift-based SDAI model implementations.
 	public struct ARRAY_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI.ARRAY_UNIQUE__TypeBehavior
 	{
 		public typealias Supertype = SDAI.ARRAY<ELEMENT>

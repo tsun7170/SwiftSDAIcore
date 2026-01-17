@@ -9,13 +9,66 @@ import Foundation
 
 //MARK: - BINARY type (8.1.7)
 extension SDAI {
+  /// A protocol representing a binary value, corresponding to the EXPRESS BINARY type (ISO 10303-11:8.1.7).
+  ///
+  /// This type is used for modeling sequences of bits, with methods for accessing individual bits or bit ranges.
+  /// Types conforming to `BinaryType` must also conform to `SDAI.SimpleType`, `ExpressibleByStringLiteral`, and `SDAI.InitializableByVoid`.
+  ///
+  /// Conformance Requirements:
+  /// - `StringLiteralType` must be `String`.
+  ///
+  /// - Note: The indices for bit access are 1-based, following the EXPRESS language specification.
+  ///
+  /// ## Properties
+  ///
+  /// - `blength`: The number of bits contained in the binary value. For example, a binary value of `%10110` has a `blength` of 5.
+  ///
+  /// ## Subscripts
+  ///
+  /// - `subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> SDAI.BINARY?`
+  ///   Accesses the bit at the specified (1-based) index as a new `BINARY` instance containing a single bit.
+  ///   Returns `nil` if the index is `nil` or out of bounds.
+  ///
+  /// - `subscript(index: Int?) -> SDAI.BINARY?`
+  ///   Accesses the bit at the specified (1-based) index as a new `BINARY` instance containing a single bit.
+  ///   Returns `nil` if the index is `nil` or out of bounds.
+  ///
+  /// - `subscript(range: ClosedRange<Int>?) -> SDAI.BINARY?`
+  ///   Accesses a sequence of bits at the specified (1-based) closed range as a new `BINARY` instance containing those bits.
+  ///   Returns `nil` if the range is `nil`, the lower bound is less than 1, or the upper bound exceeds the bit length.
+  ///
   public protocol BinaryType: SDAI.SimpleType, ExpressibleByStringLiteral,
                                   SDAI.InitializableByVoid
   where StringLiteralType == String
   {
+    /// The number of bits contained in the binary value.
+    /// 
+    /// This property returns the length of the binary sequence, representing how many individual bits are present.
+    /// For example, a binary value of `%10110` has a `blength` of 5.
+    /// 
+    /// - Returns: The total count of bits in the binary value.
+    ///
     var blength: Int {get}
+
+    /// Accesses the bit at the specified (1-based) index as a new `BINARY` instance containing a single bit.
+    /// 
+    /// - Parameter index: The (1-based) index of the bit to access. If the index is `nil` or out of bounds (less than 1 or greater than the bit length), returns `nil`.
+    /// - Returns: A new `BINARY` instance containing the bit at the specified index, or `nil` if the index is invalid.
+    ///
     subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> SDAI.BINARY? {get}
+
+    /// Accesses the bit at the specified (1-based) index as a new `BINARY` instance containing a single bit.
+    ///
+    /// - Parameter index: The (1-based) index of the bit to access. If the index is `nil` or out of bounds (less than 1 or greater than the bit length), returns `nil`.
+    /// - Returns: A new `BINARY` instance containing the bit at the specified index, or `nil` if the index is invalid.
+    ///
     subscript(index: Int?) -> SDAI.BINARY? {get}
+
+    /// Accesses a sequence of bits at the specified (1-based) closed range as a new `BINARY` instance containing those bits.
+    /// 
+    /// - Parameter range: The (1-based) closed range of bit indices to access. If the range is `nil`, the lower bound is less than 1, or the upper bound exceeds the bit length, returns `nil`.
+    /// - Returns: A new `BINARY` instance containing the bits within the specified range, or `nil` if the range is invalid.
+    ///
     subscript(range: ClosedRange<Int>?) -> SDAI.BINARY? {get}
 
   }
@@ -65,6 +118,50 @@ public extension SDAI.BINARY__TypeBehavior
 
 
 extension SDAI {
+  
+  /// An implementation of the EXPRESS BINARY type (ISO 10303-11:8.1.7).
+  ///
+  /// `BINARY` values are ordered sequences of bits, represented internally as an array of `Int8` where each value must be `0` or `1`.
+  ///
+  /// ## Initialization
+  ///
+  /// Instances can be created from string literals using the `ExpressibleByStringLiteral` protocol, with the string beginning with a percent sign (`%`) followed by a sequence of `0` and `1` characters (e.g., `"%1101"`). They can also be created directly from an array of 0/1 integers.
+  ///
+  /// ## Properties
+  ///
+  /// - `blength`: The number of bits in the binary value.
+  /// - `typeName`: The EXPRESS type name ("BINARY").
+  /// - `asSwiftType`: The underlying array of `Int8` representing the bits.
+  /// - `asFundamentalType`: Returns self, for protocol conformance.
+  /// - `entityReference`, `stringValue`, `binaryValue`, `logicalValue`, `booleanValue`, `numberValue`, `realValue`, `integerValue`, `genericEnumValue`: Various computed properties for protocol conformance, returning appropriate representations or `nil`.
+  ///
+  /// ## Subscripts
+  ///
+  /// - `subscript(index: Int?) -> BINARY?`: Returns a new `BINARY` containing a single bit at the provided (1-based) index, or `nil` if the index is invalid.
+  /// - `subscript(range: ClosedRange<Int>?) -> BINARY?`: Returns a new `BINARY` containing the bit sequence within the (1-based) closed range, or `nil` if the range is invalid.
+  ///
+  /// ## Methods
+  ///
+  /// - `init?<G: SDAI.GenericType>(fromGeneric:)`: Initializes a BINARY value from a generic SDAI value, if it can be interpreted as a BINARY.
+  /// - `isValueEqual<T: SDAI.Value>(to:)`: Tests equality with another value conforming to `SDAI.Value`.
+  ///
+  /// ## EXPRESS Mapping
+  ///
+  /// This struct supports conversion to and from the STEP physical file (Part 21) untyped parameter representations, including error handling for invalid or unresolved data.
+  ///
+  /// ## Invariants
+  ///
+  /// - The underlying bit array must only contain values 0 or 1.
+  /// - All methods and subscripts perform bounds checking and validation as required by the EXPRESS specification.
+  ///
+  /// ## Usage
+  ///
+  /// ```swift
+  /// let a: SDAI.BINARY = "%10110"
+  /// let singleBit = a[3] // returns BINARY("%1")
+  /// let subBinary = a[2...4] // returns BINARY("%011")
+  /// ```
+  ///
 	public struct BINARY: SDAI.BINARY__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Array<Int8>

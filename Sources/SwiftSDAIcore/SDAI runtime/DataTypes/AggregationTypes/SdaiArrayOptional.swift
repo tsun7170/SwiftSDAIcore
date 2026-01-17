@@ -12,6 +12,20 @@ import Foundation
 
 //MARK: - array optional type (8.2.1)
 extension SDAI {
+  /// A protocol representing the optional array type in the SDAI standard (ISO 10303-11, section 8.2.1).
+  ///
+  /// `ArrayOptionalType` is a protocol to be adopted by types that model an aggregate whose elements can be either the specified element type or nil.
+  /// This corresponds to the EXPRESS `ARRAY [lo:hi] OF OPTIONAL Element` construct, where each element in the collection may be absent (`nil`).
+  ///
+  /// Types conforming to this protocol:
+  /// - Must also conform to `SDAI.ArrayType` and support initialization by the void value (`SDAI.InitializableByVoid`).
+  /// - Provide basic behaviors and conversions for handling EXPRESS optional array values in Swift.
+  ///
+  /// See also:
+  /// - [ISO 10303-11:2004, Section 8.2.1 ARRAY data type](https://www.iso.org/standard/38046.html)
+  /// - `SDAI.ARRAY_OPTIONAL`
+  /// - `SDAI.ArrayType`
+  /// - `SDAI.InitializableByVoid`
   public protocol ArrayOptionalType: SDAI.ArrayType, SDAI.InitializableByVoid
   {}
 }
@@ -32,6 +46,34 @@ extension SDAI {
 //MARK: - SDAI.ARRAY_OPTIONAL
 extension SDAI {
 	
+  /// A generic struct representing the `ARRAY [lo:hi] OF OPTIONAL Element` construct in the SDAI (ISO 10303-11) standard.
+  ///
+  /// `ARRAY_OPTIONAL` is used to describe collections where each element can either be a value of the specified `ELEMENT` type or be absent (i.e., `nil`). This enables modeling EXPRESS arrays of optional elements, where the bounds (`bound1`, `bound2`) define the index range, and each element within this range is optional.
+  ///
+  /// - Parameters:
+  ///   - ELEMENT: The element type of the array, conforming to `SDAI.GenericType`.
+  ///
+  /// # Key Features
+  /// - Conforms to `SDAI.ArrayOptionalType`, supporting initialization by the void value and empty array literals.
+  /// - Provides indexed access to elements, including support for Swift-style subscripting and index bounds.
+  /// - Supports aggregate behaviors such as mapping, filtering (QUERY), and copying.
+  /// - Enables EXPRESS-compatible conversions and initialization from generic types, select types, entity arrays, and more.
+  /// - Integrates with P21 (STEP Physical File) decoding, including construction from P21 parameters and exchange structures.
+  /// - Complies with the semantics of EXPRESS ARRAY where elements may be individually omitted (nil).
+  ///
+  /// # EXPRESS Reference
+  /// - [ISO 10303-11:2004, Section 8.2.1 ARRAY data type](https://www.iso.org/standard/38046.html)
+  ///
+  /// # Example
+  /// ```swift
+  /// let arr = SDAI.ARRAY_OPTIONAL<MyType>(bound1: 1, bound2: 5, [nil, value1, value2, nil, value3])
+  /// let firstElement = arr[1] // May be nil or a value of MyType
+  /// ```
+  ///
+  /// - SeeAlso:
+  ///   - `SDAI.ArrayOptionalType`
+  ///   - `SDAI.ArrayType`
+  ///   - `SDAI.InitializableByVoid`
 	public struct ARRAY_OPTIONAL<ELEMENT:SDAI.GenericType>: SDAI.ARRAY_OPTIONAL__TypeBehavior
 	{
 		public typealias SwiftType = Array<ELEMENT?>

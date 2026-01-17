@@ -11,6 +11,32 @@ import Foundation
 //MARK: - SELECT TYPE base (8.4.2)
 
 extension SDAI {
+  /// A protocol that defines the requirements for SDAI "SELECT" types, which are types that can hold values from a specified set of other types (e.g., defined types, entities, or primitive types).
+  ///
+  /// `SelectType` serves as the base protocol for all types conforming to the EXPRESS "SELECT" specification. It integrates capabilities for initialization, conversion, and aggregation for select-type values in SDAI-based data models.
+  ///
+  /// ### Conformance
+  /// Types conforming to `SelectType` must also conform to:
+  /// - `SDAI.ConstructedType`
+  /// - `SDAI.InitializableByDefinedType`
+  /// - `SDAI.InitializableByComplexEntity`
+  /// - `SDAI.SwiftDoubleConvertible`
+  /// - `SDAI.SwiftIntConvertible`
+  /// - `SDAI.SwiftStringConvertible`
+  /// - `SDAI.SwiftBoolConvertible`
+  /// - `SDAI.EntityReferenceYielding`
+  /// - `SDAI.AggregationBehavior`
+  ///
+  /// ### Associated Types
+  /// - `Value` is required to be equal to `FundamentalType`.
+  /// - `FundamentalType` must itself conform to `SDAI.SelectType`.
+  ///
+  /// This protocol is typically used to represent the base for all custom SELECT types in an SDAI schema implementation, providing the necessary behaviors for value conversion, initialization, and type safety.
+  ///
+  /// ### Usage
+  /// Implement this protocol for custom types that need to behave as SELECT types within the SDAI framework, ensuring interoperability and correct type conversions when interacting with EXPRESS-based data.
+  ///
+  /// - SeeAlso: [ISO 10303-11:1994, Section 8.4.2 "SELECT Type"](https://www.steptools.com/stds/smrl/docs/iso-10303-11/sect8.4.2.html)
   public protocol SelectType:
     SDAI.ConstructedType,
     SDAI.InitializableByDefinedType, SDAI.InitializableByComplexEntity,
