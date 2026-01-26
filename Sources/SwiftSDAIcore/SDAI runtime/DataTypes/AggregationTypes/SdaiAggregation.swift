@@ -14,7 +14,7 @@ extension SDAI {
   /// A protocol that enables read-only, index-based access to elements in an aggregate collection using integer-based indices.
   ///
   /// Conforming types provide subscripting capabilities that allow clients to access elements at specific positions, 
-  /// either by passing a value conforming to `SDAI.INTEGER__TypeBehavior` or a plain `Int`.
+  /// either by passing a value conforming to `SDAI.TypeHierarchy.INTEGER__TypeBehavior` or a plain `Int`.
   ///
   /// Indices can be `nil`—in which case `nil` is always returned—or any valid integer value. If the index is out of bounds
   /// or otherwise invalid, the subscript returns `nil` instead of failing.
@@ -23,7 +23,7 @@ extension SDAI {
   ///   - `ELEMENT`: The type of elements contained within the aggregate.
   ///
   /// ## Requirements:
-  /// - Subscript access using an index conforming to `SDAI.INTEGER__TypeBehavior`.
+  /// - Subscript access using an index conforming to `SDAI.TypeHierarchy.INTEGER__TypeBehavior`.
   /// - Subscript access using a plain Swift `Int` index.
   /// - Both subscripts must handle `nil` or out-of-bounds indices gracefully by returning `nil`.
   ///
@@ -41,7 +41,7 @@ extension SDAI {
     ///
     /// - Parameter index: An optional integer index of the element to access. If `nil` or the index is out of bounds, returns `nil`.
     /// - Returns: The element at the provided index, or `nil` if the index is invalid or not present.
-    subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> ELEMENT? {get}
+    subscript<I: SDAI.TypeHierarchy.INTEGER__TypeBehavior>(index: I?) -> ELEMENT? {get}
 
     /// Accesses the element at the specified integer index, if it exists.
     ///
@@ -52,14 +52,14 @@ extension SDAI {
 
   /// A protocol that extends `AggregateIndexingGettable` to support both getting and setting elements by index in a collection-like aggregate.
   /// 
-  /// Types conforming to this protocol provide subscript access to their elements using an integer or an `SDAI.INTEGER__TypeBehavior` index, allowing both retrieval and assignment. 
+  /// Types conforming to this protocol provide subscript access to their elements using an integer or an `SDAI.TypeHierarchy.INTEGER__TypeBehavior` index, allowing both retrieval and assignment. 
   /// Returning or setting `nil` handles out-of-bounds or invalid indices gracefully without crashing.
   ///
   /// - Note: `ELEMENT` represents the type of elements contained in the aggregate.
   ///
   /// ## Requirements:
   /// - Two subscript methods allowing get and set access to elements:
-  ///   - By an index conforming to `SDAI.INTEGER__TypeBehavior` (`index: I?`)
+  ///   - By an index conforming to `SDAI.TypeHierarchy.INTEGER__TypeBehavior` (`index: I?`)
   ///   - By a plain `Int` index (`index: Int?`)
   /// - Setting an element to `nil` can be used to remove or clear that element, depending on the conforming type's semantics.
   /// - Getting with an out-of-bounds or `nil` index returns `nil`.
@@ -73,7 +73,7 @@ extension SDAI {
     /// Accesses the element at the specified integer index, if it exists.
     /// - Parameter index: An optional integer index of the element to access. If `nil` or out of bounds, returns `nil`.
     /// - Returns: The element at the provided index, or `nil` if the index is invalid or not present.
-    subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> ELEMENT? {get set}
+    subscript<I: SDAI.TypeHierarchy.INTEGER__TypeBehavior>(index: I?) -> ELEMENT? {get set}
 
     /// Accesses the element at the specified integer index, if it exists.
     /// - Parameter index: An optional integer index of the element to access. If `nil` or the index is out of bounds, returns `nil`.
@@ -84,7 +84,7 @@ extension SDAI {
 
 public extension SDAI.AggregateIndexingGettable
 {
-	subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> ELEMENT? {
+	subscript<I: SDAI.TypeHierarchy.INTEGER__TypeBehavior>(index: I?) -> ELEMENT? {
 		get{
 			return self[index?.asSwiftType]
 		}
@@ -93,7 +93,7 @@ public extension SDAI.AggregateIndexingGettable
 
 public extension SDAI.AggregateIndexingSettable
 {
-	subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> ELEMENT? {
+	subscript<I: SDAI.TypeHierarchy.INTEGER__TypeBehavior>(index: I?) -> ELEMENT? {
 		get{
 			return self[index?.asSwiftType]
 		}
@@ -357,7 +357,7 @@ extension SDAI {
 
 //MARK: - extension per ELEMENT type
 public extension SDAI.AggregationType
-where ELEMENT: SDAI.InitializableBySelectType
+where ELEMENT: SDAI.Initializable.BySelectType
 {
 	func CONTAINS<T: SDAI.SelectType>(_ elem: T?) -> SDAI.LOGICAL {
 		return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))
@@ -365,7 +365,7 @@ where ELEMENT: SDAI.InitializableBySelectType
 }
 
 public extension SDAI.AggregationType
-where ELEMENT: SDAI.InitializableByComplexEntity
+where ELEMENT: SDAI.Initializable.ByComplexEntity
 {
 	func CONTAINS(_ elem: SDAI.EntityReference?) -> SDAI.LOGICAL
 	{
@@ -391,7 +391,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 }
 
 public extension SDAI.AggregationType
-where ELEMENT: SDAI.InitializableByDefinedType
+where ELEMENT: SDAI.Initializable.ByDefinedType
 {
 	func CONTAINS<T: SDAI.UnderlyingType>(_ elem: T?) -> SDAI.LOGICAL {
 		return self.CONTAINS(elem: ELEMENT.convert(sibling: elem))
@@ -399,7 +399,7 @@ where ELEMENT: SDAI.InitializableByDefinedType
 }
 
 public extension SDAI.AggregationType
-where ELEMENT: SDAI.InitializableBySwiftType
+where ELEMENT: SDAI.Initializable.BySwiftType
 {
 	func CONTAINS<T>(_ elem: T?) -> SDAI.LOGICAL 
 	where T == ELEMENT.SwiftType

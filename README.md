@@ -6,7 +6,7 @@ by Tsutomu Yoshida, Minokamo Japan.
 This package implements the runtime foundation functionalities required for the exp2swift translated ISO 10303 STEP schema files into the Swift programing language.
 Specifically,
 * all built-in data types, functions and procedures defined in ISO 10303-11 EXPRESS language.
-* part of SDAI schemas defined in ISO 10303-22, of which make sense in the Swift environment for importing ISO 10303-21 exchange structure (modification and exporting of the STEP entities are out of scope).
+* part of SDAI schemas defined in ISO 10303-22, of which make sense in the Swift environment for importing ISO 10303-21 exchange structure (P21-export of the STEP entities is out of scope).
 * basic functionalities to import ISO 10303-21 exchange structure files.
 
 

@@ -7,39 +7,40 @@
 
 import Foundation
 
-extension SDAI {
-  public protocol InitializableByVoid {
+extension SDAI.Initializable {
+  /// from void without any parameter
+  public protocol ByVoid {
     init()
   }
 }
 
-extension AnySequence: SDAI.InitializableByVoid
+extension AnySequence: SDAI.Initializable.ByVoid
 {
   public init() {
     self.init([Element]())
   }
 }
 
-extension Int: SDAI.InitializableByVoid {}
-extension Double: SDAI.InitializableByVoid {}
-extension Float: SDAI.InitializableByVoid {}
-extension String: SDAI.InitializableByVoid {}
-extension Bool: SDAI.InitializableByVoid {}
+extension Int: SDAI.Initializable.ByVoid {}
+extension Double: SDAI.Initializable.ByVoid {}
+extension Float: SDAI.Initializable.ByVoid {}
+extension String: SDAI.Initializable.ByVoid {}
+extension Bool: SDAI.Initializable.ByVoid {}
 
-extension Array: SDAI.InitializableByVoid {}
-extension Dictionary: SDAI.InitializableByVoid {}
-extension Set: SDAI.InitializableByVoid {}
+extension Array: SDAI.Initializable.ByVoid {}
+extension Dictionary: SDAI.Initializable.ByVoid {}
+extension Set: SDAI.Initializable.ByVoid {}
 
-extension SDAI.InitializableBySwiftType
-where SwiftType: SDAI.InitializableByVoid
+extension SDAI.Initializable.BySwiftType
+where SwiftType: SDAI.Initializable.ByVoid
 {
   public init() {
     self.init(from: SwiftType())
   }
 }
 
-public extension SDAI.InitializableByVoid
-where Self: SDAI.DefinedType, Supertype: SDAI.InitializableByVoid
+public extension SDAI.Initializable.ByVoid
+where Self: SDAI.DefinedType, Supertype: SDAI.Initializable.ByVoid
 {
   init() {
     let supertype = Supertype()

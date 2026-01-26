@@ -11,6 +11,26 @@ import Foundation
 //MARK: - SDAI.UnownedWrap
 extension SDAI {
   
+  /// A lightweight wrapper for referencing an `SDAI.ObjectReferenceType` instance using an unowned reference.
+  ///
+  /// `UnownedWrap` holds an unowned reference to an object conforming to `SDAI.ObjectReferenceType`.
+  /// It also stores the `ObjectIdentifier` of the referenced object for comparison and hashing purposes.
+  /// This wrapper is useful when you want to avoid reference cycles or strong retention while still
+  /// being able to identify and access the wrapped object.
+  ///
+  /// - Note: The referenced object must outlive this wrapper, as the wrapper does not retain it.
+  ///
+  /// - Parameters:
+  ///   - REF: The type of object being referenced, which must conform to `SDAI.ObjectReferenceType`.
+  ///
+  /// ## Conformance
+  /// - `Hashable`: Based on the identity of the referenced object.
+  /// - `Equatable`: Two wrappers are considered equal if they reference the same object instance.
+  /// - Various SDAI protocols, depending on the conformance of `REF`.
+  ///
+  /// ## Usage
+  /// Use `UnownedWrap` when you need to store or compare references to objects without increasing their retain count.
+  /// Always ensure the lifetime of the referenced object exceeds that of the `UnownedWrap` instance to avoid dangling references.
 	public struct UnownedWrap<REF: SDAI.ObjectReferenceType>: Hashable {
 		public unowned let reference: REF
 		public let objectId: ObjectIdentifier
@@ -33,7 +53,7 @@ extension SDAI {
 }
 
 
-extension SDAI.UnownedWrap: SDAI.InitializableBySelectType where REF: SDAI.InitializableBySelectType {
+extension SDAI.UnownedWrap: SDAI.Initializable.BySelectType where REF: SDAI.Initializable.BySelectType {
 	public init?<S: SDAI.SelectType>(possiblyFrom select: S?) {
 		guard let obj = REF.init(possiblyFrom: select) else { return nil }
 		self.init(obj)
@@ -41,7 +61,7 @@ extension SDAI.UnownedWrap: SDAI.InitializableBySelectType where REF: SDAI.Initi
 
 }
 
-extension SDAI.UnownedWrap: SDAI.InitializableByGenericType where REF: SDAI.InitializableByGenericType {
+extension SDAI.UnownedWrap: SDAI.Initializable.ByGenericType where REF: SDAI.Initializable.ByGenericType {
 	public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 		guard let obj = REF.init(fromGeneric: generic) else { return nil }
 		self.init(obj)
@@ -54,7 +74,7 @@ extension SDAI.UnownedWrap: SDAI.InitializableByGenericType where REF: SDAI.Init
 
 }
 
-extension SDAI.UnownedWrap: SDAI.InitializableByP21Parameter where REF: SDAI.InitializableByP21Parameter {
+extension SDAI.UnownedWrap: SDAI.Initializable.ByP21Parameter where REF: SDAI.Initializable.ByP21Parameter {
 	public static var bareTypeName: String { REF.bareTypeName }
 	
 	public init?(p21param: P21Decode.ExchangeStructure.Parameter, from exchangeStructure: P21Decode.ExchangeStructure) {

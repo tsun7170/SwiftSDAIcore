@@ -8,10 +8,20 @@
 
 import Foundation
 
-extension SDAI {
-  public protocol ARRAY_UNIQUE__TypeBehavior: SDAI.ARRAY__Subtype {}
+extension SDAI.TypeHierarchy {
+  /// Protocol describing the type behavior for ARRAY_UNIQUE types within the SDAI type hierarchy.
+  /// 
+  /// This protocol is used to represent the EXPRESS `ARRAY UNIQUE` aggregation construct at the type-behavior level,
+  /// ensuring that conforming types model the semantic contract of an array whose elements are distinct (unique).
+  /// 
+  /// Types conforming to `ARRAY_UNIQUE__TypeBehavior` inherit the characteristics of the underlying `ARRAY__Subtype`
+  /// while adding the uniqueness constraint required by `ARRAY UNIQUE`.
+  /// 
+  /// - Note: This protocol is part of the internal infrastructure for mapping EXPRESS type hierarchies into Swift,
+  ///   and is typically not used directly in application code.
+  public protocol ARRAY_UNIQUE__TypeBehavior: SDAI.TypeHierarchy.ARRAY__Subtype {}
 
-  public protocol ARRAY_UNIQUE__Subtype: SDAI.ARRAY_UNIQUE__TypeBehavior {}
+  public protocol ARRAY_UNIQUE__Subtype: SDAI.TypeHierarchy.ARRAY_UNIQUE__TypeBehavior {}
 }
 
 //MARK: - SDAI.ARRAY_UNIQUE
@@ -33,7 +43,7 @@ extension SDAI {
   /// - Offers conformance to relevant SDAI protocols for schema population, entity referencing, and dual mode reference (if applicable).
   /// 
   /// Use `SDAI.ARRAY_UNIQUE` when you need to represent an EXPRESS `ARRAY UNIQUE` type in your Swift-based SDAI model implementations.
-	public struct ARRAY_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI.ARRAY_UNIQUE__TypeBehavior
+  public struct ARRAY_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI.TypeHierarchy.ARRAY_UNIQUE__TypeBehavior
 	{
 		public typealias Supertype = SDAI.ARRAY<ELEMENT>
 		public typealias FundamentalType = Supertype.FundamentalType

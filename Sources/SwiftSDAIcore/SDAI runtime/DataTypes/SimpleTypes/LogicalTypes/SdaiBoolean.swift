@@ -23,7 +23,34 @@ extension SDAI {
   {}
 }
 
-extension SDAI {
+extension SDAI.TypeHierarchy {
+  /// A protocol defining the EXPRESS `BOOLEAN` behavior in the SDAI type hierarchy.
+  /// 
+  /// `BOOLEAN__TypeBehavior` describes the requirements for types that model the EXPRESS `BOOLEAN`
+  /// type as per ISO 10303-11 (8.1.5), extending `SDAI.BooleanType`. It standardizes 
+  /// initialization and conversion from Swift `Bool` values and other EXPRESS logical types,
+  /// ensuring consistent boolean semantics and interoperability within the SDAI framework.
+  ///
+  /// ### Conformance
+  /// Conforming types must implement all required initializers, guarantee value-type semantics,
+  /// and support type conversions and interoperability with related logical types.
+  ///
+  /// ### Initializers
+  /// - `init?(_ bool: Bool?)`: Failable initializer from an optional Swift `Bool`.
+  /// - `init(_ bool: Bool)`: Initializer from a Swift `Bool`.
+  /// - `init?<T:SDAI.TypeHierarchy.BOOLEAN__TypeBehavior>(_ subtype: T?)`: Failable initializer from an optional subtype conforming to `BOOLEAN__TypeBehavior`.
+  /// - `init<T:SDAI.TypeHierarchy.BOOLEAN__TypeBehavior>(_ subtype: T)`: Initializer from another subtype conforming to `BOOLEAN__TypeBehavior`.
+  /// - `init?<T:SDAI.TypeHierarchy.LOGICAL__TypeBehavior>(_ logical: T?)`: Failable initializer from an optional logical value.
+  /// - `init<T:SDAI.TypeHierarchy.LOGICAL__TypeBehavior>(_ logical: T)`: Initializer from another logical value.
+  ///
+  /// ### Associated Types
+  /// - `FundamentalType`: The concrete type representing the EXPRESS `BOOLEAN`.
+  /// - `Value`: The underlying boolean value type.
+  /// - `SwiftType`: The native Swift `Bool` type.
+  ///
+  /// ### Usage
+  /// Use this protocol to define types that provide EXPRESS-compliant boolean logic, supporting
+  /// conversions from other logical types and integration with the SDAI type and value system.
   public protocol BOOLEAN__TypeBehavior: SDAI.BooleanType
   where FundamentalType == SDAI.BOOLEAN,
         Value == FundamentalType.Value,
@@ -31,14 +58,14 @@ extension SDAI {
   {
     init?(_ bool: Bool?)
     init(_ bool: Bool)
-    init?<T:SDAI.BOOLEAN__TypeBehavior>(_ subtype: T?)
-    init<T:SDAI.BOOLEAN__TypeBehavior>(_ subtype: T)
-    init?<T:SDAI.LOGICAL__TypeBehavior>(_ logical: T?)
-    init<T:SDAI.LOGICAL__TypeBehavior>(_ logical: T)
+    init?<T:SDAI.TypeHierarchy.BOOLEAN__TypeBehavior>(_ subtype: T?)
+    init<T:SDAI.TypeHierarchy.BOOLEAN__TypeBehavior>(_ subtype: T)
+    init?<T:SDAI.TypeHierarchy.LOGICAL__TypeBehavior>(_ logical: T?)
+    init<T:SDAI.TypeHierarchy.LOGICAL__TypeBehavior>(_ logical: T)
   }
 }
 
-public extension SDAI.BOOLEAN__TypeBehavior
+public extension SDAI.TypeHierarchy.BOOLEAN__TypeBehavior
 {
 	var possiblyAsSwiftBool: Bool? { return self.asSwiftType }
 	var asSwiftBool: Bool { return self.asSwiftType }
@@ -56,18 +83,18 @@ public extension SDAI.BOOLEAN__TypeBehavior
 	init(booleanLiteral value: Bool) {
 		self.init(from: value)
 	}
-	init?<T:SDAI.BOOLEAN__TypeBehavior>(_ subtype: T?)	{
+	init?<T:SDAI.TypeHierarchy.BOOLEAN__TypeBehavior>(_ subtype: T?)	{
 		guard let subtype = subtype else { return nil }
 		self.init(from: subtype.asSwiftType)
 	}
-	init<T:SDAI.BOOLEAN__TypeBehavior>(_ subtype: T) {
+	init<T:SDAI.TypeHierarchy.BOOLEAN__TypeBehavior>(_ subtype: T) {
 		self.init(from: subtype.asSwiftType)
 	}
-	init?<T:SDAI.LOGICAL__TypeBehavior>(_ logical: T?) {
+	init?<T:SDAI.TypeHierarchy.LOGICAL__TypeBehavior>(_ logical: T?) {
 		guard let bool = logical?.asSwiftType else { return nil }
 		self.init(from: bool)
 	}
-	init<T:SDAI.LOGICAL__TypeBehavior>(_ logical: T) {
+	init<T:SDAI.TypeHierarchy.LOGICAL__TypeBehavior>(_ logical: T) {
 		self.init(from: SDAI.UNWRAP(logical.asSwiftType) )
 	}
 }
@@ -94,11 +121,11 @@ extension SDAI {
   /// ### Related Types
   /// - `SDAI.LOGICAL` — EXPRESS logical type supporting `TRUE`, `FALSE`, and `UNKNOWN`.
   /// - `SDAI.BooleanType` — The protocol defining the EXPRESS Boolean type interface.
-	public struct BOOLEAN : SDAI.BOOLEAN__TypeBehavior, SDAI.Value, CustomStringConvertible
+	public struct BOOLEAN : SDAI.TypeHierarchy.BOOLEAN__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Bool
 		public typealias FundamentalType = Self
-		private var rep: SwiftType
+		private let rep: SwiftType
 		
 		// CustomStringConvertible
 		public var description: String { "BOOLEAN(\( rep ? "TRUE" : "FALSE"))" }

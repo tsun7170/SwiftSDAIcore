@@ -33,4 +33,25 @@ public enum SDAI {
 
   public static let _Infinity:INTEGER? = nil;
 
+  
+  /// A nested namespace within `SDAI` intended for organizing type hierarchy-related utilities and definitions.
+  /// 
+  /// The `TypeHierarchy` namespace is reserved for tools, protocols, or type aliases that describe or assist with
+  /// the EXPRESS type system's inheritance, conformance, and relationships. This can include generic operations,
+  /// type introspection, or mechanisms for handling EXPRESS's complex type hierarchies.
+  ///
+  /// - Note: This namespace is currently a placeholder and is expected to be expanded with future runtime features
+  ///   that require awareness of EXPRESS type relationships.
+  public enum TypeHierarchy {}
+
+  /// A namespace placeholder for protocols, type aliases, or utilities associated with types that can be initialized
+  /// according to EXPRESS language rules within the SDAI runtime.
+  ///
+  /// The `Initializable` namespace is intended for future expansion with definitions that manage or describe how types
+  /// conform to EXPRESS's concept of initializability. This includes mechanisms or requirements for default construction,
+  /// value assignment, or other initialization semantics dictated by the EXPRESS language standard.
+  ///
+  /// - Note: This namespace currently serves as a reserved symbol for future features and may be populated with
+  ///   protocols, helper types, or functions as the runtime evolves to support more detailed initialization behavior.
+  public enum Initializable {}
 }

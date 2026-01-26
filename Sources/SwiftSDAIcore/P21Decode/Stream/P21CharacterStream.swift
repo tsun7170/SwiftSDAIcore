@@ -9,6 +9,19 @@
 import Foundation
 
 extension P21Decode {
+  /// A protocol representing a stream of characters for decoding Part 21 files.
+  /// 
+  /// Typically used as the input source for STEP file parsing, conforming types
+  /// must act as iterators over characters. This enables flexible and type-safe
+  /// character-by-character processing, such as from strings, files, or other sources.
+  /// 
+  /// Adopted by built-in Swift iterators like `String.Iterator` and wrappers such as `AnyIterator<Character>`.
+  ///
+  /// - Note: The element type must be `Character`.
+  ///
+  /// Related types:
+  ///   - ``P21Decode.AnyCharacterStream``: Type-erased character stream.
+  ///
   public protocol CharacterStream: IteratorProtocol
   where Self.Element == Character
   {}

@@ -9,15 +9,16 @@
 import Foundation
 
 //MARK: - from swift type scalar
-extension SDAI {
-  public protocol InitializableBySwiftType
+extension SDAI.Initializable {
+  /// from swift type scalar
+  public protocol BySwiftType
   {
     associatedtype SwiftType
 
     init(from swiftValue: SwiftType)
   }
 }
-public extension SDAI.InitializableBySwiftType
+public extension SDAI.Initializable.BySwiftType
 {
 	init?(from swiftValue: SwiftType?) {
 		guard let swiftvalue = swiftValue else { return nil }
@@ -27,8 +28,9 @@ public extension SDAI.InitializableBySwiftType
 
 
 //MARK: - from swift type as list (with optional bounds)
-extension SDAI {
-  public protocol InitializableBySwifttypeAsList
+extension SDAI.Initializable {
+  /// from swift type as list (with optional bounds)
+  public protocol BySwifttypeAsList
   {
     associatedtype SwiftType
 
@@ -38,7 +40,7 @@ extension SDAI {
       bound2: I2?)
   }
 }
-public extension SDAI.InitializableBySwifttypeAsList
+public extension SDAI.Initializable.BySwifttypeAsList
 {
 	init(from swiftValue: SwiftType) { 
 		self.init(from: swiftValue, bound1: 0, bound2: nil as Int?) 
@@ -52,8 +54,9 @@ public extension SDAI.InitializableBySwifttypeAsList
 }
 
 //MARK: - from swift type as array (with required bounds)
-extension SDAI {
-  public protocol InitializableBySwifttypeAsArray
+extension SDAI.Initializable {
+  /// from swift type as array (with required bounds)
+  public protocol BySwifttypeAsArray
   {
     associatedtype SwiftType
     

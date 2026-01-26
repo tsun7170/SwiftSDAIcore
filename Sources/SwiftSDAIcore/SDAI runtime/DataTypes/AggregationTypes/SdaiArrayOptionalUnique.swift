@@ -8,10 +8,23 @@
 
 import Foundation
 
-extension SDAI {
-  public protocol ARRAY_OPTIONAL_UNIQUE__TypeBehavior: SDAI.ARRAY_OPTIONAL__Subtype {}
+extension SDAI.TypeHierarchy {
+  /// A protocol representing the behavior of an EXPRESS array type 
+  /// with optional bounds and a uniqueness constraint, as defined in ISO 10303-11 (SDAI).
+  ///
+  /// Types conforming to `ARRAY_OPTIONAL_UNIQUE__TypeBehavior` are expected to model arrays that:
+  /// - Allow for optional lower and/or upper index bounds, enabling flexible array sizes.
+  /// - Require all elements to be unique, prohibiting duplicate values within the collection.
+  /// - Provide mechanisms to validate the uniqueness constraint and support EXPRESS-style array operations.
+  ///
+  /// This protocol is typically not used directly. Instead, it serves as a behavioral base for more concrete types 
+  /// such as `SDAI.ARRAY_OPTIONAL_UNIQUE`, which provide storage and implementations for these EXPRESS array semantics.
+  ///
+  /// ## EXPRESS Specification Reference
+  /// - `ARRAY [lo:?..hi:?] OF <element_type> UNIQUE`
+  public protocol ARRAY_OPTIONAL_UNIQUE__TypeBehavior: SDAI.TypeHierarchy.ARRAY_OPTIONAL__Subtype {}
 
-  public protocol ARRAY_OPTIONAL_UNIQUE__Subtype: SDAI.ARRAY_OPTIONAL_UNIQUE__TypeBehavior {}
+  public protocol ARRAY_OPTIONAL_UNIQUE__Subtype: SDAI.TypeHierarchy.ARRAY_OPTIONAL_UNIQUE__TypeBehavior {}
 }
 
 //MARK: - SDAI.ARRAY_OPTIONAL_UNIQUE
@@ -34,7 +47,7 @@ extension SDAI {
   ///
   /// ## EXPRESS Specification Reference
   /// - `ARRAY [lo:?..hi:?] OF <element_type> UNIQUE`
-	public struct ARRAY_OPTIONAL_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI.ARRAY_OPTIONAL_UNIQUE__TypeBehavior
+  public struct ARRAY_OPTIONAL_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI.TypeHierarchy.ARRAY_OPTIONAL_UNIQUE__TypeBehavior
 	{
 		
 		public typealias Supertype = SDAI.ARRAY_OPTIONAL<ELEMENT>

@@ -45,7 +45,7 @@ public func ... <U3: SDAI.IntRepresentedNumberType>(
 
 /// Binary Concatenation: Binary + Binary = BINARY
 /// 
-public func + <TBi: SDAI.BINARY__TypeBehavior, UBi: SDAI.BINARY__TypeBehavior>(
+public func + <TBi: SDAI.TypeHierarchy.BINARY__TypeBehavior, UBi: SDAI.TypeHierarchy.BINARY__TypeBehavior>(
   lhs: TBi?, rhs: UBi?) -> SDAI.BINARY?
 {
 	guard let lhs = lhs, let rhs = rhs else { return nil }

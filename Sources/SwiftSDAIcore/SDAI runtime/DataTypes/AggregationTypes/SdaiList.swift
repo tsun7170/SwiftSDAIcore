@@ -23,12 +23,12 @@ extension SDAI {
   ///     - `SDAI.AggregateIndexingSettable`
   ///     - `SDAI.UnderlyingType`
   ///     - `SDAI.SwiftTypeRepresented`
-  ///     - `SDAI.InitializableByEmptyListLiteral`
-  ///     - `SDAI.InitializableBySwifttypeAsList`
-  ///     - `SDAI.InitializableBySelecttypeAsList`
-  ///     - `SDAI.InitializableByListLiteral`
-  ///     - `SDAI.InitializableByGenericList`
-  ///     - `SDAI.InitializableByVoid`
+  ///     - `SDAI.Initializable.ByEmptyListLiteral`
+  ///     - `SDAI.Initializable.BySwifttypeAsList`
+  ///     - `SDAI.Initializable.BySelecttypeAsList`
+  ///     - `SDAI.Initializable.ByListLiteral`
+  ///     - `SDAI.Initializable.ByGenericList`
+  ///     - `SDAI.Initializable.ByVoid`
   ///
   /// You can use the `ListType` protocol to generically represent EXPRESS LIST types in Swift, allowing for:
   /// - Aggregation operations and indexing
@@ -45,8 +45,8 @@ extension SDAI {
   /// This protocol is intended for types that model EXPRESS LIST types and need to support the full range of aggregation and mutability operations expected in such lists.
   public protocol ListType:
     SDAI.AggregationType, SDAI.AggregateIndexingSettable, SDAI.UnderlyingType, SDAI.SwiftTypeRepresented,
-    SDAI.InitializableByEmptyListLiteral, SDAI.InitializableBySwifttypeAsList, SDAI.InitializableBySelecttypeAsList,
-    SDAI.InitializableByListLiteral, SDAI.InitializableByGenericList, SDAI.InitializableByVoid
+    SDAI.Initializable.ByEmptyListLiteral, SDAI.Initializable.BySwifttypeAsList, SDAI.Initializable.BySelecttypeAsList,
+    SDAI.Initializable.ByListLiteral, SDAI.Initializable.ByGenericList, SDAI.Initializable.ByVoid
   {
     // Built-in procedure support
     mutating func insert(element: ELEMENT, at position: Int)
@@ -65,7 +65,37 @@ extension SDAI.ListType {
 
 
 //MARK: - LIST type
-extension SDAI {
+extension SDAI.TypeHierarchy {
+  /// A protocol describing the EXPRESS `LIST` aggregation type's required behaviors within the SDAI system.
+  /// 
+  /// `LIST__TypeBehavior` defines the fundamental and advanced operations expected of an EXPRESS `LIST` type,
+  /// including aggregation, initialization, indexing, and aggregation operators for combining or transforming lists.
+  /// 
+  /// Conforming types must:
+  /// - Provide support for index-based access and mutation
+  /// - Define EXPRESS-specific bounds and element types
+  /// - Support various forms of initialization, including from generic and list types
+  /// - Implement aggregation operators such as append and prepend, enabling EXPRESS-compliant list composition
+  /// - Optionally provide schema-level flags such as uniqueness
+  /// 
+  /// ### Associated Types
+  /// - `Element`: The specific element type contained within the list.
+  /// - `FundamentalType`: The concrete list type modeled, typically `SDAI.LIST<ELEMENT>`.
+  /// - `Value`: The EXPRESS value representation of the list.
+  /// - `SwiftType`: The native Swift representation of the list's contents.
+  ///
+  /// ### Required Static Properties
+  /// - `uniqueFlag`: Indicates whether the `LIST` type must enforce element uniqueness (always `false` for standard EXPRESS `LIST`).
+  ///
+  /// ### Required Methods
+  /// - `appendWith(rhs:)`: Produces a new `SDAI.LIST` by appending another list, generic value, or aggregation.
+  /// - `prependWith(lhs:)`: Produces a new `SDAI.LIST` by prepending another list, generic value, or aggregation.
+  /// 
+  /// ### Typical Usage
+  /// `LIST__TypeBehavior` is intended to be adopted by types that must fully represent and behave as EXPRESS `LIST` aggregations.
+  /// It is primarily used for generic programming over EXPRESS collections, ensuring correct support for EXPRESS aggregation semantics.
+  /// 
+  /// - SeeAlso: `SDAI.LIST`, `SDAI.ListType`
   public protocol LIST__TypeBehavior: SDAI.ListType
   where Element == ELEMENT,
         FundamentalType == SDAI.LIST<ELEMENT>,
@@ -85,9 +115,9 @@ extension SDAI {
     func prependWith<U: SDAI.GenericType>(lhs: U) -> SDAI.LIST<ELEMENT>?
     where ELEMENT.FundamentalType == U.FundamentalType
 
-    func appendWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.LIST<ELEMENT>?
+    func appendWith<U: SDAI.TypeHierarchy.GENERIC__TypeBehavior>(rhs: U) -> SDAI.LIST<ELEMENT>?
 
-    func prependWith<U: SDAI.GENERIC__TypeBehavior>(lhs: U) -> SDAI.LIST<ELEMENT>?
+    func prependWith<U: SDAI.TypeHierarchy.GENERIC__TypeBehavior>(lhs: U) -> SDAI.LIST<ELEMENT>?
 
     func appendWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.LIST<ELEMENT>?
     where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
@@ -96,8 +126,8 @@ extension SDAI {
     where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
   }
 }
-public extension SDAI.LIST__TypeBehavior
-where ELEMENT: SDAI.InitializableByComplexEntity {
+public extension SDAI.TypeHierarchy.LIST__TypeBehavior
+where ELEMENT: SDAI.Initializable.ByComplexEntity {
 	func appendWith(rhs: SDAI.ComplexEntity) -> SDAI.LIST<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
 		return self.appendWith(rhs: rhs)
@@ -107,7 +137,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity {
 		return self.prependWith(lhs: lhs)
 	}
 }
-public extension SDAI.LIST__TypeBehavior 
+public extension SDAI.TypeHierarchy.LIST__TypeBehavior 
 where ELEMENT: SDAI.EntityReference {
 	func appendWith<U: SDAI.SelectType>(rhs: U) -> SDAI.LIST<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
@@ -118,7 +148,7 @@ where ELEMENT: SDAI.EntityReference {
 		return self.prependWith(lhs: lhs)
 	}
 }
-public extension SDAI.LIST__TypeBehavior 
+public extension SDAI.TypeHierarchy.LIST__TypeBehavior 
 where ELEMENT: SDAI.PersistentReference {
 	func appendWith<U: SDAI.SelectType>(rhs: U) -> SDAI.LIST<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
@@ -159,14 +189,14 @@ extension SDAI {
   /// numbers.insert(element: 5, at: 5)
   /// let firstElement = numbers[1] // 1-based indexing
   /// ```
-	public struct LIST<ELEMENT:SDAI.GenericType>: SDAI.LIST__TypeBehavior
+	public struct LIST<ELEMENT:SDAI.GenericType>: SDAI.TypeHierarchy.LIST__TypeBehavior
 	{
 		public typealias SwiftType = Array<ELEMENT>
 		public typealias FundamentalType = Self
 		
 		fileprivate var rep: SwiftType
-		private var bound1: Int
-		private var bound2: Int?
+		private let bound1: Int
+		private let bound2: Int?
 
 		// Equatable \Hashable\SDAI.GenericType
 		public static func == (lhs: SDAI.LIST<ELEMENT>, rhs: SDAI.LIST<ELEMENT>) -> Bool {
@@ -299,7 +329,7 @@ extension SDAI {
 		}
 
 		// InitializableByGenericList
-		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.LIST__TypeBehavior>(
 			bound1: I1, bound2: I2?, generic listtype: T?)
 		{
 			guard let listtype = listtype else { return nil }
@@ -322,7 +352,7 @@ extension SDAI {
 			self.rep = swiftValue
 		}
 		
-		// SDAI.InitializableBySelecttypeAsList
+		// SDAI.Initializable.BySelecttypeAsList
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(
 			bound1: I1, bound2: I2?, _ select: S?)
 		{
@@ -330,7 +360,7 @@ extension SDAI {
 			self.init(from: fundamental.asSwiftType, bound1:bound1, bound2:bound2)
 		}
 
-		// SDAI.InitializableByListLiteral
+		// SDAI.Initializable.ByListLiteral
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
 			bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
 		{
@@ -387,7 +417,7 @@ extension SDAI {
 			return LIST(from: result, bound1: 0, bound2: _Infinity)
 		}
 
-		public func appendWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.LIST<ELEMENT>? {
+		public func appendWith<U: SDAI.TypeHierarchy.GENERIC__TypeBehavior>(rhs: U) -> SDAI.LIST<ELEMENT>? {
 			if let rhs = rhs.listValue(elementType: ELEMENT.self) {
 				return self.appendWith(rhs: rhs)
 			}
@@ -397,7 +427,7 @@ extension SDAI {
 			return nil
 		}
 
-		public func prependWith<U: SDAI.GENERIC__TypeBehavior>(lhs: U) -> SDAI.LIST<ELEMENT>? {
+		public func prependWith<U: SDAI.TypeHierarchy.GENERIC__TypeBehavior>(lhs: U) -> SDAI.LIST<ELEMENT>? {
 			if let lhs = lhs.listValue(elementType: ELEMENT.self) {
 				let result = self.prepend(other: lhs)
 				return LIST(from: result, bound1: 0, bound2: _Infinity)
@@ -506,10 +536,10 @@ where ELEMENT: SDAI.PersistentReference
 }
 
 
-extension SDAI.LIST: SDAI.InitializableBySelecttypeList
-where ELEMENT: SDAI.InitializableBySelectType
+extension SDAI.LIST: SDAI.Initializable.BySelecttypeList
+where ELEMENT: SDAI.Initializable.BySelectType
 {	
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ listtype: T?)
 	where T.ELEMENT: SDAI.SelectType
 	{
@@ -519,10 +549,10 @@ where ELEMENT: SDAI.InitializableBySelectType
 }
 
 
-extension SDAI.LIST: SDAI.InitializableByEntityList
-where ELEMENT: SDAI.InitializableByComplexEntity
+extension SDAI.LIST: SDAI.Initializable.ByEntityList
+where ELEMENT: SDAI.Initializable.ByComplexEntity
 {
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ listtype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -532,7 +562,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 		}		
 	}
 
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ listtype: T?)
 	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
@@ -547,10 +577,10 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 }
 
 
-extension SDAI.LIST: SDAI.InitializableByDefinedtypeList
-where ELEMENT: SDAI.InitializableByDefinedType
+extension SDAI.LIST: SDAI.Initializable.ByDefinedtypeList
+where ELEMENT: SDAI.Initializable.ByDefinedType
 {
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
+	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ listtype: T?)
 	where T.ELEMENT: SDAI.UnderlyingType
 	{

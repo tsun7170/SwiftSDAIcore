@@ -11,11 +11,41 @@ import Foundation
 //MARK: - REAL type (8.1.2)
 extension SDAI {
 
+  /// A protocol representing the EXPRESS `REAL` type (ISO 10303-11, 8.1.2), 
+  /// which is a subtype of the `NUMBER` type and is used to model real numbers.
+  /// 
+  /// Types conforming to `RealType` are required to also conform to `SDAI.NumberType`.
+  ///
+  /// Use this protocol to define types that correspond to the EXPRESS `REAL` specification
+  /// in STEP data models.
+  ///
+  /// - SeeAlso: EXPRESS language specification, section 8.1.2.
+  /// - SeeAlso: `SDAI.NumberType`
   public protocol RealType: SDAI.NumberType
   {}
 }
 
-extension SDAI {
+extension SDAI.TypeHierarchy {
+  /// A protocol defining the behavior and requirements for types modeling the EXPRESS `REAL` type (ISO 10303-11, 8.1.2).
+  ///
+  /// Types conforming to `REAL__TypeBehavior` must represent real (floating-point) values and support conversion from `Double`,
+  /// `Int`, and other types conforming to `SDAI.RealType`. This protocol provides requirements for initializers and precision,
+  /// and ensures interoperability with Swift numeric types and literals.
+  ///
+  /// Conforming types are expected to:
+  /// - Provide initializers from various numeric representations, including optional and non-optional `Double` and `Int` values,
+  ///   as well as other EXPRESS `REAL` subtypes.
+  /// - Support conversion to and from Swift's `Double` type.
+  /// - Be expressible by float literals (`ExpressibleByFloatLiteral`) for direct initialization from Swift floating-point literals.
+  /// - Define a static `precision` property that specifies the decimal precision supported by the implementation.
+  ///
+  /// Use this protocol to implement custom or standard representations of the EXPRESS `REAL` type in STEP data models, providing
+  /// consistency and interoperability between different real number types.
+  ///
+  /// - SeeAlso: EXPRESS language specification (ISO 10303-11), section 8.1.2.
+  /// - SeeAlso: `SDAI.RealType`
+  /// - SeeAlso: `SDAI.DoubleRepresentedNumberType`
+  /// - SeeAlso: `ExpressibleByFloatLiteral`
   public protocol REAL__TypeBehavior: SDAI.RealType, SDAI.DoubleRepresentedNumberType, ExpressibleByFloatLiteral
   where FundamentalType == SDAI.REAL,
         Value == FundamentalType.Value
@@ -30,7 +60,7 @@ extension SDAI {
   }
 }
 
-public extension SDAI.REAL__TypeBehavior
+public extension SDAI.TypeHierarchy.REAL__TypeBehavior
 {
 	var asSwiftDouble: Double { return self.asSwiftType }
 
@@ -66,11 +96,29 @@ public extension SDAI.REAL__TypeBehavior
 
 extension SDAI {
   
-	public struct REAL: SDAI.REAL__TypeBehavior, SDAI.Value, CustomStringConvertible
+  /// A struct conforming to `SDAI.TypeHierarchy.REAL__TypeBehavior` that implements the EXPRESS `REAL` type as 
+  /// defined in ISO 10303-11 section 8.1.2. The EXPRESS `REAL` type is a subtype of `NUMBER` 
+  /// and represents real (floating point) values, typically using double-precision.
+  ///
+  /// Use this type for values that must conform to the EXPRESS `REAL` semantic, such as those 
+  /// found in STEP data models or when decoding/parsing STEP (ISO 10303-21) data files. 
+  ///
+  /// This struct provides initializers for various scalar and generic types, Express type conversion, 
+  /// P21 parameter decoding, as well as access to primitive value representations. 
+  ///
+  /// ## Usage
+  /// - As a direct container for real values in EXPRESS-based models
+  /// - For conversion between Swift `Double` and EXPRESS/STEP data representations
+  ///
+  /// ## See Also
+  /// - EXPRESS language specification (ISO 10303-11), section 8.1.2.
+  /// - `SDAI.NumberType`
+  /// - `SDAI.TypeHierarchy.REAL__TypeBehavior`
+	public struct REAL: SDAI.TypeHierarchy.REAL__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Double
 		public typealias FundamentalType = Self
-		private var rep: SwiftType
+		private let rep: SwiftType
 		
 		// CustomStringConvertible
 		public var description: String { "REAL(\(rep))" }

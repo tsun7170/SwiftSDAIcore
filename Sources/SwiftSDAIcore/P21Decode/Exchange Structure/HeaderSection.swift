@@ -13,6 +13,21 @@ extension P21Decode.ExchangeStructure {
 	//MARK: - HeaderSection
 	
 	/// ISO 10303-21 8 Header section
+  ///
+  /// Represents the ISO 10303-21 Header section, containing metadata and descriptive information for an exchange structure.
+  ///
+  /// The header section is defined by ISO 10303-21 clause 8 and includes key metadata entities (`file_description`, `file_name`, and `file_schema`). This struct provides accessors for each entity and stores the parsed header entities from a STEP file.
+  ///
+  /// - Note: The `HeaderSection` is a value type and is safe for concurrent use (`Sendable`).
+  ///
+  /// - Properties:
+  ///   - headerEntityList: The list of `SimpleRecord` entities parsed from the header section.
+  ///   - fileDescription: The `file_description` entity, containing general file information.
+  ///   - fileName: The `file_name` entity, containing the file name and authoring metadata.
+  ///   - fileSchema: The `file_schema` entity, specifying the schema identifiers used in the file.
+  ///
+  /// - SeeAlso:
+  ///   - [ISO 10303-21 Clause 8 Header section](https://www.iso.org/standard/63141.html)
 	public struct HeaderSection: Sendable {
 
 		/// ISO 10303-21 8.1 Header section structure
@@ -42,6 +57,19 @@ extension P21Decode.ExchangeStructure.HeaderSection {
 	public typealias SimpleRecord = P21Decode.ExchangeStructure.SimpleRecord
 	
 	//MARK: - file_description (8.2.2)
+
+  /// Represents the `file_description` entity from the ISO 10303-21 header section (clause 8.2.2).
+  ///
+  /// The `FILE_DESCRIPTION` structure models general information about the file, such as its description and implementation level, as specified in the STEP (ISO 10303-21) format's header section.
+  /// This entity typically appears as the first entry in the header and provides high-level context for the exchange structure.
+  ///
+  /// - Properties:
+  ///   - DESCRIPTION: An array of text strings describing the content of the file. This is sourced from the first parameter of the `file_description` entity.
+  ///   - IMPLEMENTATION_LEVEL: A string specifying the implementation level (e.g., "2;1"), indicating the version or conformance requirements of the file.
+  ///
+  /// - SeeAlso:
+  ///   - [ISO 10303-21 Clause 8.2.2: file_description](https://www.iso.org/standard/63141.html)
+  ///   - `HeaderSection` for access to parsed header metadata.
 	public struct FILE_DESCRIPTION {
 		private let headerEntity: SimpleRecord
 		init(_ headerEntity: SimpleRecord) {
@@ -60,6 +88,27 @@ extension P21Decode.ExchangeStructure.HeaderSection {
 	}
 	
 	//MARK: - file_name (8.2.3)
+
+  /// Represents the `file_name` entity from the ISO 10303-21 header section (clause 8.2.3).
+  ///
+  /// The `FILE_NAME` structure provides access to the name of the file and associated metadata,
+  /// such as the author, organization, timestamp, preprocessing version, originating system, and authorization.
+  /// This entity typically appears as the second entry in the header section of a STEP (ISO 10303-21) file,
+  /// and its fields detail the provenance and context of the data exchange file.
+  /// 
+  /// - Properties:
+  ///   - NAME: The name of the file as declared in the STEP file.
+  ///   - shortName: The file's name, stripped of path qualifiers, providing a concise, user-friendly representation.
+  ///   - TIME_STAMP: The time and date the file was created, as a string.
+  ///   - AUTHOR: An array of author names associated with this file.
+  ///   - ORGANIZAION: An array of organization names associated with the file creators.
+  ///   - PREPROCESSOR_VERSION: The software version or preprocessor that created the file.
+  ///   - ORIGINATING_SYSTEM: The originating system or software that authored the file content.
+  ///   - AUTORIZATION: An authorization or access control string, if present.
+  ///
+  /// - SeeAlso:
+  ///   - [ISO 10303-21 Clause 8.2.3: file_name](https://www.iso.org/standard/63141.html)
+  ///   - `HeaderSection` for access to parsed header metadata.
 	public struct FILE_NAME {
 		private let headerEntity: SimpleRecord
 		init(_ headerEntity: SimpleRecord) {
@@ -120,6 +169,20 @@ extension P21Decode.ExchangeStructure.HeaderSection {
 	}
 	
 	//MARK: - file_schema (8.2.4)
+  /// Represents the `file_schema` entity from the ISO 10303-21 header section (clause 8.2.4).
+  ///
+  /// The `FILE_SCHEMA` structure provides access to the schema identifiers declared in the STEP file header, 
+  /// which define the set of data models and definitions that the file content conforms to. 
+  /// This entity appears as the third entry in the header section of a STEP (ISO 10303-21) file and is essential 
+  /// for interpreting the data according to the correct schema or schemas.
+  ///
+  /// - Properties:
+  ///   - SCHEMA_IDENTIFIERS: An array of schema names (`SCHEMA_NAME`) specified by the file, usually containing a single entry 
+  ///     but supporting multiple schema names if present.
+  /// 
+  /// - SeeAlso:
+  ///   - [ISO 10303-21 Clause 8.2.4: file_schema](https://www.iso.org/standard/63141.html)
+  ///   - `HeaderSection` for access to parsed header metadata.
 	public struct FILE_SCHEMA {
 		private let headerEntity: SimpleRecord
 		 

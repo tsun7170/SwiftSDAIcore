@@ -10,13 +10,13 @@ import Foundation
 
 
 //MARK: - SET subtype (8.2.4, 8.3.2)
-extension SDAI {
-  public protocol SET__Subtype: SDAI.SET__TypeBehavior, SDAI.DefinedType
-  where Supertype: SDAI.SET__TypeBehavior
+extension SDAI.TypeHierarchy {
+  public protocol SET__Subtype: SDAI.TypeHierarchy.SET__TypeBehavior, SDAI.DefinedType
+  where Supertype: SDAI.TypeHierarchy.SET__TypeBehavior
   {}
 }
 
-public extension SDAI.SET__Subtype
+public extension SDAI.TypeHierarchy.SET__Subtype
 {
 	// Aggregation operator support
 	func intersectionWith<U: SDAI.BagType>(rhs: U) -> SDAI.SET<ELEMENT>? 
@@ -35,7 +35,7 @@ public extension SDAI.SET__Subtype
 	func unionWith<U: SDAI.GenericType>(rhs: U) -> SDAI.SET<ELEMENT>?
 	where ELEMENT.FundamentalType == U.FundamentalType { rep.unionWith(rhs: rhs) }
 
-	func unionWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>? { rep.unionWith(rhs: rhs) }
+	func unionWith<U: SDAI.TypeHierarchy.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>? { rep.unionWith(rhs: rhs) }
 
 	func unionWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.unionWith(rhs: rhs) }
@@ -47,7 +47,7 @@ public extension SDAI.SET__Subtype
 	func differenceWith<U: SDAI.GenericType>(rhs: U) -> SDAI.SET<ELEMENT>?
 	where ELEMENT.FundamentalType == U.FundamentalType { rep.differenceWith(rhs: rhs) }
 
-	func differenceWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>? { rep.differenceWith(rhs: rhs) }
+	func differenceWith<U: SDAI.TypeHierarchy.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>? { rep.differenceWith(rhs: rhs) }
 
 	func differenceWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.differenceWith(rhs: rhs) }
@@ -59,21 +59,21 @@ public extension SDAI.SET__Subtype
 	}
 	
 	// InitializableByGenericSet
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
+  init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, generic settype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: settype))
 	}
 
 	// InitializableByGenericBag
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.BAG__TypeBehavior>(
+  init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.BAG__TypeBehavior>(
 		bound1: I1, bound2: I2?, generic bagtype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: bagtype))
 	}
 
 	// InitializableByGenericList
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
+	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, generic listtype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: listtype))
@@ -91,12 +91,12 @@ public extension SDAI.SET__Subtype
 		self.init(fundamental: FundamentalType(from: swiftValue, bound1: bound1, bound2: bound2) )
 	} 
 
-	// SDAI.InitializableBySelecttypeAsList
+	// SDAI.Initializable.BySelecttypeAsList
 	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(bound1: I1, bound2: I2?, _ select: S?) {
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, select) )
 	}
 
-	// SDAI.InitializableByListLiteral
+	// SDAI.Initializable.ByListLiteral
 	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
 	} 
@@ -105,10 +105,10 @@ public extension SDAI.SET__Subtype
 
 
 //MARK: - for select type element
-public extension SDAI.SET__Subtype
-where ELEMENT: SDAI.InitializableBySelectType
+public extension SDAI.TypeHierarchy.SET__Subtype
+where ELEMENT: SDAI.Initializable.BySelectType
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI.SET__TypeBehavior>(
+  init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI.TypeHierarchy.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.SelectType
 	{
@@ -118,10 +118,10 @@ where ELEMENT: SDAI.InitializableBySelectType
 
 
 //MARK: - for entity type element
-public extension SDAI.SET__Subtype
-where ELEMENT: SDAI.InitializableByComplexEntity
+public extension SDAI.TypeHierarchy.SET__Subtype
+where ELEMENT: SDAI.Initializable.ByComplexEntity
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
+  init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -129,7 +129,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 	}	
 
 
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
+  init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
@@ -140,11 +140,11 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 
 
 //MARK: - for defined type element
-public extension SDAI.SET__Subtype
-where ELEMENT: SDAI.InitializableByDefinedType
+public extension SDAI.TypeHierarchy.SET__Subtype
+where ELEMENT: SDAI.Initializable.ByDefinedType
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI.SET__TypeBehavior>(
-		bound1: I1, bound2: I2?, _ settype: T?) 
+  init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T:SDAI.TypeHierarchy.SET__TypeBehavior>(
+		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, settype) )

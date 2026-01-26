@@ -39,7 +39,7 @@ extension SDAI {
   /// 
   /// - Note: `UnderlyingType` is the protocol to use for most base types of custom defined types in EXPRESS,
   ///   except where those types are or contain select types.
-  public protocol UnderlyingType: SDAI.SelectCompatibleUnderlyingTypeBase, SDAI.InitializableByDefinedType
+  public protocol UnderlyingType: SDAI.SelectCompatibleUnderlyingTypeBase, SDAI.Initializable.ByDefinedType
   {}
 }
 public extension SDAI.UnderlyingType

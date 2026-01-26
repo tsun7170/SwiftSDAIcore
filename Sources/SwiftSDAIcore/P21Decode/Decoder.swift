@@ -10,6 +10,23 @@ import Foundation
 
 extension P21Decode {
 	
+  /// `Decoder` is responsible for parsing and decoding STEP (ISO 10303-21) character streams into SDAI models according to known STEP schemas.
+  /// 
+  /// The decoding process manages the parsing of the character stream, the registration and resolution of STEP schemas, assignment to models,
+  /// and instance resolution. Errors encountered during any stage of decoding are consolidated and exposed for clients.
+  /// 
+  /// - Maintains references to the output repository, known schema types, monitoring hooks, and a foreign reference resolver.
+  /// - Supports error reporting for parsing, schema registration, and instance resolution failures.
+  /// - Provides a single primary decoding operation which returns an array of successfully decoded models or signals failure via the error property.
+  /// 
+  /// Thread Safety:
+  ///     This class is not thread-safe. Use from a single thread at a time.
+  /// 
+  /// Usage:
+  ///     Construct by passing a repository, schema list, and optional monitor or foreign reference resolver.
+  ///     Invoke the `decode(input:transaction:)` method to parse an input character stream and populate the repository.
+  /// 
+  /// - Note: The decoder holds the most recent parsed `ExchangeStructure` and error for inspection after decoding.
 	public final class Decoder {
 		
 		/// consolidated error info from decoder's subsystems

@@ -36,7 +36,7 @@ extension SDAI {
   ///    - `SDAI.SimpleType`: Ensures EXPRESS simple type behavior.
   ///    - `ExpressibleByBooleanLiteral`: Enables initialization from Swift `true` or `false`.
   ///    - `SDAI.SwiftBoolConvertible`: Allows conversion to Swift `Bool` and `Bool?`.
-  ///    - `SDAI.InitializableByVoid`: Allows initialization with no arguments, typically for an `UNKNOWN` value.
+  ///    - `SDAI.Initializable.ByVoid`: Allows initialization with no arguments, typically for an `UNKNOWN` value.
   ///
   /// - Properties:
   ///   - `isTRUE`: `true` if the value is logically `TRUE`, `false` otherwise.
@@ -44,7 +44,7 @@ extension SDAI {
   ///   - `isUNKNOWN`: `true` if the value is logically `UNKNOWN`, `false` otherwise.
   ///   - `possiblyAsSwiftBool`: Returns the value as an optional Swift `Bool?`, or `nil` if the value is `UNKNOWN`.
   public protocol LogicalType: SDAI.SimpleType, ExpressibleByBooleanLiteral,
-                                   SDAI.SwiftBoolConvertible, SDAI.InitializableByVoid
+                                   SDAI.SwiftBoolConvertible, SDAI.Initializable.ByVoid
   {
     var isTRUE: Bool {get}
     var isFALSE: Bool {get}
@@ -53,7 +53,32 @@ extension SDAI {
   }
 }
 
-extension SDAI {
+extension SDAI.TypeHierarchy {
+  /// A protocol that defines the core behavior and requirements for types representing the EXPRESS `LOGICAL` type.
+  /// 
+  /// Conforming types provide tri-state logical semantics—`TRUE`, `FALSE`, and `UNKNOWN`—as well as interoperability
+  /// with Swift's boolean types and nil literal expressibility.
+  /// 
+  /// This protocol is intended for use with types that act as fundamental representations of EXPRESS LOGICAL values,
+  /// and is used by ``SDAI.LOGICAL`` and its related type hierarchy.
+  /// 
+  /// - Inherits from:
+  ///   - ``SDAI.LogicalType``: Ensures EXPRESS logical semantics and Swift boolean interoperability.
+  ///   - `ExpressibleByNilLiteral`: Allows initialization from `nil` to represent `UNKNOWN`.
+  /// 
+  /// - Associated Types:
+  ///   - `FundamentalType`: The underlying concrete EXPRESS LOGICAL type.
+  ///   - `Value`: The logical value type (typically matches `FundamentalType.Value`).
+  ///   - `SwiftType`: The matching Swift type for the logical value (typically `Bool?`).
+  /// 
+  /// - Initializers:
+  ///   - `init(_ bool: Bool?)`: Initializes from a Swift optional boolean. `nil` represents `UNKNOWN`.
+  ///   - `init<T:SDAI.LogicalType>(_ subtype: T?)`: Initializes from another EXPRESS logical type (optional).
+  ///   - `init<T:SDAI.LogicalType>(_ subtype: T)`: Initializes from another EXPRESS logical type.
+  /// 
+  /// - Usage:
+  ///   - Use for implementing custom types or wrappers conforming to EXPRESS LOGICAL semantics,
+  ///     ensuring full interoperability between Swift and EXPRESS representations in STEP schemas.
   public protocol LOGICAL__TypeBehavior: SDAI.LogicalType, ExpressibleByNilLiteral
   where FundamentalType == SDAI.LOGICAL,
         Value == FundamentalType.Value,
@@ -65,7 +90,7 @@ extension SDAI {
   }
 }
 
-public extension SDAI.LOGICAL__TypeBehavior
+public extension SDAI.TypeHierarchy.LOGICAL__TypeBehavior
 {
 	var possiblyAsSwiftBool: Bool? { return self.asSwiftType }
 	var asSwiftBool: Bool { return SDAI.UNWRAP(self.possiblyAsSwiftBool) }
@@ -98,7 +123,7 @@ extension SDAI {
   /// It is used to interoperate with EXPRESS schemas and files, such as ISO 10303-21 ("STEP") data.
   /// 
   /// - Conforms to:
-  ///   - ``SDAI.LOGICAL__TypeBehavior``: Provides EXPRESS LOGICAL semantics and Swift interoperability.
+  ///   - ``SDAI.TypeHierarchy.LOGICAL__TypeBehavior``: Provides EXPRESS LOGICAL semantics and Swift interoperability.
   ///   - ``SDAI.Value``: Allows for EXPRESS value comparison and manipulation.
   ///   - `CustomStringConvertible`: Presents human-readable descriptions for debugging and logging.
   /// 
@@ -129,12 +154,12 @@ extension SDAI {
   /// - Usage:
   ///   - Use `LOGICAL(true)` or `LOGICAL(false)` for definite values, or `LOGICAL()`/`LOGICAL(nil)` for `UNKNOWN`.
   ///   - Useful when EXPRESS logic needs to be mapped into or out of Swift code with support for indeterminate values.
-	public struct LOGICAL : SDAI.LOGICAL__TypeBehavior, SDAI.Value, CustomStringConvertible
+	public struct LOGICAL : SDAI.TypeHierarchy.LOGICAL__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		
 		public typealias SwiftType = Bool?
 		public typealias FundamentalType = Self
-		private var rep: SwiftType
+		private let rep: SwiftType
 		
 		// CustomStringConvertible
 		public var description: String { 

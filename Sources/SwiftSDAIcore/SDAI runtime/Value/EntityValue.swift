@@ -10,6 +10,14 @@ import Foundation
 
 extension SDAI {
 	//MARK: -
+
+  /// A structure representing a pair of complex entities, typically used to track relationships or comparisons between two complex entity instances.
+  ///
+  /// `ComplexPair` is commonly employed in algorithms that require keeping track of visited pairs of entities, such as in recursive comparison or hashing implementations, to prevent infinite loops or redundant computations.
+  ///
+  /// - Parameters:
+  ///   - l: The left-hand side complex entity of the pair.
+  ///   - r: The right-hand side complex entity of the pair.
 	public struct ComplexPair: Hashable {
 		public let l: ComplexEntity
 		public let r: ComplexEntity

@@ -10,7 +10,38 @@ import Foundation
 
 extension SDAI {
   
-  public protocol GenericType: Hashable, SDAI.InitializableBySelectType, SDAI.InitializableByP21Parameter, SDAI.CacheableSource, Sendable
+  /// A protocol representing a generic type within the SDAI (Standard Data Access Interface) framework.
+  /// 
+  /// `GenericType` is the root protocol for all types that participate in the SDAI type system.
+  /// It defines common type operations, conversions, and interfaces required for conformance to the
+  /// EXPRESS data model, which underlies STEP (ISO 10303) data exchange.
+  /// 
+  /// Conforming types must be value types that can be copied, compared for equality, and hashed. 
+  /// They must also support initialization from select types and P21 parameters, caching, and concurrency safety.
+  /// 
+  /// - Requirements:
+  ///   - `Hashable`: Types must be hashable.
+  ///   - `SDAI.Initializable.BySelectType`: Types must be initializable from a select type.
+  ///   - `SDAI.Initializable.ByP21Parameter`: Types must be initializable from a P21 parameter.
+  ///   - `SDAI.CacheableSource`: Types must support caching as defined by the SDAI framework.
+  ///   - `Sendable`: Types must be safe to use concurrently.
+  ///
+  /// - Associated Types:
+  ///   - `FundamentalType`: The underlying fundamental type for this generic type.
+  ///   - `Value`: The type representing the value of the instance.
+  /// 
+  /// - Core Operations:
+  ///   - Copying, conversion to/from fundamental types, and retrieving the underlying value.
+  ///   - Type information (name and member types).
+  ///   - Extraction of primitive and collection values in EXPRESS format (e.g., ARRAY, LIST, SET).
+  ///   - Retrieval of specific value forms (e.g., string, binary, logical, boolean, numeric, enumeration).
+  ///   - Validation of where-rules for type constraints as specified in the EXPRESS schema.
+  /// 
+  /// - SeeAlso:
+  ///   - `SDAI.DefinedType`
+  ///   - `SDAI.EnumerationType`
+  ///   - `SDAI.ARRAY`, `SDAI.LIST`, `SDAI.SET`, `SDAI.BAG`
+  public protocol GenericType: Hashable, SDAI.Initializable.BySelectType, SDAI.Initializable.ByP21Parameter, SDAI.CacheableSource, Sendable
   {
     associatedtype FundamentalType: SDAI.GenericType
     associatedtype Value: SDAI.Value

@@ -34,12 +34,15 @@ extension SDAIDictionarySchema {
     public let identification: InfoObjectId?
 
     /// the entities declared in or resolved into the schema.
+    ///
     public let entities: [ExpressId:EntityDefinition]
 
     /// the global rules declared in or resolved into the schema.
     public let globalRules: [ExpressId:GlobalRule]
 
     //public var externalSchema
+
+    //MARK: SDAI operations
 
     //MARK: swift language binding
     fileprivate init(byFreezing prototype: Prototype) {

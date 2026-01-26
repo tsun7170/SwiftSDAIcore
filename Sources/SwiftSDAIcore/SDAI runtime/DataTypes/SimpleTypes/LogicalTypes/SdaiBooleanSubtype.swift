@@ -9,13 +9,13 @@
 import Foundation
 
 //MARK: - BOOLEAN subtype (8.1.5, 8.3.2)
-extension SDAI {
-  public protocol BOOLEAN__Subtype: SDAI.BOOLEAN__TypeBehavior, SDAI.DefinedType
-  where Supertype: SDAI.BOOLEAN__TypeBehavior
+extension SDAI.TypeHierarchy {
+  public protocol BOOLEAN__Subtype: SDAI.TypeHierarchy.BOOLEAN__TypeBehavior, SDAI.DefinedType
+  where Supertype: SDAI.TypeHierarchy.BOOLEAN__TypeBehavior
   {}
 }
 
-public extension SDAI.BOOLEAN__Subtype
+public extension SDAI.TypeHierarchy.BOOLEAN__Subtype
 {
 	// InitializableByGenerictype
 	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {

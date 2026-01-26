@@ -16,6 +16,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	/// - Parameter model: The SdaiModel to delete.
 	/// - Returns: true if operation is successful.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionRW``
+  ///
 	@discardableResult
 	public func deleteSdaiModel(
 		model: SDAIPopulationSchema.SdaiModel
@@ -52,6 +54,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	///
 	/// - Returns: updated reference to the sdai_model promoted to RW if operation is successful.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionRW``
+  ///
 	public func renameSdaiModel(
 		model: SDAIPopulationSchema.SdaiModel,
 		modelName: SDAIParameterDataSchema.StringValue
@@ -91,6 +95,8 @@ extension SDAISessionSchema.SdaiTransaction {
 	///
 	/// - Returns: true if operation is successful.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransaction``
+  ///
 	public func startReadOnlyAccess(
 		model: SDAIPopulationSchema.SdaiModel
 	) -> Bool
@@ -133,6 +139,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	///
 	/// - Returns: updated reference to the sdai_model promoted to RW if operation is successful.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionRW``
+  ///
 	public func promoteSdaiModelToReadWrite(
 		model: SDAIPopulationSchema.SdaiModel
 	) -> SDAIPopulationSchema.SdaiModel?
@@ -174,6 +182,8 @@ extension SDAISessionSchema.SdaiTransaction {
 	///
 	/// - Returns: true if operation is successful.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransaction``
+  ///
 	@discardableResult
 	public func endReadOnlyAccess(
 		model: SDAIPopulationSchema.SdaiModel
@@ -216,6 +226,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	///
 	/// - Returns: updated reference to the sdai_model promoted to RW if operation is successful.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionRW``
+  ///
 	public func startReadWriteAccess(
 		model: SDAIPopulationSchema.SdaiModel
 	) -> SDAIPopulationSchema.SdaiModel?
@@ -260,6 +272,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	///
 	/// - Returns: true if operation is successful.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionRW``
+  ///
 	public func endReadWriteAccess(
 		model: SDAIPopulationSchema.SdaiModel,
 		disposition: SDAISessionSchema.SdaiTransaction.Disposition<Void>

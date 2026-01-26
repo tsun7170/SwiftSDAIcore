@@ -74,6 +74,29 @@ where Self: SDAI.DefinedType
 //MARK: - SDAI.FunctionResultCacheController
 extension SDAI {
   
+  /// A protocol that defines the interface for controllers managing one or more function result caches
+  /// within the SDAI framework, supporting strategies for cache registration, invalidation, and approximation levels.
+  /// 
+  /// Conforming types are expected to determine if cached results are valid and reusable, facilitate the
+  /// registration of managed caches, and provide mechanisms to reset or invalidate all associated caches when
+  /// needed (for example, in response to changes in the model state or application domain).
+  ///
+  /// The controller also exposes an `approximationLevel` property to allow caching of function results at different
+  /// levels of precision or completeness, enabling advanced cache management strategies.
+  /// 
+  /// - Important: Implementations should guarantee thread- or concurrency-safety for all methods. Additionally,
+  ///   cache reset operations should be `async` to allow for the proper suspension and coordination of concurrent tasks.
+  /// 
+  /// - SeeAlso: 
+  ///   - ``SDAI.FunctionResultCache``
+  ///   - ``SDAI.CacheableSource``
+  ///   - ``SDAI.CacheHolder``
+  ///
+  /// ## Responsibilities
+  /// - Provide a mechanism to determine cacheability of results via ``SDAI.CacheableSource/isCacheable``.
+  /// - Advertise the current approximation level for cached results.
+  /// - Register and track caches for coordinated reset or invalidation.
+  /// - Support cache reset operations that may be invoked asynchronously.
   public protocol FunctionResultCacheController:
     SDAI.CacheableSource,
     AnyObject, Sendable
@@ -89,6 +112,32 @@ extension SDAI {
 	public typealias ParameterType = SDAI.GenericType
 
 	//MARK: - ParameterList
+
+  /// A value type that encapsulates a list of function parameters for use with caching
+  /// in the SDAI framework. `ParameterList` is used as the key for function result
+  /// caches to uniquely identify cached results for a specific set of input parameters.
+  ///
+  /// Instances are constructed from a variadic list of optional `SDAI.ParameterType`
+  /// values, each of which must conform to ``SDAI.CacheableSource`` and be `Hashable`.
+  /// This enables the framework to determine if a given parameter combination is suitable
+  /// for caching, and to efficiently compare or retrieve cached results.
+  ///
+  /// - **Hashing & Equality:** Parameter lists are hashed and equated based on the
+  ///   sequence and cacheability of all their elements, supporting robust lookup in
+  ///   hash-based collections. Internal hashing is precomputed for performance.
+  /// - **Cacheability:** The entire list is considered cacheable only if all its
+  ///   parameters are themselves cacheable. See ``isCacheable``.
+  /// - **Concurrency:** This type is `Sendable` and suitable for use in concurrent code.
+  /// - **Lanes:** Each instance includes an internal "lane number" derived from its
+  ///   hash, used for sharding cache storage to reduce lock contention.
+  /// - Important: Only immutable or otherwise stable parameter values should be included
+  ///   in a `ParameterList` to ensure correct and predictable caching behavior.
+  ///
+  /// - Parameters:
+  ///   - params: The ordered list of parameters to be encapsulated, all of which must
+  ///     conform to ``SDAI.ParameterType``.
+  ///
+  /// - SeeAlso: ``SDAI.FunctionResultCache``, ``SDAI.CacheableSource``
 	public struct ParameterList: SDAI.CacheableSource, Hashable, Sendable {
 
 		private let params:[(any ParameterType)?]

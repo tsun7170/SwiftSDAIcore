@@ -33,14 +33,14 @@ extension SDAI {
   ///
   /// - Parameters:
   ///   - EREF: The concrete entity reference type being encapsulated. Must conform to `SDAI.EntityReference`
-  ///     and `SDAI.InitializableByP21Parameter`.
+  ///     and `SDAI.Initializable.ByP21Parameter`.
 	@dynamicMemberLookup
 	public final class PersistentEntityReference<EREF>:
     GenericPersistentEntityReference, @unchecked Sendable,
 		SDAI.PersistentReference,
-		InitializableByComplexEntity,
+    SDAI.Initializable.ByComplexEntity,
 		SDAI.EntityReferenceYielding
-  where EREF: SDAI.EntityReference & SDAI.InitializableByP21Parameter
+  where EREF: SDAI.EntityReference & SDAI.Initializable.ByP21Parameter
 	{
 		//MARK: SDAI.PersistentReference
 		public typealias ARef = EREF
@@ -289,8 +289,8 @@ where EREF: SDAI.SimpleEntityType
 
 }
 
-extension SDAI.PersistentEntityReference: SDAI.InitializableByVoid
-where EREF: SDAI.InitializableByVoid
+extension SDAI.PersistentEntityReference: SDAI.Initializable.ByVoid
+where EREF: SDAI.Initializable.ByVoid
 {
   public convenience init() {
     let eref = EREF()

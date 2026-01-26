@@ -12,7 +12,7 @@ extension SDAI {
   /// A protocol representing a binary value, corresponding to the EXPRESS BINARY type (ISO 10303-11:8.1.7).
   ///
   /// This type is used for modeling sequences of bits, with methods for accessing individual bits or bit ranges.
-  /// Types conforming to `BinaryType` must also conform to `SDAI.SimpleType`, `ExpressibleByStringLiteral`, and `SDAI.InitializableByVoid`.
+  /// Types conforming to `BinaryType` must also conform to `SDAI.SimpleType`, `ExpressibleByStringLiteral`, and `SDAI.Initializable.ByVoid`.
   ///
   /// Conformance Requirements:
   /// - `StringLiteralType` must be `String`.
@@ -25,7 +25,7 @@ extension SDAI {
   ///
   /// ## Subscripts
   ///
-  /// - `subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> SDAI.BINARY?`
+  /// - `subscript<I: SDAI.TypeHierarchy.INTEGER__TypeBehavior>(index: I?) -> SDAI.BINARY?`
   ///   Accesses the bit at the specified (1-based) index as a new `BINARY` instance containing a single bit.
   ///   Returns `nil` if the index is `nil` or out of bounds.
   ///
@@ -38,7 +38,7 @@ extension SDAI {
   ///   Returns `nil` if the range is `nil`, the lower bound is less than 1, or the upper bound exceeds the bit length.
   ///
   public protocol BinaryType: SDAI.SimpleType, ExpressibleByStringLiteral,
-                                  SDAI.InitializableByVoid
+                                  SDAI.Initializable.ByVoid
   where StringLiteralType == String
   {
     /// The number of bits contained in the binary value.
@@ -55,7 +55,7 @@ extension SDAI {
     /// - Parameter index: The (1-based) index of the bit to access. If the index is `nil` or out of bounds (less than 1 or greater than the bit length), returns `nil`.
     /// - Returns: A new `BINARY` instance containing the bit at the specified index, or `nil` if the index is invalid.
     ///
-    subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> SDAI.BINARY? {get}
+    subscript<I: SDAI.TypeHierarchy.INTEGER__TypeBehavior>(index: I?) -> SDAI.BINARY? {get}
 
     /// Accesses the bit at the specified (1-based) index as a new `BINARY` instance containing a single bit.
     ///
@@ -76,44 +76,151 @@ extension SDAI {
 
 public extension SDAI.BinaryType
 {
-	subscript<I: SDAI.INTEGER__TypeBehavior>(index: I?) -> SDAI.BINARY? { return self[index?.asSwiftType] }
+	subscript<I: SDAI.TypeHierarchy.INTEGER__TypeBehavior>(index: I?) -> SDAI.BINARY? { return self[index?.asSwiftType] }
 }
 
 
-extension SDAI {
+extension SDAI.TypeHierarchy {
+  /// A protocol defining EXPRESS BINARY type behavior for concrete types in the type hierarchy.
+  ///
+  /// Conforming types must represent an immutable sequence of bits (0 or 1), with initialization from string literals or other BINARY type values.
+  /// Types conforming to `BINARY__TypeBehavior` are required to implement the fundamental EXPRESS BINARY protocol requirements,
+  /// including conformance to `SDAI.BinaryType`, and must specify typealiases for their fundamental and Swift representations.
+  ///
+  /// ## Associated Types and Constraints
+  /// - `FundamentalType`: Must be `SDAI.BINARY`.
+  /// - `Value`: Must be the same as `FundamentalType.Value`.
+  /// - `SwiftType`: Must be the same as `FundamentalType.SwiftType`.
+  ///
+  /// ## Initializers
+  /// - `init?(_ string: String?)`: Initializes from an optional string, or returns `nil` if invalid.
+  /// - `init(_ string: String)`: Initializes from a non-optional string.
+  /// - `init?<T: SDAI.TypeHierarchy.BINARY__TypeBehavior>(_ subtype: T?)`: Initializes from an optional BINARY subtype, or returns `nil` if invalid.
+  /// - `init<T: SDAI.TypeHierarchy.BINARY__TypeBehavior>(_ subtype: T)`: Initializes from another BINARY subtype.
+  ///
+  /// ## Instance Properties
+  /// - `width: SDAIDictionarySchema.Bound?`: Describes the upper bound (maximum length) of the binary value for this instance, or `nil` if unbounded.
+  ///   This value may differ per instance and indicates the maximum allowed length of the binary sequence.
+  /// - `fixedWidth: SDAI.BOOLEAN`: Indicates whether this binary value instance has a fixed width (`true`) or variable width (`false`).
+  ///   This is an instance-level property representing the semantics of the binary data.
+  ///
+  /// ## Notes
+  /// - This protocol enables the implementation of derived BINARY types with specific width constraints or semantics as required by EXPRESS schemas.
+  /// - All conforming types must ensure validity of their bit representation and handle initialization and type conversion according to EXPRESS rules.
+  /// - Conformance to this protocol does not imply mutability; all BINARY values should be treated as immutable after creation.
+  /// - The `width` and `fixedWidth` instance properties allow modeling both bounded and unbounded, as well as fixed or variable length binary values on a per-instance basis.
   public protocol BINARY__TypeBehavior: SDAI.BinaryType
   where FundamentalType == SDAI.BINARY,
         Value == FundamentalType.Value,
         SwiftType == FundamentalType.SwiftType
   {
+    init?<I: SDAI.SwiftIntConvertible>(width:I?, fixed:Bool,  fundamental:FundamentalType?)
+    init<I: SDAI.SwiftIntConvertible>(width:I?, fixed:Bool,  fundamental:FundamentalType)
+
+
     init?(_ string: String?)
     init(_ string: String)
-    init?<T:SDAI.BINARY__TypeBehavior>(_ subtype: T?)
-    init<T:SDAI.BINARY__TypeBehavior>(_ subtype: T)
-    static var width: SDAIDictionarySchema.Bound? {get}
-    static var fixedWidth: SDAI.BOOLEAN {get}
+
+    init?<I: SDAI.SwiftIntConvertible>(width:I?, _ string:String?)
+    init<I: SDAI.SwiftIntConvertible>(width:I?,  _ string:String)
+
+    init?<I: SDAI.SwiftIntConvertible>(width:I?, fixed:Bool, _ string:String?)
+    init<I: SDAI.SwiftIntConvertible>(width:I?, fixed:Bool, _ string:String)
+
+
+    init?<T:SDAI.TypeHierarchy.BINARY__TypeBehavior>(_ subtype: T?)
+    init<T:SDAI.TypeHierarchy.BINARY__TypeBehavior>(_ subtype: T)
+
+    init?<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(width:I?, _ subtype: T?)
+    init<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(width:I?, _ subtype: T)
+
+    init?<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(width:I?, fixed:Bool, _ subtype: T?)
+    init<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(width:I?, fixed:Bool, _ subtype: T)
+
+
+    var width: SDAIDictionarySchema.Bound? {get}
+    var fixedWidth: SDAI.BOOLEAN {get}
   }
 }
 
-public extension SDAI.BINARY__TypeBehavior
+public extension SDAI.TypeHierarchy.BINARY__TypeBehavior
 {
-	init?(_ string: String?) {
-		guard let string = string else { return nil }
-		self.init(stringLiteral: string)
+  init?<I: SDAI.SwiftIntConvertible>(
+    width: I?, fixed: Bool, fundamental: FundamentalType?)
+  {
+    guard let fundamental = fundamental else { return nil }
+    self.init(width:width, fixed: fixed, fundamental)
+  }
+
+
+  init(_ string: String)
+  {
+    self.init(width: nil as Int?, fixed: false, string)
+  }
+  init?(_ string: String?)
+  {
+    self.init(width: nil as Int?, fixed: false, string)
+  }
+
+  init?<I: SDAI.SwiftIntConvertible>(
+    width: I?, _ string: String?)
+  {
+    self.init(width: width, fixed: false, string)
+  }
+  init<I: SDAI.SwiftIntConvertible>(
+    width: I?,  _ string: String)
+  {
+    self.init(width: width, fixed: false, string)
+  }
+
+  init?<I: SDAI.SwiftIntConvertible>(
+    width:I?, fixed:Bool, _ string: String?)
+  {
+    guard let string = string else { return nil }
+    self.init(width:width, fixed:fixed, string)
+  }
+
+
+
+	init?<T:SDAI.TypeHierarchy.BINARY__TypeBehavior>(_ subtype: T?)
+  {
+    self.init(
+      width: nil as Int?, fixed: false, fundamental: subtype?.asFundamentalType)
 	}
-	init(_ string: String) {
-		self.init(stringLiteral: string)
-	}
-	init?<T:SDAI.BINARY__TypeBehavior>(_ subtype: T?) {
-		guard let subtype = subtype else { return nil }	
-		self.init(from: subtype.asSwiftType)
-	}
-	init<T:SDAI.BINARY__TypeBehavior>(_ subtype: T) {
-		self.init(from: subtype.asSwiftType)
+	init<T:SDAI.TypeHierarchy.BINARY__TypeBehavior>(_ subtype: T) {
+    self.init(
+      width: nil as Int?, fixed: false, fundamental: subtype.asFundamentalType)
 	}
 
-	static var width: SDAIDictionarySchema.Bound? {nil}
-	static var fixedWidth: SDAI.BOOLEAN {false}
+  init?<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(
+    width:I?, _ subtype: T?)
+  {
+    self.init(
+      width: width, fixed: false, fundamental: subtype?.asFundamentalType)
+  }
+  init<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(
+    width:I?, _ subtype: T)
+  {
+    self.init(
+      width: width, fixed: false, fundamental: subtype.asFundamentalType)
+  }
+
+  init?<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(
+    width:I?, fixed:Bool, _ subtype: T?)
+  {
+    self.init(
+      width: width, fixed: fixed, fundamental: subtype?.asFundamentalType)
+  }
+  init<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(
+    width:I?, fixed:Bool, _ subtype: T)
+  {
+    self.init(
+      width: width, fixed: fixed, fundamental: subtype.asFundamentalType)
+  }
+
+
+//	static var width: SDAIDictionarySchema.Bound? {nil}
+//	static var fixedWidth: SDAI.BOOLEAN {false}
 }
 
 
@@ -162,11 +269,15 @@ extension SDAI {
   /// let subBinary = a[2...4] // returns BINARY("%011")
   /// ```
   ///
-	public struct BINARY: SDAI.BINARY__TypeBehavior, SDAI.Value, CustomStringConvertible
+	public struct BINARY: SDAI.TypeHierarchy.BINARY__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Array<Int8>
 		public typealias FundamentalType = Self
-		private var rep: SwiftType
+
+    public let width: SDAIDictionarySchema.Bound?
+    public let fixedWidth: SDAI.BOOLEAN
+
+		private let rep: SwiftType
 
 		// CustomStringConvertible
 		public var description: String { "BINARY(\(rep))" }
@@ -203,7 +314,7 @@ extension SDAI {
 		// InitializableByGenerictype
 		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let binaryValue = generic?.binaryValue else { return nil }
-			self.init(binaryValue)
+      self.init(fundamental: binaryValue)
 		}
 		
 		// SDAI.UnderlyingType \SDAI.SimpleType\SDAI__BINARY__type
@@ -212,31 +323,70 @@ extension SDAI {
 		
 		// SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
+
 		public init(fundamental: FundamentalType) {
-			self.init(from: fundamental.rep)
+//			self.init(from: fundamental.rep)
+      self.rep = fundamental.rep
+      self.width = fundamental.width
+      self.fixedWidth = fundamental.fixedWidth
 		}
 
 		// SDAI.SimpleType \SDAI__BINARY__type
 		public init(from swiftValue: SwiftType) {
 			assert(Self.isValidValue(value: swiftValue))
 			rep = swiftValue
+      self.width = nil
+      self.fixedWidth = false
 		}
 		
 		// ExpressibleByStringLiteral \SDAI__BINARY__type
 		public init(stringLiteral value: String) {
-			assert(value.hasPrefix("%"))
-			rep = SwiftType()
-			rep.reserveCapacity(value.count-1)
-			for c in value.dropFirst() {
-				switch c {
-				case "0": rep.append(0)
-				case "1": rep.append(1)
-				default: fatalError()
-				}
-			}
+//			assert(value.hasPrefix("%"))
+//			var rep = SwiftType()
+//			rep.reserveCapacity(value.count-1)
+//			for c in value.dropFirst() {
+//				switch c {
+//				case "0": rep.append(0)
+//				case "1": rep.append(1)
+//				default: fatalError()
+//				}
+//			}
+//
+//      self.rep = rep
+//      self.width = nil
+//      self.fixedWidth = false
+
+      self.init(width: nil as Int?, fixed: false, value)
 		}
 
 		// SDAI__BINARY__type
+    public init<I: SDAI.SwiftIntConvertible>(
+      width:I?, fixed:Bool, fundamental:FundamentalType)
+    {
+      self.rep = fundamental.rep
+      self.width = width?.asSwiftInt
+      self.fixedWidth = SDAI.BOOLEAN(fixed)
+    }
+
+    public init<I: SDAI.SwiftIntConvertible>(
+      width:I?, fixed:Bool, _ value:String)
+    {
+      assert(value.hasPrefix("%"))
+      var rep = SwiftType()
+      rep.reserveCapacity(value.count-1)
+      for c in value.dropFirst() {
+        switch c {
+          case "0": rep.append(0)
+          case "1": rep.append(1)
+          default: fatalError()
+        }
+      }
+
+      self.rep = rep
+      self.width = width?.asSwiftInt
+      self.fixedWidth = SDAI.BOOLEAN(fixed)
+    }
+
 		public var blength: Int { return rep.count }
 
 		public subscript(index: Int?) -> BINARY? {

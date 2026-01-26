@@ -386,8 +386,10 @@ extension SDAI {
 	/// If V is indeterminate (?) then an empty set is returned.
 	public static func ROLESOF(_ V: EntityReference?) -> SET<STRING> {
 		guard let complex = V?.complexEntity else { return SET<STRING>() }
-		return SET<STRING>(from: complex.roles)
+    return SET<STRING>(from: complex
+      .roles(domain: complex.usedInDomain) )
 	}
+
 	/// ISO 10303-11 (15.20) RolesOf - general function
 	/// (select type variant) 
 	/// 
@@ -511,7 +513,9 @@ extension SDAI {
 	where GEN: SDAI.GenericType
 	{
 		guard let T = T?.entityReference else { return BAG() }
-		return BAG( from: T.complexEntity.usedIn() )
+    let complex = T.complexEntity
+    let result = complex.usedIn(domain: complex.usedInDomain)
+		return BAG( from: result )
 	}
 
 	/// ISO 10303-11 (15.26) UsedIn - general function
@@ -541,7 +545,9 @@ extension SDAI {
       return _cached_value as! SDAI.BAG<ENT.PRef>
     }
 
-		let result = BAG(from: T.complexEntity.usedIn(as: ROLE))
+    let complex = T.complexEntity
+    let result = BAG(from: complex
+      .usedIn(as: ROLE, domain: complex.usedInDomain) )
     return _USEDIN1__cache.updateCache(params: _params, value: result)
 	}
 
@@ -577,7 +583,9 @@ extension SDAI {
       return _cached_value as! SDAI.BAG<ENT.PRef>
     }
 
-		let result = BAG(from: T.complexEntity.usedIn(as: ROLE))
+    let complex = T.complexEntity
+    let result = BAG(from: complex
+      .usedIn(as: ROLE, domain: complex.usedInDomain) )
     return _USEDIN2__cache.updateCache(params: _params, value: result)
 	}
 
@@ -610,7 +618,9 @@ extension SDAI {
       return _cached_value as! SDAI.BAG<GenericPersistentEntityReference>
     }
 
-		let result = BAG(from: T.complexEntity.usedIn(as: R.asSwiftType))
+    let complex = T.complexEntity
+    let result = BAG(from: complex
+      .usedIn(as: R.asSwiftType, domain: complex.usedInDomain) )
     return _USEDIN3__cache.updateCache(params: _params, value: result)
 	}
 

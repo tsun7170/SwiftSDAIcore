@@ -18,6 +18,13 @@ extension P21Decode {
 		private let exchangeStructure: ExchangeStructure
 		
 		//MARK: constructor
+    /// Initializes a new `ExchangeStructureParser`.
+    ///
+    /// - Parameters:
+    ///   - charStream: The input character stream conforming to `P21Decode.CharacterStream` for parsing the STEP Part 21 exchange structure.
+    ///   - repository: The output repository where parsed entities will be stored, provided as an `SDAISessionSchema.SdaiRepository`.
+    ///   - foreignReferenceResolver: An object responsible for resolving foreign references encountered during parsing.
+    ///   - monitor: An optional `ActivityMonitor` for tracking parsing progress and reporting errors or other activities.
 		public init<CHARSTREAM>(
 			charStream: CHARSTREAM,
 			output repository: SDAISessionSchema.SdaiRepository,
@@ -38,6 +45,16 @@ extension P21Decode {
 		
 		
 		//MARK: - error handling
+
+    /// The most recent parsing error encountered by the parser, if any.
+    ///
+    /// This property is set when a parsing error occurs during the processing of the STEP Part 21 exchange structure. 
+    /// If an error is set, it notifies the optional `ActivityMonitor` by calling `parserDidSet(error:)`, but only 
+    /// the first time an error occurs (that is, when transitioning from `nil` to a non-nil value).
+    ///
+    /// - Note: After an error is set, parsing usually stops and this property remains set for the lifetime of the 
+    ///         `ExchangeStructureParser` instance unless explicitly reset.
+    /// - SeeAlso: `P21Error`, `ActivityMonitor`
 		public private(set) var error: P21Error? {
 			didSet {
 				if let monitor = activityMonitor, oldValue == nil, let error = error {
@@ -97,10 +114,43 @@ extension P21Decode {
 			return true
 		}
 		
-		//MARK:- Exchange Structure
-		/// parse the whole STEP p21 exchange structure
-		/// - Returns: the parsed exchange structure data structure if successful
-		public func parseExchangeStructure() -> ExchangeStructure? {
+		//MARK: - Exchange Structure
+
+    /// Parses the entire STEP Part 21 exchange structure from the token stream.
+    ///
+    /// This method expects the input to conform to the STEP Part 21 file format, beginning with the `"ISO-10303-21;"` special token.
+    /// It then processes each of the main sections in order:
+    ///   - Header Section (mandatory)
+    ///   - Anchor Section (optional, at most one)
+    ///   - Reference Section (optional, at most one)
+    ///   - Data Section (mandatory; can be repeated for additional data sections)
+    /// Each section is parsed using specialized helper methods, and activities may be reported to the optional `ActivityMonitor`.
+    /// If an error occurs, parsing stops and the error is reported via the `error` property.
+    ///
+    /// - Returns: The populated `ExchangeStructure` if parsing was successful; otherwise, returns `nil` and sets the `error` property.
+    ///
+    /// - Errors:
+    ///   - If the initial special token is missing or invalid.
+    ///   - If mandatory sections are missing or out of order.
+    ///   - If unexpected or malformed tokens are encountered in any section.
+    ///   - If there is an unexpected end of the token stream.
+    ///   - If multiple Anchor or Reference sections are present.
+    ///   - If section-specific parsing fails (header, anchor, reference, or data).
+    ///
+    /// The parsing process progresses through the following structure:
+    /// ```
+    /// EXCHANGE_STRUCTURE ::=
+    ///   "ISO-10303-21;"
+    ///   HEADER_SECTION
+    ///   [ANCHOR_SECTION]
+    ///   [REFERENCE_SECTION]
+    ///   {DATA_SECTION}
+    ///   "END-ISO-10303-21;"
+    /// ```
+    ///
+    /// - SeeAlso: `ExchangeStructure`, `ActivityMonitor`
+		public func parseExchangeStructure() -> ExchangeStructure?
+    {
 			guard tokenStream.confirm(specialToken: "ISO-10303-21;") else {
 				setErrorFromTokenStream(context: "while parsing the head of exchange structure")
 				return nil

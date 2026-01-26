@@ -32,6 +32,28 @@ extension SDAI {
     var pRef: PRef { get }
   }
 
+  /// A protocol that represents a persistent, stored reference to an entity or value,
+  /// typically one that is saved in a long-lived storage medium such as a database or file.
+  /// 
+  /// Types conforming to `PersistentReference` are responsible for providing access to a
+  /// corresponding application-lifetime reference (`ARef`). This enables bridging between 
+  /// persistent representations and in-memory, temporary representations of referenced entities.
+  /// 
+  /// - Associatedtype:
+  ///   - `ARef`: The associated application (temporary) reference type, conforming to `SDAI.GenericType`.
+  /// 
+  /// - Requirements:
+  ///   - `aRef`: The application reference corresponding to this persistent reference. This provides direct access
+  ///             to the in-memory representation of the referenced entity or value.
+  ///   - `optionalARef`: An optional application reference, which may be `nil` if the referenced entity/value is unavailable
+  ///                     or not yet resolved in the application's context.
+  /// 
+  /// - Usage:
+  ///   Use `PersistentReference` to provide a robust, type-safe mechanism for navigating between
+  ///   persistent and in-memory representations, particularly in systems that require synchronization,
+  ///   serialization, or round-tripping of reference information.
+  /// 
+  /// - SeeAlso: `SDAI.DualModeReference` for dual-mode abstraction, and `SDAI.GenericType` for generic compatibility.
   public protocol PersistentReference: SDAI.GenericType
   {
     associatedtype ARef: SDAI.GenericType

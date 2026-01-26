@@ -9,13 +9,13 @@
 import Foundation
 
 //MARK: - NUMBER subtype (8.1.1, 8.3.2)
-extension SDAI {
-  public protocol NUMBER__Subtype: SDAI.NUMBER__TypeBehavior, SDAI.DefinedType
-  where Supertype: SDAI.NUMBER__TypeBehavior
+extension SDAI.TypeHierarchy {
+  public protocol NUMBER__Subtype: SDAI.TypeHierarchy.NUMBER__TypeBehavior, SDAI.DefinedType
+  where Supertype: SDAI.TypeHierarchy.NUMBER__TypeBehavior
   {}
 }
 
-public extension SDAI.NUMBER__Subtype
+public extension SDAI.TypeHierarchy.NUMBER__Subtype
 {
 	// InitializableByGenerictype
 	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {

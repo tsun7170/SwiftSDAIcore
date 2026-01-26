@@ -45,7 +45,15 @@ extension P21Decode.ExchangeStructure {
 		return self.register(entityInstanceName: entityInstanceName, record: rec)
 	}
 	
-	/// data structure holding a value instance name and value resource association
+  /// A data structure that holds the association between a value instance name and its corresponding value resource within an exchange structure.
+  ///
+  /// - Note: This record is typically used for registering and tracking value instance names and their associated resources, enabling efficient reference and lookup within the exchange structure.
+  /// - SeeAlso: `register(valueInstanceName:reference:)`
+  ///
+  /// - Parameters:
+  ///   - name: The unique name identifying the value instance.
+  ///   - reference: The resource associated with the value instance.
+  ///   - resolved: Optionally stores the resolved `Parameter` value for the reference, if available.
 	public final class ValueInstanceRecord {
 		public let name: ValueInstanceName
 		public let reference: Resource

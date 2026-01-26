@@ -9,14 +9,15 @@
 import Foundation
 
 //MARK: - from generic type scalar
-extension SDAI {
-  public protocol InitializableByGenericType
+extension SDAI.Initializable {
+  /// from generic type scalar
+  public protocol ByGenericType
   {
     init?<G: SDAI.GenericType>(fromGeneric generic: G?)
     static func convert<G: SDAI.GenericType>(fromGeneric generic: G?) -> Self?
   }
 }
-public extension SDAI.InitializableByGenericType
+public extension SDAI.Initializable.ByGenericType
 where Self: SDAI.GenericType
 {
 	static func convert<G: SDAI.GenericType>(fromGeneric generic: G?) -> Self? {
@@ -47,7 +48,7 @@ where Self: SDAI.GenericType
 
 }
 
-public extension SDAI.InitializableByGenericType
+public extension SDAI.Initializable.ByGenericType
 where Self: SDAI.GenericType, FundamentalType == Self
 {
 	static func convert<G: SDAI.GenericType>(fromGeneric generic: G?) -> Self? {
@@ -68,15 +69,16 @@ where Self: SDAI.GenericType, FundamentalType == Self
 }
 
 //MARK: - from generic type list
-extension SDAI {
-  public protocol InitializableByGenericList
+extension SDAI.Initializable {
+  /// from generic type list
+  public protocol ByGenericList
   {
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(bound1: I1, bound2: I2?, generic listtype: T?)
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.LIST__TypeBehavior>(bound1: I1, bound2: I2?, generic listtype: T?)
   }
 }
-public extension SDAI.InitializableByGenericList
+public extension SDAI.Initializable.ByGenericList
 {
-	init?<T: SDAI.LIST__TypeBehavior>(generic listtype: T?) 
+	init?<T: SDAI.TypeHierarchy.LIST__TypeBehavior>(generic listtype: T?) 
 	{
 		guard let listtype = listtype else { return nil }
 		self.init(bound1: listtype.loBound, bound2: listtype.hiBound, generic: listtype)
@@ -84,15 +86,16 @@ public extension SDAI.InitializableByGenericList
 }
 
 //MARK: - from generic type bag
-extension SDAI {
-  public protocol InitializableByGenericBag
+extension SDAI.Initializable {
+  /// from generic type bag
+  public protocol ByGenericBag
   {
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.BAG__TypeBehavior>(bound1: I1, bound2: I2?, generic bagtype: T?)
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.BAG__TypeBehavior>(bound1: I1, bound2: I2?, generic bagtype: T?)
   }
 }
-public extension SDAI.InitializableByGenericBag
+public extension SDAI.Initializable.ByGenericBag
 {
-	init?<T: SDAI.BAG__TypeBehavior>(generic bagtype: T?) 
+  init?<T: SDAI.TypeHierarchy.BAG__TypeBehavior>(generic bagtype: T?)
 	{
 		guard let bagtype = bagtype else { return nil }
 		self.init(bound1: bagtype.loBound, bound2: bagtype.hiBound, generic: bagtype)
@@ -100,15 +103,16 @@ public extension SDAI.InitializableByGenericBag
 }
 
 //MARK: - from generic type set
-extension SDAI {
-  public protocol InitializableByGenericSet
+extension SDAI.Initializable {
+  /// from generic type set
+  public protocol ByGenericSet
   {
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(bound1: I1, bound2: I2?, generic settype: T?)
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.SET__TypeBehavior>(bound1: I1, bound2: I2?, generic settype: T?)
   }
 }
-public extension SDAI.InitializableByGenericSet
+public extension SDAI.Initializable.ByGenericSet
 {
-	init?<T: SDAI.SET__TypeBehavior>(generic settype: T?) 
+  init?<T: SDAI.TypeHierarchy.SET__TypeBehavior>(generic settype: T?)
 	{
 		guard let settype = settype else { return nil }
 		self.init(bound1: settype.loBound, bound2: settype.hiBound, generic: settype)
@@ -117,15 +121,16 @@ public extension SDAI.InitializableByGenericSet
 
 
 //MARK: - from generic type array optional
-extension SDAI {
-  public protocol InitializableByGenericArrayOptional
+extension SDAI.Initializable {
+  /// from generic type array optional
+  public protocol ByGenericArrayOptional
   {
-    init?<T: SDAI.ARRAY_OPTIONAL__TypeBehavior>(generic arraytype: T?)
+    init?<T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(generic arraytype: T?)
   }
 }
-public extension SDAI.InitializableByGenericArrayOptional
+public extension SDAI.Initializable.ByGenericArrayOptional
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.ARRAY_OPTIONAL__TypeBehavior>(bound1: I1, bound2: I2, generic arraytype: T?) 
+  init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(bound1: I1, bound2: I2, generic arraytype: T?)
 	{
 		guard let arraytype = arraytype, 
 					bound1.asSwiftInt == arraytype.loIndex, 
@@ -137,15 +142,16 @@ public extension SDAI.InitializableByGenericArrayOptional
 
 
 //MARK: - from generic type array
-extension SDAI {
-  public protocol InitializableByGenericArray
+extension SDAI.Initializable {
+  /// from generic type array
+  public protocol ByGenericArray
   {
-    init?<T: SDAI.ARRAY__TypeBehavior>(generic arraytype: T?)
+    init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(generic arraytype: T?)
   }
 }
-public extension SDAI.InitializableByGenericArray
+public extension SDAI.Initializable.ByGenericArray
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.ARRAY__TypeBehavior>(bound1: I1, bound2: I2, generic arraytype: T?) 
+  init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(bound1: I1, bound2: I2, generic arraytype: T?) 
 	{
 		guard let arraytype = arraytype, 
 					bound1.asSwiftInt == arraytype.loIndex, 

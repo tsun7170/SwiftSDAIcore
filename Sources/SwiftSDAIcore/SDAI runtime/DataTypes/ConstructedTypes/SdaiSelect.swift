@@ -18,8 +18,8 @@ extension SDAI {
   /// ### Conformance
   /// Types conforming to `SelectType` must also conform to:
   /// - `SDAI.ConstructedType`
-  /// - `SDAI.InitializableByDefinedType`
-  /// - `SDAI.InitializableByComplexEntity`
+  /// - `SDAI.Initializable.ByDefinedType`
+  /// - `SDAI.Initializable.ByComplexEntity`
   /// - `SDAI.SwiftDoubleConvertible`
   /// - `SDAI.SwiftIntConvertible`
   /// - `SDAI.SwiftStringConvertible`
@@ -39,7 +39,7 @@ extension SDAI {
   /// - SeeAlso: [ISO 10303-11:1994, Section 8.4.2 "SELECT Type"](https://www.steptools.com/stds/smrl/docs/iso-10303-11/sect8.4.2.html)
   public protocol SelectType:
     SDAI.ConstructedType,
-    SDAI.InitializableByDefinedType, SDAI.InitializableByComplexEntity,
+    SDAI.Initializable.ByDefinedType, SDAI.Initializable.ByComplexEntity,
     SDAI.SwiftDoubleConvertible, SDAI.SwiftIntConvertible, SDAI.SwiftStringConvertible, SDAI.SwiftBoolConvertible,
     SDAI.EntityReferenceYielding,
     SDAI.AggregationBehavior

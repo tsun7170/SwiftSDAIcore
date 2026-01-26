@@ -26,13 +26,13 @@ extension SDAI {
     return unwrapped
   }
 
-  public static func UNWRAP<T: SDAI.InitializableBySwiftType> (
+  public static func UNWRAP<T: SDAI.Initializable.BySwiftType> (
     _ val:T?,
     file: StaticString = #fileID,
     line: UInt = #line,
     functionID: StaticString = #function
   ) -> T
-  where T.SwiftType: SDAI.InitializableByVoid
+  where T.SwiftType: SDAI.Initializable.ByVoid
   {
     if let unwrapped = val { return unwrapped }
 
@@ -53,7 +53,7 @@ extension SDAI {
 	public static func IS_UNKNOWN<T: SDAI.LogicalType>(_ logical: T?) -> Bool { logical?.isUNKNOWN ?? true }
 	
 	public static func UNWRAP<A:Sequence>(seq: A?) -> A 
-  where A: SDAI.InitializableByVoid {
+  where A: SDAI.Initializable.ByVoid {
 		if let seq = seq { return seq }
 		return A()
 	}

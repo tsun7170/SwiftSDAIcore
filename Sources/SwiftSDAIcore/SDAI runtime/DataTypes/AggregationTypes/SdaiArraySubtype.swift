@@ -9,13 +9,13 @@
 import Foundation
 
 //MARK: - ARRAY subtype (8.2.1, 8.3.2)
-extension SDAI {
-  public protocol ARRAY__Subtype: SDAI.ARRAY__TypeBehavior, SDAI.DefinedType
-  where Supertype: SDAI.ARRAY__TypeBehavior
+extension SDAI.TypeHierarchy {
+  public protocol ARRAY__Subtype: SDAI.TypeHierarchy.ARRAY__TypeBehavior, SDAI.DefinedType
+  where Supertype: SDAI.TypeHierarchy.ARRAY__TypeBehavior
   {}
 }
 
-public extension SDAI.ARRAY__Subtype
+public extension SDAI.TypeHierarchy.ARRAY__Subtype
 {
 	// SDAI.ArrayOptionalType
 	static var uniqueFlag: SDAI.BOOLEAN { Supertype.uniqueFlag }
@@ -28,7 +28,7 @@ public extension SDAI.ARRAY__Subtype
 	}
 	
 	// InitializableByGenericArray
-	init?<T: SDAI.ARRAY__TypeBehavior>(generic arraytype: T?) {
+  init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(generic arraytype: T?) {
 		self.init(fundamental: FundamentalType(generic: arraytype))
 	}
 
@@ -40,7 +40,7 @@ public extension SDAI.ARRAY__Subtype
 		self.init(fundamental: FundamentalType(from: swiftValue, bound1: bound1, bound2: bound2) )
 	} 
 	
-	// SDAI.InitializableByArrayLiteral
+	// SDAI.Initializable.ByArrayLiteral
 	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
 		bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
 	{
@@ -51,10 +51,10 @@ public extension SDAI.ARRAY__Subtype
 
 
 //MARK: - for select type element
-public extension SDAI.ARRAY__Subtype
-where ELEMENT: SDAI.InitializableBySelectType
+public extension SDAI.TypeHierarchy.ARRAY__Subtype
+where ELEMENT: SDAI.Initializable.BySelectType
 {
-	init?<T:SDAI.ARRAY__TypeBehavior>(_ arraytype: T?) 
+  init?<T:SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
 	where T.ELEMENT: SDAI.SelectType
 	{
 		self.init(fundamental: FundamentalType(arraytype) )
@@ -64,16 +64,16 @@ where ELEMENT: SDAI.InitializableBySelectType
 
 
 //MARK: - for entity type element
-public extension SDAI.ARRAY__Subtype
-where ELEMENT: SDAI.InitializableByComplexEntity
+public extension SDAI.TypeHierarchy.ARRAY__Subtype
+where ELEMENT: SDAI.Initializable.ByComplexEntity
 {
-	init?<T: SDAI.ARRAY__TypeBehavior>(_ arraytype: T?) 
+  init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		self.init(fundamental: FundamentalType(arraytype) )
 	}
 
-	init?<T: SDAI.ARRAY__TypeBehavior>(_ arraytype: T?)
+  init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
 	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
@@ -83,10 +83,10 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 
 
 //MARK: - for defined type element
-public extension SDAI.ARRAY__Subtype
-where ELEMENT: SDAI.InitializableByDefinedType
+public extension SDAI.TypeHierarchy.ARRAY__Subtype
+where ELEMENT: SDAI.Initializable.ByDefinedType
 {
-	init?<T:SDAI.ARRAY__TypeBehavior>(_ arraytype: T?) 
+  init?<T:SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
 	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		self.init(fundamental: FundamentalType(arraytype) )

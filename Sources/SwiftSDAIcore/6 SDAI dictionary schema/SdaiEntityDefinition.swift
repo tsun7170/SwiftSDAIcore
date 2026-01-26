@@ -92,7 +92,25 @@ extension SDAIDictionarySchema {
 		public var qualifiedEntityName: ExpressId {
 			return self.parentSchema.name + "." + self.name
 		}
-		
+
+    //MARK: SDAI operations
+
+    /// ISO 10303-22 (10.9.2) Is subtype of
+    /// 
+    /// This operation determines whether an entity type is a subtype of another entity type. The subtype relationship shall be determined solely on the basis of information from within the data dictionary for the application schemas.
+    /// - Parameter compType: The potential supertype to be tested against.
+    /// - Returns: The result shall be TRUE if Type is the same as or a subtype of CompType, or if there exists types A and B such that A is domain equivalent with B, Type is a subtype of A and B is a subtype of CompType; otherwise the result shall be FALSE.
+    ///
+    /// defined in: ``SDAIDictionarySchema/EntityDefinition``
+    ///
+    public func isSubtype(of compType: EntityDefinition) -> Bool
+    {
+      if self == compType { return true }
+      for supertype in compType.supertypes {
+        if self == supertype.entityDefinition { return true }
+      }
+      return false
+    }
 
 		//MARK: prototype for instance construction
 		public class Prototype

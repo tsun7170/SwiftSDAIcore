@@ -23,9 +23,9 @@ extension SDAI {
   ///   - `SDAI.AggregateIndexingSettable`: Allows mutation of elements by index.
   ///   - `SDAI.UnderlyingType`: Identifies the underlying fundamental type for the array.
   ///   - `SDAI.SwiftTypeRepresented`: Supports conversion to and from a native Swift representation.
-  ///   - `SDAI.InitializableBySwifttypeAsArray`: Can be initialized from a native Swift array type.
-  ///   - `SDAI.InitializableByArrayLiteral`: Can be initialized using Swift array literals.
-  ///   - `SDAI.InitializableByGenericArray`: Can be initialized from another generic array type.
+  ///   - `SDAI.Initializable.BySwifttypeAsArray`: Can be initialized from a native Swift array type.
+  ///   - `SDAI.Initializable.ByArrayLiteral`: Can be initialized using Swift array literals.
+  ///   - `SDAI.Initializable.ByGenericArray`: Can be initialized from another generic array type.
   ///
   /// - SDAIDictionarySchema support:
   ///   - `uniqueFlag`: Indicates whether the aggregate enforces uniqueness of its elements.
@@ -33,7 +33,7 @@ extension SDAI {
   public protocol ArrayType:
     SDAI.AggregationType, SDAI.AggregateIndexingSettable,
     SDAI.UnderlyingType, SDAI.SwiftTypeRepresented,
-    SDAI.InitializableBySwifttypeAsArray, SDAI.InitializableByArrayLiteral, SDAI.InitializableByGenericArray
+    SDAI.Initializable.BySwifttypeAsArray, SDAI.Initializable.ByArrayLiteral, SDAI.Initializable.ByGenericArray
   {
     // SDAIDictionarySchema support
     static var uniqueFlag: SDAI.BOOLEAN {get}
@@ -52,7 +52,24 @@ extension SDAI.ArrayType {
 
 
 //MARK: - ARRAY type
-extension SDAI {
+extension SDAI.TypeHierarchy {
+  /// A protocol representing the specialized behavior for the SDAI ARRAY aggregation type.
+  /// 
+  /// `ARRAY__TypeBehavior` refines the `SDAI.ArrayType` protocol by constraining its associated types
+  /// to align with the generic `SDAI.ARRAY` structure. This ensures that conforming types have a
+  /// well-defined element type, a matching fundamental collection type, and consistent value and Swift
+  /// representation types. It is intended for use with types that model the ISO 10303-11 ARRAY concept,
+  /// providing array semantics and aggregation behavior suitable for EXPRESS schemas.
+  /// 
+  /// - Requirements:
+  ///   - The `Element` type must match the `ELEMENT` generic parameter.
+  ///   - The `FundamentalType` must be `SDAI.ARRAY<ELEMENT>`.
+  ///   - The `Value` and `SwiftType` associated types must be inherited from `FundamentalType`.
+  ///
+  /// - SeeAlso:
+  ///   - `SDAI.ARRAY`
+  ///   - `SDAI.ArrayType`
+  ///   - [ISO 10303-11, 8.2.1 ARRAY aggregation type](https://www.steptools.com/stds/stp_aim/html/t_expgeneric_array.html)
   public protocol ARRAY__TypeBehavior: SDAI.ArrayType
   where Element == ELEMENT,
         FundamentalType == SDAI.ARRAY<ELEMENT>,
@@ -99,15 +116,15 @@ extension SDAI {
   ///   - `SDAI.ARRAY_OPTIONAL`
   ///   - `SDAI.LIST`, `SDAI.BAG`, `SDAI.SET`
   ///   - [ISO 10303-11, 8.2.1](https://www.steptools.com/stds/stp_aim/html/t_expgeneric_array.html)
-	public struct ARRAY<ELEMENT:SDAI.GenericType>: SDAI.ARRAY__TypeBehavior
+  public struct ARRAY<ELEMENT:SDAI.GenericType>: SDAI.TypeHierarchy.ARRAY__TypeBehavior
 	{
 		public typealias SwiftType = Array<ELEMENT>
 		public typealias FundamentalType = Self
 		
 		fileprivate var rep: SwiftType
-		private var bound1: Int
-		private var bound2: Int
-		
+		private let bound1: Int
+		private let bound2: Int
+
 		// Equatable \Hashable\SDAI.GenericType
 		public static func == (lhs: SDAI.ARRAY<ELEMENT>, rhs: SDAI.ARRAY<ELEMENT>) -> Bool {
 			return lhs.rep == rhs.rep &&
@@ -248,7 +265,7 @@ extension SDAI {
 		}
 
 		// InitializableByGenericArray
-		public init?<T: SDAI.ARRAY__TypeBehavior>(generic arraytype: T?) {
+    public init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(generic arraytype: T?) {
 			guard let arraytype = arraytype else { return nil }
 			self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { ELEMENT.convert(fromGeneric: $0) }
 		}
@@ -264,7 +281,7 @@ extension SDAI {
 			assert(rep.count == self.size)
 		} 
 
-		// SDAI.InitializableByArrayLiteral
+		// SDAI.Initializable.ByArrayLiteral
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E:SDAI.GenericType>(
 			bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
 		{
@@ -353,10 +370,10 @@ where ELEMENT: SDAI.PersistentReference
 }
 
 
-extension SDAI.ARRAY: SDAI.InitializableBySelecttypeArray
-where ELEMENT: SDAI.InitializableBySelectType
+extension SDAI.ARRAY: SDAI.Initializable.BySelecttypeArray
+where ELEMENT: SDAI.Initializable.BySelectType
 {
-	public init?<T: SDAI.ARRAY__TypeBehavior>(_ arraytype: T?) 
+  public init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
 	where T.ELEMENT: SDAI.SelectType
 	{
 		guard let arraytype = arraytype else { return nil }
@@ -366,10 +383,10 @@ where ELEMENT: SDAI.InitializableBySelectType
 
 
 
-extension SDAI.ARRAY: SDAI.InitializableByEntityArray
-where ELEMENT: SDAI.InitializableByComplexEntity
+extension SDAI.ARRAY: SDAI.Initializable.ByEntityArray
+where ELEMENT: SDAI.Initializable.ByComplexEntity
 {
-	public init?<T: SDAI.ARRAY__TypeBehavior>(_ arraytype: T?) 
+  public init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		guard let arraytype = arraytype else { return nil }
@@ -381,10 +398,10 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 
 
 
-extension SDAI.ARRAY: SDAI.InitializableByDefinedtypeArray
-where ELEMENT: SDAI.InitializableByDefinedType
+extension SDAI.ARRAY: SDAI.Initializable.ByDefinedtypeArray
+where ELEMENT: SDAI.Initializable.ByDefinedType
 {
-	public init?<T: SDAI.ARRAY__TypeBehavior>(_ arraytype: T?) 
+  public init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
 	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		guard let arraytype = arraytype else { return nil }

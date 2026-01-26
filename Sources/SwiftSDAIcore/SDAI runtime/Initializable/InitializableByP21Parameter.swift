@@ -8,8 +8,9 @@
 
 import Foundation
 
-extension SDAI {
-  public protocol InitializableByP21Parameter: SDAI.InitializableByGenericType
+extension SDAI.Initializable {
+  /// from p21 exchange structure parameters
+  public protocol ByP21Parameter: SDAI.Initializable.ByGenericType
   {
     static var bareTypeName: String {get}
 
@@ -53,7 +54,7 @@ extension SDAI {
 }
 
 //MARK: - bareTypeName
-public extension SDAI.InitializableByP21Parameter where Self: SDAI.EntityReference
+public extension SDAI.Initializable.ByP21Parameter where Self: SDAI.EntityReference
 {
 	static var bareTypeName: String {
 		self.entityDefinition.name
@@ -62,7 +63,7 @@ public extension SDAI.InitializableByP21Parameter where Self: SDAI.EntityReferen
 
 
 //MARK: - init from ExchangeStructure.Parameter
-public extension SDAI.InitializableByP21Parameter
+public extension SDAI.Initializable.ByP21Parameter
 {
 	init?(
 		p21param: P21Decode.ExchangeStructure.Parameter,
@@ -90,7 +91,7 @@ public extension SDAI.InitializableByP21Parameter
 }
 
 //MARK: - init from ExchangeStructure.TypedParameter
-public extension SDAI.InitializableByP21Parameter
+public extension SDAI.Initializable.ByP21Parameter
 {
 	init?(
 		p21typedParam: P21Decode.ExchangeStructure.TypedParameter,
@@ -102,7 +103,7 @@ public extension SDAI.InitializableByP21Parameter
 }
 
 //MARK: - init form ExchangeStructure.UntypedParameter
-public extension SDAI.InitializableByP21Parameter
+public extension SDAI.Initializable.ByP21Parameter
 where Self: SDAI.DefinedType
 {
 	init?(
@@ -114,7 +115,7 @@ where Self: SDAI.DefinedType
 	}
 }
 
-public extension SDAI.InitializableByP21Parameter
+public extension SDAI.Initializable.ByP21Parameter
 where Self: SDAI.EntityReference
 {
 	init?(
@@ -150,7 +151,7 @@ where Self: SDAI.EntityReference
 
 
 //MARK: - init from p21omittedParam
-public extension SDAI.InitializableByP21Parameter
+public extension SDAI.Initializable.ByP21Parameter
 where Self: SDAI.DefinedType
 {
 	init?(
@@ -162,7 +163,7 @@ where Self: SDAI.DefinedType
 
 }
 
-public extension SDAI.InitializableByP21Parameter
+public extension SDAI.Initializable.ByP21Parameter
 where Self: SDAI.EntityReference
 {
 	init?(

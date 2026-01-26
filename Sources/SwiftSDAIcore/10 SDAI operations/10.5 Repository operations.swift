@@ -20,6 +20,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	///
 	/// - Returns: The newly created SdaiModel.
 	/// 
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionRW``
+  ///
 	public func createSdaiModel(
 		repository: SDAISessionSchema.SdaiRepository,
 		modelName: SDAISessionSchema.STRING,
@@ -60,6 +62,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	///
 	/// - Returns: The newly created schema instance with RW mode.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionRW``
+  ///
 	public func createSchemaInstance(
 		repository: SDAISessionSchema.SdaiRepository,
 		name: SDAISessionSchema.STRING,
@@ -107,6 +111,8 @@ extension SDAISessionSchema.SdaiTransaction {
 	///   - repository: The repository to be closed.
 	///   - disposition: disposition on the current transaction before performing the close repository operation.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransaction``
+  ///
 	public func close(
 		repository: SDAISessionSchema.SdaiRepository,
 		disposition: SDAISessionSchema.SdaiTransaction.Disposition<Void>

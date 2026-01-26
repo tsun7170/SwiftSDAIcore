@@ -376,7 +376,7 @@ extension SDAI {
 		}
 		
 		//MARK: - express built-in function support
-		public var usedInDomain: some Collection<SDAIPopulationSchema.SdaiModel>
+		public var usedInDomain: some Collection<SDAIPopulationSchema.SdaiModel> & Sendable
 		{
 			let parentModel = self.owningModel
 			var domain = Set(parentModel.associatedWith.lazy.flatMap{ $0.associatedModels })
@@ -407,9 +407,12 @@ extension SDAI {
 			return roles
 		}
 		
-		public var roles: Set<STRING> { 
+		public func roles(
+      domain: some Collection<SDAIPopulationSchema.SdaiModel> & Sendable
+    ) -> Set<STRING>
+    {
 			var result: Set<STRING> = []
-			for model in self.usedInDomain {
+			for model in domain {
 				for complex in model.contents.allComplexEntities {
 					for entity in complex.entityReferences {
 						result.formUnion( self.findEssentialRoles(in: entity).lazy.map{ (attrDef) in
@@ -486,6 +489,7 @@ extension SDAI {
 
     private func kickOffCacheFilling(
       excluding: Array<ComplexEntity>,
+      domain: some Collection<SDAIPopulationSchema.SdaiModel> & Sendable,
       session: SDAISessionSchema.SdaiSession
     ) async
     {
@@ -526,7 +530,7 @@ extension SDAI {
               {
                 for complex in complexes {
                   if Task.isCancelled { return }
-                  let _ = complex.usedIn()
+                  let _ = complex.usedIn(domain: domain)
 
                   await Task.yield()
                 }
@@ -541,7 +545,9 @@ extension SDAI {
 		@TaskLocal
 		internal static var excluding1:Array<ComplexEntity> = []
 
-		public func usedIn() -> Array<GenericPersistentEntityReference>
+		public func usedIn(
+      domain: some Collection<SDAIPopulationSchema.SdaiModel> & Sendable
+    ) -> Array<GenericPersistentEntityReference>
     {
       guard !Self.excluding1.contains(self),
             !Task.isCancelled
@@ -560,6 +566,7 @@ extension SDAI {
           Task(name: "SDAI.usedin.kickOffCacheFilling") {
             await self.kickOffCacheFilling(
               excluding: Self.excluding1,
+              domain: domain,
               session: session)
           }
         }
@@ -569,7 +576,7 @@ extension SDAI {
 
         let selfPRef = GenericPersistentEntityReference(self)
 
-        for model in self.usedInDomain {
+        for model in domain {
           var modelResult: Set<GenericPersistentEntityReference> = []
 
           if let (level,cached) = self.usedInValueCache.withLock({$0[model]}),
@@ -647,7 +654,10 @@ extension SDAI {
       return Array(extent)
     }
 
-		public func usedIn<ENT, R>( as role: KeyPath<ENT,R> ) -> Array<ENT.PRef>
+		public func usedIn<ENT, R>(
+      as role: KeyPath<ENT,R>,
+      domain: some Collection<SDAIPopulationSchema.SdaiModel> & Sendable
+    ) -> Array<ENT.PRef>
 		where ENT: EntityReference & SDAI.DualModeReference,
 					R:   SDAI.GenericType
     {
@@ -655,7 +665,7 @@ extension SDAI {
 
       let selfPRef = GenericPersistentEntityReference(self)
 
-      for model in self.usedInDomain {
+      for model in domain {
         if Task.isCancelled { return Array(result) }
 
         guard let entityExtent = self.entityExtent(of: ENT.self, in: model)
@@ -683,7 +693,10 @@ extension SDAI {
     }
 
 
-		public func usedIn<ENT, R>( as role: KeyPath<ENT,R?> ) -> Array<ENT.PRef>
+		public func usedIn<ENT, R>(
+      as role: KeyPath<ENT,R?>,
+      domain: some Collection<SDAIPopulationSchema.SdaiModel> & Sendable
+    ) -> Array<ENT.PRef>
 		where ENT: EntityReference & SDAI.DualModeReference,
 					R:   SDAI.GenericType
     {
@@ -691,7 +704,7 @@ extension SDAI {
 
       let selfPRef = GenericPersistentEntityReference(self)
 
-      for model in self.usedInDomain {
+      for model in domain {
         if Task.isCancelled { return Array(result) }
 
         guard let entityExtent = self.entityExtent(of: ENT.self, in: model)
@@ -719,7 +732,10 @@ extension SDAI {
     }
 
 
-		public func usedIn(as role:String) -> Array<GenericPersistentEntityReference>
+		public func usedIn(
+      as role:String,
+      domain: some Collection<SDAIPopulationSchema.SdaiModel> & Sendable
+    ) -> Array<GenericPersistentEntityReference>
     {
       let parentModel = self.owningModel
       let roleSpec = role.split(separator: ".", omittingEmptySubsequences: false)
@@ -735,7 +751,7 @@ extension SDAI {
 
       let selfPRef = GenericPersistentEntityReference(self)
 
-      for model in self.usedInDomain {
+      for model in domain {
         if Task.isCancelled { return Array(result) }
 
         guard let entityExtent = self.entityExtent(of: entityDef.type, in: model)

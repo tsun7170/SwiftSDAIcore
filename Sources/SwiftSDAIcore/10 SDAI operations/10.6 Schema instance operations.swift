@@ -40,6 +40,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	/// - Parameter instance: The schema instance to which read-write access is to be allowed.
 	/// - Returns: updated reference to the schema instance promoted to RW if operation is successful.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionRW``
+  ///
 	public func promoteSchemaInstanceToReadWrite(
 		instance: SDAIPopulationSchema.SchemaInstance,
 	) -> SDAIPopulationSchema.SchemaInstance?
@@ -56,6 +58,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	/// - Parameter instance: The schema instance (in RW mode) to be deleted.
 	/// - Returns: true if operation is successful.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionRW``
+  ///
 	@discardableResult
 	public func deleteSchemaInstance(
 		instance: SDAIPopulationSchema.SchemaInstance
@@ -94,6 +98,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	///   - name: The new name for the schema instance.
 	/// - Returns: new reference to the modified schema instance if the operation is successful.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionRW``
+  ///
 	public func renameSchemaInstance(
 		instance: SDAIPopulationSchema.SchemaInstance,
 		name: SDAIPopulationSchema.STRING
@@ -140,6 +146,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	///   - model: The SDAI-model that is to be associated with the schema instance.
 	/// - Returns: true when operation is successful
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionRW``
+  ///
 	public func addSdaiModel(
 		instance schemaInstance: SDAIPopulationSchema.SchemaInstance,
 		model: SDAIPopulationSchema.SdaiModel
@@ -190,6 +198,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	/// - Parameter model: The SDAI-model that is to be removed from the schema instance.
 	/// - Returns: true indicating the success of the operation.
 	/// 
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionRW``
+  ///
 	public func removeSdaiModel(
 		instance: SDAIPopulationSchema.SchemaInstance,
 		model: SDAIPopulationSchema.SdaiModel
@@ -239,6 +249,8 @@ extension SDAISessionSchema.SdaiTransactionVA {
   /// - Parameter instance: The schema instance to which read-write access is to be allowed.
   /// - Returns: updated reference to the schema instance promoted to RW if operation is successful.
   ///
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionVA``
+  ///
   public func promoteSchemaInstanceToReadWrite(
     instance: SDAIPopulationSchema.SchemaInstance,
   ) -> SDAIPopulationSchema.SchemaInstance?
@@ -280,6 +292,8 @@ extension SDAISessionSchema.SdaiTransaction {
 	///
 	/// - Returns: the result of global rule validation, including logical value indicating TRUE if Rule is satisfied, FALSE if the rule is not satisfied, and UNKNOWN if the expression evaluates to an indeterminate or UNKNOWN value. The result record also contains a list of where_rule within global rule to which SchemaInstance did not conform.
 	/// 
+  ///- defined in: ``SDAISessionSchema/SdaiTransaction``
+  ///
 	public func validateGlobalRule(
 		instance: SDAIPopulationSchema.SchemaInstance,
 		rule: SDAIDictionarySchema.GlobalRule,
@@ -319,6 +333,8 @@ extension SDAISessionSchema.SdaiTransaction {
 	///
 	///  - Returns: result of validation, including logical value indicating TRUE if the rule is satisfied, FALSE if the rule is not satisfied, and UNKNOWN if an optional explicit attribute was unset, if a derived attribute value was indeterminate or UNKNOWN or if an inverse attribute had no value.
 	/// 
+  ///- defined in: ``SDAISessionSchema/SdaiTransaction``
+  ///
 	 public func validateUniquenessRule(
 		instance: SDAIPopulationSchema.SchemaInstance,
 		rule: SDAIDictionarySchema.UniquenessRule
@@ -353,6 +369,8 @@ extension SDAISessionSchema.SdaiTransaction {
   ///
 	/// - Returns: result of validation, including logical value indicating TRUE if all the assigned attributes of _object_ are to entity instances in _instance_, FALSE if not, and UNKNOWN if any required explicit attribute values are unset that could reference an entity instance.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransaction``
+  ///
 	public func validateInstanceReferenceDomain(
 		instance: SDAIPopulationSchema.SchemaInstance,
 		object: SDAIParameterDataSchema.ApplicationInstance,
@@ -471,8 +489,8 @@ extension SDAISessionSchema.SdaiTransaction {
 }//SdaiTransaction
 
 extension SDAISessionSchema.SdaiTransactionRW {
-	/// ISO 10303-22 (10.6.8) Validate schema instance
-	/// 
+	/// ISO 10303-22 (10.6.8) Validate schema instance (under SdaiTransactionRW)
+	///
 	/// This operation determines whether the population associated with a schema instance conforms to all constraints specified within the schema upon which the scheme instance is based.
 	/// 
 	/// This operation updates the validation information maintained within the schema instance.
@@ -483,6 +501,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	///   - monitor: validation activity monitor object, with which the progress of the validation can be tracked.
 	/// - Returns: TRUE if all the constraints from the schema upon which SchemaInstance is based are met, FLASE if any constraint is violated, and UNKNOWN any constraint resulted in UNKNOWN.
 	/// 
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionRW``
+  ///
 	public func validateSchemaInstance(
 		instance: SDAIPopulationSchema.SchemaInstance,
 		option: SDAIPopulationSchema.ValidationRecordingOption = .recordFailureOnly,
@@ -494,7 +514,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 	}
 
 
-  /// ISO 10303-22 (10.6.8) Validate schema instance (async)
+  /// ISO 10303-22 (10.6.8) Validate schema instance (async)(under SdaiTransactionRW)
   ///
   /// This operation determines whether the population associated with a schema instance conforms to all constraints specified within the schema upon which the scheme instance is based.
   ///
@@ -505,6 +525,8 @@ extension SDAISessionSchema.SdaiTransactionRW {
   ///   - option: mode of validation result recording.
   ///   - monitor: validation activity monitor object, with which the progress of the validation can be tracked.
   /// - Returns: TRUE if all the constraints from the schema upon which SchemaInstance is based are met, FLASE if any constraint is violated, and UNKNOWN any constraint resulted in UNKNOWN.
+  ///
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionRW``
   ///
   public func validateSchemaInstanceAsync(
     instance: SDAIPopulationSchema.SchemaInstance,
@@ -519,7 +541,7 @@ extension SDAISessionSchema.SdaiTransactionRW {
 }//SdaiTransactionRW
 
 extension SDAISessionSchema.SdaiTransactionVA {
-  /// ISO 10303-22 (10.6.8) Validate schema instance
+  /// ISO 10303-22 (10.6.8) Validate schema instance (under SdaiTransactionVA)
   ///
   /// This operation determines whether the population associated with a schema instance conforms to all constraints specified within the schema upon which the scheme instance is based.
   ///
@@ -530,6 +552,8 @@ extension SDAISessionSchema.SdaiTransactionVA {
   ///   - option: mode of validation result recording.
   ///   - monitor: validation activity monitor object, with which the progress of the validation can be tracked.
   /// - Returns: TRUE if all the constraints from the schema upon which SchemaInstance is based are met, FLASE if any constraint is violated, and UNKNOWN any constraint resulted in UNKNOWN.
+  ///
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionVA``
   ///
   public func validateSchemaInstance(
     instance: SDAIPopulationSchema.SchemaInstance,
@@ -542,7 +566,7 @@ extension SDAISessionSchema.SdaiTransactionVA {
   }
 
 
-  /// ISO 10303-22 (10.6.8) Validate schema instance (async)
+  /// ISO 10303-22 (10.6.8) Validate schema instance (async)(under SdaiTransactionVA)
   ///
   /// This operation determines whether the population associated with a schema instance conforms to all constraints specified within the schema upon which the scheme instance is based.
   ///
@@ -554,6 +578,8 @@ extension SDAISessionSchema.SdaiTransactionVA {
   ///   - monitor: validation activity monitor object, with which the progress of the validation can be tracked.
   /// - Returns: TRUE if all the constraints from the schema upon which SchemaInstance is based are met, FLASE if any constraint is violated, and UNKNOWN any constraint resulted in UNKNOWN.
   ///
+  ///- defined in: ``SDAISessionSchema/SdaiTransactionVA``
+  ///
   public func validateSchemaInstanceAsync(
     instance: SDAIPopulationSchema.SchemaInstance,
     option: SDAIPopulationSchema.ValidationRecordingOption = .recordFailureOnly,
@@ -564,7 +590,7 @@ extension SDAISessionSchema.SdaiTransactionVA {
       instance: instance, option: option, monitor: monitor)
   }
 
-}//SdaiTransactionRW
+}//SdaiTransactionVA
 
 
 extension SDAISessionSchema.SdaiTransaction {
@@ -579,6 +605,8 @@ extension SDAISessionSchema.SdaiTransaction {
 	/// - Returns: TRUE if SchemaInstance validation result is currently set to TRUE and no modification to SchemaInstance or member of SchemaInstance.associatedModels since the last validation was performed is found, otherwise FALSE.
 	/// The validation result not being set or any modification found will result in the operation determining that validation is not current.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiTransaction``
+  ///
 	public func isValidationCurrent(
 		instance: SDAIPopulationSchema.SchemaInstance
 	) -> SDAI.LOGICAL

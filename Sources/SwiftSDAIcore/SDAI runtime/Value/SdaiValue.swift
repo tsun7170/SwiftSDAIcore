@@ -10,6 +10,18 @@ import Foundation
 
 extension SDAI {
   
+  /// A protocol for types that represent a value in the SDAI model.
+  /// 
+  /// Conforming types must be `Hashable` and define equality semantics for comparing
+  /// values of potentially different `Value` conforming types, including support for
+  /// optional comparisons and custom hashing strategies. This protocol provides the 
+  /// foundation for value semantics within the SDAI system, including complex entity 
+  /// traversal and optional presence.
+  ///
+  /// - Note: Implementations should ensure that equality checks and hashing work consistently
+  ///         with the semantics of the underlying data model, including when values are
+  ///         part of complex entity structures.
+  ///
   public protocol Value: Hashable//, Sendable
   {
     func isValueEqual<T: SDAI.Value>(

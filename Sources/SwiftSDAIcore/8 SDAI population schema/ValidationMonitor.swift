@@ -11,6 +11,23 @@ import Foundation
 extension SDAIPopulationSchema {
 
 	//MARK: - ValidationMonitor
+
+  /// A base class for monitoring the progress and results of schema instance validation.
+  /// 
+  /// Subclass this type to observe or record events during the validation process, such as
+  /// when rules are about to be validated, after they complete, and after each individual rule
+  /// or instance reference domain check.
+  /// 
+  /// This class is `@unchecked Sendable` to support use with Swift concurrency, but subclasses 
+  /// should ensure thread safety if needed.
+  /// 
+  /// #### Usage
+  /// Override the appropriate methods in this class to observe validation events. Each method
+  /// provides relevant context, such as the rules or entities being validated, and the results 
+  /// of validation steps.
+  ///
+  /// - Note: The `terminateValidation` property can be overridden to provide custom termination
+  ///   logic. By default, validation is terminated if the current Swift concurrency task is cancelled.
   open class ValidationMonitor: @unchecked Sendable {
 		public init() {}
 		
@@ -63,6 +80,15 @@ extension SDAIPopulationSchema {
 	//MARK: - validation related
 	public typealias WhereLabel = SDAIDictionarySchema.ExpressId
 
+  /// An option that specifies how validation results should be recorded during schema instance validation.
+  ///
+  /// Use this enumeration to control whether all validation results or only failures are recorded,
+  /// allowing you to optimize for performance or detail level during validation monitoring.
+  ///
+  /// - `recordFailureOnly`: Record only validation failures. This option reduces memory usage and
+  ///   processing time by omitting successful results from the log, providing a focused summary of issues.
+  /// - `recordAll`: Record all validation results, including both successes and failures. This option
+  ///   produces a comprehensive log useful for auditing or detailed diagnostics.
   public enum ValidationRecordingOption: Sendable {
 		case recordFailureOnly
 		case recordAll
@@ -73,6 +99,19 @@ extension SDAIPopulationSchema {
 
 	public typealias WhereRuleValidationRecords = [WhereLabel:SDAI.LOGICAL]
 
+  /// Represents the result of validating a global rule against a set of complex entities in a schema instance.
+  ///
+  /// This structure encapsulates the rule that was validated, its overall Boolean result, and a detailed record
+  /// of results for each checked WHERE label within the rule. It is useful for monitoring, reporting, or
+  /// analyzing the outcome of schema instance validation processes.
+  ///
+  /// - Parameters:
+  ///   - globalRule: The global rule instance that was validated.
+  ///   - result: The overall Boolean result of the validation (`TRUE`, `FALSE`, or `UNKNOWN`), as defined by the EXPRESS specification.
+  ///   - record: A mapping from WHERE rule labels to their individual Boolean results (`LOGICAL`), providing per-label detail of the validation outcome.
+  ///
+  /// - Note: The `description` property yields a human-readable summary of the global rule, its overall result,
+  ///   and the individual WHERE rule results.
 	public struct GlobalRuleValidationResult:CustomStringConvertible, Sendable {
     public var description: String {
       var str = "GlobalRuleValidationResult(\(globalRule.name) result:\(result)\n"
@@ -106,6 +145,19 @@ extension SDAIPopulationSchema {
 
 	public typealias UniquenessRuleSignature = (_ entity: SDAI.EntityReference) -> AnyHashable?
 
+  /// Represents the result of validating a uniqueness rule against a set of entity instances in a schema instance.
+  ///
+  /// This structure encapsulates the uniqueness rule that was validated, its Boolean result, and a record of
+  /// the count of unique values and the total number of instances checked. It is useful for monitoring,
+  /// reporting, or analyzing the outcome of schema instance uniqueness validations.
+  ///
+  /// - Parameters:
+  ///   - uniquenessRule: The uniqueness rule instance that was validated.
+  ///   - result: The overall Boolean result of the validation (`TRUE`, `FALSE`, or `UNKNOWN`), as defined by the EXPRESS specification.
+  ///   - record: A tuple containing the count of unique values and the total number of instances checked for the rule.
+  ///
+  /// - Note: This structure does not provide a textual description by default. For custom reporting, you may
+  ///   extend it or manually construct a string representation as needed.
 	public struct UniquenessRuleValidationResult: Sendable {
 		public var uniquenessRule: SDAIDictionarySchema.UniquenessRule
 		public var result: SDAI.LOGICAL
@@ -125,6 +177,17 @@ extension SDAIPopulationSchema {
 
 
 
+  /// Represents the result of validating WHERE rules on a complex entity or set of entities.
+  ///
+  /// This structure encapsulates the overall Boolean result of the validation, as well as a detailed record
+  /// of individual results for each WHERE rule label checked. It is useful for monitoring, reporting, or
+  /// analyzing the outcome of schema instance WHERE rule validation steps.
+  ///
+  /// - Parameters:
+  ///   - result: The overall Boolean result of all validated WHERE rules (`TRUE`, `FALSE`, or `UNKNOWN`), as defined by the EXPRESS specification.
+  ///   - record: A mapping from WHERE rule labels to their individual Boolean results (`LOGICAL`). Each entry in this dictionary provides the outcome for a specific WHERE label.
+  ///
+  /// - Note: The `description` property yields a human-readable summary of the overall result and each individual WHERE label's result.
 	public struct WhereRuleValidationResult: CustomStringConvertible, Sendable {
 		public var description: String {
 			var str = "WhereRuleValidationResult( result:\(result)\n"
@@ -146,6 +209,21 @@ extension SDAIPopulationSchema {
 	public typealias InstanceReferenceDomainValidationRecord =
 	(definition: SDAIDictionarySchema.AttributeType, value: SDAI.GENERIC?, result: SDAI.LOGICAL)
 
+  /// Represents the result of validating the domain of instance references for an application instance in a schema.
+  /// 
+  /// This structure encapsulates both the overall Boolean result of the domain validation and a detailed record
+  /// of results for each attribute checked. It is useful for monitoring, reporting, or analyzing the outcome of 
+  /// instance reference domain validation steps, such as ensuring that the referenced entities conform to the expected types.
+  /// 
+  /// - Parameters:
+  ///   - result: The overall Boolean result of the validation (`TRUE`, `FALSE`, or `UNKNOWN`), as defined by the EXPRESS specification.
+  ///   - record: An array of tuples, each containing:
+  ///       - `definition`: The attribute type definition being validated.
+  ///       - `value`: The value of the attribute that was checked (or `nil` if not present).
+  ///       - `result`: The Boolean result for that attribute's domain validation.
+  /// 
+  /// - Note: The `description` property yields a human-readable summary of the overall result and each attribute's validation outcome.
+  ///   This structure is `Sendable` to support use with Swift concurrency.
 	public struct InstanceReferenceDomainValidationResult: CustomStringConvertible, Sendable {
 		public var description: String {
 			var str = "InstanceReferenceDomainValidationResult( result:\(result)\n"

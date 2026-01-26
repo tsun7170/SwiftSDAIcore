@@ -10,13 +10,13 @@ import Foundation
 
 
 //MARK: - REAL subtype (8.1.2, 8.3.2)
-extension SDAI {
-  public protocol REAL__Subtype: SDAI.REAL__TypeBehavior, SDAI.DefinedType
-  where Supertype: SDAI.REAL__TypeBehavior
+extension SDAI.TypeHierarchy {
+  public protocol REAL__Subtype: SDAI.TypeHierarchy.REAL__TypeBehavior, SDAI.DefinedType
+  where Supertype: SDAI.TypeHierarchy.REAL__TypeBehavior
   {}
 }
 
-public extension SDAI.REAL__Subtype
+public extension SDAI.TypeHierarchy.REAL__Subtype
 {
 	// InitializableByGenerictype
 	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {

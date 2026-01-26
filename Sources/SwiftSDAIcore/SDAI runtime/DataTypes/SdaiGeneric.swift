@@ -172,7 +172,28 @@ fileprivate final class _GenericBox<G: SDAI.GenericType>: _AnyGenericBox, @unche
 
 
 //MARK: - SDAI__GENERIC__type
-extension SDAI {
+extension SDAI.TypeHierarchy {
+  /// A protocol that aggregates the required behaviors for type-erased, generic EXPRESS values.
+  ///
+  /// `GENERIC__TypeBehavior` is adopted by types intended to represent the EXPRESS `GENERIC` type in Swift,
+  /// providing a unified interface for all the capabilities required of a type-erased, boxed generic value.
+  /// 
+  /// ## Conformance Requirements:
+  /// - `SDAI.GenericType`: Ensures conformance to the EXPRESS base type system and essential copying and value extraction.
+  /// - `SDAI.EntityReferenceYielding`: Allows traversal and inspection of entity references contained in the generic value.
+  /// - `SDAI.DualModeReference`: Supports dual-mode reference semantics (persistent and transient forms) required by EXPRESS.
+  /// - `SDAI.PersistentReference`: Enables handling and conversion of persistent entity references.
+  ///
+  /// ## Purpose:
+  /// This protocol is not intended to be implemented directly by user types, but is used as a type constraint
+  /// for boxed, type-erased generic values (such as `SDAI.GENERIC`). It enables dynamic dispatch and abstraction
+  /// of EXPRESS generic attributes, collections, and parameters, supporting type-safe operations and conversions
+  /// across the EXPRESS type hierarchy.
+  ///
+  /// ## Usage:
+  /// Use `GENERIC__TypeBehavior` as a type constraint or existential type when you need to work with any value
+  /// conforming to all of the EXPRESS generic protocols listed above, particularly in the context of EXPRESS
+  /// generic attribute values, collection elements, or dynamic EXPRESS data manipulation.
   public protocol GENERIC__TypeBehavior:
     SDAI.GenericType,
     SDAI.EntityReferenceYielding,
@@ -184,7 +205,34 @@ extension SDAI {
 //MARK: - SDAI.GENERIC
 extension SDAI {
   
-	public struct GENERIC: SDAI.GENERIC__TypeBehavior, CustomStringConvertible
+  /// A type-erased, boxed representation of any value conforming to `SDAI.GenericType`.
+  ///
+  /// `SDAI.GENERIC` enables the storage, manipulation, and transmission of values that conform to `SDAI.GenericType`,
+  /// erasing their specific underlying type. This is particularly useful for expressing EXPRESS's GENERIC type in a type-safe manner,
+  /// while allowing dynamic dispatch of common operations and value conversions required by generic EXPRESS attributes or parameters.
+  ///
+  /// ## Key Features:
+  /// - Type-erasure for any `SDAI.GenericType`.
+  /// - Provides dynamic access to underlying values with type-safe conversion functions for EXPRESS base types (e.g., STRING, NUMBER, ENTITY).
+  /// - Supports EXPRESS generic collections (ARRAY, LIST, BAG, SET) and enumeration values.
+  /// - Implements protocols for entity reference traversal and dual-mode/persistent references.
+  /// - Suitable for use in collections, persistent storage, and as a bridge for EXPRESS generic attributes.
+  ///
+  /// ## Usage:
+  /// Use `SDAI.GENERIC` to box a value of any type conforming to `SDAI.GenericType`:
+  /// ```swift
+  /// let value: SomeSDAIType = ...
+  /// let genericValue = SDAI.GENERIC(value)
+  /// ```
+  ///
+  /// Provides properties and methods to extract EXPRESS-typed values, traverse references, and perform generic operations,
+  /// regardless of the underlying type.
+  ///
+  /// ## Implementation:
+  /// - Wraps an internal private box for type-erasure and polymorphic dispatch.
+  /// - Conforms to `SDAI.TypeHierarchy.GENERIC__TypeBehavior`, `CustomStringConvertible`, and EXPRESS-specific protocols.
+  ///
+	public struct GENERIC: SDAI.TypeHierarchy.GENERIC__TypeBehavior, CustomStringConvertible
 	{
 		public typealias FundamentalType = Self
 		public typealias Value = GenericValue

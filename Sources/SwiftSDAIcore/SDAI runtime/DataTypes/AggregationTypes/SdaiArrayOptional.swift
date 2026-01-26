@@ -18,23 +18,38 @@ extension SDAI {
   /// This corresponds to the EXPRESS `ARRAY [lo:hi] OF OPTIONAL Element` construct, where each element in the collection may be absent (`nil`).
   ///
   /// Types conforming to this protocol:
-  /// - Must also conform to `SDAI.ArrayType` and support initialization by the void value (`SDAI.InitializableByVoid`).
+  /// - Must also conform to `SDAI.ArrayType` and support initialization by the void value (`SDAI.Initializable.ByVoid`).
   /// - Provide basic behaviors and conversions for handling EXPRESS optional array values in Swift.
   ///
   /// See also:
   /// - [ISO 10303-11:2004, Section 8.2.1 ARRAY data type](https://www.iso.org/standard/38046.html)
   /// - `SDAI.ARRAY_OPTIONAL`
   /// - `SDAI.ArrayType`
-  /// - `SDAI.InitializableByVoid`
-  public protocol ArrayOptionalType: SDAI.ArrayType, SDAI.InitializableByVoid
+  /// - `SDAI.Initializable.ByVoid`
+  public protocol ArrayOptionalType: SDAI.ArrayType, SDAI.Initializable.ByVoid
   {}
 }
 
 
 //MARK: - ARRAY_OPTIONAL type
-extension SDAI {
+extension SDAI.TypeHierarchy {
+  /// A protocol describing the behavior required for types conforming to the EXPRESS `ARRAY [lo:hi] OF OPTIONAL Element` data type (`ARRAY_OPTIONAL` in the SDAI standard).
+  ///
+  /// Types conforming to `ARRAY_OPTIONAL__TypeBehavior`:
+  /// - Represent an ordered collection (array) where each element may be either a value of the specified `ELEMENT` type or nil, matching the EXPRESS notion of an optional array element.
+  /// - Must conform to `SDAI.ArrayOptionalType`, indicating support for optional elements, as well as array-specific behaviors.
+  /// - Must be initializable by an empty array literal and by a generic array with optional elements, to allow for flexible creation and conversion among various aggregate types.
+  /// - Provide type aliases aligning their element, fundamental, value, and Swift type representations with the underlying `SDAI.ARRAY_OPTIONAL` type.
+  /// - Support aggregate operations and EXPRESS-compatible semantics for optional arrays, enabling EXPRESS-defined behaviors in Swift.
+  ///
+  /// This protocol is typically adopted by generic wrappers and aggregate types that need to exhibit EXPRESS-compliant optional array semantics, including initialization, copying, conversion, and value extraction.
+  ///
+  /// - SeeAlso:
+  ///   - `SDAI.ARRAY_OPTIONAL`
+  ///   - `SDAI.ArrayOptionalType`
+  ///   - [ISO 10303-11:2004, Section 8.2.1 ARRAY data type](https://www.iso.org/standard/38046.html)
   public protocol ARRAY_OPTIONAL__TypeBehavior:
-    SDAI.ArrayOptionalType, SDAI.InitializableByEmptyArrayLiteral, SDAI.InitializableByGenericArrayOptional
+    SDAI.ArrayOptionalType, SDAI.Initializable.ByEmptyArrayLiteral, SDAI.Initializable.ByGenericArrayOptional
   where Element == ELEMENT?,
         FundamentalType == SDAI.ARRAY_OPTIONAL<ELEMENT>,
         Value == FundamentalType.Value,
@@ -73,16 +88,16 @@ extension SDAI {
   /// - SeeAlso:
   ///   - `SDAI.ArrayOptionalType`
   ///   - `SDAI.ArrayType`
-  ///   - `SDAI.InitializableByVoid`
-	public struct ARRAY_OPTIONAL<ELEMENT:SDAI.GenericType>: SDAI.ARRAY_OPTIONAL__TypeBehavior
+  ///   - `SDAI.Initializable.ByVoid`
+  public struct ARRAY_OPTIONAL<ELEMENT:SDAI.GenericType>: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior
 	{
 		public typealias SwiftType = Array<ELEMENT?>
 		public typealias FundamentalType = Self
 		
 		fileprivate var rep: SwiftType
-		private var bound1: Int
-		private var bound2: Int
-		
+		private let bound1: Int
+		private let bound2: Int
+
 		// Equatable \Hashable\SDAI.GenericType
 		public static func == (lhs: SDAI.ARRAY_OPTIONAL<ELEMENT>, rhs: SDAI.ARRAY_OPTIONAL<ELEMENT>) -> Bool {
 			return lhs.rep == rhs.rep &&
@@ -225,7 +240,7 @@ extension SDAI {
 		}
 
 		// InitializableByGenericArray
-		public init?<T: SDAI.ARRAY__TypeBehavior>(generic arraytype: T?) {
+    public init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(generic arraytype: T?) {
 			guard let arraytype = arraytype else { return nil }
 			self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]){ 
 				guard let conv = ELEMENT.convert(fromGeneric: $0) else { return (false,nil) }
@@ -234,7 +249,7 @@ extension SDAI {
 		} 
 
 		// InitializableByGenericArrayOptional
-		public init?<T: SDAI.ARRAY_OPTIONAL__TypeBehavior>(generic arraytype: T?) {
+    public init?<T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(generic arraytype: T?) {
 			guard let arraytype = arraytype else { return nil }
 			self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { 
 				if( $0 == nil ) { return (true,nil) }
@@ -261,7 +276,7 @@ extension SDAI {
 			assert(rep.count == self.size)
 		} 
 		
-		// SDAI.InitializableByArrayLiteral
+		// SDAI.Initializable.ByArrayLiteral
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
 			bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
 		{
@@ -357,10 +372,10 @@ where ELEMENT: SDAI.PersistentReference
 }
 
 
-extension SDAI.ARRAY_OPTIONAL: SDAI.InitializableBySelecttypeArrayOptional, SDAI.InitializableBySelecttypeArray
-where ELEMENT: SDAI.InitializableBySelectType
+extension SDAI.ARRAY_OPTIONAL: SDAI.Initializable.BySelecttypeArrayOptional, SDAI.Initializable.BySelecttypeArray
+where ELEMENT: SDAI.Initializable.BySelectType
 {
-	public init?<T: SDAI.ARRAY_OPTIONAL__TypeBehavior>(_ arraytype: T?) 
+  public init?<T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(_ arraytype: T?)
 	where T.ELEMENT: SDAI.SelectType
 	{
 		guard let arraytype = arraytype else { return nil }
@@ -371,7 +386,7 @@ where ELEMENT: SDAI.InitializableBySelectType
 		}
 	}
 	
-	public init?<T: SDAI.ARRAY__TypeBehavior>(_ arraytype: T?) 
+  public init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
 	where T.ELEMENT: SDAI.SelectType
 	{
 		guard let arraytype = arraytype else { return nil }
@@ -384,10 +399,10 @@ where ELEMENT: SDAI.InitializableBySelectType
 
 
 
-extension SDAI.ARRAY_OPTIONAL: SDAI.InitializableByEntityArrayOptional, SDAI.InitializableByEntityArray
-where ELEMENT: SDAI.InitializableByComplexEntity
+extension SDAI.ARRAY_OPTIONAL: SDAI.Initializable.ByEntityArrayOptional, SDAI.Initializable.ByEntityArray
+where ELEMENT: SDAI.Initializable.ByComplexEntity
 {
-	public init?<T: SDAI.ARRAY_OPTIONAL__TypeBehavior>(_ arraytype: T?) 
+  public init?<T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(_ arraytype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		guard let arraytype = arraytype else { return nil }
@@ -398,7 +413,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 		}
 	}
 	
-	public init?<T: SDAI.ARRAY__TypeBehavior>(_ arraytype: T?) 
+  public init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
 		guard let arraytype = arraytype else { return nil }
@@ -411,10 +426,10 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 
 
 
-extension SDAI.ARRAY_OPTIONAL: SDAI.InitializableByDefinedtypeArrayOptional, SDAI.InitializableByDefinedtypeArray
-where ELEMENT: SDAI.InitializableByDefinedType
+extension SDAI.ARRAY_OPTIONAL: SDAI.Initializable.ByDefinedtypeArrayOptional, SDAI.Initializable.ByDefinedtypeArray
+where ELEMENT: SDAI.Initializable.ByDefinedType
 {
-	 public init?<T: SDAI.ARRAY_OPTIONAL__TypeBehavior>(_ arraytype: T?) 
+  public init?<T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(_ arraytype: T?)
 	 where T.ELEMENT: SDAI.UnderlyingType
 	 {
 		guard let arraytype = arraytype else { return nil }
@@ -425,7 +440,7 @@ where ELEMENT: SDAI.InitializableByDefinedType
 		}
 	 }
 	
-	public init?<T: SDAI.ARRAY__TypeBehavior>(_ arraytype: T?) 
+  public init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
 	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		guard let arraytype = arraytype else { return nil }

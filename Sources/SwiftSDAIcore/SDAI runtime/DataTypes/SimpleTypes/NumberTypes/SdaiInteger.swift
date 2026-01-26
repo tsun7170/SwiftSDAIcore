@@ -21,7 +21,33 @@ extension SDAI {
   {}
 }
 
-extension SDAI {
+extension SDAI.TypeHierarchy {
+  /// A protocol defining the fundamental behaviors for types conforming to the EXPRESS `INTEGER` type in the SDAI type system.
+  ///
+  /// `INTEGER__TypeBehavior` establishes a set of initializers and type relationships that enable interoperability among EXPRESS integer types,
+  /// Swift integer values, and their corresponding EXPRESS subtypes. It ensures that conforming types can be constructed from Swift `Int` values,
+  /// optional values, and from other types conforming to `SDAI.IntegerType`.
+  ///
+  /// ## Key Responsibilities:
+  /// - Provides initializers for converting from Swift `Int` and optional `Int` values.
+  /// - Enables construction from other types conforming to `SDAI.IntegerType`, both optional and non-optional.
+  /// - Ensures integration with the fundamental EXPRESS `INTEGER` type and its value representation.
+  /// - Supports type-safe numeric operations and value conversions within the broader SDAI number system.
+  ///
+  /// ## Associated Types:
+  /// - `FundamentalType`: Specifies the most basic EXPRESS `INTEGER` representation, typically `SDAI.INTEGER`.
+  /// - `Value`: The underlying value type, equivalent to the fundamental type's value.
+  ///
+  /// ## Conformance:
+  /// Types conforming to `INTEGER__TypeBehavior` must also conform to:
+  /// - `SDAI.IntegerType`
+  /// - `SDAI.IntRepresentedNumberType`
+  ///
+  /// ## Typical Usage:
+  /// Use this protocol for EXPRESS `INTEGER` types and user-defined subtypes to participate in generic SDAI routines,  
+  /// value conversion, and EXPRESS type interoperability.
+  ///
+  /// - SeeAlso: [ISO 10303-11:2004, Section 8.1.3 INTEGER](https://www.iso.org/standard/38047.html)
   public protocol INTEGER__TypeBehavior: SDAI.IntegerType, SDAI.IntRepresentedNumberType
   where FundamentalType == SDAI.INTEGER,
         Value == FundamentalType.Value
@@ -33,7 +59,7 @@ extension SDAI {
   }
 }
 
-public extension SDAI.INTEGER__TypeBehavior
+public extension SDAI.TypeHierarchy.INTEGER__TypeBehavior
 {
 	var asSwiftInt: Int { return self.asSwiftType }
 	var asSwiftDouble: Double { return Double(self.asSwiftType) }
@@ -71,7 +97,7 @@ extension SDAI {
   /// - Supports conversion to other numeric types in the SDAI system (`NUMBER`, `REAL`), and provides
   ///   value extraction for EXPRESS collections and optional types.
   /// - Implements EXPRESS type metadata, such as `typeName` and `typeMembers`.
-  /// - Conforms to `SDAI.INTEGER__TypeBehavior`, enabling use in generic SDAI routines and type-safe EXPRESS modeling.
+  /// - Conforms to `SDAI.TypeHierarchy.INTEGER__TypeBehavior`, enabling use in generic SDAI routines and type-safe EXPRESS modeling.
   /// - Implements `CustomStringConvertible` for user-friendly debugging and display.
   ///
   /// ## Typical Usage:
@@ -82,11 +108,11 @@ extension SDAI {
   ///   values on assignment; truncation of real values must be explicit.
   ///
   /// - SeeAlso: [ISO 10303-11:2004, Section 8.1.3 INTEGER](https://www.iso.org/standard/38047.html)
-	public struct INTEGER: SDAI.INTEGER__TypeBehavior, SDAI.Value, CustomStringConvertible
+	public struct INTEGER: SDAI.TypeHierarchy.INTEGER__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Int
 		public typealias FundamentalType = Self
-		private var rep: SwiftType
+		private let rep: SwiftType
 
 		// CustomStringConvertible
 		public var description: String { "INTEGER(\(rep))" }

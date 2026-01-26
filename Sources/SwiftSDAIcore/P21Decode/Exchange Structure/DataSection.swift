@@ -34,7 +34,32 @@ extension P21Decode.ExchangeStructure {
 	//MARK: - DataSection
 
 	/// 11.1 Data section structure;
-	/// ISO 10303-21 
+	/// ISO 10303-21
+  ///
+  /// Represents a data section within a STEP Physical File exchange structure, as defined by ISO 10303-21 (Section 11.1).
+  ///
+  /// Each `DataSection` is associated with a specific schema and contains decoded entity instances for that schema.
+  /// 
+  /// - Important: Data section names must be unique within the exchange structure. The governing schema for the section
+  ///   must be present in the header section’s `file_schema`.
+  ///
+  /// - Properties:
+  ///   - `exchangeStructure`: The parent `ExchangeStructure` that owns this data section.
+  ///   - `name`: The unique name of this data section.
+  ///   - `governingSchema`: The schema name that governs this data section, as found in the file schema.
+  ///   - `schema`: The resolved schema type for this data section, if successfully resolved.
+  ///   - `model`: The mutable SDAI model assigned to this data section, if any.
+  ///
+  /// - Initialization:
+  ///   - Initializes with a parent `ExchangeStructure`, a name, and a schema name.
+  ///   - Ensures name uniqueness and verifies the schema is present in the header section.
+  ///   - Provides a convenience initializer for the case where only one schema is specified, using the default name "PRIMARY".
+  ///
+  /// - Usage:
+  ///   - Call `resolveSchema()` to resolve and associate the actual schema type after initialization.
+  ///   - Call `assignModel(filename:repository:transaction:)` to create and assign a new read-write SDAI model for decoding operations.
+  ///
+  /// - SeeAlso: `P21Decode.ExchangeStructure`, `SDAI.SchemaType`, `SDAIPopulationSchema.SdaiModel`
 	public final class DataSection: CustomStringConvertible {
 		
 		public unowned let exchangeStructure: P21Decode.ExchangeStructure
@@ -127,6 +152,22 @@ extension P21Decode.ExchangeStructure {
 
 	//MARK: - EntityInstanceRecord
 
+  /// Represents an entity instance record within a STEP Physical File data section, as described in ISO 10303-21.
+  /// 
+  /// An `EntityInstanceRecord` encapsulates the parsed representation of an entity instance declaration in a data section.
+  /// It can originate from either a simple record, a subsuper record (complex entity instance), or a reference to another instance.
+  /// 
+  /// - Properties:
+  ///   - `source`: The source of the entity instance, classified as a reference, a simple record, or a subsuper record along with its associated data section.
+  ///   - `resolved`: The resolved complex entity (if available) within the in-memory SDAI model.
+  /// 
+  /// - Initialization:
+  ///   - Can be initialized with a reference resource, a simple record and its data section, or a subsuper record and its data section.
+  /// 
+  /// - Usage:
+  ///   - Used when decoding and resolving entity instance definitions and references in a STEP exchange data section.
+  /// 
+  /// - SeeAlso: `P21Decode.ExchangeStructure.DataSection`, `SimpleRecord`, `SubsuperRecord`, `Resource`, `SDAI.ComplexEntity`
 	public final class EntityInstanceRecord {
 		public var source: Source
 		public var resolved: SDAI.ComplexEntity? = nil
@@ -152,8 +193,21 @@ extension P21Decode.ExchangeStructure {
 		}
 		
 		/// entity instance source type classification
+    ///
 		/// 5.5 WSN of the exchange structure;
-		/// ISO 10303-21 
+		/// ISO 10303-21
+    ///
+    /// Represents the origin/type of an entity instance within a STEP exchange data section.
+    /// 
+    /// - Cases:
+    ///   - `reference`: Indicates the entity instance is a reference to a previously declared resource, as defined by the syntax `LHS_OCCURENCE_NAME = RESOURCE;`.
+    ///   - `simpleRecord`: Represents a simple entity instance declaration, specified by a keyword and an optional parameter list (`KEYWORD([PARAMETER_LIST])`), associated with the data section it appears in.
+    ///   - `subsuperRecord`: Represents a complex (subsuper) entity instance composed of a list of simple records (`(SIMPLE_RECORD_LIST)`), associated with the data section it appears in.
+    /// 
+    /// - Usage:
+    ///   Used to classify how an entity instance is represented in the parsed data section, guiding the decoding and resolution of entity occurrences in the in-memory model.
+    /// 
+    /// - SeeAlso: `Resource`, `SimpleRecord`, `SubsuperRecord`, `P21Decode.ExchangeStructure.DataSection`
 		public enum Source {
 			case reference(Resource)													// REFERENCE = LHS_OCCURENCE_NAME "=" RESOURCE ";"
 			case simpleRecord(SimpleRecord, DataSection)			// KEYWORD "(" [ PARAMETER_LIST ] ")"

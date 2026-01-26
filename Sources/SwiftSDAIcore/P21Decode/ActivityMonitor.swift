@@ -11,6 +11,7 @@ import Foundation
 extension P21Decode {
 	
 	/// plugin object to monitor the decoder actions
+  ///
 	open class ActivityMonitor: @unchecked Sendable {
 		public init() {}
 		

@@ -12,6 +12,29 @@ import Foundation
 
 extension SDAI {
   
+  /// A sequence and iterator that produces a series of values beginning at an initial bound and incrementing by a specified step toward a final bound.
+  /// 
+  /// This is a generic structure over `ELEMENT: SDAI.NumberType`, and it can be used to generate sequences of numbers (such as integers or doubles)
+  /// given a starting value, an ending value, and an increment. It is typically constructed via the static `SDAI.FROM(_:TO:BY:)` functions.
+  ///
+  /// The sequence stops (returns `nil` from `next()`) when the next value would exceed the bound in the direction of the increment. For example:
+  /// - For increasing sequences (`increment > 0`), iteration ends when `_current > _bound2`.
+  /// - For decreasing sequences (`increment < 0`), iteration ends when `_current < _bound2`.
+  ///
+  /// - Parameters:
+  ///   - ELEMENT: The numeric type of the sequence (must conform to `SDAI.NumberType`).
+  ///
+  /// - Example:
+  ///   ```swift
+  ///   if var inc = SDAI.FROM(1, TO: 5, BY: 2) {
+  ///       while let value = inc.next() {
+  ///           print(value)
+  ///       }
+  ///   }
+  ///   // Output: 1, 3, 5
+  ///   ```
+  ///
+  /// - Note: If any parameter to the initializer is `nil`, the result is `nil`.
 	public struct IncrementControl<ELEMENT: SDAI.NumberType>: Sequence, IteratorProtocol
 	{
 		public typealias SwiftType = ELEMENT.SwiftType

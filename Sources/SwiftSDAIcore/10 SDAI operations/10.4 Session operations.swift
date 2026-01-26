@@ -13,6 +13,8 @@ extension SDAISessionSchema.SdaiSession {
 	///
 	/// This operation appends an error event to the SDAI session errors record.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiSession``
+  ///
 	public func recordError(
 		error: SDAI.ErrorIndicator,
 		description: SDAISessionSchema.STRING,
@@ -39,6 +41,8 @@ extension SDAISessionSchema.SdaiSession {
 	/// 
 	/// - Returns: The SDAI implementation returns TRUE if event recording is supported and enabled; FALSE if not supported.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiSession``
+  ///
 	public func startEventRecording() -> Bool
 	{
 		self.recordingActive = true
@@ -66,6 +70,8 @@ extension SDAISessionSchema.SdaiSession {
 	/// In implementations supporting transaction level 1 or 2 (see 13.1.1), the implementation shall behave as if the Close repository operation is performed on each repository in session.activeServers.
 	/// In an implementation supporting transaction level 3, the implementation shall behave as if the End transaction access and abort operation is performed if a transaction existed in the session followed by the Close repository operation on each open repository regardless of whether a transaction existed or not.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiSession``
+  ///
 	public func closeSession()
 	{
 		for repository in self.activeServers.values {
@@ -84,6 +90,8 @@ extension SDAISessionSchema.SdaiSession {
 	///
 	/// This operation makes the contents of a repository available for subsequent access.
 	///
+  ///- defined in: ``SDAISessionSchema/SdaiSession``
+  ///
 	public func open(repository: SDAISessionSchema.SdaiRepository)
 	{
 		guard activeServers[repository.name] == nil else {
@@ -107,6 +115,8 @@ extension SDAISessionSchema.SdaiSession {
 	 ///
 	 /// (10.4.11) This operation ends the sequence of operations started by the Start transaction read-write access or Start transaction read-only access operation. The implementation shall behave as if the Abort operation is performed before ending the transaction access. Further operations accessing entity instances within the session may be processed only after a subsequent Start transaction read-write access or Start transaction read-only access operation.
 	 ///
+  ///- defined in: ``SDAISessionSchema/SdaiSession``
+  ///
 	@discardableResult
 	public func performTransactionRW<Output: Sendable>(
 		output: Output.Type = Void.self,
@@ -132,6 +142,8 @@ extension SDAISessionSchema.SdaiSession {
 	 ///
 	 /// (10.4.11) This operation ends the sequence of operations started by the Start transaction read-write access or Start transaction read-only access operation. The implementation shall behave as if the Abort operation is performed before ending the transaction access. Further operations accessing entity instances within the session may be processed only after a subsequent Start transaction read-write access or Start transaction read-only access operation.
 	 ///
+  ///- defined in: ``SDAISessionSchema/SdaiSession``
+  ///
 	@discardableResult
 	public func performTransactionRO<Output: Sendable>(
 		output: Output.Type = Void.self,
@@ -155,6 +167,8 @@ extension SDAISessionSchema.SdaiSession {
   /// (10.4.10) This operation ends the sequence of operations started by the Start transaction read-write access or Start transaction read-only access operation. The implementation shall behave as if the Commit operation is performed before ending the transaction access. Further operations accessing entity instances within the session may be processed only after a subsequent Start transaction read-write access or Start transaction read-only access operation.
   ///
   /// (10.4.11) This operation ends the sequence of operations started by the Start transaction read-write access or Start transaction read-only access operation. The implementation shall behave as if the Abort operation is performed before ending the transaction access. Further operations accessing entity instances within the session may be processed only after a subsequent Start transaction read-write access or Start transaction read-only access operation.
+  ///
+  ///- defined in: ``SDAISessionSchema/SdaiSession``
   ///
   @discardableResult
   public func performTransactionVA<Output: Sendable>(
@@ -183,6 +197,8 @@ extension SDAISessionSchema.SdaiTransaction {
 	 /// - This operation performs no function in the case where the current transaction is read-only.
 	 /// - This operation updates or sets the change_date attribute of any schema instance or SDAl-model that has been modified or created.
 	 ///
+  ///- defined in: ``SDAISessionSchema/SdaiTransaction``
+  ///
 	public func commit() {
 		guard let _ = self.owningSession else {
 			SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")
@@ -199,6 +215,8 @@ extension SDAISessionSchema.SdaiTransaction {
 	 /// - The existing read-write transaction continues to be active.
 	 /// - This operation performs no function in the case where the current transaction is read-only.
 	 ///
+  ///- defined in: ``SDAISessionSchema/SdaiTransaction``
+  ///
 	public func abort() {
 		guard let _ = self.owningSession else {
 			SDAI.raiseErrorAndContinue(.SS_NOPN, detail: "An SDAI session is not open.")

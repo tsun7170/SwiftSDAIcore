@@ -107,6 +107,26 @@ extension SDAIPopulationSchema {
 			}
 		}
 
+    //MARK: SDAI operations
+    /// ISO 10303-22 (10.7.8) Get entity definition
+    ///
+    /// This operation returns the identifier of an entity_definition from the data dictionary based upon the entity name from the schema upon which the specified sdai_model is based.
+    ///
+    /// - Parameter entityName: The name of the entity type of interest.
+    /// - Returns: The SDAI data dictionary instance of entity_definition from Model.underlying_ schema entities that has entity_definition.name = EntityName.
+    ///
+    /// defined in: ``SDAIPopulationSchema/SdaiModel``
+    ///
+    public func getEntityDefinition(entityName: SDAIParameterDataSchema.StringValue) -> SDAIDictionarySchema.EntityDefinition?
+    {
+      let schema = self.underlyingSchema
+      guard let entityDef = schema.entities[entityName]
+      else {
+        SDAI.raiseErrorAndContinue(.ED_NDEF, detail: "entity with  name[\(entityName)] is not defined.")
+        return nil
+      }
+      return entityDef
+    }
 
 
 		//MARK: swift language binding

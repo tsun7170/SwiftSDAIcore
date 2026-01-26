@@ -9,13 +9,14 @@
 import Foundation
 
 //MARK: - from defined type scalar
-extension SDAI {
-  public protocol InitializableByDefinedType
+extension SDAI.Initializable {
+  /// from defined type scalar
+  public protocol ByDefinedType
   {
     init?<T: SDAI.UnderlyingType>(possiblyFrom underlyingType: T?)
   }
 }
-public extension SDAI.InitializableByDefinedType
+public extension SDAI.Initializable.ByDefinedType
 {
 	init?<T: SDAI.UnderlyingType>(_ underlyingType: T?)
 	{
@@ -36,16 +37,17 @@ public extension SDAI.InitializableByDefinedType
 
 
 //MARK: - from defined type list
-extension SDAI {
-  public protocol InitializableByDefinedtypeList
+extension SDAI.Initializable {
+  /// from defined type list
+  public protocol ByDefinedtypeList
   {
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(bound1: I1, bound2: I2?, _ listtype: T?)
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.LIST__TypeBehavior>(bound1: I1, bound2: I2?, _ listtype: T?)
     where T.ELEMENT: SDAI.UnderlyingType
   }
 }
-public extension SDAI.InitializableByDefinedtypeList
+public extension SDAI.Initializable.ByDefinedtypeList
 {
-	init?<T: SDAI.LIST__TypeBehavior>(_ listtype: T?) 
+	init?<T: SDAI.TypeHierarchy.LIST__TypeBehavior>(_ listtype: T?) 
 	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		guard let listtype = listtype else {  return nil }
@@ -55,16 +57,17 @@ public extension SDAI.InitializableByDefinedtypeList
 
 
 //MARK: - from defined type bag
-extension SDAI {
-  public protocol InitializableByDefinedtypeBag
+extension SDAI.Initializable {
+  /// from defined type bag
+  public protocol ByDefinedtypeBag
   {
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.BAG__TypeBehavior>(bound1: I1, bound2: I2?, _ bagtype: T?)
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.BAG__TypeBehavior>(bound1: I1, bound2: I2?, _ bagtype: T?)
     where T.ELEMENT: SDAI.UnderlyingType
   }
 }
-public extension SDAI.InitializableByDefinedtypeBag
+public extension SDAI.Initializable.ByDefinedtypeBag
 {
-	init?<T: SDAI.BAG__TypeBehavior>(_ bagtype: T?) 
+  init?<T: SDAI.TypeHierarchy.BAG__TypeBehavior>(_ bagtype: T?)
 	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		guard let bagtype = bagtype else { return nil }
@@ -74,16 +77,17 @@ public extension SDAI.InitializableByDefinedtypeBag
 
 
 //MARK: - from defined type set
-extension SDAI {
-  public protocol InitializableByDefinedtypeSet
+extension SDAI.Initializable {
+  /// from defined type set
+  public protocol ByDefinedtypeSet
   {
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(bound1: I1, bound2: I2?, _ settype: T?)
+    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.SET__TypeBehavior>(bound1: I1, bound2: I2?, _ settype: T?)
     where T.ELEMENT: SDAI.UnderlyingType
   }
 }
-public extension SDAI.InitializableByDefinedtypeSet
+public extension SDAI.Initializable.ByDefinedtypeSet
 {
-	init?<T: SDAI.SET__TypeBehavior>(_ settype: T?) 
+  init?<T: SDAI.TypeHierarchy.SET__TypeBehavior>(_ settype: T?)
 	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		guard let settype = settype else { return nil }
@@ -92,16 +96,17 @@ public extension SDAI.InitializableByDefinedtypeSet
 }
 
 //MARK: - from defined type array optional
-extension SDAI {
-  public protocol InitializableByDefinedtypeArrayOptional
+extension SDAI.Initializable {
+  /// from defined type array optional
+  public protocol ByDefinedtypeArrayOptional
   {
-    init?<T: SDAI.ARRAY_OPTIONAL__TypeBehavior>(_ arraytype: T?)
+    init?<T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(_ arraytype: T?)
     where T.ELEMENT: SDAI.UnderlyingType
   }
 }
-public extension SDAI.InitializableByDefinedtypeArrayOptional
+public extension SDAI.Initializable.ByDefinedtypeArrayOptional
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.ARRAY_OPTIONAL__TypeBehavior>(bound1: I1, bound2: I2, _ arraytype: T?) 
+  init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(bound1: I1, bound2: I2, _ arraytype: T?)
 	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		guard let arraytype = arraytype, 
@@ -114,16 +119,17 @@ public extension SDAI.InitializableByDefinedtypeArrayOptional
 
 
 //MARK: - from defined type array
-extension SDAI {
-  public protocol InitializableByDefinedtypeArray
+extension SDAI.Initializable {
+  /// from defined type array
+  public protocol ByDefinedtypeArray
   {
-    init?<T: SDAI.ARRAY__TypeBehavior>(_ arraytype: T?)
+    init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
     where T.ELEMENT: SDAI.UnderlyingType
   }
 }
-public extension SDAI.InitializableByDefinedtypeArray
+public extension SDAI.Initializable.ByDefinedtypeArray
 {
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.ARRAY__TypeBehavior>(bound1: I1, bound2: I2, _ arraytype: T?) 
+  init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(bound1: I1, bound2: I2, _ arraytype: T?)
 	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		guard let arraytype = arraytype, 

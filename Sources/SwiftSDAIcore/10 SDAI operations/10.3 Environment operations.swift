@@ -12,6 +12,8 @@ extension SDAI {
 	///
 	/// This operation initiates the SDAI implementation and commences a new SDAI session. The repository containing the session schema instance and data is opened by this operation and only the Close session operation can close that repository. Access to the session data is available immediately. In implementations supporting access to a data dictionary, the repositories and SDAI-models containing the data dictionary information are not opened by this operation and are not accessible until a transaction has been started.
 	///
+  ///- defined in: ``SDAI``
+  ///
   public static func openSession(
     knownServers: [SDAISessionSchema.SdaiRepository],
     errorEventCallback: SDAISessionSchema.SdaiSession.ErrorEventCallback? = nil,

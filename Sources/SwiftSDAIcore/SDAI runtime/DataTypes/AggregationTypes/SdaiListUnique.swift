@@ -8,10 +8,27 @@
 
 import Foundation
 
-extension SDAI {
-  public protocol LIST_UNIQUE__TypeBehavior: SDAI.LIST__Subtype {}
+extension SDAI.TypeHierarchy {
+  /// Protocol describing the type behavior for the EXPRESS `LIST OF ... UNIQUE` aggregate type.
+  ///
+  /// Types conforming to `LIST_UNIQUE__TypeBehavior` represent ordered collections of uniquely-valued elements,
+  /// corresponding to the EXPRESS `LIST OF ... UNIQUE` construct. This protocol is used within the SDAI type hierarchy
+  /// to distinguish list types that enforce element uniqueness, providing a common interface for such collections.
+  ///
+  /// - Note: Conformance to this protocol signifies that the conforming type ensures no duplicate elements exist in its collection.
+  ///
+  /// ## EXPRESS Specification Mapping:
+  /// - EXPRESS: `LIST [lower:Upper] OF <ELEMENT> UNIQUE`
+  /// - Swift: Types conforming to `SDAI.TypeHierarchy.LIST_UNIQUE__TypeBehavior`
+  ///
+  /// ## See Also:
+  /// - `SDAI.LIST_UNIQUE`
+  /// - `SDAI.TypeHierarchy.LIST_UNIQUE__Subtype`
+  /// - `SDAI.TypeHierarchy.LIST__Subtype`
+  ///
+  public protocol LIST_UNIQUE__TypeBehavior: SDAI.TypeHierarchy.LIST__Subtype {}
 
-  public protocol LIST_UNIQUE__Subtype: SDAI.LIST_UNIQUE__TypeBehavior {}
+  public protocol LIST_UNIQUE__Subtype: SDAI.TypeHierarchy.LIST_UNIQUE__TypeBehavior {}
 }
 
 extension SDAI {
@@ -38,8 +55,8 @@ extension SDAI {
   /// ```
   /// 
   /// ## Protocol Conformance:
-  /// - `SDAI.LIST_UNIQUE__TypeBehavior`
-  /// - `SDAI.LIST_UNIQUE__Subtype`
+  /// - `SDAI.TypeHierarchy.LIST_UNIQUE__TypeBehavior`
+  /// - `SDAI.TypeHierarchy.LIST_UNIQUE__Subtype`
   /// - `SDAI.EntityReferenceYielding` (when `ELEMENT` does)
   /// - `SDAI.DualModeReference` (when `ELEMENT` does)
   /// 
@@ -50,7 +67,7 @@ extension SDAI {
   /// ## Uniqueness Constraint:
   /// - The static method `UNIQUENESS(SELF:)` checks for element uniqueness, 
   ///   returning an EXPRESS `LOGICAL` value.
-	public struct LIST_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI.LIST_UNIQUE__TypeBehavior
+	public struct LIST_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI.TypeHierarchy.LIST_UNIQUE__TypeBehavior
 	{
 		
 		public typealias Supertype = SDAI.LIST<ELEMENT>

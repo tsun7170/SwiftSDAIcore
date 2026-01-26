@@ -9,13 +9,13 @@
 import Foundation
 
 //MARK: - BINARY subtype (8.1.7, 8.3.2)
-extension SDAI {
-  public protocol BINARY__Subtype: SDAI.BINARY__TypeBehavior, SDAI.DefinedType
-  where Supertype: SDAI.BINARY__TypeBehavior
+extension SDAI.TypeHierarchy {
+  public protocol BINARY__Subtype: SDAI.TypeHierarchy.BINARY__TypeBehavior, SDAI.DefinedType
+  where Supertype: SDAI.TypeHierarchy.BINARY__TypeBehavior
   {}
 }
 
-public extension SDAI.BINARY__Subtype
+public extension SDAI.TypeHierarchy.BINARY__Subtype
 {
 	// InitializableByGenerictype
 	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
@@ -40,6 +40,22 @@ public extension SDAI.BINARY__Subtype
 	}
 
 	// SDAI__BINARY__type
+  init<I: SDAI.SwiftIntConvertible>(
+    width:I?, fixed:Bool, fundamental:FundamentalType)
+  {
+    let fund = FundamentalType(width: width, fixed: fixed, fundamental: fundamental)
+    self.init(fundamental: fund)
+  }
+
+  init<I: SDAI.SwiftIntConvertible>(
+    width:I?, fixed:Bool, _ value:String)
+  {
+    let fund = FundamentalType(width: width, fixed: fixed, value)
+    self.init(fundamental: fund)
+  }
+
+  var width: SDAIDictionarySchema.Bound? { return rep.width }
+  var fixedWidth: SDAI.BOOLEAN { return rep.fixedWidth }
 	var blength: Int { return rep.blength }
 	subscript(index: Int?) -> SDAI.BINARY? { return rep[index] }
 	subscript(range: ClosedRange<Int>?) -> SDAI.BINARY? { return rep[range] }

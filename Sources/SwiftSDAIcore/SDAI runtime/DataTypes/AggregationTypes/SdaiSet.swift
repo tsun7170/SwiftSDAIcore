@@ -34,7 +34,44 @@ extension SDAI {
 }
 
 //MARK: - SET type
-extension SDAI {
+extension SDAI.TypeHierarchy {
+  /// A protocol that defines the complete behavioral interface for the SDAI `SET` aggregate type,
+  /// following the EXPRESS and SDAI specifications (ISO 10303-22, section 8.2.4).
+  ///
+  /// Types conforming to this protocol must provide unordered, unique-element collections
+  /// with set semantics, and support a rich set of set-algebraic operations. This protocol
+  /// refines `SDAI.SetType` by specifying the concrete associated types and the methods
+  /// required to perform key set operations, including intersection, union, and difference,
+  /// each supporting a range of compatible SDAI aggregate and generic types.
+  ///
+  /// - Associated Types (imposed by protocol constraints):
+  ///   - `Element`: The type of elements stored in the set, which must conform to `SDAI.GenericType`.
+  ///   - `FundamentalType`: The concrete underlying representation of the set (e.g., `SDAI.SET<Element>`).
+  ///   - `Value`: The value type associated with the set's storage and EXPRESS value bridging.
+  ///   - `SwiftType`: The corresponding Swift-native collection type (e.g., `Set<Element>`).
+  ///
+  /// - Requirements:
+  ///   - Intersection:
+  ///     - Compute the intersection with another `BagType` or `AggregationInitializer`.
+  ///   - Union:
+  ///     - Compute the union with other aggregates of compatible types, or with a single compatible generic value.
+  ///   - Difference:
+  ///     - Compute the difference (relative complement) with other aggregates or single values.
+  ///   - All set-algebraic results must be returned as a concrete `SDAI.SET<Element>`.
+  ///
+  /// - Use Cases:
+  ///   - Implement concrete set collections that enforce EXPRESS semantics for the `SET` type.
+  ///   - Provide aggregation operators required by SDAI and EXPRESS, enabling queries and manipulations
+  ///     of EXPRESS data in conformance with ISO 10303-22.
+  ///
+  /// - See also:
+  ///   - `SDAI.SetType` for the root protocol of set semantics.
+  ///   - `SDAI.SET` for the primary concrete implementation.
+  ///   - ISO 10303-22 (SDAI), section 8.2.4 `SET` aggregate type.
+  ///
+  /// - Note: This protocol is typically not implemented directly by user code, but is the conformance
+  ///   point for types such as `SDAI.SET`, and may be used for generic constraints where full set
+  ///   behavior and algebraic support are needed.
   public protocol SET__TypeBehavior: SDAI.SetType
   where Element == ELEMENT,
         FundamentalType == SDAI.SET<ELEMENT>,
@@ -58,7 +95,7 @@ extension SDAI {
     func unionWith<U: SDAI.GenericType>(rhs: U) -> SDAI.SET<ELEMENT>?
     where ELEMENT.FundamentalType == U.FundamentalType
 
-    func unionWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>?
+    func unionWith<U: SDAI.TypeHierarchy.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>?
 
     func unionWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
     where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
@@ -70,15 +107,15 @@ extension SDAI {
     func differenceWith<U: SDAI.GenericType>(rhs: U) -> SDAI.SET<ELEMENT>?
     where ELEMENT.FundamentalType == U.FundamentalType
 
-    func differenceWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>?
+    func differenceWith<U: SDAI.TypeHierarchy.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>?
 
     func differenceWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
     where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
   }
 }
 
-public extension SDAI.SET__TypeBehavior
-where ELEMENT: SDAI.InitializableByComplexEntity {
+public extension SDAI.TypeHierarchy.SET__TypeBehavior
+where ELEMENT: SDAI.Initializable.ByComplexEntity {
 	func unionWith(rhs: SDAI.ComplexEntity) -> SDAI.SET<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
 		return self.unionWith(rhs: rhs)
@@ -88,7 +125,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity {
 		return self.differenceWith(rhs: rhs)
 	}
 }
-public extension SDAI.SET__TypeBehavior 
+public extension SDAI.TypeHierarchy.SET__TypeBehavior
 where ELEMENT: SDAI.EntityReference {
 	func unionWith<U: SDAI.SelectType>(rhs: U) -> SDAI.SET<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
@@ -99,7 +136,7 @@ where ELEMENT: SDAI.EntityReference {
 		return self.differenceWith(rhs: rhs)
 	}
 }
-public extension SDAI.SET__TypeBehavior 
+public extension SDAI.TypeHierarchy.SET__TypeBehavior
 where ELEMENT: SDAI.PersistentReference {
 	func unionWith<U: SDAI.SelectType>(rhs: U) -> SDAI.SET<ELEMENT>? {
 		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
@@ -116,7 +153,7 @@ where ELEMENT: SDAI.PersistentReference {
 extension SDAI {
   /// A concrete implementation of the SDAI `SET` aggregate type, representing an unordered collection of unique elements.
   ///
-  /// `SDAI.SET` conforms to the `SDAI.SET__TypeBehavior` protocol and provides the full set of behaviors and operations 
+  /// `SDAI.SET` conforms to the `SDAI.TypeHierarchy.SET__TypeBehavior` protocol and provides the full set of behaviors and operations 
   /// expected from a set in the context of SDAI (Standard Data Access Interface) aggregates:
   ///  - Enforces uniqueness of elements (no duplicates).
   ///  - Maintains unordered storage of elements.
@@ -142,15 +179,15 @@ extension SDAI {
   ///    - `SDAI.SetType`, the protocol for general set behavior.
   ///    - `SDAI.BagType`, for multisets (with duplicates).
   ///    - ISO 10303-22 (SDAI), section 8.2.4 "SET aggregate type".
-	public struct SET<ELEMENT:SDAI.GenericType>: SDAI.SET__TypeBehavior
+  public struct SET<ELEMENT:SDAI.GenericType>: SDAI.TypeHierarchy.SET__TypeBehavior
 	{
 		public typealias SwiftType = Set<ELEMENT>
 		public typealias FundamentalType = Self
 		
 		fileprivate var rep: SwiftType
-		private var bound1: Int
-		private var bound2: Int?
-		
+		private let bound1: Int
+		private let bound2: Int?
+
 		// Equatable \Hashable\SDAI.GenericType
 		public static func == (lhs: SDAI.SET<ELEMENT>, rhs: SDAI.SET<ELEMENT>) -> Bool {
 			return lhs.rep == rhs.rep &&
@@ -309,7 +346,7 @@ extension SDAI {
 		}
 		
 		// InitializableByGenericSet
-		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
+    public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.SET__TypeBehavior>(
 			bound1: I1, bound2: I2?, generic settype: T?)
 		{
 			guard let settype = settype else { return nil }
@@ -317,7 +354,7 @@ extension SDAI {
 		}
 
 		// InitializableByGenericBag
-		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.BAG__TypeBehavior>(
+    public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.BAG__TypeBehavior>(
 			bound1: I1, bound2: I2?, generic bagtype: T?)
 		{
 			guard let bagtype = bagtype else { return nil }
@@ -325,7 +362,7 @@ extension SDAI {
 		}
 		
 		// InitializableByGenericList
-		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.LIST__TypeBehavior>(
+		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.LIST__TypeBehavior>(
 			bound1: I1, bound2: I2?, generic listtype: T?)
 		{
 			guard let listtype = listtype else { return nil }
@@ -348,7 +385,7 @@ extension SDAI {
 			self.rep = swiftValue
 		}
 		
-		// SDAI.InitializableBySelecttypeAsList
+		// SDAI.Initializable.BySelecttypeAsList
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(
 			bound1: I1, bound2: I2?, _ select: S?)
 		{
@@ -356,7 +393,7 @@ extension SDAI {
 			self.init(from: fundamental.asSwiftType, bound1:bound1, bound2:bound2)
 		}
 
-		// SDAI.InitializableByListLiteral
+		// SDAI.Initializable.ByListLiteral
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E:SDAI.GenericType>(
 			bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
 		{
@@ -424,7 +461,7 @@ extension SDAI {
 			return SET(from: result, bound1: 0, bound2: _Infinity)
 		}
 
-		public func unionWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>? {
+		public func unionWith<U: SDAI.TypeHierarchy.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>? {
 			if let rhs = rhs.listValue(elementType: ELEMENT.self) {
 				return self.unionWith(rhs: rhs)
 			}
@@ -482,7 +519,7 @@ extension SDAI {
 			) { ELEMENT.convert(from: $0) }
 		}
 
-		public func differenceWith<U: SDAI.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>? {
+		public func differenceWith<U: SDAI.TypeHierarchy.GENERIC__TypeBehavior>(rhs: U) -> SDAI.SET<ELEMENT>? {
 			if let rhs = rhs.setValue(elementType: ELEMENT.self) {
 				return self.differenceWith(rhs: rhs)
 			}
@@ -589,11 +626,11 @@ where ELEMENT: SDAI.PersistentReference
 
 
 
-extension SDAI.SET: SDAI.InitializableBySelecttypeSet
-where ELEMENT: SDAI.InitializableBySelectType
+extension SDAI.SET: SDAI.Initializable.BySelecttypeSet
+where ELEMENT: SDAI.Initializable.BySelectType
 {
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
-		bound1: I1, bound2: I2?, _ settype: T?) 
+  public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.SET__TypeBehavior>(
+		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.SelectType
 	{
 		guard let settype = settype else { return nil }
@@ -605,10 +642,10 @@ where ELEMENT: SDAI.InitializableBySelectType
 
 
 
-extension SDAI.SET: SDAI.InitializableByEntitySet
-where ELEMENT: SDAI.InitializableByComplexEntity
+extension SDAI.SET: SDAI.Initializable.ByEntitySet
+where ELEMENT: SDAI.Initializable.ByComplexEntity
 {
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
+  public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.EntityReference
 	{
@@ -616,7 +653,7 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 		self.init(bound1: bound1, bound2: bound2, [settype]) { ELEMENT.convert(sibling: $0) }		
 	}
 
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
+  public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
@@ -627,11 +664,11 @@ where ELEMENT: SDAI.InitializableByComplexEntity
 }
 
 
-extension SDAI.SET: SDAI.InitializableByDefinedtypeSet
-where ELEMENT: SDAI.InitializableByDefinedType
+extension SDAI.SET: SDAI.Initializable.ByDefinedtypeSet
+where ELEMENT: SDAI.Initializable.ByDefinedType
 {
-	public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.SET__TypeBehavior>(
-		bound1: I1, bound2: I2?, _ settype: T?) 
+  public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.SET__TypeBehavior>(
+		bound1: I1, bound2: I2?, _ settype: T?)
 	where T.ELEMENT: SDAI.UnderlyingType
 	{
 		guard let settype = settype else { return nil }
