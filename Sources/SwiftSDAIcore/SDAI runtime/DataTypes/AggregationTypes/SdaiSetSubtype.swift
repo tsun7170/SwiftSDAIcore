@@ -18,8 +18,8 @@ extension SDAI.TypeHierarchy {
 
 public extension SDAI.TypeHierarchy.SET__Subtype
 {
-	// Aggregation operator support
-	func intersectionWith<U: SDAI.BagType>(rhs: U) -> SDAI.SET<ELEMENT>? 
+	//MARK: Aggregation operator support
+	func intersectionWith<U: SDAI.BagType>(rhs: U) -> SDAI.SET<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.intersectionWith(rhs: rhs) }
 
 	func intersectionWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
@@ -52,51 +52,51 @@ public extension SDAI.TypeHierarchy.SET__Subtype
 	func differenceWith<U: SDAI.AggregationInitializer>(rhs: U) -> SDAI.SET<ELEMENT>?
 	where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType { rep.differenceWith(rhs: rhs) }
 	
-	// InitializableByGenerictype
+	//MARK: InitializableByGenerictype
 	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType.convert(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
 	}
 	
-	// InitializableByGenericSet
+	//MARK: InitializableByGenericSet
   init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.SET__TypeBehavior>(
 		bound1: I1, bound2: I2?, generic settype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: settype))
 	}
 
-	// InitializableByGenericBag
+	//MARK: InitializableByGenericBag
   init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.BAG__TypeBehavior>(
 		bound1: I1, bound2: I2?, generic bagtype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: bagtype))
 	}
 
-	// InitializableByGenericList
+	//MARK: InitializableByGenericList
 	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.LIST__TypeBehavior>(
 		bound1: I1, bound2: I2?, generic listtype: T?)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: listtype))
 	}
 
-	// InitializableByEmptyListLiteral
+	//MARK: InitializableByEmptyListLiteral
 	init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
 		bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE)
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, emptyLiteral) )
 	} 
 	
-	// InitializableBySwifttypeAsList
+	//MARK: InitializableBySwifttypeAsList
 	init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(from swiftValue: SwiftType, bound1: I1, bound2: I2?) {
 		self.init(fundamental: FundamentalType(from: swiftValue, bound1: bound1, bound2: bound2) )
 	} 
 
-	// SDAI.Initializable.BySelecttypeAsList
+	//MARK: SDAI.Initializable.BySelecttypeAsList
 	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(bound1: I1, bound2: I2?, _ select: S?) {
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, select) )
 	}
 
-	// SDAI.Initializable.ByListLiteral
+	//MARK: SDAI.Initializable.ByListLiteral
 	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>]) {
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
 	} 
@@ -104,7 +104,7 @@ public extension SDAI.TypeHierarchy.SET__Subtype
 
 
 
-//MARK: - for select type element
+//MARK: - for SDAI.Initializable.BySelectType ELEMENT
 public extension SDAI.TypeHierarchy.SET__Subtype
 where ELEMENT: SDAI.Initializable.BySelectType
 {
@@ -117,7 +117,7 @@ where ELEMENT: SDAI.Initializable.BySelectType
 }
 
 
-//MARK: - for entity type element
+//MARK: - for SDAI.Initializable.ByComplexEntity ELEMENT
 public extension SDAI.TypeHierarchy.SET__Subtype
 where ELEMENT: SDAI.Initializable.ByComplexEntity
 {
@@ -139,7 +139,7 @@ where ELEMENT: SDAI.Initializable.ByComplexEntity
 }
 
 
-//MARK: - for defined type element
+//MARK: - for SDAI.Initializable.ByDefinedType ELEMENT
 public extension SDAI.TypeHierarchy.SET__Subtype
 where ELEMENT: SDAI.Initializable.ByDefinedType
 {

@@ -58,26 +58,6 @@ extension SDAI {
 	public protocol Object: AnyObject, Hashable {}
 
 
-	//MARK: - SDAI.ObjectReference
-  /*
-	open class ObjectReference<OBJ: Object>: SDAI.ObjectReferenceType, Hashable {
-		public let object: OBJ
-		public var objectId: ObjectIdentifier { ObjectIdentifier(object) }
-		
-		public init(_ object: OBJ) {
-			self.object = object
-		}
-
-		public static func == (lhs: ObjectReference<OBJ>, rhs: ObjectReference<OBJ>) -> Bool {
-			return lhs.object == rhs.object
-		}
-		
-		public func hash(into hasher: inout Hasher) {
-			object.hash(into: &hasher)
-		}
-		
-	}
-*/
 
 	//MARK: - SDAI.UnownedReference
   /// A reference type that holds an unowned reference to an object conforming to `SDAI.Object`.
@@ -122,43 +102,7 @@ extension SDAI {
 	
 	}
 	
-	//MARK: - SDAI.ValueReference
-  /*
-	public final class ValueReference<T>: Object {
-		public var value: T
-		
-		public init(_ initialValue:T) {
-			self.value = initialValue
-		}
-	}
-   */
 
-	//MARK: - SDAI.MutexReference
-  /*
-	public final class MutexReference<T: Sendable>: Object {
-		private let mutex: Mutex<T>
-
-		public init(_ initialValue:T) {
-			self.mutex = Mutex(initialValue)
-		}
-
-		public borrowing func withLock<Result, E>(
-			_ body: (inout sending T) throws(E) -> sending Result
-		) throws(E) -> sending Result
-		where E : Error, Result : ~Copyable
-		{
-			return try self.mutex.withLock(body)
-		}
-
-		public borrowing func withLockIfAvailable<Result, E>(
-			_ body: (inout sending T) throws(E) -> sending Result
-		) throws(E) -> sending Result?
-		where E : Error, Result : ~Copyable
-		{
-			return try self.mutex.withLockIfAvailable(body)
-		}
-	}
-*/
 
 }
 
@@ -175,11 +119,6 @@ extension SDAI.Object {
 
 
 //MARK: Sendable conformances
-/*
-extension SDAI.ObjectReference: @unchecked Sendable
-where OBJ: Sendable
-{}
-*/
 
 extension SDAI.UnownedReference: @unchecked Sendable
 where OBJ: Sendable

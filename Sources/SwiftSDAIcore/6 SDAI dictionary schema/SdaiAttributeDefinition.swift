@@ -88,6 +88,11 @@ extension SDAIDictionarySchema {
     /// defined in: ``SDAIDictionarySchema/AttributeType``
     func testAttribute(for entityInstance: SDAI.EntityReference) -> Bool
 
+    func validateWhereRules(
+      for entityInstance: SDAI.EntityReference,
+      prefix:SDAIPopulationSchema.WhereLabel
+    ) -> SDAIPopulationSchema.WhereRuleValidationRecords
+
 
     /// persistent entity references for the entities contained in the attribute value
     ///
@@ -248,9 +253,48 @@ extension SDAIDictionarySchema {
 
 		open func value(for entity: ENT) -> BaseType? { abstract() }	// abstract
 
-	}
-	
-	
+
+    public func validateWhereRules(
+      for entityInstance: SDAI.EntityReference,
+      prefix:SDAIPopulationSchema.WhereLabel
+    ) -> SDAIPopulationSchema.WhereRuleValidationRecords
+    {
+      guard let entityInstance = entityInstance as? ENT,
+            let session = SDAISessionSchema.activeSession
+      else { return [:] }
+
+      let prefix2: SDAIPopulationSchema.WhereLabel
+
+      // since persistent entity instances should be validated elsewhere separately
+      guard let attrValue = self.value(for: entityInstance)
+      else { return [:] }
+      if let entityRef = attrValue as? SDAI.EntityReference {
+        guard session.validateTemporaryEntities,
+              entityRef.isTemporary
+        else { return [:] }
+
+        prefix2 = prefix + "(" + self.bareTypeName + ")\\\(entityRef)"
+      }
+      else if let pref = attrValue as? SDAI.GenericPersistentEntityReference {
+        guard session.validateTemporaryEntities,
+              pref.isTemporary
+        else { return [:] }
+
+        prefix2 = prefix + "(" + self.bareTypeName + ")\\\(pref)"
+      }
+      else {
+        prefix2 = prefix + "(" + self.bareTypeName + ")"
+      }
+
+      let result = BaseType.validateWhereRules(
+        instance: attrValue, prefix: prefix2)
+      return result
+    }
+
+
+  }//class
+
+
 	//MARK: - specialization for optional attribute value type
 
   /// A specialization of `Attribute` representing an optional attribute value type within an entity definition.

@@ -24,6 +24,7 @@ extension SDAI {
   ///
   /// - Note: This protocol does not specify any requirements beyond conformance, and acts purely
   ///         as a semantic marker for type constraints and polymorphism within the SDAI framework.
+  ///         
   public protocol ConstructedType: SDAI.SelectCompatibleUnderlyingTypeBase
   {}
 }

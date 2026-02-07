@@ -21,6 +21,7 @@ extension SDAI {
   ///
   /// - Note: This is typically used to represent EXPRESS enumeration types in Swift,
   ///         ensuring conformance to the SDAI type system and interoperability with fundamental values.
+  ///
   public protocol EnumerationType: SDAI.ConstructedType, SDAI.UnderlyingType
   where Value == FundamentalType,
           FundamentalType: SDAI.EnumerationType,
@@ -31,17 +32,18 @@ extension SDAI {
 
 public extension SDAI.EnumerationType
 {
-	// SDAI.GenericType
+	//MARK: SDAI.GenericType
 	func copy() -> Self { return self }
 	var isCacheable: Bool { return true }
 	var value: Value { self.asFundamentalType }
+
 }
 
 public extension SDAI.EnumerationType
 where Self: SDAI.Value
 {
-	// SDAI.Value
-	func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool 
+	//MARK: SDAI.Value
+	func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool
 	{
 		if let rhs = rhs as? Self { return self == rhs }
 		return false
@@ -70,6 +72,7 @@ extension SDAI {
   ///   if both their type and underlying raw value are the same.
   ///
   /// - SeeAlso: `SDAI.ENUMERATION`, `RawRepresentable`
+  /// 
 	public struct GenericEnumValue: Hashable
 	{
 		let typeId: Any.Type

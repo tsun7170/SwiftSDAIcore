@@ -41,6 +41,7 @@ extension SDAI {
   ///   - `SDAI.DefinedType`
   ///   - `SDAI.EnumerationType`
   ///   - `SDAI.ARRAY`, `SDAI.LIST`, `SDAI.SET`, `SDAI.BAG`
+  ///
   public protocol GenericType: Hashable, SDAI.Initializable.BySelectType, SDAI.Initializable.ByP21Parameter, SDAI.CacheableSource, Sendable
   {
     associatedtype FundamentalType: SDAI.GenericType
@@ -87,6 +88,7 @@ extension SDAI {
       instance:Self?,
       prefix:SDAIPopulationSchema.WhereLabel
     ) -> SDAIPopulationSchema.WhereRuleValidationRecords
+
   }
 }
 
@@ -126,8 +128,14 @@ public extension SDAI.GenericType where FundamentalType == Self
 //MARK: - for SDAIDefinedTYpe
 public extension SDAI.GenericType where Self: SDAI.DefinedType
 {
-	static func validateWhereRules(instance:Self?, prefix:SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
-		return Supertype.validateWhereRules(instance:instance?.rep, prefix: prefix + "\\" + Supertype.typeName)
+	static func validateWhereRules(
+    instance:Self?,
+    prefix:SDAIPopulationSchema.WhereLabel
+  ) -> SDAIPopulationSchema.WhereRuleValidationRecords
+  {
+		return Supertype.validateWhereRules(
+      instance:instance?.rep,
+      prefix: prefix + "\\" + Supertype.typeName)
 	}
 
 	var value: Value {rep.value}

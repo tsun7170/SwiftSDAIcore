@@ -248,11 +248,18 @@ where ELEMENT: SDAI.SwiftType
 
 //MARK: - from list literal (with optional bounds)
 extension SDAI.Initializable {
+
   /// from list literal (with optional bounds)
   public protocol ByListLiteral
   {
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
-      bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
+    init?<I1, I2, E>(
+      bound1: I1, bound2: I2?,
+      _ elements: [SDAI.AggregationInitializerElement<E>] )
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    E: SDAI.GenericType
+
   }
 }
 
@@ -266,10 +273,17 @@ public extension SDAI.Initializable.ByListLiteral
 
 //MARK: - from array literal (with required bounds)
 extension SDAI.Initializable {
+
   /// from array literal (with required bounds)
   public protocol ByArrayLiteral
   {
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
-      bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
+    init?<I1, I2, E>(
+      bound1: I1, bound2: I2?,
+      _ elements: [SDAI.AggregationInitializerElement<E>] )
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    E: SDAI.GenericType
+
   }
 }

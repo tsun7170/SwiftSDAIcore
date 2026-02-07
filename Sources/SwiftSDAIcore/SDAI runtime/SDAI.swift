@@ -55,3 +55,8 @@ public enum SDAI {
   ///   protocols, helper types, or functions as the runtime evolves to support more detailed initialization behavior.
   public enum Initializable {}
 }
+
+extension SDAI.BOOLEAN {
+  public static let TRUE:SDAI.BOOLEAN = true
+  public static let FALSE:SDAI.BOOLEAN = false
+}

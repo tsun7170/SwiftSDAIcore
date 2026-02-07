@@ -67,6 +67,7 @@ extension SDAI {
   /// ## Uniqueness Constraint:
   /// - The static method `UNIQUENESS(SELF:)` checks for element uniqueness, 
   ///   returning an EXPRESS `LOGICAL` value.
+  ///
 	public struct LIST_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI.TypeHierarchy.LIST_UNIQUE__TypeBehavior
 	{
 		
@@ -81,7 +82,7 @@ extension SDAI {
 		public var typeMembers: Set<SDAI.STRING> { rep.typeMembers }
 		public var rep: Supertype
 				
-		// SDAI__LIST__type
+		//MARK: SDAI__LIST__type
 		public static var uniqueFlag: BOOLEAN {true}
 
 		public init(fundamental: FundamentalType) {
@@ -93,23 +94,27 @@ extension SDAI {
 			rep = repval
 		}
 		
-		// uniqueness constraint
+		//MARK: uniqueness constraint
 		public static func UNIQUENESS(SELF: Self?) -> SDAI.LOGICAL {
-			guard let SELF = SELF else { return SDAI.UNKNOWN }
+			guard let SELF = SELF else { return SDAI.TRUE }
 
 			let unique = Set(SELF)
 			return SDAI.LOGICAL( unique.count == SELF.size )
 		}
 		
-		public static func validateWhereRules(instance: Self?, prefix: SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
+		public static func validateWhereRules(
+      instance: Self?,
+      prefix: SDAIPopulationSchema.WhereLabel
+    ) -> SDAIPopulationSchema.WhereRuleValidationRecords
+    {
 			let prefix2 = prefix + "\\\(typeName)"
 			var result = Supertype.validateWhereRules(instance:instance?.rep, prefix:prefix2)
 			
 			result[prefix2 + ".UNIQUENESS"] = UNIQUENESS(SELF: instance)
 			return result
 		}
-	}
-	
+
+	}//struct
 }
 
 

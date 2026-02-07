@@ -4,7 +4,9 @@ SDAI operations as defined in section 10 of ISO 10303-22
 
 ## Overview
 
+SDAI (Standard Data Access Interface) operations represent the standardized set of methods and procedures available in an SDAI implementation to interact with data defined by EXPRESS schemas, as specified in section 10 of ISO 10303-22. These operations enable management of sessions, repositories, schema instances, models, entity instances, and their associated aggregations.
 
+This document organizes and references SDAI operations according to their functional areas, providing a cross-reference between Swift API signatures and the corresponding EXPRESS/SDAI operation definitions. Use this as a guide to implement, locate, or understand the supported operations within the library, and to facilitate compliance with the SDAI standard.
 
 ## Topics
 
@@ -100,4 +102,45 @@ SDAI operations as defined in section 10 of ISO 10303-22
 - ``SDAISessionSchema/SdaiTransaction/getSessionIdentifier(label:repository:)``
 - ``SDAI/EntityReference/description``
 - ``SDAISessionSchema/SdaiTransaction/validateWhereRules(object:recording:)``
+
+- ``SDAISessionSchema/SdaiTransaction/validateAttributeValueDomainConstraints(object:recording:)``
+
+### Entity instance aggregate operations (10.12)
+
+- ``SDAI/AggregationType/size``
+- ``SDAI/AggregationType/CONTAINS(elem:)``
+- ``SDAI/AggregateIndexingGettable/subscript(_:)-(Int?)``
+- ``SDAI/AggregationType/loBound``
+- ``SDAI/AggregationType/hiBound``
+
+### Application instance aggregate operations (10.13)
+
+- ``SDAI/AggregateIndexingSettable/subscript(_:)-(Int?)``
+
+### Application instance unordered collection operations (10.14)
+
+- ``SDAI/BagType/add(member:)``
+- ``SDAI/BAG/init()``
+- ``SDAI/SET/init()``
+
+### Entity instance ordered collection operations (10.15)
+
+- ``SDAI/AggregateIndexingGettable/subscript(_:)-(Int?)``
+
+### Application instance ordered collection operations (10.16)
+
+- ``SDAI/AggregateIndexingSettable/subscript(_:)-(Int?)``
+
+### Entity instance array operations (10.17)
+
+- ``SDAI/AggregationType/loIndex``
+- ``SDAI/AggregationType/hiIndex``
+
+### Application instance array operations (10.18)
+
+### Application instance list operations (10.19)
+
+- ``SDAI/ListType/insert(element:at:)``
+- ``SDAI/LIST/init()``
+- ``SDAI/ListType/remove(at:)``
 

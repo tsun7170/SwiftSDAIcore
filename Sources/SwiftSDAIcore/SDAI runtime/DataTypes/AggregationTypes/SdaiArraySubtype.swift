@@ -17,32 +17,60 @@ extension SDAI.TypeHierarchy {
 
 public extension SDAI.TypeHierarchy.ARRAY__Subtype
 {
-	// SDAI.ArrayOptionalType
+	//MARK: SDAI.ArrayOptionalType
 	static var uniqueFlag: SDAI.BOOLEAN { Supertype.uniqueFlag }
 	static var optionalFlag: SDAI.BOOLEAN { Supertype.optionalFlag }
 	
-	// InitializableByGenerictype
+	//MARK: InitializableByGenerictype
 	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType.convert(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
 	}
 	
-	// InitializableByGenericArray
+	//MARK: InitializableByGenericArray
+  init?<I1, I2, T>(
+    bound1: I1, bound2: I2?, generic arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY__TypeBehavior
+  {
+    self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: arraytype))
+  }
+
   init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(generic arraytype: T?) {
 		self.init(fundamental: FundamentalType(generic: arraytype))
 	}
 
-	
-	// InitializableBySwifttypeAsArray
-	init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
-		from swiftValue: SwiftType, bound1: I1, bound2: I2)
+  //MARK: InitializableByGenericArrayOptional
+  init?<I1, I2, T>(
+    bound1: I1, bound2: I2?, generic arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior
+  {
+    self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, generic: arraytype))
+  }
+
+	//MARK: InitializableBySwifttypeAsArray
+	init<I1, I2>(
+		from swiftValue: SwiftType, bound1: I1, bound2: I2?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible
 	{
 		self.init(fundamental: FundamentalType(from: swiftValue, bound1: bound1, bound2: bound2) )
 	} 
 	
-	// SDAI.Initializable.ByArrayLiteral
-	init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
-		bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
+	//MARK: SDAI.Initializable.ByArrayLiteral
+	init?<I1, I2, E>(
+		bound1: I1, bound2: I2?,
+    _ elements: [SDAI.AggregationInitializerElement<E>])
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  E: SDAI.GenericType
 	{
 		self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, elements) )
 	} 
@@ -50,47 +78,124 @@ public extension SDAI.TypeHierarchy.ARRAY__Subtype
 }
 
 
-//MARK: - for select type element
+//MARK: - for SDAI.Initializable.BySelectType ELEMENT
 public extension SDAI.TypeHierarchy.ARRAY__Subtype
 where ELEMENT: SDAI.Initializable.BySelectType
 {
-  init?<T:SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
-	where T.ELEMENT: SDAI.SelectType
-	{
-		self.init(fundamental: FundamentalType(arraytype) )
-	}
+  init?<I1, I2, T>(
+    bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+  T.ELEMENT: SDAI.SelectType
+  {
+    self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, arraytype) )
+  }
+
+
+
+  init?<I1, I2, T>(
+    bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+  T.ELEMENT: SDAI.SelectType
+  {
+    self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, arraytype) )
+  }
+
+
 }
 
 
 
-//MARK: - for entity type element
+//MARK: - for SDAI.Initializable.ByComplexEntity ELEMENT
 public extension SDAI.TypeHierarchy.ARRAY__Subtype
 where ELEMENT: SDAI.Initializable.ByComplexEntity
 {
-  init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
-	where T.ELEMENT: SDAI.EntityReference
-	{
-		self.init(fundamental: FundamentalType(arraytype) )
-	}
+  init?<I1, I2, T>(
+    bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+  T.ELEMENT: SDAI.EntityReference
+  {
+    self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, arraytype) )
+  }
 
-  init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
-	where T.ELEMENT: SDAI.PersistentReference,
-	T.ELEMENT.ARef: SDAI.EntityReference
-	{
-		self.init(fundamental: FundamentalType(arraytype) )
-	}
+  init?<I1, I2, T>(
+    bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+  T.ELEMENT: SDAI.PersistentReference,
+  T.ELEMENT.ARef: SDAI.EntityReference
+  {
+    self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, arraytype) )
+  }
+
+
+
+  init?<I1, I2, T>(
+    bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+  T.ELEMENT: SDAI.EntityReference
+  {
+    self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, arraytype) )
+  }
+
+  init?<I1, I2, T>(
+    bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+  T.ELEMENT: SDAI.PersistentReference,
+  T.ELEMENT.ARef: SDAI.EntityReference
+  {
+    self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, arraytype) )
+  }
+
+
+
+
 }
 
 
-//MARK: - for defined type element
+//MARK: - for SDAI.Initializable.ByDefinedType ELEMENT
 public extension SDAI.TypeHierarchy.ARRAY__Subtype
 where ELEMENT: SDAI.Initializable.ByDefinedType
 {
-  init?<T:SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
-	where T.ELEMENT: SDAI.UnderlyingType
-	{
-		self.init(fundamental: FundamentalType(arraytype) )
-	}
+  init?<I1, I2, T>(bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+  T.ELEMENT: SDAI.UnderlyingType
+  {
+    self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, arraytype) )
+  }
+
+
+
+  init?<I1, I2, T>(bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+  T.ELEMENT: SDAI.UnderlyingType
+  {
+    self.init(fundamental: FundamentalType(bound1: bound1, bound2: bound2, arraytype) )
+  }
+
+
 }
 
 

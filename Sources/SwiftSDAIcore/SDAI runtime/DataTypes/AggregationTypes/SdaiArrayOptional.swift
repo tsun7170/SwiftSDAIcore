@@ -26,7 +26,10 @@ extension SDAI {
   /// - `SDAI.ARRAY_OPTIONAL`
   /// - `SDAI.ArrayType`
   /// - `SDAI.Initializable.ByVoid`
-  public protocol ArrayOptionalType: SDAI.ArrayType, SDAI.Initializable.ByVoid
+  ///
+  public protocol ArrayOptionalType:
+    SDAI.ArrayType,
+    SDAI.Initializable.ByEmptyArrayLiteral, SDAI.Initializable.ByVoid
   {}
 }
 
@@ -48,8 +51,8 @@ extension SDAI.TypeHierarchy {
   ///   - `SDAI.ARRAY_OPTIONAL`
   ///   - `SDAI.ArrayOptionalType`
   ///   - [ISO 10303-11:2004, Section 8.2.1 ARRAY data type](https://www.iso.org/standard/38046.html)
-  public protocol ARRAY_OPTIONAL__TypeBehavior:
-    SDAI.ArrayOptionalType, SDAI.Initializable.ByEmptyArrayLiteral, SDAI.Initializable.ByGenericArrayOptional
+  ///
+  public protocol ARRAY_OPTIONAL__TypeBehavior: SDAI.ArrayOptionalType
   where Element == ELEMENT?,
         FundamentalType == SDAI.ARRAY_OPTIONAL<ELEMENT>,
         Value == FundamentalType.Value,
@@ -89,6 +92,7 @@ extension SDAI {
   ///   - `SDAI.ArrayOptionalType`
   ///   - `SDAI.ArrayType`
   ///   - `SDAI.Initializable.ByVoid`
+  ///
   public struct ARRAY_OPTIONAL<ELEMENT:SDAI.GenericType>: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior
 	{
 		public typealias SwiftType = Array<ELEMENT?>
@@ -98,21 +102,21 @@ extension SDAI {
 		private let bound1: Int
 		private let bound2: Int
 
-		// Equatable \Hashable\SDAI.GenericType
+		//MARK: Equatable \Hashable\SDAI.GenericType
 		public static func == (lhs: SDAI.ARRAY_OPTIONAL<ELEMENT>, rhs: SDAI.ARRAY_OPTIONAL<ELEMENT>) -> Bool {
 			return lhs.rep == rhs.rep &&
 				lhs.bound1 == rhs.bound1 &&
 				lhs.bound2 == rhs.bound2
 		}
 		
-		// Hashable \SDAI.GenericType
+		//MARK: Hashable \SDAI.GenericType
 		public func hash(into hasher: inout Hasher) {
 			hasher.combine(rep)
 			hasher.combine(bound1)
 			hasher.combine(bound2)
 		}
 
-		// SDAI.GenericType
+		//MARK: SDAI.GenericType
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]
 		}
@@ -130,11 +134,19 @@ extension SDAI {
 		public var integerValue: SDAI.INTEGER? {nil}
 		public var genericEnumValue: SDAI.GenericEnumValue? {nil}
 		
-		public func arrayOptionalValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>? {
+		public func arrayOptionalValue<ELEM>(
+      elementType:ELEM.Type) -> SDAI.ARRAY_OPTIONAL<ELEM>?
+    where ELEM:SDAI.GenericType
+    {
 			if let value = self as? ARRAY_OPTIONAL<ELEM> { return value.copy() }
-			return ARRAY_OPTIONAL<ELEM>(bound1: self.loIndex, bound2: self.hiIndex, [self]) { 
+
+			return ARRAY_OPTIONAL<ELEM>(
+        bound1: self.loIndex, bound2: self.hiIndex, [self]) {
 					if( $0 == nil ) { return (true,nil) }
-					guard let conv = ELEM.convert(fromGeneric: $0) else { return (false,nil) }
+
+					guard let conv = ELEM.convert(fromGeneric: $0)
+          else { return (false,nil) }
+
 				return (true, conv.copy())
 				}
 		}
@@ -145,15 +157,20 @@ extension SDAI {
 		public func setValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		public static func validateWhereRules(instance:Self?, prefix:SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
+		public static func validateWhereRules(
+      instance:Self?,
+      prefix:SDAIPopulationSchema.WhereLabel
+    ) -> SDAIPopulationSchema.WhereRuleValidationRecords
+    {
 			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix)
 		}
-		
-		// SDAI.UnderlyingType
+
+
+		//MARK: SDAI.UnderlyingType
 		public static var typeName: String { return "ARRAY" }
 		public var asSwiftType: SwiftType { return self.copy().rep }
 		
-		// SDAI.GenericType
+		//MARK: SDAI.GenericType
 		public func copy() -> Self {
 			return self
 		}
@@ -164,10 +181,10 @@ extension SDAI {
 			self.init(from: fundamental.asSwiftType, bound1: fundamental.loIndex, bound2: fundamental.hiIndex)
 		}
 		
-		// Sequence \SDAI.AggregationType
+		//MARK: Sequence \SDAI.AggregationType
 		public func makeIterator() -> SwiftType.Iterator { return self.copy().rep.makeIterator() }
 
-		// SDAI.AggregationType
+		//MARK: SDAI.AggregationType
 		public var hiBound: Int? { return bound2 }
 		public var hiIndex: Int { return bound2 }
 		public var loBound: Int { return bound1 }
@@ -202,11 +219,11 @@ extension SDAI {
 			return ARRAY_OPTIONAL(from: filtered, bound1: self.loIndex ,bound2: self.hiIndex)
 		}
 
-		// SDAI.ArrayOptionalType
+		//MARK: SDAI.ArrayOptionalType
 		public static var uniqueFlag: SDAI.BOOLEAN { false }
 		public static var optionalFlag: SDAI.BOOLEAN { true }
 		
-		// ARRAY_OPTIONAL specific
+		//MARK: ARRAY_OPTIONAL specific
 		public func map<T:SDAI.GenericType>(_ transform: (ELEMENT?) -> T? ) -> ARRAY_OPTIONAL<T> {
 			let mapped = self.rep.map { (elem) -> T? in
 				if let elem = elem { return transform(elem) }
@@ -215,12 +232,16 @@ extension SDAI {
 			return ARRAY_OPTIONAL<T>(from:mapped, bound1:self.bound1, bound2:self.bound2)
 		}
 
-		internal init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S:Sequence>(
-			bound1: I1, bound2: I2,
+		internal init?<I1, I2, S>(
+			bound1: I1, bound2: I2?,
 			_ elements: [S], conv: (S.Element) -> (Bool,ELEMENT?) )
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    S: Sequence
 		{
 			var swiftValue = SwiftType()
-			if let b2 = bound2.possiblyAsSwiftInt, let b1 = bound1.possiblyAsSwiftInt {
+			if let b2 = bound2?.possiblyAsSwiftInt, let b1 = bound1.possiblyAsSwiftInt {
 				swiftValue.reserveCapacity(b2 - b1 + 1)
 			}
 			for aie in elements {
@@ -233,52 +254,94 @@ extension SDAI {
 			self.init(from: swiftValue, bound1: bound1, bound2: bound2)
 		}
 		
-		// InitializableByGenerictype
+		//MARK: InitializableByGenerictype
 		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let fundamental = generic?.arrayOptionalValue(elementType: ELEMENT.self) else { return nil }
 			self.init(fundamental: fundamental)
 		}
 
-		// InitializableByGenericArray
-    public init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(generic arraytype: T?) {
-			guard let arraytype = arraytype else { return nil }
-			self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]){ 
-				guard let conv = ELEMENT.convert(fromGeneric: $0) else { return (false,nil) }
-				return (true, conv)				
-			}
-		} 
+		//MARK: InitializableByGenericArray
+    public init?<I1, I2, T>(
+      bound1: I1, bound2: I2?, generic arraytype: T?)
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    T: SDAI.TypeHierarchy.ARRAY__TypeBehavior
+    {
+      guard let arraytype = arraytype else { return nil }
+      let hiIndex = bound1.asSwiftInt + arraytype.size - 1
+      if let bound2, bound2.asSwiftInt != hiIndex {
+        SDAI.raiseErrorAndContinue(.VA_NVLD, detail: "inconsistent bound2(\(bound2.asSwiftInt)) specified. should be (\(hiIndex)) from the source arraytype value.")
+      }
 
-		// InitializableByGenericArrayOptional
-    public init?<T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(generic arraytype: T?) {
-			guard let arraytype = arraytype else { return nil }
-			self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { 
-				if( $0 == nil ) { return (true,nil) }
-				guard let conv = ELEMENT.convert(fromGeneric: $0) else { return (false,nil) }
-				return (true, conv)
-			}
-		}
+      self.init(bound1: bound1, bound2: hiIndex, [arraytype]){
+        guard let conv = ELEMENT.convert(fromGeneric: $0) else { return (false,nil) }
+        return (true, conv)
+      }
+    }
+
+
+		//MARK: InitializableByGenericArrayOptional
+      public init?<I1, I2, T>(
+        bound1: I1, bound2: I2?, generic arraytype: T?)
+      where
+      I1: SDAI.SwiftIntConvertible,
+      I2: SDAI.SwiftIntConvertible,
+      T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior
+      {
+        guard let arraytype = arraytype else { return nil }
+        let hiIndex = bound1.asSwiftInt + arraytype.size - 1
+        if let bound2, bound2.asSwiftInt != hiIndex {
+          SDAI.raiseErrorAndContinue(.VA_NVLD, detail: "inconsistent bound2(\(bound2.asSwiftInt)) specified. should be (\(hiIndex)) from the source arraytype value.")
+        }
+
+        self.init(bound1: bound1, bound2: hiIndex, [arraytype]){
+          guard let conv = ELEMENT.convert(fromGeneric: $0) else { return (false,nil) }
+          return (true, conv)
+        }
+      }
+
+
 		
-		
-		// InitializableByEmptyArrayLiteral
-		public init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
-			bound1: I1, bound2: I2, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE)
+		//MARK: InitializableByEmptyArrayLiteral
+		public init<I1, I2>(
+			bound1: I1, bound2: I2,
+      _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE)
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible
 		{
 			self.init(from: SwiftType(repeating: nil, count: bound2.asSwiftInt - bound1.asSwiftInt + 1), bound1: bound1, bound2: bound2)
 		} 
 		
-		// InitializableBySwifttypeAsArray
-		public init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
-			from swiftValue: SwiftType, bound1: I1, bound2: I2)
-		{
-			self.bound1 = bound1.asSwiftInt
-			self.bound2 = bound2.asSwiftInt
-			self.rep = swiftValue
-			assert(rep.count == self.size)
-		} 
-		
-		// SDAI.Initializable.ByArrayLiteral
-		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
-			bound1: I1, bound2: I2, _ elements: [SDAI.AggregationInitializerElement<E>])
+		//MARK: InitializableBySwifttypeAsArray
+		public init<I1, I2>(
+			from swiftValue: SwiftType, bound1: I1, bound2: I2?)
+    where I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible
+    {
+      let b1 = bound1.asSwiftInt
+      self.bound1 = b1
+
+      let b2:Int
+      if let bound2 {
+        b2 = bound2.asSwiftInt
+      }
+      else {
+        b2 = swiftValue.count + b1 - 1
+      }
+      self.bound2 = b2
+
+      self.rep = swiftValue
+      assert(rep.count == self.size)
+    }
+
+		//MARK: SDAI.Initializable.ByArrayLiteral
+		public init?<I1, I2, E>(
+			bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    E: SDAI.GenericType
 		{
 			self.init(bound1: bound1, bound2: bound2, elements){
 				if let elem = ELEMENT.convert(fromGeneric: $0){ return (true,elem) }
@@ -286,7 +349,7 @@ extension SDAI {
 			}
 		} 
 		
-		// InitializableByP21Parameter
+		//MARK: InitializableByP21Parameter
 		public static var bareTypeName: String { self.typeName }
 		
 		public init?(
@@ -332,7 +395,7 @@ extension SDAI {
 			self.init()
 		}
 		
-    // InitializableByVoid 
+    //MARK: InitializableByVoid
     public init() {
       self.init(bound1: 1, bound2: 1)
     }
@@ -349,6 +412,7 @@ where ELEMENT: SDAI.EntityReferenceYielding
 { }
 
 
+//MARK: - for SDAI.DualModeReference ELEMENT
 extension SDAI.ARRAY_OPTIONAL: SDAI.DualModeReference
 where ELEMENT: SDAI.DualModeReference
 {
@@ -358,6 +422,7 @@ where ELEMENT: SDAI.DualModeReference
 	}
 }
 
+//MARK: - for SDAI.PersistentReference ELEMENT
 extension SDAI.ARRAY_OPTIONAL: SDAI.PersistentReference
 where ELEMENT: SDAI.PersistentReference
 {
@@ -372,83 +437,197 @@ where ELEMENT: SDAI.PersistentReference
 }
 
 
+//MARK: - for SDAI.Initializable.BySelectType ELEMENT
 extension SDAI.ARRAY_OPTIONAL: SDAI.Initializable.BySelecttypeArrayOptional, SDAI.Initializable.BySelecttypeArray
 where ELEMENT: SDAI.Initializable.BySelectType
 {
-  public init?<T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(_ arraytype: T?)
-	where T.ELEMENT: SDAI.SelectType
-	{
-		guard let arraytype = arraytype else { return nil }
-		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]){ 
-			if( $0 == nil ) { return (true,nil) }
-			guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
-			return (true, conv)
-		}
-	}
-	
-  public init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
-	where T.ELEMENT: SDAI.SelectType
-	{
-		guard let arraytype = arraytype else { return nil }
-		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]){ 
-			guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
-			return (true, conv)
-		}
-	}
+  public init?<I1, I2, T>(
+    bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+  T.ELEMENT: SDAI.SelectType
+  {
+    guard let arraytype = arraytype else { return nil }
+    let hiIndex = bound1.asSwiftInt + arraytype.size - 1
+    if let bound2, bound2.asSwiftInt != hiIndex {
+      SDAI.raiseErrorAndContinue(.VA_NVLD, detail: "inconsistent bound2(\(bound2.asSwiftInt)) specified. should be (\(hiIndex)) from the source arraytype value.")
+    }
+
+    self.init(bound1: bound1, bound2: hiIndex, [arraytype]){
+      if( $0 == nil ) { return (true,nil) }
+      guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
+      return (true, conv)
+    }
+  }
+
+
+
+  public init?<I1, I2, T>(
+    bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+  T.ELEMENT: SDAI.SelectType
+  {
+    guard let arraytype = arraytype else { return nil }
+    let hiIndex = bound1.asSwiftInt + arraytype.size - 1
+    if let bound2, bound2.asSwiftInt != hiIndex {
+      SDAI.raiseErrorAndContinue(.VA_NVLD, detail: "inconsistent bound2(\(bound2.asSwiftInt)) specified. should be (\(hiIndex)) from the source arraytype value.")
+    }
+
+    self.init(bound1: bound1, bound2: hiIndex, [arraytype]){
+      guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
+      return (true, conv)
+    }
+  }
+
 }
 
 
 
+//MARK: - for SDAI.Initializable.ByComplexEntity ELEMENT
 extension SDAI.ARRAY_OPTIONAL: SDAI.Initializable.ByEntityArrayOptional, SDAI.Initializable.ByEntityArray
 where ELEMENT: SDAI.Initializable.ByComplexEntity
 {
-  public init?<T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(_ arraytype: T?)
-	where T.ELEMENT: SDAI.EntityReference
-	{
-		guard let arraytype = arraytype else { return nil }
-		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { 
-			if( $0 == nil ) { return (true,nil) }
-				guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
-			return (true, conv)
-		}
-	}
-	
-  public init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
-	where T.ELEMENT: SDAI.EntityReference
-	{
-		guard let arraytype = arraytype else { return nil }
-		self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { 
-			guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
-			return (true, conv)
-		}
-	}			
+  public init?<I1, I2, T>(
+    bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+  T.ELEMENT: SDAI.EntityReference
+  {
+    guard let arraytype = arraytype else { return nil }
+    let hiIndex = bound1.asSwiftInt + arraytype.size - 1
+    if let bound2, bound2.asSwiftInt != hiIndex {
+      SDAI.raiseErrorAndContinue(.VA_NVLD, detail: "inconsistent bound2(\(bound2.asSwiftInt)) specified. should be (\(hiIndex)) from the source arraytype value.")
+    }
+
+    self.init(bound1: bound1, bound2: hiIndex, [arraytype]) {
+      if( $0 == nil ) { return (true,nil) }
+      guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
+      return (true, conv)
+    }
+  }
+
+  public init?<I1, I2, T>(
+    bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+  T.ELEMENT: SDAI.PersistentReference,
+  T.ELEMENT.ARef: SDAI.EntityReference
+  {
+    guard let arraytype = arraytype else { return nil }
+    let hiIndex = bound1.asSwiftInt + arraytype.size - 1
+    if let bound2, bound2.asSwiftInt != hiIndex {
+      SDAI.raiseErrorAndContinue(.VA_NVLD, detail: "inconsistent bound2(\(bound2.asSwiftInt)) specified. should be (\(hiIndex)) from the source arraytype value.")
+    }
+
+    self.init(bound1: bound1, bound2: hiIndex, [arraytype]) {
+      if( $0 == nil ) { return (true,nil) }
+      guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
+      return (true, conv)
+    }
+  }
+
+
+
+
+
+  public init?<I1, I2, T>(
+    bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+  T.ELEMENT: SDAI.EntityReference
+  {
+    guard let arraytype = arraytype else { return nil }
+    let hiIndex = bound1.asSwiftInt + arraytype.size - 1
+    if let bound2, bound2.asSwiftInt != hiIndex {
+      SDAI.raiseErrorAndContinue(.VA_NVLD, detail: "inconsistent bound2(\(bound2.asSwiftInt)) specified. should be (\(hiIndex)) from the source arraytype value.")
+    }
+
+    self.init(bound1: bound1, bound2: hiIndex, [arraytype]) {
+      guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
+      return (true, conv)
+    }
+  }
+
+  public init?<I1, I2, T>(
+    bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+  T.ELEMENT: SDAI.PersistentReference,
+  T.ELEMENT.ARef: SDAI.EntityReference
+  {
+    guard let arraytype = arraytype else { return nil }
+    let hiIndex = bound1.asSwiftInt + arraytype.size - 1
+    if let bound2, bound2.asSwiftInt != hiIndex {
+      SDAI.raiseErrorAndContinue(.VA_NVLD, detail: "inconsistent bound2(\(bound2.asSwiftInt)) specified. should be (\(hiIndex)) from the source arraytype value.")
+    }
+
+    self.init(bound1: bound1, bound2: hiIndex, [arraytype]) {
+      guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
+      return (true, conv)
+    }
+  }
+
 }
 
 
 
+//MARK: - for SDAI.Initializable.ByDefinedType ELEMENT
 extension SDAI.ARRAY_OPTIONAL: SDAI.Initializable.ByDefinedtypeArrayOptional, SDAI.Initializable.ByDefinedtypeArray
 where ELEMENT: SDAI.Initializable.ByDefinedType
 {
-  public init?<T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(_ arraytype: T?)
-	 where T.ELEMENT: SDAI.UnderlyingType
-	 {
-		guard let arraytype = arraytype else { return nil }
-		 self.init(bound1: arraytype.loIndex, bound2: arraytype.hiIndex, [arraytype]) { 
-			if( $0 == nil ) { return (true,nil) }
-			guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
-			return (true, conv)
-		}
-	 }
-	
-  public init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
-	where T.ELEMENT: SDAI.UnderlyingType
-	{
-		guard let arraytype = arraytype else { return nil }
-		self.init(bound1:arraytype.loIndex, bound2:arraytype.hiIndex, [arraytype]) { 
-			guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
-			return (true, conv)
-		}
-	}
+  public init?<I1, I2, T>(bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+  T.ELEMENT: SDAI.UnderlyingType
+  {
+    guard let arraytype = arraytype else { return nil }
+    let hiIndex = bound1.asSwiftInt + arraytype.size - 1
+    if let bound2, bound2.asSwiftInt != hiIndex {
+      SDAI.raiseErrorAndContinue(.VA_NVLD, detail: "inconsistent bound2(\(bound2.asSwiftInt)) specified. should be (\(hiIndex)) from the source arraytype value.")
+    }
+
+    self.init(bound1: bound1, bound2: hiIndex, [arraytype]) {
+      if( $0 == nil ) { return (true,nil) }
+      guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
+      return (true, conv)
+    }
+  }
+
+
+  public init?<I1, I2, T>(bound1: I1, bound2: I2?, _ arraytype: T?)
+  where
+  I1: SDAI.SwiftIntConvertible,
+  I2: SDAI.SwiftIntConvertible,
+  T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+  T.ELEMENT: SDAI.UnderlyingType
+  {
+    guard let arraytype = arraytype else { return nil }
+    let hiIndex = bound1.asSwiftInt + arraytype.size - 1
+    if let bound2, bound2.asSwiftInt != hiIndex {
+      SDAI.raiseErrorAndContinue(.VA_NVLD, detail: "inconsistent bound2(\(bound2.asSwiftInt)) specified. should be (\(hiIndex)) from the source arraytype value.")
+    }
+
+    self.init(bound1:bound1, bound2:hiIndex, [arraytype]) {
+      guard let conv = ELEMENT.convert(sibling: $0) else { return (false,nil) }
+      return (true, conv)
+    }
+  }
+
 }
 
 

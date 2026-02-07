@@ -48,7 +48,7 @@ extension SDAISessionSchema.SdaiTransaction {
     }
 
     guard
-      let repomodel = repository.contents.findSdaiModel(withID: modelID)
+      let _ = repository.contents.findSdaiModel(withID: modelID)
     else {
       SDAI.raiseErrorAndContinue(.EI_NEXS, detail: "SDAI-model[\(modelID)] does not exist in repository[\(repository)]")
       return nil
@@ -99,5 +99,6 @@ extension SDAISessionSchema.SdaiTransaction {
       recording: option)
     return result
   }
+
 
 }//SdaiTransaction

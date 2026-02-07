@@ -30,28 +30,45 @@ extension SDAI {
 		return agg.CONTAINS(elem: aggelem)
 	}
 
-  //MARK: where rule validation
+  //MARK: validation related
 	public static func validateAggregateElementsWhereRules<AGG:SDAI.AggregationType>(
     _ agg:AGG?,
-    prefix:SDAI.WhereLabel) -> [SDAI.WhereLabel:SDAI.LOGICAL]
+    prefix:SDAIPopulationSchema.WhereLabel
+  ) -> SDAIPopulationSchema.WhereRuleValidationRecords
   {
-		var result:[SDAI.WhereLabel:SDAI.LOGICAL] = [:]
-		guard let agg = agg else { return result }
-		
+		var result:SDAIPopulationSchema.WhereRuleValidationRecords = [:]
+		guard let agg = agg,
+          let session = SDAISessionSchema.activeSession
+    else { return result }
+
 		if let hibound = agg.hiBound {
 			result[prefix + ".hiBound(\(hibound))"] = SDAI.LOGICAL(agg.hiIndex <= hibound)	
 		}
 		result[prefix + ".loBound(\(agg.loBound))"] = SDAI.LOGICAL(agg.hiIndex >= agg.loBound)
-		
-		if (AGG.ELEMENT.self as Any) is SDAI.EntityReference { return result }
-		
+
 		for idx in stride(from: agg.loIndex, through: agg.hiIndex, by: 1) {
+      let elem = agg[idx]
+      if let entityRef = elem as? SDAI.EntityReference {
+        guard session.validateTemporaryEntities,
+              entityRef.isTemporary
+        else { continue }
+      }
+      else if let pref = elem as? SDAI.GenericPersistentEntityReference {
+        guard session.validateTemporaryEntities,
+              pref.isTemporary
+        else { continue }
+      }
+
 			let elemResult = AGG.ELEMENT.validateWhereRules(
-				instance:agg[idx], 
-				prefix: prefix + "[\(idx)]\\\(AGG.ELEMENT.typeName)" ) 
+				instance:elem,
+				prefix: prefix + "[\(idx)]\\\(AGG.ELEMENT.typeName)" )
+
 			result.merge(elemResult) { $0 && $1 }
 		}
 		return result
 	}
+
+
+
 }
 

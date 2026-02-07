@@ -44,8 +44,8 @@ extension SDAI {
   /// 
   /// Use `SDAI.ARRAY_UNIQUE` when you need to represent an EXPRESS `ARRAY UNIQUE` type in your Swift-based SDAI model implementations.
   public struct ARRAY_UNIQUE<ELEMENT:SDAI.GenericType>: SDAI.TypeHierarchy.ARRAY_UNIQUE__TypeBehavior
-	{
-		public typealias Supertype = SDAI.ARRAY<ELEMENT>
+  {
+ 		public typealias Supertype = SDAI.ARRAY<ELEMENT>
 		public typealias FundamentalType = Supertype.FundamentalType
 		public typealias Value = Supertype.Value
 		public typealias SwiftType = Supertype.SwiftType
@@ -60,32 +60,46 @@ extension SDAI {
 			rep = Supertype(fundamental: fundamental)
 		}
 		
-		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
-			guard let repval = generic?.arrayValue(elementType: ELEMENT.self) else { return nil }
-			rep = repval
-		}
 
-		// SDAI.ArrayOptionalType
+
+    public init?<I1, I2, T>(
+      bound1: I1, bound2: I2?, generic arraytype: T?)
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    T: SDAI.TypeHierarchy.ARRAY__TypeBehavior
+    {
+      guard let fundamental = FundamentalType(bound1: bound1, bound2: bound2, generic: arraytype)
+      else { return nil }
+
+      self.init(fundamental: fundamental)
+    }
+
+		//MARK: SDAI.ArrayOptionalType
 		public static var uniqueFlag: SDAI.BOOLEAN { true }
 		public static var optionalFlag: SDAI.BOOLEAN { false }
 		
-		// uniqueness constraint
+		//MARK: uniqueness constraint
 		public static func UNIQUENESS(SELF: Self?) -> SDAI.LOGICAL {
-			guard let SELF = SELF else { return SDAI.UNKNOWN }
+			guard let SELF = SELF else { return SDAI.TRUE }
 
 			let unique = Set(SELF)
 			return SDAI.LOGICAL( unique.count == SELF.size )
 		}
 		
-		public static func validateWhereRules(instance: Self?, prefix: SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
+		public static func validateWhereRules(
+      instance: Self?,
+      prefix: SDAIPopulationSchema.WhereLabel
+    ) -> SDAIPopulationSchema.WhereRuleValidationRecords
+    {
 			let prefix2 = prefix + "\\\(typeName)"
 			var result = Supertype.validateWhereRules(instance:instance?.rep, prefix:prefix2)
 			
 			result[prefix2 + ".UNIQUENESS"] = UNIQUENESS(SELF: instance)
 			return result
 		}
-	}
-	
+
+	}//struct
 }
 
 extension SDAI.ARRAY_UNIQUE: SDAI.EntityReferenceYielding

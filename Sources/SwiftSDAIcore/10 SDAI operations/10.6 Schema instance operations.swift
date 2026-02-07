@@ -440,6 +440,7 @@ extension SDAISessionSchema.SdaiTransaction {
     instance.performValidateAllWhereRules(
       recording: option, monitor: monitor)
 
+
     return instance.validationResult
   }
 
@@ -482,6 +483,7 @@ extension SDAISessionSchema.SdaiTransaction {
     // where rule check
     await instance.performValidateAllWhereRulesAsync(
       recording: option, monitor: monitor, session: session)
+
 
     return instance.validationResult
   }

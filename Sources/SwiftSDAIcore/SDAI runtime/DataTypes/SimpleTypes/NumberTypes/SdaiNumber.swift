@@ -158,6 +158,7 @@ extension SDAI {
   /// Types conforming to `NumberType` serve as the basis for representing SDAI's general NUMBER type, which can model both integer
   /// and real (floating-point) values. This protocol is further refined by `DoubleRepresentedNumberType` and `IntRepresentedNumberType`
   /// for types that specifically represent real or integer numbers.
+  ///
   public protocol NumberType: SDAI.SimpleType, ExpressibleByIntegerLiteral, SDAI.SwiftDoubleConvertible, SDAI.Initializable.ByVoid
   where SwiftType: SDAI.NumberRepType
   {}
@@ -177,6 +178,7 @@ extension SDAI {
   /// This protocol is intended for types that model real numbers or other values that are best
   /// represented as doubles, and enables specialized handling of such types in generic numeric
   /// contexts within the SDAI framework.
+  ///
   public protocol DoubleRepresentedNumberType: SDAI.NumberType, SDAI.DoubleRepresented
   where SwiftType == Double
   {}
@@ -196,6 +198,7 @@ extension SDAI {
   /// This protocol is intended for types that model integer numbers or other values that are best
   /// represented as integers, and enables specialized handling of such types in generic numeric
   /// contexts within the SDAI framework.
+  ///
   public protocol IntRepresentedNumberType: SDAI.NumberType, SDAI.IntRepresented
   where SwiftType == Int
   {}
@@ -236,6 +239,7 @@ extension SDAI.TypeHierarchy {
   /// and real number representations.
   ///
   /// - SeeAlso: `SDAI.NUMBER`, `SDAI.DoubleRepresentedNumberType`, `SDAI.NumberType`
+  ///
   public protocol NUMBER__TypeBehavior: SDAI.DoubleRepresentedNumberType, ExpressibleByFloatLiteral
   where FundamentalType == SDAI.NUMBER,
         Value == FundamentalType.Value
@@ -321,16 +325,17 @@ extension SDAI {
   /// ```
   ///
   /// - SeeAlso: `SDAI.REAL`, `SDAI.INTEGER`, `SDAI.DoubleRepresentedNumberType`, `SDAI.IntRepresentedNumberType`
+  ///
 	public struct NUMBER: SDAI.TypeHierarchy.NUMBER__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Double
 		public typealias FundamentalType = Self
 		private let rep: SwiftType
 
-		// CustomStringConvertible
+		//MARK: CustomStringConvertible
 		public var description: String { "NUMBER(\(rep))" }
 		
-		// SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__NUMBER__type
+		//MARK: SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__NUMBER__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(from: Self.typeName)]
 		}
@@ -362,39 +367,40 @@ extension SDAI {
 			prefix:SDAIPopulationSchema.WhereLabel
 		) -> SDAIPopulationSchema.WhereRuleValidationRecords { return [:] }
 
-		
-		// InitializableByGenerictype
+
+
+		//MARK: InitializableByGenerictype
 		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let numberValue = generic?.numberValue else { return nil }
 			self.init(numberValue)
 		}
 		
 		
-		// SDAI.UnderlyingType \SDAI.SimpleType\SDAI__NUMBER__type
+		//MARK: SDAI.UnderlyingType \SDAI.SimpleType\SDAI__NUMBER__type
 		public static let typeName: String = "NUMBER"
 		public var asSwiftType: SwiftType { return rep }
 		
-		// SDAI.GenericType
+		//MARK: SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(fundamental.rep)
 		}
 
 
-		// SDAI.SimpleType \SDAI__NUMBER__type
+		//MARK: SDAI.SimpleType \SDAI__NUMBER__type
 		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
 		
-		// SDAI.Value
-		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool 
+		//MARK: SDAI.Value
+		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool
 		{
 			if let rhs = rhs as? Self { return self == rhs }
 			if let rhs = rhs as? SDAI.SwiftDoubleConvertible { return self.asSwiftDouble == rhs.asSwiftDouble }
 			return false
 		}
 		
-		// InitializableByP21Parameter
+		//MARK: InitializableByP21Parameter
 		public static var bareTypeName: String { self.typeName }
 		
 		public init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {

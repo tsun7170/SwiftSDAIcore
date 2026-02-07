@@ -34,6 +34,7 @@ extension SDAI {
   /// - Parameters:
   ///   - EREF: The concrete entity reference type being encapsulated. Must conform to `SDAI.EntityReference`
   ///     and `SDAI.Initializable.ByP21Parameter`.
+  ///
 	@dynamicMemberLookup
 	public final class PersistentEntityReference<EREF>:
     GenericPersistentEntityReference, @unchecked Sendable,

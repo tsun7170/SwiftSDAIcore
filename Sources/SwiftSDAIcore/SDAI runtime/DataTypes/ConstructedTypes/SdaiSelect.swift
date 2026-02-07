@@ -37,6 +37,7 @@ extension SDAI {
   /// Implement this protocol for custom types that need to behave as SELECT types within the SDAI framework, ensuring interoperability and correct type conversions when interacting with EXPRESS-based data.
   ///
   /// - SeeAlso: [ISO 10303-11:1994, Section 8.4.2 "SELECT Type"](https://www.steptools.com/stds/smrl/docs/iso-10303-11/sect8.4.2.html)
+  ///
   public protocol SelectType:
     SDAI.ConstructedType,
     SDAI.Initializable.ByDefinedType, SDAI.Initializable.ByComplexEntity,
@@ -50,7 +51,7 @@ extension SDAI {
 
 public extension SDAI.SelectType
 {
-	// SDAI.CacheableSource
+	//MARK: SDAI.CacheableSource
 	var isCacheable: Bool {
 		for pref in self.persistentEntityReferences {
 			if !pref.isCacheable { return false }
@@ -58,7 +59,7 @@ public extension SDAI.SelectType
 		return true
 	}
 	
-	// SDAI.GenericType
+	//MARK: SDAI.GenericType
 	var value: Value { self.asFundamentalType }
 	
 	init?<G: SDAI.EntityReference>(_ generic: G?){
@@ -74,23 +75,23 @@ public extension SDAI.SelectType
 	}
 
 
-	// SDAI.SwiftDoubleConvertible
+	//MARK: SDAI.SwiftDoubleConvertible
 	var possiblyAsSwiftDouble: Double? { self.realValue?.asSwiftType }
 	var asSwiftDouble: Double { SDAI.UNWRAP(self.possiblyAsSwiftDouble) }
 	
-	// SDAI.SwiftIntConvertible,
+	//MARK: SDAI.SwiftIntConvertible,
 	var possiblyAsSwiftInt: Int? { self.integerValue?.asSwiftType }
 	var asSwiftInt: Int { SDAI.UNWRAP(self.possiblyAsSwiftInt) }
 	
-	// SDAI.SwiftStringConvertible, 
+	//MARK: SDAI.SwiftStringConvertible,
 	var possiblyAsSwiftString: String? { self.stringValue?.asSwiftType }
 	var asSwiftString: String { SDAI.UNWRAP(self.possiblyAsSwiftString) }
 	
-	// SDAI.SwiftBoolConvertible
+	//MARK: SDAI.SwiftBoolConvertible
 	var possiblyAsSwiftBool: Bool? { self.logicalValue?.asSwiftType }
 	var asSwiftBool: Bool { SDAI.UNWRAP(self.possiblyAsSwiftBool) }	
 	
-	// group reference
+	//MARK: group reference
 	func GROUP_REF<SUPER:SDAI.EntityReference & SDAI.DualModeReference>(
 		_ entity_ref: SUPER.Type) -> SUPER.PRef?
 	{
@@ -101,7 +102,7 @@ public extension SDAI.SelectType
 }
 
 public extension SDAI.DefinedType where Self: SDAI.SelectType {
-	// SDAIGenericTypeBase
+	//MARK: SDAIGenericTypeBase
 	func copy() -> Self {
 		var copied = self
 		copied.rep = rep.copy()

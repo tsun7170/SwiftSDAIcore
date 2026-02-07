@@ -158,5 +158,5 @@ where REF: SDAI.GenericType {
 	{
 		REF.validateWhereRules(instance: instance?.reference, prefix: prefix)
 	}
-	
+
 }

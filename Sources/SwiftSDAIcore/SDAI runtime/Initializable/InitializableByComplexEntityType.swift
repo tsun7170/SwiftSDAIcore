@@ -10,6 +10,7 @@ import Foundation
 
 //MARK: - from entity type scalar
 extension SDAI.Initializable {
+
   /// from entity type scalar
   public protocol ByComplexEntity
   {
@@ -76,31 +77,44 @@ where Self: SDAI.EntityReference
 
 //MARK: - from entity type list
 extension SDAI.Initializable {
+
   /// from entity type list
   public protocol ByEntityList
   {
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.LIST__TypeBehavior>(
+    init?<I1, I2, T>(
       bound1: I1, bound2: I2?, _ listtype: T?)
-    where T.ELEMENT: SDAI.EntityReference
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    T: SDAI.TypeHierarchy.LIST__TypeBehavior,
+    T.ELEMENT: SDAI.EntityReference
 
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.LIST__TypeBehavior>(
+    init?<I1, I2, T>(
       bound1: I1, bound2: I2?, _ listtype: T?)
-    where T.ELEMENT: SDAI.PersistentReference,
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    T: SDAI.TypeHierarchy.LIST__TypeBehavior,
+    T.ELEMENT: SDAI.PersistentReference,
     T.ELEMENT.ARef: SDAI.EntityReference
 
   }
 }
 public extension SDAI.Initializable.ByEntityList
 {
-	init?<T: SDAI.TypeHierarchy.LIST__TypeBehavior>(_ listtype: T?) 
-	where T.ELEMENT: SDAI.EntityReference
+	init?<T>(_ listtype: T?)
+	where
+  T: SDAI.TypeHierarchy.LIST__TypeBehavior,
+  T.ELEMENT: SDAI.EntityReference
 	{
 		guard let listtype = listtype else { return nil }
 		self.init(bound1: listtype.loBound, bound2: listtype.hiBound, listtype)
 	}
 
-	init?<T: SDAI.TypeHierarchy.LIST__TypeBehavior>(_ listtype: T?)
-	where T.ELEMENT: SDAI.PersistentReference,
+	init?<T>(_ listtype: T?)
+	where
+  T: SDAI.TypeHierarchy.LIST__TypeBehavior,
+  T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
 		guard let listtype = listtype else { return nil }
@@ -110,31 +124,44 @@ public extension SDAI.Initializable.ByEntityList
 
 //MARK: - from entity type bag
 extension SDAI.Initializable {
+
   /// from entity type bag
   public protocol ByEntityBag
   {
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.BAG__TypeBehavior>(
+    init?<I1, I2, T>(
       bound1: I1, bound2: I2?, _ bagtype: T?)
-    where T.ELEMENT: SDAI.EntityReference
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    T: SDAI.TypeHierarchy.BAG__TypeBehavior,
+    T.ELEMENT: SDAI.EntityReference
 
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.BAG__TypeBehavior>(
+    init?<I1, I2, T>(
       bound1: I1, bound2: I2?, _ bagtype: T?)
-    where T.ELEMENT: SDAI.PersistentReference,
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    T: SDAI.TypeHierarchy.BAG__TypeBehavior,
+    T.ELEMENT: SDAI.PersistentReference,
     T.ELEMENT.ARef: SDAI.EntityReference
 
   }
 }
 public extension SDAI.Initializable.ByEntityBag
 {
-  init?<T: SDAI.TypeHierarchy.BAG__TypeBehavior>(_ bagtype: T?)
-	where T.ELEMENT: SDAI.EntityReference
+  init?<T>(_ bagtype: T?)
+	where
+  T: SDAI.TypeHierarchy.BAG__TypeBehavior,
+  T.ELEMENT: SDAI.EntityReference
 	{
 		guard let bagtype = bagtype else { return nil }
 		self.init(bound1: bagtype.loBound, bound2: bagtype.hiBound, bagtype)
 	}
 	
-  init?<T: SDAI.TypeHierarchy.BAG__TypeBehavior>(_ bagtype: T?)
-	where T.ELEMENT: SDAI.PersistentReference,
+  init?<T>(_ bagtype: T?)
+	where
+  T: SDAI.TypeHierarchy.BAG__TypeBehavior,
+  T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
 		guard let bagtype = bagtype else { return nil }
@@ -144,30 +171,43 @@ public extension SDAI.Initializable.ByEntityBag
 
 //MARK: - from entity type set
 extension SDAI.Initializable {
+
   /// from entity type set
   public protocol ByEntitySet
   {
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.SET__TypeBehavior>(
+    init?<I1, I2, T>(
       bound1: I1, bound2: I2?, _ settype: T?)
-    where T.ELEMENT: SDAI.EntityReference
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    T: SDAI.TypeHierarchy.SET__TypeBehavior,
+    T.ELEMENT: SDAI.EntityReference
 
-    init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.SET__TypeBehavior>(
+    init?<I1, I2, T>(
       bound1: I1, bound2: I2?, _ settype: T?)
-    where T.ELEMENT: SDAI.PersistentReference,
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    T: SDAI.TypeHierarchy.SET__TypeBehavior,
+    T.ELEMENT: SDAI.PersistentReference,
     T.ELEMENT.ARef: SDAI.EntityReference
   }
 }
 public extension SDAI.Initializable.ByEntitySet
 {
-  init?<T: SDAI.TypeHierarchy.SET__TypeBehavior>(_ settype: T?)
-	where T.ELEMENT: SDAI.EntityReference
+  init?<T>(_ settype: T?)
+	where
+  T: SDAI.TypeHierarchy.SET__TypeBehavior,
+  T.ELEMENT: SDAI.EntityReference
 	{
 		guard let settype = settype else { return nil }
 		self.init(bound1: settype.loBound, bound2: settype.hiBound, settype)
 	}
 
-  init?<T: SDAI.TypeHierarchy.SET__TypeBehavior>(_ settype: T?)
-	where T.ELEMENT: SDAI.PersistentReference,
+  init?<T>(_ settype: T?)
+	where
+  T: SDAI.TypeHierarchy.SET__TypeBehavior,
+  T.ELEMENT: SDAI.PersistentReference,
 	T.ELEMENT.ARef: SDAI.EntityReference
 	{
 		guard let settype = settype else { return nil }
@@ -178,79 +218,179 @@ public extension SDAI.Initializable.ByEntitySet
 
 //MARK: - from entity type array optional
 extension SDAI.Initializable {
+
   /// from entity type array optional
   public protocol ByEntityArrayOptional
   {
-    init?<T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(_ arraytype: T?)
-    where T.ELEMENT: SDAI.EntityReference
+    init?<I1, I2, T>(
+      bound1: I1, bound2: I2?, _ arraytype: T?)
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+    T.ELEMENT: SDAI.EntityReference
 
-    init?<T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(_ arraytype: T?)
-    where T.ELEMENT: SDAI.PersistentReference,
+    init?<I1, I2, T>(
+      bound1: I1, bound2: I2?, _ arraytype: T?)
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+    T.ELEMENT: SDAI.PersistentReference,
     T.ELEMENT.ARef: SDAI.EntityReference
+
+
+//    init?<T>(_ arraytype: T?)
+//    where
+//    T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+//    T.ELEMENT: SDAI.EntityReference
+//
+//    init?<T>(_ arraytype: T?)
+//    where
+//    T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+//    T.ELEMENT: SDAI.PersistentReference,
+//    T.ELEMENT.ARef: SDAI.EntityReference
   }
 }
 public extension SDAI.Initializable.ByEntityArrayOptional
 {
-  init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(
-		bound1: I1, bound2: I2, _ arraytype: T?)
-	where T.ELEMENT: SDAI.EntityReference
-	{
-		guard let arraytype = arraytype, 
-					bound1.asSwiftInt == arraytype.loIndex, 
-					bound2.asSwiftInt == arraytype.hiIndex 
-		else { return nil }
-		self.init(arraytype)
-	}
+//  init?<I1, I2, T>(
+//		bound1: I1, bound2: I2, _ arraytype: T?)
+//	where
+//  I1: SDAI.SwiftIntConvertible,
+//  I2: SDAI.SwiftIntConvertible,
+//  T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+//  T.ELEMENT: SDAI.EntityReference
+//	{
+//		guard let arraytype = arraytype, 
+//					bound1.asSwiftInt == arraytype.loIndex, 
+//					bound2.asSwiftInt == arraytype.hiIndex 
+//		else { return nil }
+//		self.init(arraytype)
+//	}
+//
+//  init?<I1, I2, T>(
+//		bound1: I1, bound2: I2, _ arraytype: T?)
+//	where
+//  I1: SDAI.SwiftIntConvertible,
+//  I2: SDAI.SwiftIntConvertible,
+//  T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+//  T.ELEMENT: SDAI.PersistentReference,
+//	T.ELEMENT.ARef: SDAI.EntityReference
+//	{
+//		guard let arraytype = arraytype, 
+//					bound1.asSwiftInt == arraytype.loIndex, 
+//					bound2.asSwiftInt == arraytype.hiIndex 
+//		else { return nil }
+//		self.init(arraytype)
+//	}
 
-  init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior>(
-		bound1: I1, bound2: I2, _ arraytype: T?)
-	where T.ELEMENT: SDAI.PersistentReference,
-	T.ELEMENT.ARef: SDAI.EntityReference
-	{
-		guard let arraytype = arraytype, 
-					bound1.asSwiftInt == arraytype.loIndex, 
-					bound2.asSwiftInt == arraytype.hiIndex 
-		else { return nil }
-		self.init(arraytype)
-	}
+  init?<T>(_ arraytype: T?)
+  where
+  T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+  T.ELEMENT: SDAI.EntityReference
+  {
+    guard let arraytype = arraytype else { return nil }
+    self.init(bound1: arraytype.loBound, bound2: arraytype.hiBound, arraytype)
+  }
+
+  init?<T>(_ arraytype: T?)
+  where
+  T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior,
+  T.ELEMENT: SDAI.PersistentReference,
+  T.ELEMENT.ARef: SDAI.EntityReference
+  {
+    guard let arraytype = arraytype else { return nil }
+    self.init(bound1: arraytype.loBound, bound2: arraytype.hiBound, arraytype)
+  }
 }
 
 
 //MARK: - from entity type array
 extension SDAI.Initializable {
+
   /// from entity type array
   public protocol ByEntityArray
   {
-    init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
-    where T.ELEMENT: SDAI.EntityReference
+    init?<I1, I2, T>(
+      bound1: I1, bound2: I2?, _ arraytype: T?)
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+    T.ELEMENT: SDAI.EntityReference
 
-    init?<T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(_ arraytype: T?)
-    where T.ELEMENT: SDAI.PersistentReference,
+    init?<I1, I2, T>(
+      bound1: I1, bound2: I2?, _ arraytype: T?)
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+    T.ELEMENT: SDAI.PersistentReference,
     T.ELEMENT.ARef: SDAI.EntityReference
+
+//    init?<T>(_ arraytype: T?)
+//    where
+//    T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+//    T.ELEMENT: SDAI.EntityReference
+//
+//    init?<T>(_ arraytype: T?)
+//    where
+//    T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+//    T.ELEMENT: SDAI.PersistentReference,
+//    T.ELEMENT.ARef: SDAI.EntityReference
   }
 }
 public extension SDAI.Initializable.ByEntityArray
 {
-  init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(
-		bound1: I1, bound2: I2, _ arraytype: T?)
-	where T.ELEMENT: SDAI.EntityReference
-	{
-		guard let arraytype = arraytype, 
-					bound1.asSwiftInt == arraytype.loIndex, 
-					bound2.asSwiftInt == arraytype.hiIndex 
-		else { return nil }
-		self.init(arraytype)
-	}
+//  init?<I1, I2, T>(
+//		bound1: I1, bound2: I2, _ arraytype: T?)
+//	where
+//  I1: SDAI.SwiftIntConvertible,
+//  I2: SDAI.SwiftIntConvertible,
+//  T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+//  T.ELEMENT: SDAI.EntityReference
+//	{
+//		guard let arraytype = arraytype, 
+//					bound1.asSwiftInt == arraytype.loIndex, 
+//					bound2.asSwiftInt == arraytype.hiIndex 
+//		else { return nil }
+//		self.init(arraytype)
+//	}
+//
+//  init?<I1, I2, T>(
+//		bound1: I1, bound2: I2, _ arraytype: T?)
+//	where
+//  I1: SDAI.SwiftIntConvertible,
+//  I2: SDAI.SwiftIntConvertible,
+//  T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+//  T.ELEMENT: SDAI.PersistentReference,
+//	T.ELEMENT.ARef: SDAI.EntityReference
+//	{
+//		guard let arraytype = arraytype, 
+//					bound1.asSwiftInt == arraytype.loIndex, 
+//					bound2.asSwiftInt == arraytype.hiIndex 
+//		else { return nil }
+//		self.init(arraytype)
+//	}
 
-  init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.ARRAY__TypeBehavior>(
-		bound1: I1, bound2: I2, _ arraytype: T?)
-	where T.ELEMENT: SDAI.PersistentReference,
-	T.ELEMENT.ARef: SDAI.EntityReference
-	{
-		guard let arraytype = arraytype, 
-					bound1.asSwiftInt == arraytype.loIndex, 
-					bound2.asSwiftInt == arraytype.hiIndex 
-		else { return nil }
-		self.init(arraytype)
-	}
+  init?<T>(_ arraytype: T?)
+  where
+  T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+  T.ELEMENT: SDAI.EntityReference
+  {
+    guard let arraytype = arraytype else { return nil }
+    self.init(bound1: arraytype.loBound, bound2: arraytype.hiBound, arraytype)
+  }
+
+  init?<T>(_ arraytype: T?)
+  where
+  T: SDAI.TypeHierarchy.ARRAY__TypeBehavior,
+  T.ELEMENT: SDAI.PersistentReference,
+  T.ELEMENT.ARef: SDAI.EntityReference
+  {
+    guard let arraytype = arraytype else { return nil }
+    self.init(bound1: arraytype.loBound, bound2: arraytype.hiBound, arraytype)
+  }
+
 }

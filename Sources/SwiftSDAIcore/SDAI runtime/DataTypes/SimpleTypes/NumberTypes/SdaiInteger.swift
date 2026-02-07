@@ -48,6 +48,7 @@ extension SDAI.TypeHierarchy {
   /// value conversion, and EXPRESS type interoperability.
   ///
   /// - SeeAlso: [ISO 10303-11:2004, Section 8.1.3 INTEGER](https://www.iso.org/standard/38047.html)
+  ///
   public protocol INTEGER__TypeBehavior: SDAI.IntegerType, SDAI.IntRepresentedNumberType
   where FundamentalType == SDAI.INTEGER,
         Value == FundamentalType.Value
@@ -108,16 +109,17 @@ extension SDAI {
   ///   values on assignment; truncation of real values must be explicit.
   ///
   /// - SeeAlso: [ISO 10303-11:2004, Section 8.1.3 INTEGER](https://www.iso.org/standard/38047.html)
+  ///
 	public struct INTEGER: SDAI.TypeHierarchy.INTEGER__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Int
 		public typealias FundamentalType = Self
 		private let rep: SwiftType
 
-		// CustomStringConvertible
+		//MARK: CustomStringConvertible
 		public var description: String { "INTEGER(\(rep))" }
 		
-		// SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
+		//MARK: SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(from: Self.typeName), SDAI.STRING(from: REAL.typeName), SDAI.STRING(from: NUMBER.typeName)]
 		}
@@ -145,43 +147,45 @@ extension SDAI {
 			prefix:SDAIPopulationSchema.WhereLabel
 		) -> SDAIPopulationSchema.WhereRuleValidationRecords { return [:] }
 
+
+
 		
-		// InitializableByGenerictype
+		//MARK: InitializableByGenerictype
 		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let integerValue = generic?.integerValue else { return nil }
 			self.init(integerValue)
 		}
 		
-		// SDAI.UnderlyingType \SDAI.SimpleType\SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
+		//MARK: SDAI.UnderlyingType \SDAI.SimpleType\SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
 		public static let typeName: String = "INTEGER"
 		public var asSwiftType: SwiftType { return rep }
 		
-		// SDAI.GenericType
+		//MARK: SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(fundamental.rep)
 		}
 
-		// SDAI.SimpleType \SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
+		//MARK: SDAI.SimpleType \SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
 		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
 		
-		// SDAI.Value
-		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool 
+		//MARK: SDAI.Value
+		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool
 		{
 			if let rhs = rhs as? Self { return self == rhs }
 			if let rhs = rhs as? SDAI.SwiftIntConvertible { return self.asSwiftInt == rhs.asSwiftInt }
 			return false
 		}
 		
-		// INTEGER specific
+		//MARK: INTEGER specific
 		public init?(truncating real: SDAI.DoubleRepresented?) {
 			guard let double = real?.asSwiftDouble else { return nil }
 			self.init(Int(double))
 		}
 		
-		// InitializableByP21Parameter
+		//MARK: InitializableByP21Parameter
 		public static var bareTypeName: String { self.typeName }
 		
 		public init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {

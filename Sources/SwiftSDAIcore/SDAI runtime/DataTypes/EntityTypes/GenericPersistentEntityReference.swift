@@ -49,6 +49,7 @@ extension SDAI {
   /// ### Usage Notes
   /// - Designed primarily for infrastructure and population schema operations within the SDAI system.
   /// - Should not be instantiated directly by users except in advanced scenarios involving custom population or referencing.
+  ///
   public class GenericPersistentEntityReference: @unchecked Sendable,
   SDAI.GenericType,
   Hashable, CustomStringConvertible
@@ -195,6 +196,20 @@ extension SDAI {
       return eREF
     }
 
+    public var isTemporary: Bool {
+      self.temporaryEntityReference != nil
+    }
+
+    //MARK: validation related
+    public var shouldPropagateValidation: Bool {
+      guard let session = SDAISessionSchema.activeSession,
+            session.validateTemporaryEntities,
+            self.isTemporary
+      else { return false }
+
+      return true
+    }
+
     //MARK: SDAICacheableSource
     public var isCacheable: Bool {
       switch self.complexReference {
@@ -206,7 +221,7 @@ extension SDAI {
       }
     }
 
-    //MAREK: InitializableByGenericType
+    //MARK: InitializableByGenericType
     public required convenience init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
       if let pref = generic as? Self {
         self.init(pref.complexReference)
@@ -260,10 +275,9 @@ extension SDAI {
       self
     }
 
-    public typealias FundamentalType = EntityReference//EREF.FundamentalType
+    public typealias FundamentalType = EntityReference
 
     public var asFundamentalType: FundamentalType {
-      //      self.instance.asFundamentalType
       self.asGenericEntityReference!
     }
 
@@ -309,6 +323,7 @@ extension SDAI {
     {
       Self.ERefType.validateWhereRules(instance: instance?.asGenericEntityReference, prefix: prefix)
     }
+
 
   }//class
 }//extension

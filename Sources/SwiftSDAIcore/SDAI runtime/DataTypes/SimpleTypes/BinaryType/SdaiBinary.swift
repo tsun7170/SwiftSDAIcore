@@ -114,28 +114,40 @@ extension SDAI.TypeHierarchy {
         Value == FundamentalType.Value,
         SwiftType == FundamentalType.SwiftType
   {
-    init?<I: SDAI.SwiftIntConvertible>(width:I?, fixed:Bool,  fundamental:FundamentalType?)
-    init<I: SDAI.SwiftIntConvertible>(width:I?, fixed:Bool,  fundamental:FundamentalType)
+    //MARK: init from FundamentalType
+    init?<I: SDAI.SwiftIntConvertible>(
+      width:I?, fixed:Bool,  fundamental:FundamentalType?)
+    init<I: SDAI.SwiftIntConvertible>(
+      width:I?, fixed:Bool,  fundamental:FundamentalType)
 
-
+    //MARK: init from String
     init?(_ string: String?)
     init(_ string: String)
 
-    init?<I: SDAI.SwiftIntConvertible>(width:I?, _ string:String?)
-    init<I: SDAI.SwiftIntConvertible>(width:I?,  _ string:String)
+    init?<I: SDAI.SwiftIntConvertible>(
+      width:I?, _ string:String?)
+    init<I: SDAI.SwiftIntConvertible>(
+      width:I?,  _ string:String)
 
-    init?<I: SDAI.SwiftIntConvertible>(width:I?, fixed:Bool, _ string:String?)
-    init<I: SDAI.SwiftIntConvertible>(width:I?, fixed:Bool, _ string:String)
+    init?<I: SDAI.SwiftIntConvertible>(
+      width:I?, fixed:Bool, _ string:String?)
+    init<I: SDAI.SwiftIntConvertible>(
+      width:I?, fixed:Bool, _ string:String)
 
 
+    //MARK: init from subtype
     init?<T:SDAI.TypeHierarchy.BINARY__TypeBehavior>(_ subtype: T?)
     init<T:SDAI.TypeHierarchy.BINARY__TypeBehavior>(_ subtype: T)
 
-    init?<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(width:I?, _ subtype: T?)
-    init<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(width:I?, _ subtype: T)
+    init?<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(
+      width:I?, _ subtype: T?)
+    init<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(
+      width:I?, _ subtype: T)
 
-    init?<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(width:I?, fixed:Bool, _ subtype: T?)
-    init<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(width:I?, fixed:Bool, _ subtype: T)
+    init?<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(
+      width:I?, fixed:Bool, _ subtype: T?)
+    init<T:SDAI.TypeHierarchy.BINARY__TypeBehavior,I: SDAI.SwiftIntConvertible>(
+      width:I?, fixed:Bool, _ subtype: T)
 
 
     var width: SDAIDictionarySchema.Bound? {get}
@@ -218,9 +230,6 @@ public extension SDAI.TypeHierarchy.BINARY__TypeBehavior
       width: width, fixed: fixed, fundamental: subtype.asFundamentalType)
   }
 
-
-//	static var width: SDAIDictionarySchema.Bound? {nil}
-//	static var fixedWidth: SDAI.BOOLEAN {false}
 }
 
 
@@ -279,10 +288,10 @@ extension SDAI {
 
 		private let rep: SwiftType
 
-		// CustomStringConvertible
+		//MARK: CustomStringConvertible
 		public var description: String { "BINARY(\(rep))" }
 		
-		// SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__BINARY__type
+		//MARK: SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__BINARY__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(from: Self.typeName)]
 		}
@@ -308,30 +317,45 @@ extension SDAI {
 		public static func validateWhereRules(
 			instance:Self?,
 			prefix:SDAIPopulationSchema.WhereLabel
-		) -> SDAIPopulationSchema.WhereRuleValidationRecords { return [:] }
+    ) -> SDAIPopulationSchema.WhereRuleValidationRecords
+    {
+      var result:SDAIPopulationSchema.WhereRuleValidationRecords = [:]
 
-		
-		// InitializableByGenerictype
+      guard let instance = instance else { return result }
+
+      if let width = instance.width {
+        if instance.fixedWidth == .TRUE {
+          result[prefix + ".fixedWidth(\(width))"] = SDAI.LOGICAL(instance.blength == width)
+        }
+        else {
+          result[prefix + ".width(\(width))"] = SDAI.LOGICAL(instance.blength <= width)
+        }
+      }
+
+      return result
+    }
+
+
+		//MARK: InitializableByGenerictype
 		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let binaryValue = generic?.binaryValue else { return nil }
       self.init(fundamental: binaryValue)
 		}
 		
-		// SDAI.UnderlyingType \SDAI.SimpleType\SDAI__BINARY__type
+		//MARK: SDAI.UnderlyingType \SDAI.SimpleType\SDAI__BINARY__type
 		public static let typeName: String = "BINARY"
 		public var asSwiftType: SwiftType { return rep }
 		
-		// SDAI.GenericType
+		//MARK: SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
 
 		public init(fundamental: FundamentalType) {
-//			self.init(from: fundamental.rep)
       self.rep = fundamental.rep
       self.width = fundamental.width
       self.fixedWidth = fundamental.fixedWidth
 		}
 
-		// SDAI.SimpleType \SDAI__BINARY__type
+		//MARK: SDAI.SimpleType \SDAI__BINARY__type
 		public init(from swiftValue: SwiftType) {
 			assert(Self.isValidValue(value: swiftValue))
 			rep = swiftValue
@@ -339,27 +363,12 @@ extension SDAI {
       self.fixedWidth = false
 		}
 		
-		// ExpressibleByStringLiteral \SDAI__BINARY__type
+		//MARK: ExpressibleByStringLiteral \SDAI__BINARY__type
 		public init(stringLiteral value: String) {
-//			assert(value.hasPrefix("%"))
-//			var rep = SwiftType()
-//			rep.reserveCapacity(value.count-1)
-//			for c in value.dropFirst() {
-//				switch c {
-//				case "0": rep.append(0)
-//				case "1": rep.append(1)
-//				default: fatalError()
-//				}
-//			}
-//
-//      self.rep = rep
-//      self.width = nil
-//      self.fixedWidth = false
-
       self.init(width: nil as Int?, fixed: false, value)
 		}
 
-		// SDAI__BINARY__type
+		//MARK: SDAI__BINARY__type
     public init<I: SDAI.SwiftIntConvertible>(
       width:I?, fixed:Bool, fundamental:FundamentalType)
     {
@@ -399,7 +408,7 @@ extension SDAI {
 			return BINARY( from: SwiftType(rep[swiftrange]) )
 		}
 		
-		// BINARY specific
+		//MARK: BINARY specific
 		private static func isValidValue(value: SwiftType) -> Bool {
 			for bit in value {
 				if bit != 0 && bit != 1 { return false }
@@ -407,17 +416,20 @@ extension SDAI {
 			return true
 		}
 		
-		// SDAI.Value
-		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool 
+		//MARK: SDAI.Value
+		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool
 		{
 			if let rhs = rhs as? Self { return self == rhs }
 			return false
 		}
 
-		// InitializableByP21Parameter
+		//MARK: InitializableByP21Parameter
 		public static var bareTypeName: String { self.typeName }
 		
-		public init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {
+		public init?(
+      p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter,
+      from exchangeStructure: P21Decode.ExchangeStructure)
+    {
 			switch p21untypedParam {
 			case .binary(let bin):
 				let swiftval: SwiftType = SwiftType(bin.compactMap { 

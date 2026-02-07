@@ -37,6 +37,7 @@ extension SDAI {
   /// ## Standard References
   /// - ISO 10303-11: EXPRESS language
   /// - ISO 10303-22: SDAI interface
+  ///
   public protocol EntityReferenceType {
     var complexEntity: SDAI.ComplexEntity {get}
     init?(complex complexEntity: SDAI.ComplexEntity?)
@@ -68,6 +69,7 @@ extension SDAI {
   /// ## Standard References
   /// - ISO 10303-11: EXPRESS language
   /// - ISO 10303-22: SDAI interface
+  ///
   public protocol SimpleEntityType {
     associatedtype SimplePartialEntity: SDAI.PartialEntity
 
@@ -124,6 +126,7 @@ extension SDAI {
   /// ## Standard References
   /// - ISO 10303-11: EXPRESS language
   /// - ISO 10303-22: SDAI interface
+  ///
 	open class EntityReference:
 		SDAI.UnownedReference<SDAI.ComplexEntity>,
 		SDAI.NamedType, SDAI.EntityReferenceType, SDAI.GenericType,
@@ -149,7 +152,9 @@ extension SDAI {
 			}
 		}
 
-
+    public var isTemporary: Bool {
+      self.complexEntity.isTemporary
+    }
 
 		//MARK: CustomStringConvertible
 
@@ -418,33 +423,20 @@ extension SDAI {
 		) -> SDAIPopulationSchema.WhereRuleValidationRecords
 		{
 			var result: SDAIPopulationSchema.WhereRuleValidationRecords = [:]
-			guard let instance = instance,
-            let session = SDAISessionSchema.activeSession,
-            session.validateTemporaryEntities
+			guard let instance = instance
 			else { return result }
 
-			for attrDef in type(of:instance).entityDefinition.entityYieldingEssentialAttributes {
-        let attrName = attrDef.name
+      for (attrName,attrDef) in type(of:instance).entityDefinition.attributes {
+        let prefix2 = prefix + " ." + attrName
+        let attrResult = attrDef.validateWhereRules(
+          for: instance, prefix: prefix2)
 
-        guard let attrYieldingPRefs = attrDef.persistentEntityReferences(for: instance)
-        else { continue }
+        result.merge(attrResult) { $0 && $1 }
+      }
 
-        for pref in attrYieldingPRefs {
-          // filter out persistent entities since these entities should be checked separately
-          guard let tempERef = pref.temporaryEntityReference else { continue }
-
-          let tempERefType = type(of:tempERef)
-          let prefix2 = prefix + " ." + attrName + "\\" + tempERef.description
-
-          let attrResult = tempERefType.validateWhereRules(
-            instance: tempERef,
-            prefix: prefix2)
-
-          result.merge(attrResult) { $0 && $1 }
-        }
-			}
 			return result
 		}
+
 
 		//MARK: SDAI.EntityReferenceYielding
 		public final var entityReferences: AnySequence<SDAI.EntityReference> {

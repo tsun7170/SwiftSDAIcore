@@ -43,13 +43,34 @@ extension SDAI {
   /// 
   /// ### Typical Usage
   /// This protocol is intended for types that model EXPRESS LIST types and need to support the full range of aggregation and mutability operations expected in such lists.
+  ///
   public protocol ListType:
     SDAI.AggregationType, SDAI.AggregateIndexingSettable, SDAI.UnderlyingType, SDAI.SwiftTypeRepresented,
     SDAI.Initializable.ByEmptyListLiteral, SDAI.Initializable.BySwifttypeAsList, SDAI.Initializable.BySelecttypeAsList,
     SDAI.Initializable.ByListLiteral, SDAI.Initializable.ByGenericList, SDAI.Initializable.ByVoid
   {
-    // Built-in procedure support
+    //MARK: Built-in procedure support
+
+    /// Inserts a new element at the specified position in the list. (ISO 10303-22 10.19.3)
+    ///
+    /// The new element will appear at the given 1-based position, shifting any existing elements at or after that position to the right.
+    ///
+    /// - Parameters:
+    ///   - element: The element to insert into the list.
+    ///   - position: The 1-based index at which to insert the element. Must be greater than or equal to 1 and less than or equal to the current size of the list plus one.
+    ///
+    /// - Precondition: `position` must be in the range `1...size+1`. If not, a runtime assertion failure will occur.
+    ///
+    /// - Note: EXPRESS `LIST` types use 1-based indexing. Inserting at position 1 inserts the element at the start of the list.
     mutating func insert(element: ELEMENT, at position: Int)
+
+    /// Removes the element at the specified position in the list. (ISO 10303-22 10.19.7)
+    ///
+    /// The element at the given 1-based index will be removed, with all subsequent elements shifting one position to the left to fill the gap.
+    ///
+    /// - Parameter position: The 1-based index of the element to remove. Must be greater than or equal to 1 and less than or equal to the current size of the list.
+    /// - Precondition: `position` must be in the range `1...size`. If not, a runtime assertion failure will occur.
+    /// - Note: EXPRESS `LIST` types use 1-based indexing. Removing at position 1 removes the first element of the list.
     mutating func remove(at position: Int)
   }
 }
@@ -96,16 +117,17 @@ extension SDAI.TypeHierarchy {
   /// It is primarily used for generic programming over EXPRESS collections, ensuring correct support for EXPRESS aggregation semantics.
   /// 
   /// - SeeAlso: `SDAI.LIST`, `SDAI.ListType`
+  /// 
   public protocol LIST__TypeBehavior: SDAI.ListType
   where Element == ELEMENT,
         FundamentalType == SDAI.LIST<ELEMENT>,
         Value == FundamentalType.Value,
         SwiftType == FundamentalType.SwiftType
   {
-    // SDAIDictionarySchema support
+    //MARK: SDAIDictionarySchema support
     static var uniqueFlag: SDAI.BOOLEAN {get}
 
-    // Aggregation operator support
+    //MARK: Aggregation operator support
     func appendWith<U: SDAI.ListType>(rhs: U) -> SDAI.LIST<ELEMENT>?
     where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
@@ -198,21 +220,21 @@ extension SDAI {
 		private let bound1: Int
 		private let bound2: Int?
 
-		// Equatable \Hashable\SDAI.GenericType
+		//MARK: Equatable \Hashable\SDAI.GenericType
 		public static func == (lhs: SDAI.LIST<ELEMENT>, rhs: SDAI.LIST<ELEMENT>) -> Bool {
 			return lhs.rep == rhs.rep &&
 				lhs.bound1 == rhs.bound1 &&
 				lhs.bound2 == rhs.bound2
 		}
 		
-		// Hashable \SDAI.GenericType
+		//MARK: Hashable \SDAI.GenericType
 		public func hash(into hasher: inout Hasher) {
 			hasher.combine(rep)
 			hasher.combine(bound1)
 			hasher.combine(bound2)
 		}
 
-		// SDAI.GenericType
+		//MARK: SDAI.GenericType
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]
 		}
@@ -242,16 +264,20 @@ extension SDAI {
 		public func setValue<ELEM:SDAI.GenericType>(elementType:ELEM.Type) -> SDAI.SET<ELEM>? {nil}
 		public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		public static func validateWhereRules(instance:Self?, prefix:SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
+		public static func validateWhereRules(
+      instance:Self?,
+      prefix:SDAIPopulationSchema.WhereLabel
+    ) -> SDAIPopulationSchema.WhereRuleValidationRecords
+    {
 			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix)
 		}
 
 
-		// SDAI.UnderlyingType
+		//MARK: SDAI.UnderlyingType
 		public static var typeName: String { return "LIST" }
 		public var asSwiftType: SwiftType { return self.copy().rep }
 		
-		// SDAI.GenericType
+		//MARK: SDAI.GenericType
 		public func copy() -> Self {
 			return self
 		}
@@ -262,10 +288,10 @@ extension SDAI {
 			self.init(from: fundamental.asSwiftType, bound1: fundamental.loBound, bound2: fundamental.hiBound)
 		}
 		
-		// Sequence \SDAI.AggregationType
+		//MARK: Sequence \SDAI.AggregationType
 		public func makeIterator() -> SwiftType.Iterator { return self.copy().rep.makeIterator() }
 
-		// SDAI.AggregationType
+		//MARK: SDAI.AggregationType
 		public var hiBound: Int? { return bound2 }
 		public var hiIndex: Int { return size }
 		public var loBound: Int { return bound1 }
@@ -297,10 +323,10 @@ extension SDAI {
 									bound1: self.loBound, bound2: self.hiBound)
 		}
 		
-		// SDAI__LIST__type
+		//MARK: SDAI__LIST__type
 		public static var uniqueFlag: BOOLEAN {false}
 		
-		// LIST specific
+		//MARK: LIST specific
 		public func map<T:SDAI.GenericType>(_ transform: (ELEMENT) -> T ) -> LIST<T> {
 			let mapped = self.rep.map(transform)
 			return LIST<T>(from:mapped, bound1:self.bound1, bound2:self.bound2)
@@ -322,13 +348,13 @@ extension SDAI {
 		}
 		
 		
-		// InitializableByGenerictype
+		//MARK: InitializableByGenerictype
 		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let fundamental = generic?.listValue(elementType: ELEMENT.self) else { return nil }
 			self.init(fundamental: fundamental)
 		}
 
-		// InitializableByGenericList
+		//MARK: InitializableByGenericList
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.LIST__TypeBehavior>(
 			bound1: I1, bound2: I2?, generic listtype: T?)
 		{
@@ -336,14 +362,14 @@ extension SDAI {
 			self.init(bound1: bound1, bound2: bound2, [listtype]) { ELEMENT.convert(fromGeneric: $0) }
 		}
 		
-		// InitializableByEmptyListLiteral
+		//MARK: InitializableByEmptyListLiteral
 		public init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
 			bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE)
 		{
 			self.init(from: SwiftType(), bound1: bound1, bound2: bound2)
 		} 
 
-		// InitializableBySwifttypeAsList
+		//MARK: InitializableBySwifttypeAsList
 		public init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
 			from swiftValue: SwiftType, bound1: I1, bound2: I2?)
 		{
@@ -352,7 +378,7 @@ extension SDAI {
 			self.rep = swiftValue
 		}
 		
-		// SDAI.Initializable.BySelecttypeAsList
+		//MARK: SDAI.Initializable.BySelecttypeAsList
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(
 			bound1: I1, bound2: I2?, _ select: S?)
 		{
@@ -360,14 +386,14 @@ extension SDAI {
 			self.init(from: fundamental.asSwiftType, bound1:bound1, bound2:bound2)
 		}
 
-		// SDAI.Initializable.ByListLiteral
+		//MARK: SDAI.Initializable.ByListLiteral
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E: SDAI.GenericType>(
 			bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
 		{
 			self.init(bound1: bound1, bound2: bound2, elements){ ELEMENT.convert(fromGeneric: $0) }
 		} 
 
-		// Built-in procedure support
+		//MARK: Built-in procedure support
 		public mutating func insert(element: ELEMENT, at position: Int) {
 			assert(position >= 0)
 			assert(position <= self.size)
@@ -497,7 +523,23 @@ extension SDAI {
 			self.init()
 		}
 		
-    // InitializableByVoid
+    //MARK: InitializableByVoid
+
+    /// Creates an empty `SDAI.LIST` with default bounds. (ISO 10303-22 10.19.4)
+    ///
+    /// This initializer constructs a new, empty list of the appropriate element type with bounds corresponding to a zero-length collection.
+    ///
+    /// Typically, the lower bound will be set to 0 or the default for the list type, and the upper bound will be `nil` (unbounded), depending on the implementation.
+    ///
+    /// Use this initializer when you need an empty EXPRESS `LIST` value, such as for default property values or when building up a list incrementally.
+    ///
+    /// ## Example
+    /// ```swift
+    /// let emptyList = SDAI.LIST<SDAI.INTEGER>()
+    /// #expect(emptyList.isEmpty)
+    /// ```
+    ///
+    /// - Note: This matches the EXPRESS built-in behavior for `LIST` instantiation.
     public init() {
       self.init(from: SwiftType())
     }
@@ -520,6 +562,7 @@ where ELEMENT: SDAI.DualModeReference
 	}
 }
 
+//MARK: - for SDAI.PersistentReference ELEMENT
 extension SDAI.LIST: SDAI.PersistentReference
 where ELEMENT: SDAI.PersistentReference
 {
@@ -535,7 +578,7 @@ where ELEMENT: SDAI.PersistentReference
 	}
 }
 
-
+//MARK: - for SDAI.Initializable.BySelectType ELEMENT
 extension SDAI.LIST: SDAI.Initializable.BySelecttypeList
 where ELEMENT: SDAI.Initializable.BySelectType
 {	
@@ -548,7 +591,7 @@ where ELEMENT: SDAI.Initializable.BySelectType
 	}
 }
 
-
+//MARK: - for SDAI.Initializable.ByComplexEntity ELEMENT
 extension SDAI.LIST: SDAI.Initializable.ByEntityList
 where ELEMENT: SDAI.Initializable.ByComplexEntity
 {
@@ -576,7 +619,7 @@ where ELEMENT: SDAI.Initializable.ByComplexEntity
 
 }
 
-
+//MARK: - for SDAI.Initializable.ByDefinedType ELEMENT
 extension SDAI.LIST: SDAI.Initializable.ByDefinedtypeList
 where ELEMENT: SDAI.Initializable.ByDefinedType
 {

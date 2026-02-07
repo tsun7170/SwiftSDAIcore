@@ -18,24 +18,24 @@ extension SDAI.TypeHierarchy {
 
 public extension SDAI.TypeHierarchy.REAL__Subtype
 {
-	// InitializableByGenerictype
+	//MARK: InitializableByGenerictype
 	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType.convert(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
 	}
 
-  // InitializableByVoid
+  //MARK: InitializableByVoid
   init() {
     let fundamental = FundamentalType()
     self.init(fundamental: fundamental)
   }
 
-	// SDAI.SimpleType \SDAI__NUMBER__type\SDAI__REAL__type\SDAI__REAL__subtype
+	//MARK: SDAI.SimpleType \SDAI__NUMBER__type\SDAI__REAL__type\SDAI__REAL__subtype
 	init(from swiftValue: SwiftType) {
 		self.init(fundamental: FundamentalType(from: swiftValue))
 	}
 	
-	// SDAI__REAL__type
+	//MARK: SDAI__REAL__type
 	static var precision: SDAIDictionarySchema.Bound { Supertype.precision }
 }
 

@@ -17,19 +17,19 @@ extension SDAI.TypeHierarchy {
 
 public extension SDAI.TypeHierarchy.INTEGER__Subtype
 {
-	// InitializableByGenerictype
+	//MARK: InitializableByGenerictype
 	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 		guard let fundamental = FundamentalType.convert(fromGeneric: generic) else { return nil }
 		self.init(fundamental: fundamental)
 	}
 
-  // InitializableByVoid
+  //MARK: InitializableByVoid
   init() {
     let fundamental = FundamentalType()
     self.init(fundamental: fundamental)
   }
 
-	// SDAI.SimpleType \SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
+	//MARK: SDAI.SimpleType \SDAI__NUMBER__type\SDAI__REAL__type\SDAI__INTEGER__type
 	init(from swiftValue: SwiftType) {
 		self.init(fundamental: FundamentalType(from: swiftValue))
 	}

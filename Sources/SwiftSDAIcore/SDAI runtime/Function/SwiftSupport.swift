@@ -10,4 +10,5 @@ import Foundation
 
 extension SDAI {
 	public static func TOUCH<T>(`var`: inout T) {}
+  public static func TOUCH<T>(`let`: T) {}
 }

@@ -9,6 +9,7 @@
 import Foundation
 
 extension SDAI.Initializable {
+
   /// from p21 exchange structure parameters
   public protocol ByP21Parameter: SDAI.Initializable.ByGenericType
   {

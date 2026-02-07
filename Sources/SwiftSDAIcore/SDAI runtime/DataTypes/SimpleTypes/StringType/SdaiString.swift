@@ -21,6 +21,7 @@ extension SDAI {
   /// Types conforming to this protocol should provide an implementation for both properties:
   /// - `possiblyAsSwiftString`: Returns an optional `String` representation (may be `nil` if conversion is not possible).
   /// - `asSwiftString`: Returns a non-optional `String` representation (may be an empty string if not available).
+  ///
   public protocol SwiftStringConvertible
   {
     var possiblyAsSwiftString: String? {get}
@@ -37,6 +38,7 @@ extension SDAI {
   /// - Note: This protocol does not require any additional implementation beyond
   ///   `SwiftStringConvertible`, and is primarily used to distinguish types that
   ///   semantically represent string values within the SDAI framework.
+  ///
   public protocol SwiftStringRepresented: SDAI.SwiftStringConvertible
   {}
 }
@@ -83,6 +85,7 @@ extension SDAI {
   ///
   /// - Note: This protocol bridges EXPRESS `STRING` and Swift's native `String` functionality,
   ///   preserving EXPRESS semantics where appropriate.
+  ///
   public protocol StringType: SDAI.SimpleType, SDAI.SwiftStringConvertible,
                                   ExpressibleByStringLiteral, SDAI.Initializable.ByVoid
   where StringLiteralType == String
@@ -271,9 +274,6 @@ public extension SDAI.TypeHierarchy.STRING__TypeBehavior
 		guard let string = string else { return nil }
     self.init(width:width, fixed:fixed, string)
 	}
-//	init(_ string:String) {
-//		self.init(from: string)
-//	}
 
 
 
@@ -310,8 +310,6 @@ public extension SDAI.TypeHierarchy.STRING__TypeBehavior
     self.init(width:width, fixed: fixed, subtype.asSwiftType)
 	}
 
-//	static var width: SDAIDictionarySchema.Bound? {nil}
-//	static var fixedWidth: SDAI.BOOLEAN {false}
 }
 
 extension SDAI {
@@ -357,6 +355,7 @@ extension SDAI {
   ///
   /// - Note: This type directly models the EXPRESS `STRING` specification, preserving its semantics.
   /// - SeeAlso: `SDAI.StringType`, `SDAI.TypeHierarchy.STRING__TypeBehavior`
+  ///
 	public struct STRING: SDAI.TypeHierarchy.STRING__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = String
@@ -367,10 +366,10 @@ extension SDAI {
 
     private let rep: SwiftType
 
-		// CustomStringConvertible
+		//MARK: CustomStringConvertible
 		public var description: String { "STRING(\(rep))" }
 		
-		// SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__STRING__type
+		//MARK: SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__STRING__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName)]
 		}
@@ -396,31 +395,44 @@ extension SDAI {
 		public static func validateWhereRules(
 			instance:Self?,
 			prefix:SDAIPopulationSchema.WhereLabel
-		) -> SDAIPopulationSchema.WhereRuleValidationRecords { return [:] }
+		) -> SDAIPopulationSchema.WhereRuleValidationRecords
+    {
+      var result:SDAIPopulationSchema.WhereRuleValidationRecords = [:]
 
-		
-		// InitializableByGenerictype
+      guard let instance = instance else { return result }
+
+      if let width = instance.width {
+        if instance.fixedWidth == .TRUE {
+          result[prefix + ".fixedWidth(\(width))"] = SDAI.LOGICAL(instance.length == width)
+        }
+        else {
+          result[prefix + ".width(\(width))"] = SDAI.LOGICAL(instance.length <= width)
+        }
+      }
+
+      return result
+    }
+
+
+
+		//MARK: InitializableByGenerictype
 		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let stringValue = generic?.stringValue else { return nil }
 			self.init(stringValue)
 		}
 
-		// SDAI.UnderlyingType\SDAI.SimpleType\SDAI__STRING__type
+		//MARK: SDAI.UnderlyingType\SDAI.SimpleType\SDAI__STRING__type
 		public static let typeName: String = "STRING"
 		public var asSwiftType: SwiftType { return rep }
 		
-		// SDAI.GenericType
+		//MARK: SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
       self.init(width: fundamental.width, fixed: fundamental.fixedWidth.asSwiftType, fundamental.rep)
 		}
 
-		// SDAI.SimpleType \SDAI__STRING__type
-//		public init(from swiftValue: SwiftType) {
-//			rep = swiftValue
-//		}
 
-		// SDAI__STRING__type
+		//MARK: SDAI__STRING__type
     public init<I: SDAI.SwiftIntConvertible>(
       width:I?, fixed:Bool, _ string: String)
     {
@@ -443,7 +455,7 @@ extension SDAI {
 			return STRING( SwiftType(charArray[swiftrange]) )
 		}
 		
-		// Line operator (12.2.5)
+		//MARK: Line operator (12.2.5)
 		public func ISLIKE(PATTERN substring: String?) -> SDAI.LOGICAL {
 			guard let substring = substring else { return SDAI.UNKNOWN }
 			var strp = self.rep.makeIterator()
@@ -494,14 +506,14 @@ extension SDAI {
 		}
 		
 
-		// SDAI.Value
-		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool 
+		//MARK: SDAI.Value
+		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool
 		{
 			if let rhs = rhs as? Self { return self == rhs }
 			return false
 		}
 		
-		// InitializableByP21Parameter
+		//MARK: InitializableByP21Parameter
 		public static var bareTypeName: String { self.typeName }
 		
 		public init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {

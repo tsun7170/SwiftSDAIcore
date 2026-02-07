@@ -37,6 +37,7 @@ extension SDAI {
   /// 
   /// Subclasses must define concrete implementations for the abstract properties and 
   /// behaviors, particularly the static `entityReferenceType` property.
+  ///
 	open class PartialEntity: SDAI.Object, CustomStringConvertible, @unchecked Sendable
 	{
 		public typealias TypeIdentity = SDAIDictionarySchema.EntityDefinition
@@ -57,7 +58,7 @@ extension SDAI {
 			self.init(asAbstractSuperclass:())
 		}
 
-		// CustomStringConvertible
+		//MARK: CustomStringConvertible
 		public var description: String {
 			var str = "\(self.qualifiedEntityName)\n"
 			
@@ -69,7 +70,7 @@ extension SDAI {
 			return str			
 		}
 		
-		// class properties
+		//MARK: class properties
 		open class var entityReferenceType: EntityReference.Type { abstract() } // abstruct
 		
 		public class var typeIdentity: TypeIdentity { 
@@ -86,8 +87,8 @@ extension SDAI {
 		}
 		public class var typeName: String { self.qualifiedEntityName }
 		
-		// instance properties
-		public var entityName: EntityName { 
+		//MARK: instance properties
+		public var entityName: EntityName {
 			return type(of: self).entityName
 		}
 		public var qualifiedEntityName: EntityName { 
@@ -108,13 +109,13 @@ extension SDAI {
 			return type(of: rhs) == Self.self
 		}
 		
-		// attribute observer support
+		//MARK: attribute observer support
 		open func broadcast(addedToComplex complex: ComplexEntity) {
 		}
 		open func broadcast(removedFromComplex complex: ComplexEntity) {
 		}
 		
-		// dynamic attribute support
+		//MARK: dynamic attribute support
 		open class func fixupPartialComplexEntityAttributes(partialComplex: SDAI.ComplexEntity, baseComplex: SDAI.ComplexEntity) {}
 	}
 	

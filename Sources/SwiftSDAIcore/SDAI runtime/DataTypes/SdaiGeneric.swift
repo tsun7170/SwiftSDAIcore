@@ -52,6 +52,7 @@ fileprivate class _AnyGenericBox: Hashable, @unchecked Sendable {
 		instance:_AnyGenericBox?,
 		prefix:SDAIPopulationSchema.WhereLabel
 	) -> SDAIPopulationSchema.WhereRuleValidationRecords { abstract() }
+
 }
 
 //MARK: - _GenericBox
@@ -316,10 +317,11 @@ extension SDAI {
 		{
 			guard let instance = instance else { return [:] }
 			let basetype = type(of: instance.box)
-			if !((basetype as Any) is SDAI.EntityReference) { return [:] }
 			return basetype.validateWhereRules(instance:instance.box, prefix: prefix)
 		}
 
+
+    
 		//MARK: SDAI.EntityReferenceYielding
 		public var entityReferences: AnySequence<SDAI.EntityReference> {
 			return box.entityReferences

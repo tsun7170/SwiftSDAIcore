@@ -29,6 +29,7 @@ public extension SDAI.Initializable.BySwiftType
 
 //MARK: - from swift type as list (with optional bounds)
 extension SDAI.Initializable {
+
   /// from swift type as list (with optional bounds)
   public protocol BySwifttypeAsList
   {
@@ -55,15 +56,16 @@ public extension SDAI.Initializable.BySwifttypeAsList
 
 //MARK: - from swift type as array (with required bounds)
 extension SDAI.Initializable {
+  
   /// from swift type as array (with required bounds)
   public protocol BySwifttypeAsArray
   {
     associatedtype SwiftType
     
-    init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
-      from swiftValue: SwiftType,
-      bound1: I1,
-      bound2: I2)
+    init<I1, I2>(
+      from swiftValue: SwiftType, bound1: I1, bound2: I2?)
+    where I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible
+
   }
 }
 

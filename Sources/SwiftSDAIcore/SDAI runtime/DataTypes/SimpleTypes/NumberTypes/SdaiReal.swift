@@ -21,6 +21,7 @@ extension SDAI {
   ///
   /// - SeeAlso: EXPRESS language specification, section 8.1.2.
   /// - SeeAlso: `SDAI.NumberType`
+  ///
   public protocol RealType: SDAI.NumberType
   {}
 }
@@ -46,6 +47,7 @@ extension SDAI.TypeHierarchy {
   /// - SeeAlso: `SDAI.RealType`
   /// - SeeAlso: `SDAI.DoubleRepresentedNumberType`
   /// - SeeAlso: `ExpressibleByFloatLiteral`
+  ///
   public protocol REAL__TypeBehavior: SDAI.RealType, SDAI.DoubleRepresentedNumberType, ExpressibleByFloatLiteral
   where FundamentalType == SDAI.REAL,
         Value == FundamentalType.Value
@@ -114,16 +116,17 @@ extension SDAI {
   /// - EXPRESS language specification (ISO 10303-11), section 8.1.2.
   /// - `SDAI.NumberType`
   /// - `SDAI.TypeHierarchy.REAL__TypeBehavior`
+  ///
 	public struct REAL: SDAI.TypeHierarchy.REAL__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Double
 		public typealias FundamentalType = Self
 		private let rep: SwiftType
 		
-		// CustomStringConvertible
+		//MARK: CustomStringConvertible
 		public var description: String { "REAL(\(rep))" }
 		
-		// SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__Nfrom: UMBER__type\SDAI__REAL__type
+		//MARK: SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__Nfrom: UMBER__type\SDAI__REAL__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(from: Self.typeName), SDAI.STRING(from: NUMBER.typeName)]
 		}
@@ -155,45 +158,46 @@ extension SDAI {
 			prefix:SDAIPopulationSchema.WhereLabel
 		) -> SDAIPopulationSchema.WhereRuleValidationRecords { return [:] }
 
-		
-		// InitializableByGenerictype
+
+
+		//MARK: InitializableByGenerictype
 		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let realValue = generic?.realValue else { return nil }
 			self.init(realValue)
 		}
 		
-		// SDAI.UnderlyingType \SDAI.SimpleType\SDAI__NUMBER__type\SDAI__REAL__type
+		//MARK: SDAI.UnderlyingType \SDAI.SimpleType\SDAI__NUMBER__type\SDAI__REAL__type
 		public static let typeName: String = "REAL"
 		public var asSwiftType: SwiftType { return rep }
 		
-		// SDAI.GenericType
+		//MARK: SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			rep = fundamental.rep
 		}
 
-		// SDAI.SimpleType \SDAI__NUMBER__type\SDAI__REAL__type
+		//MARK: SDAI.SimpleType \SDAI__NUMBER__type\SDAI__REAL__type
 		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
 		
-		// SDAI__REAL__type
+		//MARK: SDAI__REAL__type
 		public static var precision: SDAIDictionarySchema.Bound { Int(Double(SwiftType.significandBitCount) * (log(2)/log(10))) }
 		
-		// ExpressibleByIntegerLiteral \SDAI__NUMBER__type\SDAI__REAL__type
+		//MARK: ExpressibleByIntegerLiteral \SDAI__NUMBER__type\SDAI__REAL__type
 		public init(integerLiteral value: Int) {
 			rep = SwiftType(value)
 		}
 		
-		// SDAI.Value
-		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool 
+		//MARK: SDAI.Value
+		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool
 		{
 			if let rhs = rhs as? Self { return self == rhs }
 			if let rhs = rhs as? SDAI.SwiftDoubleConvertible { return self.asSwiftDouble == rhs.asSwiftDouble }
 			return false
 		}
 		
-		// InitializableByP21Parameter
+		//MARK: InitializableByP21Parameter
 		public static var bareTypeName: String { self.typeName }
 		
 		public init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {

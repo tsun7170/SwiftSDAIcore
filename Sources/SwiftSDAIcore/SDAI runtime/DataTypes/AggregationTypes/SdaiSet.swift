@@ -29,6 +29,7 @@ extension SDAI {
   /// - `SDAI.BagType` provides the base protocol for bag/collection types.
   /// 
   /// See also: ISO 10303-22 (SDAI) Section 8.2.4 "SET aggregate type".
+  ///
   public protocol SetType: SDAI.BagType
   {}
 }
@@ -72,13 +73,14 @@ extension SDAI.TypeHierarchy {
   /// - Note: This protocol is typically not implemented directly by user code, but is the conformance
   ///   point for types such as `SDAI.SET`, and may be used for generic constraints where full set
   ///   behavior and algebraic support are needed.
+  ///
   public protocol SET__TypeBehavior: SDAI.SetType
   where Element == ELEMENT,
         FundamentalType == SDAI.SET<ELEMENT>,
         Value == FundamentalType.Value,
         SwiftType == FundamentalType.SwiftType
   {
-    // Aggregation operator support
+    //MARK: Aggregation operator support
     func intersectionWith<U: SDAI.BagType>(rhs: U) -> SDAI.SET<ELEMENT>?
     where ELEMENT.FundamentalType == U.ELEMENT.FundamentalType
 
@@ -179,6 +181,7 @@ extension SDAI {
   ///    - `SDAI.SetType`, the protocol for general set behavior.
   ///    - `SDAI.BagType`, for multisets (with duplicates).
   ///    - ISO 10303-22 (SDAI), section 8.2.4 "SET aggregate type".
+  ///
   public struct SET<ELEMENT:SDAI.GenericType>: SDAI.TypeHierarchy.SET__TypeBehavior
 	{
 		public typealias SwiftType = Set<ELEMENT>
@@ -188,21 +191,21 @@ extension SDAI {
 		private let bound1: Int
 		private let bound2: Int?
 
-		// Equatable \Hashable\SDAI.GenericType
+		//MARK: Equatable \Hashable\SDAI.GenericType
 		public static func == (lhs: SDAI.SET<ELEMENT>, rhs: SDAI.SET<ELEMENT>) -> Bool {
 			return lhs.rep == rhs.rep &&
 				lhs.bound1 == rhs.bound1 &&
 				lhs.bound2 == rhs.bound2
 		}
 		
-		// Hashable \SDAI.GenericType
+		//MARK: Hashable \SDAI.GenericType
 		public func hash(into hasher: inout Hasher) {
 			hasher.combine(rep)
 			hasher.combine(bound1)
 			hasher.combine(bound2)
 		}
 
-		// SDAI.GenericType
+		//MARK: SDAI.GenericType
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(Self.typeName), SDAI.STRING(from: BAG<ELEMENT>.typeName)]
 		}
@@ -234,17 +237,22 @@ extension SDAI {
 
 		public func enumValue<ENUM:SDAI.EnumerationType>(enumType:ENUM.Type) -> ENUM? {nil}
 
-		public static func validateWhereRules(instance:Self?, prefix:SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
+		public static func validateWhereRules(
+      instance:Self?,
+      prefix:SDAIPopulationSchema.WhereLabel
+    ) -> SDAIPopulationSchema.WhereRuleValidationRecords
+    {
 			return SDAI.validateAggregateElementsWhereRules(instance, prefix: prefix)
 		}
 
-		
 
-		// SDAI.GenericType \SDAI.UnderlyingType\SDAI.AggregationType\SDAI__BAG__type\SDAI__SET__type
+
+
+		//MARK: SDAI.GenericType \SDAI.UnderlyingType\SDAI.AggregationType\SDAI__BAG__type\SDAI__SET__type
 		public static var typeName: String { return "SET" }
 		public var asSwiftType: SwiftType { return self.copy().rep }
 		
-		// SDAI.GenericType
+		//MARK: SDAI.GenericType
 		public func copy() -> Self {
 			return self
 		}
@@ -255,10 +263,10 @@ extension SDAI {
 			self.init(from: fundamental.asSwiftType, bound1: fundamental.loBound, bound2: fundamental.hiBound)
 		}
 	
-		// Sequence \SDAI.AggregationType\SDAI__BAG__type\SDAI__SET__type
+		//MARK: Sequence \SDAI.AggregationType\SDAI__BAG__type\SDAI__SET__type
 		public func makeIterator() -> SwiftType.Iterator { return self.copy().rep.makeIterator() }
 
-		// SDAI.AggregationType \SDAI__BAG__type\SDAI__SET__type
+		//MARK: SDAI.AggregationType \SDAI__BAG__type\SDAI__SET__type
 		public var hiBound: Int? { return bound2 }
 		public var hiIndex: Int { return size }
 		public var loBound: Int { return bound1 }
@@ -286,7 +294,7 @@ extension SDAI {
 								 bound1:self.loBound, bound2: self.hiBound)
 		}
 		
-		// SDAI.BagType
+		//MARK: SDAI.BagType
 		public mutating func add(member: ELEMENT?) {
 			guard let member = member else {return}
 			rep.insert(member)
@@ -304,7 +312,7 @@ extension SDAI {
 			return remove(member: member)
 		}
 
-		// SDAI.SwiftDictRepresentable
+		//MARK: SDAI.SwiftDictRepresentable
 		public var asSwiftDict: Dictionary<ELEMENT.FundamentalType, Int> {
 			return Dictionary<ELEMENT.FundamentalType, Int>(
 				uniqueKeysWithValues: self.lazy.map{($0.asFundamentalType, 1)} )
@@ -316,7 +324,7 @@ extension SDAI {
 		}
 
 		
-		// SET specific
+		//MARK: SET specific
 		public func map<T:SDAI.GenericType>(_ transform: (ELEMENT) -> T ) -> SET<T> {
 			let mapped = Set<T>( self.rep.map(transform) )
 			return SET<T>(from: mapped, bound1: self.bound1, bound2: self.bound2)
@@ -339,13 +347,13 @@ extension SDAI {
 			self.init(from: swiftValue, bound1: bound1, bound2: bound2)
 		}
 		
-		// InitializableByGenerictype
+		//MARK: InitializableByGenerictype
 		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let fundamental = generic?.setValue(elementType: ELEMENT.self) else { return nil }
 			self.init(fundamental: fundamental)
 		}
 		
-		// InitializableByGenericSet
+		//MARK: InitializableByGenericSet
     public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.SET__TypeBehavior>(
 			bound1: I1, bound2: I2?, generic settype: T?)
 		{
@@ -353,7 +361,7 @@ extension SDAI {
 			self.init(bound1: bound1, bound2: bound2, [settype]){ELEMENT.convert(fromGeneric: $0)}
 		}
 
-		// InitializableByGenericBag
+		//MARK: InitializableByGenericBag
     public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.BAG__TypeBehavior>(
 			bound1: I1, bound2: I2?, generic bagtype: T?)
 		{
@@ -361,7 +369,7 @@ extension SDAI {
 			self.init(bound1: bound1, bound2: bound2, [bagtype]){ELEMENT.convert(fromGeneric: $0)}
 		}
 		
-		// InitializableByGenericList
+		//MARK: InitializableByGenericList
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, T: SDAI.TypeHierarchy.LIST__TypeBehavior>(
 			bound1: I1, bound2: I2?, generic listtype: T?)
 		{
@@ -369,14 +377,14 @@ extension SDAI {
 			self.init(bound1: bound1, bound2: bound2, [listtype]){ELEMENT.convert(fromGeneric: $0)}
 		}
 
-		// InitializableByEmptyListLiteral
+		//MARK: InitializableByEmptyListLiteral
 		public init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
 			bound1: I1, bound2: I2?, _ emptyLiteral: SDAI.EmptyAggregateLiteral = SDAI.EMPTY_AGGREGATE)
 		{
 			self.init(from: SwiftType(), bound1: bound1, bound2: bound2)
 		}
 
-		// InitializableBySwifttypeAsList
+		//MARK: InitializableBySwifttypeAsList
 		public init<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible>(
 			from swiftValue: SwiftType, bound1: I1, bound2: I2?)
 		{
@@ -385,7 +393,7 @@ extension SDAI {
 			self.rep = swiftValue
 		}
 		
-		// SDAI.Initializable.BySelecttypeAsList
+		//MARK: SDAI.Initializable.BySelecttypeAsList
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, S: SDAI.SelectType>(
 			bound1: I1, bound2: I2?, _ select: S?)
 		{
@@ -393,7 +401,7 @@ extension SDAI {
 			self.init(from: fundamental.asSwiftType, bound1:bound1, bound2:bound2)
 		}
 
-		// SDAI.Initializable.ByListLiteral
+		//MARK: SDAI.Initializable.ByListLiteral
 		public init?<I1: SDAI.SwiftIntConvertible, I2: SDAI.SwiftIntConvertible, E:SDAI.GenericType>(
 			bound1: I1, bound2: I2?, _ elements: [SDAI.AggregationInitializerElement<E>])
 		{
@@ -584,7 +592,15 @@ extension SDAI {
 			self.init()
 		}
 		
-    // InitializableByVoid
+    //MARK: InitializableByVoid
+
+    /// Initializes a new, empty SDAI `SET` aggregate with default bounds. (ISO 10303-22 10.14.2)
+    ///
+    /// This initializer creates an empty set with the default lower and upper bounds, 
+    /// which are typically set to include all possible sizes (unbounded).
+    ///
+    /// - Note: The resulting set contains no elements and is ready to accept insertions. 
+    /// - See Also: SDAI.SET, ISO 10303-22 (SDAI), section 8.2.4 "SET aggregate type".
     public init() {
       self.init(from: SwiftType())
     }
@@ -600,6 +616,7 @@ extension SDAI.SET: SDAI.EntityReferenceYielding
 where ELEMENT: SDAI.EntityReferenceYielding
 { }
 
+//MARK: - for SDAI.DualModeReference ELEMENT
 extension SDAI.SET: SDAI.DualModeReference
 where ELEMENT: SDAI.DualModeReference
 {
@@ -609,6 +626,7 @@ where ELEMENT: SDAI.DualModeReference
 	}
 }
 
+//MARK: - for SDAI.PersistentReference ELEMENT
 extension SDAI.SET: SDAI.PersistentReference
 where ELEMENT: SDAI.PersistentReference
 {
@@ -619,13 +637,13 @@ where ELEMENT: SDAI.PersistentReference
 
 	public var optionalARef: SDAI.SET<ELEMENT.ARef>? {
 		let converted = self.compactMap{ $0.optionalARef }
-//		guard converted.count == self.size else { return nil }
 		return SDAI.SET(from: Set(converted), bound1: self.bound1, bound2: self.bound2)
 	}
 }
 
 
 
+//MARK: - for SDAI.Initializable.BySelectType ELEMENT
 extension SDAI.SET: SDAI.Initializable.BySelecttypeSet
 where ELEMENT: SDAI.Initializable.BySelectType
 {
@@ -642,6 +660,7 @@ where ELEMENT: SDAI.Initializable.BySelectType
 
 
 
+//MARK: - for SDAI.Initializable.ByComplexEntity ELEMENT
 extension SDAI.SET: SDAI.Initializable.ByEntitySet
 where ELEMENT: SDAI.Initializable.ByComplexEntity
 {
@@ -664,6 +683,7 @@ where ELEMENT: SDAI.Initializable.ByComplexEntity
 }
 
 
+//MARK: - for SDAI.Initializable.ByDefinedType ELEMENT
 extension SDAI.SET: SDAI.Initializable.ByDefinedtypeSet
 where ELEMENT: SDAI.Initializable.ByDefinedType
 {

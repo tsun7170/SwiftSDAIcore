@@ -65,32 +65,57 @@ extension SDAI {
 			rep = Supertype(fundamental: fundamental)
 		}
 		
-		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
-			guard let repval = generic?.arrayOptionalValue(elementType: ELEMENT.self) else { return nil }
-			rep = repval
-		}
 
-		// SDAI.ArrayOptionalType
+    public init?<I1, I2, T>(bound1: I1, bound2: I2?, generic arraytype: T?)
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    T: SDAI.TypeHierarchy.ARRAY_OPTIONAL__TypeBehavior
+    {
+      guard let fundamental = FundamentalType(bound1: bound1, bound2: bound2, generic: arraytype)
+      else { return nil }
+
+      self.init(fundamental: fundamental)
+    }
+
+    public init?<I1, I2, T>(
+      bound1: I1, bound2: I2?, generic arraytype: T?)
+    where
+    I1: SDAI.SwiftIntConvertible,
+    I2: SDAI.SwiftIntConvertible,
+    T: SDAI.TypeHierarchy.ARRAY__TypeBehavior
+    {
+      guard let fundamental = FundamentalType(bound1: bound1, bound2: bound2, generic: arraytype)
+      else { return nil }
+
+      self.init(fundamental: fundamental)
+    }
+
+		//MARK: SDAI.ArrayOptionalType
 		public static var uniqueFlag: SDAI.BOOLEAN { true }
 		public static var optionalFlag: SDAI.BOOLEAN { true }
 		
-		// uniqueness constraint
+		//MARK: uniqueness constraint
 		public static func UNIQUENESS(SELF: Self?) -> SDAI.LOGICAL {
-			guard let SELF = SELF else { return SDAI.UNKNOWN }
+			guard let SELF = SELF else { return SDAI.TRUE }
 
 			let unique = Set(SELF)
 			return SDAI.LOGICAL( unique.count == SELF.size )
 		}
 		
-		public static func validateWhereRules(instance: Self?, prefix: SDAIPopulationSchema.WhereLabel) -> SDAIPopulationSchema.WhereRuleValidationRecords {
+		public static func validateWhereRules(
+      instance: Self?,
+      prefix: SDAIPopulationSchema.WhereLabel
+    ) -> SDAIPopulationSchema.WhereRuleValidationRecords
+    {
 			let prefix2 = prefix + "\\\(typeName)"
 			var result = Supertype.validateWhereRules(instance:instance?.rep, prefix:prefix2)
 			
 			result[prefix2 + ".UNIQUENESS"] = UNIQUENESS(SELF: instance)
 			return result
 		}
-	}
-	
+
+	}//struct
 }
 
 extension SDAI.ARRAY_OPTIONAL_UNIQUE: SDAI.EntityReferenceYielding

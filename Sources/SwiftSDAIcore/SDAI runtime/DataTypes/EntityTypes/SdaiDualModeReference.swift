@@ -54,6 +54,7 @@ extension SDAI {
   ///   serialization, or round-tripping of reference information.
   /// 
   /// - SeeAlso: `SDAI.DualModeReference` for dual-mode abstraction, and `SDAI.GenericType` for generic compatibility.
+  ///
   public protocol PersistentReference: SDAI.GenericType
   {
     associatedtype ARef: SDAI.GenericType
@@ -95,6 +96,7 @@ extension SDAI {
   ///   seamlessly, improving flexibility and type safety.
   ///
   /// - SeeAlso: `SDAI.DualModeReference` for the associated dual-mode reference protocol abstraction.
+  /// 
   public enum ComplexEntityReference: Hashable, CustomStringConvertible, Sendable
   {
     case persistent(complexID: ComplexEntityID, modelID: SDAIModelID)

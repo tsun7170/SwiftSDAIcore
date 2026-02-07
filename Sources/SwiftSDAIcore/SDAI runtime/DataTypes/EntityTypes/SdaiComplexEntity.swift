@@ -29,6 +29,7 @@ extension SDAI {
   /// ## See Also
   /// - ``SDAI.ComplexEntity``
   /// - SDAI specification for complex entity handling.
+  ///
 	public final class PartialComplexEntity: ComplexEntity, @unchecked Sendable
 	{
 		override fileprivate func broadcastCreated() {}
@@ -68,6 +69,7 @@ extension SDAI {
   /// - ``SDAI.PartialEntity``
   /// - ``SDAI.PartialComplexEntity``
   /// - SDAI specification for complex entity population and reference handling.
+  ///
 	public class ComplexEntity:
 		SDAI.Object, SDAI.CacheHolder,
 		CustomStringConvertible, @unchecked Sendable
@@ -84,7 +86,7 @@ extension SDAI {
 			(instance:PartialEntity, reference:EntityReferenceStatus)
 		] = [:]
 
-		// CustomStringConvertible
+		//MARK: CustomStringConvertible
 		public var description: String {
 			var str = "\(self.qualifiedName)"
 			if self.isPartial {
@@ -218,7 +220,7 @@ extension SDAI {
 		
 		public unowned let owningModel: SDAIPopulationSchema.SdaiModel
 		
-		// P21 support
+		//MARK: P21 support
 		public let p21name: P21Decode.EntityInstanceName
 
 		public let isTemporary: Bool
@@ -840,34 +842,35 @@ extension SDAI {
 		}
 		
 		//MARK: where rule validation support
-		public func validateEntityWhereRules(
-			prefix: SDAIPopulationSchema.WhereLabel,
-			recording: SDAIPopulationSchema.ValidationRecordingOption
-		) -> SDAIPopulationSchema.WhereRuleValidationRecords
-		{
-			var result: SDAIPopulationSchema.WhereRuleValidationRecords = [:]
+    public func validateEntityWhereRules(
+      prefix: SDAIPopulationSchema.WhereLabel,
+      recording: SDAIPopulationSchema.ValidationRecordingOption
+    ) -> SDAIPopulationSchema.WhereRuleValidationRecords
+    {
+      var result: SDAIPopulationSchema.WhereRuleValidationRecords = [:]
 
-			for tuple in _partialEntities.values {
-				let etype = type(of: tuple.instance).entityReferenceType
-				if let eref = self.entityReference(etype) {
-					var peResult = etype.validateWhereRules(instance: eref, prefix: prefix)
+      for tuple in _partialEntities.values {
+        let etype = type(of: tuple.instance).entityReferenceType
+        if let eref = self.entityReference(etype) {
+          let prefix2 = prefix + "\(eref)"
 
-					switch recording {
-						case .recordFailureOnly:
-							peResult = peResult.filter{ (label,result) in result == SDAI.FALSE }
+          var peResult = etype.validateWhereRules(instance: eref, prefix: prefix2)
 
-						case .recordAll:
-							break
-					}
+          switch recording {
+            case .recordFailureOnly:
+              peResult = peResult.filter{ (label,result) in result == SDAI.FALSE }
 
-					if !peResult.isEmpty {
-						result.merge(peResult) { $0 && $1 }
-					}
-				}
-			}
-			return result
-		}
+            case .recordAll:
+              break
+          }
 
-	}
+          if !peResult.isEmpty {
+            result.merge(peResult) { $0 && $1 }
+          }
+        }
+      }
+      return result
+    }
 
+	}//class
 }

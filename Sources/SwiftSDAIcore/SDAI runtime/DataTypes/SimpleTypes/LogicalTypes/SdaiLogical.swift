@@ -43,6 +43,7 @@ extension SDAI {
   ///   - `isFALSE`: `true` if the value is logically `FALSE`, `false` otherwise.
   ///   - `isUNKNOWN`: `true` if the value is logically `UNKNOWN`, `false` otherwise.
   ///   - `possiblyAsSwiftBool`: Returns the value as an optional Swift `Bool?`, or `nil` if the value is `UNKNOWN`.
+  ///
   public protocol LogicalType: SDAI.SimpleType, ExpressibleByBooleanLiteral,
                                    SDAI.SwiftBoolConvertible, SDAI.Initializable.ByVoid
   {
@@ -79,6 +80,7 @@ extension SDAI.TypeHierarchy {
   /// - Usage:
   ///   - Use for implementing custom types or wrappers conforming to EXPRESS LOGICAL semantics,
   ///     ensuring full interoperability between Swift and EXPRESS representations in STEP schemas.
+  ///
   public protocol LOGICAL__TypeBehavior: SDAI.LogicalType, ExpressibleByNilLiteral
   where FundamentalType == SDAI.LOGICAL,
         Value == FundamentalType.Value,
@@ -154,6 +156,7 @@ extension SDAI {
   /// - Usage:
   ///   - Use `LOGICAL(true)` or `LOGICAL(false)` for definite values, or `LOGICAL()`/`LOGICAL(nil)` for `UNKNOWN`.
   ///   - Useful when EXPRESS logic needs to be mapped into or out of Swift code with support for indeterminate values.
+  ///
 	public struct LOGICAL : SDAI.TypeHierarchy.LOGICAL__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		
@@ -161,8 +164,8 @@ extension SDAI {
 		public typealias FundamentalType = Self
 		private let rep: SwiftType
 		
-		// CustomStringConvertible
-		public var description: String { 
+		//MARK: CustomStringConvertible
+		public var description: String {
 			if let bool = rep {
 				return "LOGICAL(\(bool ? "TRUE" : "FALSE"))" 
 			}
@@ -171,7 +174,7 @@ extension SDAI {
 			}
 		}
 		
-		// SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__LOGICAL__type
+		//MARK: SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__LOGICAL__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(from: Self.typeName)]
 		}
@@ -204,36 +207,38 @@ extension SDAI {
 			prefix:SDAIPopulationSchema.WhereLabel
 		) -> SDAIPopulationSchema.WhereRuleValidationRecords { return [:] }
 
-		// InitializableByGenerictype
+
+
+		//MARK: InitializableByGenerictype
 		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let logicalValue = generic?.logicalValue else { return nil }
 			self.init(logicalValue)
 		}
 
-		// SDAI.UnderlyingType \SDAI.SimpleType\SDAI__LOGICAL__type
+		//MARK: SDAI.UnderlyingType \SDAI.SimpleType\SDAI__LOGICAL__type
 		public static let typeName: String = "LOGICAL"
 		public var asSwiftType: SwiftType { return rep }
 		
-		// SDAI.GenericType
+		//MARK: SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(fundamental.rep)
 		}
 
-		// SDAI.SimpleType \SDAI__LOGICAL__type
+		//MARK: SDAI.SimpleType \SDAI__LOGICAL__type
 		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
 				
-		// SDAI.Value
-		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool 
+		//MARK: SDAI.Value
+		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool
 		{
 			if let rhs = rhs as? Self { return self == rhs }
 			if let rhs = rhs as? SDAI.SwiftBoolConvertible { return self.possiblyAsSwiftBool == rhs.possiblyAsSwiftBool }
 			return false
 		}
 		
-		// LIGICAL specific
+		//MARK: LIGICAL specific
 		public init(fromCardinal cardinal: Int) {
 			var bool: Bool? = nil
 			switch cardinal {
@@ -244,7 +249,7 @@ extension SDAI {
 			self.init(bool)
 		}
 		
-		// InitializableByP21Parameter
+		//MARK: InitializableByP21Parameter
 		public static var bareTypeName: String { self.typeName }
 		
 		public init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {

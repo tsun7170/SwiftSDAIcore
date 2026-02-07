@@ -37,8 +37,9 @@ extension SDAIPopulationSchema {
 		open func willValidate(
 			uniquenessRules:some Collection<SDAIDictionarySchema.UniquenessRule>) {}
 
-		open func willValidateWhereRules(
-			for complexEntities: some Collection<SDAI.ComplexEntity>) {}
+    open func willValidateWhereRules(
+      for complexEntities: some Collection<SDAI.ComplexEntity>) {}
+
 
 		open func willValidateInstanceReferenceDomain(
 			for applicationInstances: some Collection<SDAI.EntityReference>) {}
@@ -53,6 +54,7 @@ extension SDAIPopulationSchema {
     open func completedToValidateWhereRules(
       for complexEntities: some Collection<SDAI.ComplexEntity>) {}
 
+
     open func completedToValidateInstanceReferenceDomain(
       for applicationInstances: some Collection<SDAI.EntityReference>) {}
 
@@ -65,9 +67,10 @@ extension SDAIPopulationSchema {
 			for schemaInstance: SchemaInstance,
 			result: UniquenessRuleValidationResult) {}
 
-		open func didValidateWhereRule(
-			for complexEntity: SDAI.ComplexEntity,
-			result: WhereRuleValidationRecords) {}
+    open func didValidateWhereRule(
+      for complexEntity: SDAI.ComplexEntity,
+      result: WhereRuleValidationRecords) {}
+
 
 		open func didValidateInstanceReferenceDomain(
 			for schemaInstance: SchemaInstance,
@@ -78,7 +81,7 @@ extension SDAIPopulationSchema {
 	}
 
 	//MARK: - validation related
-	public typealias WhereLabel = SDAIDictionarySchema.ExpressId
+  public typealias WhereLabel = SDAIDictionarySchema.ExpressId
 
   /// An option that specifies how validation results should be recorded during schema instance validation.
   ///
@@ -97,7 +100,7 @@ extension SDAIPopulationSchema {
 
 	public typealias GlobalRuleSignature = (_ allComplexEntities: AnySequence<SDAI.ComplexEntity>) -> WhereRuleValidationRecords
 
-	public typealias WhereRuleValidationRecords = [WhereLabel:SDAI.LOGICAL]
+  public typealias WhereRuleValidationRecords = [WhereLabel:SDAI.LOGICAL]
 
   /// Represents the result of validating a global rule against a set of complex entities in a schema instance.
   ///
@@ -188,21 +191,22 @@ extension SDAIPopulationSchema {
   ///   - record: A mapping from WHERE rule labels to their individual Boolean results (`LOGICAL`). Each entry in this dictionary provides the outcome for a specific WHERE label.
   ///
   /// - Note: The `description` property yields a human-readable summary of the overall result and each individual WHERE label's result.
-	public struct WhereRuleValidationResult: CustomStringConvertible, Sendable {
-		public var description: String {
-			var str = "WhereRuleValidationResult( result:\(result)\n"
-			for (i,(label,whereResult)) in record
-				.sorted(by: { $0.key < $1.key })
-				.enumerated() {
-					str += "[\(i)]\t\(label): \(whereResult)\n"
-				}
-			str += "\n"
-			return str
-		}
+  public struct WhereRuleValidationResult: CustomStringConvertible, Sendable {
+    public var description: String {
+      var str = "WhereRuleValidationResult( result:\(result)\n"
+      for (i,(label,whereResult)) in record
+        .sorted(by: { $0.key < $1.key })
+        .enumerated() {
+          str += "[\(i)]\t\(label): \(whereResult)\n"
+        }
+      str += "\n"
+      return str
+    }
 
-		public var result: SDAI.LOGICAL
-		public var record: WhereRuleValidationRecords
-	}
+    public var result: SDAI.LOGICAL
+    public var record: WhereRuleValidationRecords
+  }
+
 
 
 
@@ -241,9 +245,11 @@ extension SDAIPopulationSchema {
 }
 
 extension SDAI {
-	public typealias WhereLabel = SDAIPopulationSchema.WhereLabel
+	public typealias WhereLabel            = SDAIPopulationSchema.WhereLabel
 
-	public typealias GlobalRuleSignature = SDAIPopulationSchema.GlobalRuleSignature
+  public typealias WhereRuleValidationRecords        =  SDAIPopulationSchema.WhereRuleValidationRecords
+
+  public typealias GlobalRuleSignature = SDAIPopulationSchema.GlobalRuleSignature
 
 	public typealias UniquenessRuleSignature = SDAIPopulationSchema.UniquenessRuleSignature
 }

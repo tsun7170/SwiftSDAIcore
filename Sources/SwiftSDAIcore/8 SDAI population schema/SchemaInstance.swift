@@ -166,10 +166,11 @@ extension SDAIPopulationSchema {
 		}
 
 
-		public var whereRuleValidationRecord: WhereRuleValidationResult? {
-			self._whereRuleValidationRecord.withLock{ $0 }
-		}
-		private let _whereRuleValidationRecord = Mutex<WhereRuleValidationResult?>(nil)
+    public var whereRuleValidationRecord: WhereRuleValidationResult? {
+      self._whereRuleValidationRecord.withLock{ $0 }
+    }
+    private let _whereRuleValidationRecord = Mutex<WhereRuleValidationResult?>(nil)
+
 
 		public var instanceReferenceDomainValidationRecord: InstanceReferenceDomainValidationResult? {
 			self._instanceReferenceDomainValidationRecord.withLock{ $0 }
@@ -966,6 +967,10 @@ extension SDAIPopulationSchema {
 			self._whereRuleValidationRecord.withLock{ $0 = result }
 			self._validationDate.withLock{ $0 = Date() }
 		}
+
+
+
+
 
 	}
 }

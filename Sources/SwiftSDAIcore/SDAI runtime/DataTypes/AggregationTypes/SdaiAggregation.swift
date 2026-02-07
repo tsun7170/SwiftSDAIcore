@@ -37,7 +37,7 @@ extension SDAI {
   public protocol AggregateIndexingGettable {
     associatedtype ELEMENT
 
-    /// Accesses the element at the specified integer index, if it exists.
+    /// Accesses the element at the specified integer index, if it exists. (ISO 10303-22 10.12.7, 10.15.1)
     ///
     /// - Parameter index: An optional integer index of the element to access. If `nil` or the index is out of bounds, returns `nil`.
     /// - Returns: The element at the provided index, or `nil` if the index is invalid or not present.
@@ -70,7 +70,7 @@ extension SDAI {
   public protocol AggregateIndexingSettable: SDAI.AggregateIndexingGettable {
     associatedtype ELEMENT
 
-    /// Accesses the element at the specified integer index, if it exists.
+    /// Accesses the element at the specified integer index, if it exists. (ISO 10303-22 10.13.2, 10.16.1)
     /// - Parameter index: An optional integer index of the element to access. If `nil` or out of bounds, returns `nil`.
     /// - Returns: The element at the provided index, or `nil` if the index is invalid or not present.
     subscript<I: SDAI.TypeHierarchy.INTEGER__TypeBehavior>(index: I?) -> ELEMENT? {get set}
@@ -143,7 +143,8 @@ public extension SDAI.AggregationType
 	var aggregationSize: Int? { self.size }
 }
 
-public extension SDAI.AggregationBehavior where Self: SDAI.DefinedType, Supertype: SDAI.SelectType
+public extension SDAI.AggregationBehavior
+where Self: SDAI.DefinedType, Supertype: SDAI.SelectType
 {
 	var aggregationHiBound: Int? { rep.aggregationHiBound }
 	var aggregationHiIndex: Int? { rep.aggregationHiIndex }
@@ -273,18 +274,82 @@ extension SDAI {
     SDAI.AggregateIndexingGettable, SDAI.AggregationBehavior, SDAI.AggregationSequence,
     Sendable
   {
+    /// The upper logical bound of the index range for the aggregate, or `nil` if unbounded. (ISO 10303-22 10.12.10)
+    ///
+    /// - Returns: An optional `Int` representing the maximum index allowed by the EXPRESS schema definition for the aggregate.
+    ///   For bounded types (e.g., `ARRAY [lo:hi] OF ...`), this reflects the EXPRESS-defined upper bound. 
+    ///   For unbounded types (e.g., `LIST OF ...`, `SET OF ...`), this value is `nil`.
+    ///
+    /// - SeeAlso: [ISO 10303-11, 8.2.3 Aggregation bounds]
+    /// - Note: This value is independent of the current contents of the aggregate—use `hiIndex` to query the highest index actually present.
     var hiBound: Int? {get}
+
+    /// The highest (current) index present in the aggregate. (ISO 10303-22 10.17.4)
+    ///
+    /// - Returns: An `Int` representing the maximum index that currently has an element in the aggregate,
+    ///   as opposed to the logical or declared upper bound (`hiBound`). If the aggregate is empty,
+    ///   this may be less than `loBound` or undefined depending on semantics.
+    ///
+    /// - Note: This value reflects the highest index for which an element is actually present,
+    ///   which may be less than `hiBound` if the aggregate is partially populated or supports
+    ///   sparse representation (such as lists or sets).
+    ///
+    /// - SeeAlso: 
+    ///   - `hiBound`: The logical upper bound as defined by the EXPRESS schema or aggregate type.
+    ///   - `loIndex`: The lowest (current) index with an actual element.
+    ///   - [ISO 10303-11, 8.2.3 Aggregation bounds]
     var hiIndex: Int {get}
+
+    /// The lower logical bound of the index range for the aggregate. (ISO 10303-22 10.12.9)
+    ///
+    /// - Returns: An `Int` representing the minimum index allowed by the EXPRESS schema definition for the aggregate.
+    ///   For bounded types (e.g., `ARRAY [lo:hi] OF ...`), this reflects the EXPRESS-defined lower bound.
+    ///   For unbounded types (e.g., `LIST OF ...`, `SET OF ...`), this value is typically `0`.
+    ///
+    /// - Note: This value reflects the logical or declared lower bound of the aggregate according to the EXPRESS schema,
+    ///   and is independent of the current contents of the aggregate—use `loIndex` to query the lowest index actually present.
+    ///
+    /// - SeeAlso: [ISO 10303-11, 8.2.3 Aggregation bounds]
+    /// - SeeAlso: `hiBound`, `loIndex`
     var loBound: Int {get}
+
+    /// The lowest (current) index present in the aggregate. (ISO 10303-22 10.17.3)
+    ///
+    /// - Returns: An `Int` representing the minimum index that currently has an element in the aggregate,
+    ///   as opposed to the logical or declared lower bound (`loBound`). If the aggregate is empty,
+    ///   this may be greater than `hiBound` or undefined depending on semantics.
+    ///
+    /// - Note: This value reflects the lowest index for which an element is actually present,
+    ///   which may be greater than `loBound` if the aggregate is partially populated or supports
+    ///   sparse representation (such as lists or sets).
+    ///
+    /// - SeeAlso: 
+    ///   - `loBound`: The logical lower bound as defined by the EXPRESS schema or aggregate type.
+    ///   - `hiIndex`: The highest (current) index with an actual element.
+    ///   - [ISO 10303-11, 8.2.3 Aggregation bounds]
     var loIndex: Int {get}
+
+    /// The number of elements currently present in the aggregate. (ISO 10303-22 10.12.1)
+    ///
+    /// - Returns: An `Int` indicating how many elements are contained in the aggregate at this moment.
+    ///   The precise semantics of "present" depend on the aggregate type—for example, for a sparse array,
+    ///   this may be fewer than the logical index range, while for sets and bags it reflects the count of distinct elements.
+    ///   For empty aggregates, this value is zero.
+    /// - Note: This property refers to the current, runtime state of the aggregate, not the static maximum or minimum size
+    ///   permitted by the EXPRESS schema (`hiBound` / `loBound`).
+    /// - SeeAlso: 
+    ///   - `hiBound`, `loBound`: The logical bounds defined by the schema for the aggregate type.
+    ///   - `isEmpty`: Boolean indicating if the aggregate contains any elements.
+    ///   - [ISO 10303-11, 8.2.3 Aggregation bounds]
     var size: Int {get}
+
     var isEmpty: Bool {get}
 
     static var lowerBound: SDAIDictionarySchema.Bound {get}	// ISO 10303-22 (6.4.31)
     static var upperBound: SDAIDictionarySchema.Bound? {get}	// ISO 10303-22 (6.4.31)
 
     //MARK: Membership operator (12.2.3)
-    /// Determines whether the aggregate contains the specified element.
+    /// Determines whether the aggregate contains the specified element. (ISO 10303-22 10.12.2)
     ///
     /// This method checks if the given element exists within the receiver aggregate, conforming to the EXPRESS `IN` membership operator semantics.  
     /// - Parameter elem: An optional value of type `ELEMENT` to search for within the aggregate. If `nil`, the result typically indicates absence (see type semantics).
@@ -355,7 +420,7 @@ extension SDAI {
 
 
 
-//MARK: - extension per ELEMENT type
+//MARK: - for SDAI.Initializable.BySelectType ELEMENT
 public extension SDAI.AggregationType
 where ELEMENT: SDAI.Initializable.BySelectType
 {
@@ -364,6 +429,7 @@ where ELEMENT: SDAI.Initializable.BySelectType
 	}
 }
 
+//MARK: - for SDAI.Initializable.ByComplexEntity ELEMENT
 public extension SDAI.AggregationType
 where ELEMENT: SDAI.Initializable.ByComplexEntity
 {
@@ -390,6 +456,7 @@ where ELEMENT: SDAI.Initializable.ByComplexEntity
 	}
 }
 
+//MARK: - for SDAI.Initializable.ByDefinedType ELEMENT
 public extension SDAI.AggregationType
 where ELEMENT: SDAI.Initializable.ByDefinedType
 {
@@ -409,6 +476,7 @@ where ELEMENT: SDAI.Initializable.BySwiftType
 }
 
 
+//MARK: - for SDAI.EntityReferenceYielding ELEMENT
 public extension SDAI.FundamentalAggregationType
 where ELEMENT: SDAI.EntityReferenceYielding
 {
@@ -429,6 +497,7 @@ where ELEMENT: SDAI.EntityReferenceYielding
   }
 }
 
+//MARK: - for SDAI.EntityReference ELEMENT
 public extension SDAI.FundamentalAggregationType
 where ELEMENT: SDAI.EntityReference
 {
@@ -449,6 +518,7 @@ where ELEMENT: SDAI.EntityReference
   }
 }
 
+//MARK: - for SDAI.GenericPersistentEntityReference ELEMENT
 public extension SDAI.FundamentalAggregationType
 where ELEMENT: SDAI.GenericPersistentEntityReference
 {
@@ -479,17 +549,17 @@ where Self: SDAI.AggregationType,
 			Supertype: SDAI.AggregationType, 
 			ELEMENT == Supertype.ELEMENT
 {
-	// Sequence \SDAI.AggregationType
+	//MARK: Sequence \SDAI.AggregationType
 	func makeIterator() -> Supertype.Iterator { return rep.makeIterator() }
 
-	// SDAIGenericTypeBase
+	//MARK: SDAIGenericTypeBase
 	func copy() -> Self {
 		var copied = self
 		copied.rep = rep.copy()
 		return copied
 	}
 	
-	// SDAI.AggregationType
+	//MARK: SDAI.AggregationType
 	var hiBound: Int? { return rep.hiBound }
 	var hiIndex: Int { return rep.hiIndex }
 	var loBound: Int { return rep.loBound }

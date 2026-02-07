@@ -121,16 +121,17 @@ extension SDAI {
   /// ### Related Types
   /// - `SDAI.LOGICAL` — EXPRESS logical type supporting `TRUE`, `FALSE`, and `UNKNOWN`.
   /// - `SDAI.BooleanType` — The protocol defining the EXPRESS Boolean type interface.
+  ///
 	public struct BOOLEAN : SDAI.TypeHierarchy.BOOLEAN__TypeBehavior, SDAI.Value, CustomStringConvertible
 	{
 		public typealias SwiftType = Bool
 		public typealias FundamentalType = Self
 		private let rep: SwiftType
 		
-		// CustomStringConvertible
+		//MARK: CustomStringConvertible
 		public var description: String { "BOOLEAN(\( rep ? "TRUE" : "FALSE"))" }
 		
-		// SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__LOGICAL__type\SDAI__BOOLEAN__type
+		//MARK: SDAI.GenericType \SDAI.UnderlyingType\SDAI.SimpleType\SDAI__LOGICAL__type\SDAI__BOOLEAN__type
 		public var typeMembers: Set<SDAI.STRING> {
 			return [SDAI.STRING(from: Self.typeName), SDAI.STRING(from: LOGICAL.typeName)]
 		}
@@ -158,37 +159,37 @@ extension SDAI {
 			prefix:SDAIPopulationSchema.WhereLabel
 		) -> SDAIPopulationSchema.WhereRuleValidationRecords { return [:] }
 
-		
-		// InitializableByGenerictype
+
+		//MARK: InitializableByGenerictype
 		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
 			guard let booleanValue = generic?.booleanValue else { return nil }
 			self.init(booleanValue)
 		}
 
-		// SDAI.UnderlyingType \SDAI.SimpleType\SDAI__LOGICAL__type\SDAI__BOOLEAN__type
+		//MARK: SDAI.UnderlyingType \SDAI.SimpleType\SDAI__LOGICAL__type\SDAI__BOOLEAN__type
 		public static let typeName: String = "BOOLEAN"
 		public var asSwiftType: SwiftType { return rep }
 		
-		// SDAI.GenericType
+		//MARK: SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
 			self.init(fundamental.rep)
 		}
 
-		// SDAI.SimpleType \SDAI__LOGICAL__type\SDAI__BOOLEAN__type
+		//MARK: SDAI.SimpleType \SDAI__LOGICAL__type\SDAI__BOOLEAN__type
 		public init(from swiftValue: SwiftType) {
 			rep = swiftValue
 		}
 		
-		// SDAI.Value
-		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool 
+		//MARK: SDAI.Value
+		public func isValueEqual<T: SDAI.Value>(to rhs: T) -> Bool
 		{
 			if let rhs = rhs as? Self { return self == rhs }
 			if let rhs = rhs as? SDAI.SwiftBoolConvertible { return self.possiblyAsSwiftBool == rhs.possiblyAsSwiftBool }
 			return false
 		}
 		
-		// InitializableByP21Parameter
+		//MARK: InitializableByP21Parameter
 		public static var bareTypeName: String { self.typeName }
 		
 		public init?(p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter, from exchangeStructure: P21Decode.ExchangeStructure) {

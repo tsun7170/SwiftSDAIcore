@@ -20,6 +20,7 @@ extension SDAI {
   /// 
   /// - Note: Types that conform to this protocol can participate in select type compatibility checks and conversions
   ///   within the SDAI framework.
+  ///
   public protocol SelectCompatibleUnderlyingTypeBase: SDAI.GenericType
   where FundamentalType: SDAI.SelectCompatibleUnderlyingTypeBase
   {}
@@ -39,6 +40,7 @@ extension SDAI {
   /// 
   /// - Note: `UnderlyingType` is the protocol to use for most base types of custom defined types in EXPRESS,
   ///   except where those types are or contain select types.
+  ///
   public protocol UnderlyingType: SDAI.SelectCompatibleUnderlyingTypeBase, SDAI.Initializable.ByDefinedType
   {}
 }
@@ -82,6 +84,7 @@ extension SDAI {
   ///
   /// ### Requirements
   /// - `rep`: A property storing the value as the underlying `Supertype`.
+  ///
   public protocol DefinedType: SDAI.NamedType, SDAI.SelectCompatibleUnderlyingTypeBase
   {
     associatedtype Supertype: SDAI.SelectCompatibleUnderlyingTypeBase
@@ -96,7 +99,8 @@ public extension SDAI.DefinedType
 	var asFundamentalType: FundamentalType { return rep.asFundamentalType }
 }
 
-public extension SDAI.DefinedType where Self: Equatable, FundamentalType: Equatable
+public extension SDAI.DefinedType
+where Self: Equatable, FundamentalType: Equatable
 {
 	static func ==<T:SDAI.UnderlyingType> (lhs: Self, rhs: T) -> Bool
 	where FundamentalType == T.FundamentalType

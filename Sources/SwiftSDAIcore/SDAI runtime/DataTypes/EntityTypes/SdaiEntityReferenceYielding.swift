@@ -23,6 +23,7 @@ extension SDAI {
   /// stable identification of referenced entities.
   ///
   /// - SeeAlso: `SDAI.EntityReference`, `SDAI.GenericPersistentEntityReference`
+  /// 
   public protocol EntityReferenceYielding
   {
     var entityReferences: AnySequence<SDAI.EntityReference> { get }
