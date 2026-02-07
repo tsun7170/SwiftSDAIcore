@@ -217,6 +217,19 @@ extension SDAI.TypeHierarchy {
         Value == FundamentalType.Value,
         SwiftType == FundamentalType.SwiftType
   {
+    //MARK: init from FundamentalType
+    init?<I: SDAI.SwiftIntConvertible>(
+      width:I?, fixed:Bool,  fundamental:FundamentalType?)
+    init<I: SDAI.SwiftIntConvertible>(
+      width:I?, fixed:Bool,  fundamental:FundamentalType)
+
+
+    //MARK: init from GenericType
+    init?<I: SDAI.SwiftIntConvertible, G: SDAI.GenericType>(
+      width:I?, fixed:Bool, generic:G?)
+
+
+    //MARK: init from String
     init?(_ string:String?)
     init(_ string:String)
 
@@ -227,6 +240,7 @@ extension SDAI.TypeHierarchy {
     init<I: SDAI.SwiftIntConvertible>(width:I?, fixed:Bool, _ string:String)
 
 
+    //MARK: init from subtype
     init?<T:SDAI.TypeHierarchy.STRING__TypeBehavior>(_ subtype: T?)
     init<T:SDAI.TypeHierarchy.STRING__TypeBehavior>(_ subtype: T)
     
@@ -245,6 +259,26 @@ extension SDAI.TypeHierarchy {
 public extension SDAI.TypeHierarchy.STRING__TypeBehavior
 {
 	var asSwiftString: String { return String(self.asSwiftType) }
+
+  init?<I: SDAI.SwiftIntConvertible>(
+    width: I?, fixed: Bool, fundamental: FundamentalType?)
+  {
+    guard let fundamental = fundamental else { return nil }
+    self.init(width:width, fixed: fixed, fundamental)
+  }
+
+
+  init?<G: SDAI.GenericType>(fromGeneric generic: G?)
+  {
+    guard let stringValue = generic?.stringValue else { return nil }
+    self.init(fundamental:stringValue)
+  }
+  init?<I: SDAI.SwiftIntConvertible, G: SDAI.GenericType>(
+    width:I?, fixed:Bool, generic:G?)
+  {
+    guard let stringValue = generic?.stringValue else { return nil }
+    self.init(width: width, fixed: fixed, fundamental: stringValue)
+  }
 
   init(from swiftValue: SwiftType) {
     self.init(swiftValue)
@@ -416,10 +450,10 @@ extension SDAI {
 
 
 		//MARK: InitializableByGenerictype
-		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
-			guard let stringValue = generic?.stringValue else { return nil }
-			self.init(stringValue)
-		}
+//		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
+//			guard let stringValue = generic?.stringValue else { return nil }
+//			self.init(stringValue)
+//		}
 
 		//MARK: SDAI.UnderlyingType\SDAI.SimpleType\SDAI__STRING__type
 		public static let typeName: String = "STRING"
@@ -428,11 +462,22 @@ extension SDAI {
 		//MARK: SDAI.GenericType
 		public var asFundamentalType: FundamentalType { return self }
 		public init(fundamental: FundamentalType) {
-      self.init(width: fundamental.width, fixed: fundamental.fixedWidth.asSwiftType, fundamental.rep)
+      self.init(
+        width: fundamental.width,
+        fixed: fundamental.fixedWidth.asSwiftType,
+        fundamental.rep)
 		}
 
 
 		//MARK: SDAI__STRING__type
+    public init<I: SDAI.SwiftIntConvertible>(
+      width:I?, fixed:Bool, fundamental:FundamentalType)
+    {
+      self.rep = fundamental.rep
+      self.width = width?.asSwiftInt
+      self.fixedWidth = SDAI.BOOLEAN(fixed)
+    }
+
     public init<I: SDAI.SwiftIntConvertible>(
       width:I?, fixed:Bool, _ string: String)
     {

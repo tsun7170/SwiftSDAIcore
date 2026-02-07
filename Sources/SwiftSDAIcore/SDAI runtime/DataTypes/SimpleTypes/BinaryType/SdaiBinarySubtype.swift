@@ -18,10 +18,10 @@ extension SDAI.TypeHierarchy {
 public extension SDAI.TypeHierarchy.BINARY__Subtype
 {
 	//MARK: InitializableByGenerictype
-	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
-		guard let fundamental = FundamentalType.convert(fromGeneric: generic) else { return nil }
-		self.init(fundamental: fundamental)
-	}
+//	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
+//		guard let fundamental = FundamentalType.convert(fromGeneric: generic) else { return nil }
+//		self.init(fundamental: fundamental)
+//	}
 	
   //MARK: InitializableByVoid
   init() {
@@ -30,10 +30,17 @@ public extension SDAI.TypeHierarchy.BINARY__Subtype
   }
 
   //MARK: SDAI.SimpleType \SDAI__BINARY__type\SDAI__BINARY__subtype
-	init(from swiftValue: SwiftType) {
-		self.init(fundamental: FundamentalType(from: swiftValue))
-	}
-	
+//	init(from swiftValue: SwiftType) {
+//		self.init(fundamental: FundamentalType(from: swiftValue))
+//	}
+  init<I: SDAI.SwiftIntConvertible>(
+    from swiftValue: SwiftType,
+    width:I?, fixed:Bool)
+  {
+    let fund = FundamentalType(from:swiftValue, width: width, fixed: fixed)
+    self.init(fundamental: fund)
+  }
+
 	//MARK: ExpressibleByStringLiteral \SDAI__BINARY__type\SDAI__BINARY__subtype
 	init(stringLiteral value: StringLiteralType) {
 		self.init(FundamentalType(stringLiteral: value))

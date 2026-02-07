@@ -18,10 +18,10 @@ extension SDAI.TypeHierarchy {
 public extension SDAI.TypeHierarchy.STRING__Subtype
 {
 	//MARK: InitializableByGenerictype
-	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
-		guard let fundamental = FundamentalType.convert(fromGeneric: generic) else { return nil }
-		self.init(fundamental: fundamental)
-	}
+//	init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
+//		guard let fundamental = FundamentalType.convert(fromGeneric: generic) else { return nil }
+//		self.init(fundamental: fundamental)
+//	}
 
   //MARK: InitializableByVoid
   init() {
@@ -31,6 +31,13 @@ public extension SDAI.TypeHierarchy.STRING__Subtype
 
 
 	//MARK: SDAI__STRING__type \SDAI__STRING__subtype
+  init<I: SDAI.SwiftIntConvertible>(
+    width:I?, fixed:Bool, fundamental:FundamentalType)
+  {
+    let fund = FundamentalType(width: width, fixed: fixed, fundamental: fundamental)
+    self.init(fundamental: fund)
+  }
+
   init<I: SDAI.SwiftIntConvertible>(
     width:I?, fixed:Bool, _ string: String)
   {

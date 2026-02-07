@@ -120,6 +120,16 @@ extension SDAI.TypeHierarchy {
     init<I: SDAI.SwiftIntConvertible>(
       width:I?, fixed:Bool,  fundamental:FundamentalType)
 
+    //MARK: init from GenericType
+    init?<I: SDAI.SwiftIntConvertible, G: SDAI.GenericType>(
+      width:I?, fixed:Bool, generic:G?)
+
+    //MARK: init from SwiftType
+    init<I: SDAI.SwiftIntConvertible>(
+      from swiftValue: SwiftType,
+      width:I?, fixed:Bool)
+
+
     //MARK: init from String
     init?(_ string: String?)
     init(_ string: String)
@@ -162,6 +172,21 @@ public extension SDAI.TypeHierarchy.BINARY__TypeBehavior
   {
     guard let fundamental = fundamental else { return nil }
     self.init(width:width, fixed: fixed, fundamental)
+  }
+
+  init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
+    guard let binaryValue = generic?.binaryValue else { return nil }
+    self.init(fundamental: binaryValue)
+  }
+  init?<I: SDAI.SwiftIntConvertible, G: SDAI.GenericType>(
+    width:I?, fixed:Bool, generic:G?)
+  {
+    guard let binaryValue = generic?.binaryValue else { return nil }
+    self.init(width: width, fixed: fixed, fundamental: binaryValue)
+  }
+
+  init(from swiftValue: SwiftType) {
+    self.init(from: swiftValue, width: nil as Int?, fixed: false)
   }
 
 
@@ -337,11 +362,17 @@ extension SDAI {
 
 
 		//MARK: InitializableByGenerictype
-		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
-			guard let binaryValue = generic?.binaryValue else { return nil }
-      self.init(fundamental: binaryValue)
-		}
-		
+//		public init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
+//			guard let binaryValue = generic?.binaryValue else { return nil }
+//      self.init(fundamental: binaryValue)
+//		}
+//    public init?<I: SDAI.SwiftIntConvertible, G: SDAI.GenericType>(
+//      width:I?, fixed:Bool, generic:G?)
+//    {
+//      guard let binaryValue = generic?.binaryValue else { return nil }
+//      self.init(width: width, fixed: fixed, fundamental: binaryValue)
+//    }
+
 		//MARK: SDAI.UnderlyingType \SDAI.SimpleType\SDAI__BINARY__type
 		public static let typeName: String = "BINARY"
 		public var asSwiftType: SwiftType { return rep }
@@ -356,13 +387,22 @@ extension SDAI {
 		}
 
 		//MARK: SDAI.SimpleType \SDAI__BINARY__type
-		public init(from swiftValue: SwiftType) {
-			assert(Self.isValidValue(value: swiftValue))
-			rep = swiftValue
-      self.width = nil
-      self.fixedWidth = false
-		}
-		
+//		public init(from swiftValue: SwiftType) {
+//			assert(Self.isValidValue(value: swiftValue))
+//			rep = swiftValue
+//      self.width = nil
+//      self.fixedWidth = false
+//		}
+    public init<I: SDAI.SwiftIntConvertible>(
+      from swiftValue: SwiftType,
+      width:I?, fixed:Bool)
+    {
+      assert(Self.isValidValue(value: swiftValue))
+      rep = swiftValue
+      self.width = width?.asSwiftInt
+      self.fixedWidth = SDAI.BOOLEAN(fixed)
+    }
+
 		//MARK: ExpressibleByStringLiteral \SDAI__BINARY__type
 		public init(stringLiteral value: String) {
       self.init(width: nil as Int?, fixed: false, value)
