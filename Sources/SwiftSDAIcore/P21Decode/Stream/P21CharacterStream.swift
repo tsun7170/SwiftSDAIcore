@@ -20,7 +20,7 @@ extension P21Decode {
   /// - Note: The element type must be `Character`.
   ///
   /// Related types:
-  ///   - ``P21Decode.AnyCharacterStream``: Type-erased character stream.
+  ///   - ``P21Decode/AnyCharacterStream``: Type-erased character stream.
   ///
   public protocol CharacterStream: IteratorProtocol
   where Self.Element == Character

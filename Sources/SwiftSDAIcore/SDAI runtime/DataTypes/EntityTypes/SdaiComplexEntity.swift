@@ -27,7 +27,7 @@ extension SDAI {
   /// - Marked as `@unchecked Sendable`, indicating that the implementation is designed for concurrent contexts but does not enforce thread safety at compile time.
   /// 
   /// ## See Also
-  /// - ``SDAI.ComplexEntity``
+  /// - ``SDAI/ComplexEntity``
   /// - SDAI specification for complex entity handling.
   ///
 	public final class PartialComplexEntity: ComplexEntity, @unchecked Sendable
@@ -66,8 +66,8 @@ extension SDAI {
   /// Methods are provided for reading entity state, analyzing schema relationships, and performing queries as needed by the SDAI API.
   ///
   /// ## See Also
-  /// - ``SDAI.PartialEntity``
-  /// - ``SDAI.PartialComplexEntity``
+  /// - ``SDAI/PartialEntity``
+  /// - ``SDAI/PartialComplexEntity``
   /// - SDAI specification for complex entity population and reference handling.
   ///
 	public class ComplexEntity:

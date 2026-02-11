@@ -103,7 +103,6 @@ This document organizes and references SDAI operations according to their functi
 - ``SDAI/EntityReference/description``
 - ``SDAISessionSchema/SdaiTransaction/validateWhereRules(object:recording:)``
 
-- ``SDAISessionSchema/SdaiTransaction/validateAttributeValueDomainConstraints(object:recording:)``
 
 ### Entity instance aggregate operations (10.12)
 

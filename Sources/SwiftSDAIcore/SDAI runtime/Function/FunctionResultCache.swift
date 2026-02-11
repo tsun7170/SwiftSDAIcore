@@ -57,7 +57,7 @@ extension SDAI {
   /// - Important: Implementations must ensure that `isCacheable` returns `true` only if the instance
   ///   is immutable or its value is otherwise guaranteed not to change unexpectedly within the caching context.
   ///
-  /// - SeeAlso: ``SDAI.FunctionResultCache``, ``SDAI.FunctionResultCacheController``
+  /// - SeeAlso: ``SDAI/FunctionResultCache``, ``SDAI/FunctionResultCacheController``
   public protocol CacheableSource
   {
     var isCacheable: Bool {get}
@@ -88,12 +88,12 @@ extension SDAI {
   ///   cache reset operations should be `async` to allow for the proper suspension and coordination of concurrent tasks.
   /// 
   /// - SeeAlso: 
-  ///   - ``SDAI.FunctionResultCache``
-  ///   - ``SDAI.CacheableSource``
-  ///   - ``SDAI.CacheHolder``
+  ///   - ``SDAI/FunctionResultCache``
+  ///   - ``SDAI/CacheableSource``
+  ///   - ``SDAI/CacheHolder``
   ///
   /// ## Responsibilities
-  /// - Provide a mechanism to determine cacheability of results via ``SDAI.CacheableSource/isCacheable``.
+  /// - Provide a mechanism to determine cacheability of results via ``SDAI/CacheableSource/isCacheable``.
   /// - Advertise the current approximation level for cached results.
   /// - Register and track caches for coordinated reset or invalidation.
   /// - Support cache reset operations that may be invoked asynchronously.
@@ -118,7 +118,7 @@ extension SDAI {
   /// caches to uniquely identify cached results for a specific set of input parameters.
   ///
   /// Instances are constructed from a variadic list of optional `SDAI.ParameterType`
-  /// values, each of which must conform to ``SDAI.CacheableSource`` and be `Hashable`.
+  /// values, each of which must conform to ``SDAI/CacheableSource`` and be `Hashable`.
   /// This enables the framework to determine if a given parameter combination is suitable
   /// for caching, and to efficiently compare or retrieve cached results.
   ///
@@ -135,9 +135,9 @@ extension SDAI {
   ///
   /// - Parameters:
   ///   - params: The ordered list of parameters to be encapsulated, all of which must
-  ///     conform to ``SDAI.ParameterType``.
+  ///     conform to ``SDAI/ParameterType``.
   ///
-  /// - SeeAlso: ``SDAI.FunctionResultCache``, ``SDAI.CacheableSource``
+  /// - SeeAlso: ``SDAI/FunctionResultCache``, ``SDAI/CacheableSource``
 	public struct ParameterList: SDAI.CacheableSource, Hashable, Sendable {
 
 		private let params:[(any ParameterType)?]
@@ -197,8 +197,8 @@ extension SDAI {
   /// supporting concurrency-safe, multi-lane storage, deferred cache updates, and cache invalidation.
   ///
   /// The cache is designed to work in conjunction with a controller conforming to
-  /// ``SDAI.FunctionResultCacheController``, enabling approximated results and cacheability checks.
-  /// 
+  /// ``SDAI/FunctionResultCacheController``, enabling approximated results and cacheability checks.
+  ///
   /// - Caching lanes (0–3) are selected based on the hash of the parameter list to minimize lock contention.
   /// - Updates are performed asynchronously, with only one update task per parameter list allowed at a time.
   /// - Cache values are stored with an associated "approximation level", supporting use cases where results

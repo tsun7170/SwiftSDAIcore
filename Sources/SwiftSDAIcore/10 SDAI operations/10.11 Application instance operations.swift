@@ -66,11 +66,12 @@ extension SDAISessionSchema.SdaiTransaction {
   }
 
 
-  /// ISO 10303-22 (10.11.9) Validate where rule
+  /// ISO 10303-22 (10.11.9) Validate where rule, (10.11.11)(10.11.13)(10.11.14)(10.11.16)(10.11.17)
   ///
   /// Validates the where rules for the specified application instance.
   ///
-  /// This operation checks the where rules defined for the provided application instance and returns the result as where rule validation records.
+  /// This operation checks the where rules (entity local rules and defined type constraints) defined for the provided application instance and returns the result as where rule validation records.
+  /// This operation also checks the value domain constrains for all attribute values for the specified application instance.
   ///
   /// To perform the validation for one specific where rule on a given object, use the code snippet listed below:
   /// ```swift

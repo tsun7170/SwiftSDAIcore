@@ -18,9 +18,9 @@ extension SDAI {
   /// like integers, floats, booleans, or enumerations, as defined in the EXPRESS language specification.
   ///
   /// Conforming types must also conform to:
-  /// - ``SDAI.UnderlyingType``: The protocol for types that have a direct mapping to a Swift primitive.
-  /// - ``SDAI.BaseType``: The protocol for all EXPRESS base types.
-  /// - ``SDAI.Initializable.BySwiftType``: Types that can be initialized from a corresponding Swift type.
+  /// - ``SDAI/UnderlyingType``: The protocol for types that have a direct mapping to a Swift primitive.
+  /// - ``SDAI/BaseType``: The protocol for all EXPRESS base types.
+  /// - ``SDAI/Initializable.BySwiftType``: Types that can be initialized from a corresponding Swift type.
   /// - ``SDAI.SwiftTypeRepresented``: Types that can represent themselves as a Swift value.
   ///
   /// Use this protocol to generically refer to any simple EXPRESS types that are used in the SDAI data model.

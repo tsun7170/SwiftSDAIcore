@@ -61,10 +61,10 @@ extension SDAI.TypeHierarchy {
   /// with Swift's boolean types and nil literal expressibility.
   /// 
   /// This protocol is intended for use with types that act as fundamental representations of EXPRESS LOGICAL values,
-  /// and is used by ``SDAI.LOGICAL`` and its related type hierarchy.
-  /// 
+  /// and is used by ``SDAI/LOGICAL`` and its related type hierarchy.
+  ///
   /// - Inherits from:
-  ///   - ``SDAI.LogicalType``: Ensures EXPRESS logical semantics and Swift boolean interoperability.
+  ///   - ``SDAI/LogicalType``: Ensures EXPRESS logical semantics and Swift boolean interoperability.
   ///   - `ExpressibleByNilLiteral`: Allows initialization from `nil` to represent `UNKNOWN`.
   /// 
   /// - Associated Types:
@@ -125,8 +125,8 @@ extension SDAI {
   /// It is used to interoperate with EXPRESS schemas and files, such as ISO 10303-21 ("STEP") data.
   /// 
   /// - Conforms to:
-  ///   - ``SDAI.TypeHierarchy.LOGICAL__TypeBehavior``: Provides EXPRESS LOGICAL semantics and Swift interoperability.
-  ///   - ``SDAI.Value``: Allows for EXPRESS value comparison and manipulation.
+  ///   - ``SDAI/TypeHierarchy/LOGICAL__TypeBehavior``: Provides EXPRESS LOGICAL semantics and Swift interoperability.
+  ///   - ``SDAI/Value``: Allows for EXPRESS value comparison and manipulation.
   ///   - `CustomStringConvertible`: Presents human-readable descriptions for debugging and logging.
   /// 
   /// - Type Aliases:
