@@ -50,23 +50,169 @@ extension P21Decode {
 	public final class ExchangeStructure:
     SDAI.Object, Sendable, CustomStringConvertible
   {
+    /// The `HeaderSection` property represents the header portion of the STEP exchange structure (ISO 10303-21 Part 21).
+    /// 
+    /// The header section provides essential metadata about the exchange file, including information such as the file description,
+    /// originating system, author, schema definitions, and other contextual details that inform how the rest of the file should be interpreted.
+    /// 
+    /// This property is initialized as an empty or default header section and is populated during parsing of the STEP file.
+    /// 
+    /// - Note: The header section is a required part of all valid STEP Part 21 files, and its contents are referenced throughout
+    ///         the decoding process to resolve schemas, manage context, and ensure conformance to the file structure.
+    /// 
+    /// - SeeAlso: ISO 10303-21 Section 5.3.2 "Header section"
 		nonisolated(unsafe)
 		public internal(set) var headerSection = HeaderSection()
+    /// The `anchorSection` property represents the anchor portion of the STEP exchange structure (ISO 10303-21 Part 21).
+    ///
+    /// The anchor section is an optional section in a STEP Part 21 file that contains persistent identifiers
+    /// and cross-reference information, such as URI fragments that anchor items can refer to. This section supports
+    /// advanced referencing scenarios, including external or anchored value/entity references that allow for richer
+    /// data linking and interoperability between STEP files or external resources.
+    ///
+    /// The property is initialized as an empty or default anchor section and is populated during parsing of the STEP file,
+    /// mapping anchor identifiers to their corresponding anchor items and reference data.
+    ///
+    /// - Note: The anchor section, if present, enables the resolution of complex references such as URI fragments and supports
+    ///         advanced features in the exchange structure, aiding in the management of persistent and cross-file relationships.
+    ///
+    /// - SeeAlso: ISO 10303-21 Section 5.3.3 "Anchor section"
 		nonisolated(unsafe)
 		public internal(set) var anchorSection = AnchorSection()
+    /// The `dataSections` property represents an array of `DataSection` objects, each corresponding to a data section within the STEP exchange structure (ISO 10303-21 Part 21).
+    ///
+    /// Data sections are the core components of a STEP Part 21 file, containing the main entity instances and model data being exchanged. Each `DataSection` in this array encapsulates a particular section of STEP entity data, along with context such as the associated schema, model, and parsed contents.
+    ///
+    /// - The array may contain multiple data sections if the STEP file includes multiple such blocks (e.g., for multi-model exchanges or files with partitioned data).
+    /// - Each data section is parsed and instantiated separately, and this array provides access to all sections discovered and processed during file decoding.
+    ///
+    /// The property is initialized as an empty array and populated during parsing of the STEP file. Consumers of this property can iterate over the data sections to access the entity models, perform further analysis, or extract application-specific data from the exchange structure.
+    ///
+    /// - Note: Data sections are required for any valid STEP Part 21 file containing entity data. Their presence and structure are critical to interpreting the file's contents.
+    ///
+    /// - SeeAlso: ISO 10303-21 Section 5.3.4 "Data section"
 		nonisolated(unsafe)
 		public internal(set) var dataSections: [DataSection] = []
 		
+    /// The `foreignReferenceResolver` property is responsible for resolving references to entities or values that exist outside
+    /// the current exchange structure, such as those imported from other STEP files or external sources.
+    ///
+    /// This resolver is utilized whenever the decoding process encounters a foreign reference—typically indicated by
+    /// the presence of a URI in the reference. The `foreignReferenceResolver` provides mechanisms for both value
+    /// and entity resolution, conversion of user-defined entities, and recovery of partial entities that are not defined
+    /// in the local schema.
+    ///
+    /// - Usage: The property is supplied during the initialization of the `ExchangeStructure` and is used internally
+    ///   during parsing, instantiation, and reference resolution phases.
+    ///
+    /// - Note: Correct handling of foreign references is essential for interoperability and for parsing STEP
+    ///   files that link to external resources or use modular data structures.
+    ///
+    /// - SeeAlso: `ForeignReferenceResolver`
 		public let foreignReferenceResolver: ForeignReferenceResolver
+    /// The `repository` property provides the persistent storage and management context for all models, entities, and values decoded from the STEP exchange file.
+    ///
+    /// This repository acts as a centralized backing store for the decoded data, enabling consistent access to the parsed models and their contents.
+    /// It is typically supplied during initialization and is required for all major decoding, modeling, and interpretation operations.
+    ///
+    /// - Note: The repository is an instance of `SDAISessionSchema.SdaiRepository`, and its lifetime should encompass all use of the exchange structure
+    ///   to ensure that decoded data remains accessible and valid throughout the workflow.
+    ///
+    /// - SeeAlso: `SDAISessionSchema.SdaiRepository`
 		public let repository: SDAISessionSchema.SdaiRepository
 
+    /// The `valueInstanceRegistry` property maintains a mapping from `ValueInstanceName` to `ValueInstanceRecord`,
+    /// serving as an internal registry for all named value instances parsed from the exchange structure.
+    /// 
+    /// This registry allows for efficient lookup and resolution of value instances by their unique names during
+    /// decoding, parsing, and reference resolution within the STEP Part 21 file. Each entry associates a value
+    /// instance name with its corresponding record, which includes both the reference form and, once resolved,
+    /// the evaluated parameter value.
+    /// 
+    /// - Purpose:
+    ///   - Enables reference resolution for named values used throughout the file, such as those referenced in
+    ///     parameters, anchor items, or as part of entity attributes.
+    ///   - Supports recursive and cached resolution: once a value instance is resolved, its parameter can be
+    ///     reused for subsequent lookups.
+    ///   - Facilitates error tracking when undefined or duplicate value instance names are encountered.
+    /// 
+    /// - Lifecycle:
+    ///   - Populated during parsing of the STEP file as value instances are discovered.
+    ///   - Entries may be updated with resolved parameter values during subsequent resolution passes.
+    /// 
+    /// - Thread Safety:
+    ///   - The property is annotated with `nonisolated(unsafe)` and is not thread-safe; it is intended
+    ///     for use within controlled decoding and parsing contexts.
+    /// 
+    /// - SeeAlso: `ValueInstanceName`, `ValueInstanceRecord`
 		nonisolated(unsafe)
 		public internal(set) var valueInstanceRegistry: [ValueInstanceName:ValueInstanceRecord] = [:]
+    /// The `entityInstanceRegistry` property maintains a mapping from `EntityInstanceName` to `EntityInstanceRecord`,
+    /// serving as an internal registry for all named entity instances parsed from the exchange structure.
+    ///
+    /// This registry enables efficient lookup and resolution of entity instances by their unique names during
+    /// decoding, parsing, and reference resolution within the STEP Part 21 file. Each entry associates an entity
+    /// instance name with its corresponding record, which includes both the reference form and, once resolved,
+    /// the instantiated complex entity.
+    ///
+    /// - Purpose:
+    ///   - Enables reference resolution for named entities used throughout the file, including those referenced in
+    ///     parameters, anchor items, or as part of entity relationships.
+    ///   - Supports recursive and cached resolution: once an entity instance is resolved, its complex entity instance can be
+    ///     reused for subsequent lookups.
+    ///   - Facilitates error tracking when undefined or duplicate entity instance names are encountered.
+    ///
+    /// - Lifecycle:
+    ///   - Populated during parsing of the STEP file as entity instances are discovered.
+    ///   - Entries may be updated with resolved complex entities during subsequent resolution passes.
+    ///
+    /// - Thread Safety:
+    ///   - The property is annotated with `nonisolated(unsafe)` and is not thread-safe; it is intended
+    ///     for use within controlled decoding and parsing contexts.
+    ///
+    /// - SeeAlso: `EntityInstanceName`, `EntityInstanceRecord`
 		nonisolated(unsafe)
 		public internal(set) var entityInstanceRegistry: [EntityInstanceName:EntityInstanceRecord] = [:]
+    /// The `schemaRegistry` property maintains a mapping from canonicalized schema names (`SchemaName`)
+    /// to their corresponding schema metatypes (`SDAI.SchemaType.Type`). This internal registry enables
+    /// efficient lookup and resolution of schemas referenced within the STEP exchange structure.
+    /// 
+    /// - Purpose:
+    ///   - Facilitates the registration and retrieval of schemas encountered during parsing of the STEP file.
+    ///   - Ensures that each schema is stored with a unique, canonicalized name (whitespace removed, uppercase) to
+    ///     avoid issues with inconsistent naming conventions or formatting in STEP files.
+    ///   - Enables subsequent resolution of schema-related constants, entities, and other elements by providing
+    ///     fast access to schema definitions and their associated metadata.
+    /// 
+    /// - Lifecycle:
+    ///   - Populated during parsing and schema registration phases, as schemas are discovered in the input file.
+    ///   - Enforces uniqueness by detecting and reporting duplicated schema names, setting an error state if a
+    ///     collision occurs.
+    /// 
+    /// - Thread Safety:
+    ///   - This property is annotated with `nonisolated(unsafe)` and is not thread-safe. It should only be accessed
+    ///     in controlled parsing and decoding contexts.
+    /// 
+    /// - SeeAlso: `register(schemaName:schema:)`
 		nonisolated(unsafe)
 		public private(set) var schemaRegistry: [SchemaName:SDAI.SchemaType.Type] = [:]
 		
+    /// Provides a lazy collection of all `SdaiModel` instances contained within the exchange structure's data sections.
+    ///
+    /// Each `DataSection` parsed from the STEP exchange file may contain an associated model.
+    /// This property iterates through all data sections, extracting their corresponding models if present,
+    /// and presents them as a collection for convenient access.
+    ///
+    /// - Returns: A collection of `SDAIPopulationSchema.SdaiModel` objects representing the entity models parsed from the file.
+    /// - Note: The returned collection is lazy and will only evaluate as its elements are accessed.
+    /// - Warning: Data sections without a valid model are skipped and do not appear in this collection.
+    ///
+    /// Example usage:
+    /// ```swift
+    /// for model in exchangeStructure.sdaiModels {
+    ///     // Work with each parsed model
+    /// }
+    /// ```
 		public var sdaiModels: some Collection<SDAIPopulationSchema.SdaiModel> {
 			let models = dataSections.lazy.compactMap{ $0.model }
 			return models
@@ -74,6 +220,15 @@ extension P21Decode {
 		
 		private let activityMonitor: ActivityMonitor?
 
+    /// A succinct textual summary of the exchange structure.
+    ///
+    /// This property returns a string describing the instance, specifically reporting the total number of entity instances
+    /// contained within all data sections. It is primarily useful for logging, debugging, or user interface representations,
+    /// as it provides an overview of the structure's content at a glance.
+    ///
+    /// - Returns: A `String` in the format `"ExchangeStructure(#ENT: X)"` where `X` is the total entity count.
+    ///
+    /// - Note: The count includes all complex entities present in the models of the data sections, and skips sections without valid models.
     public var description: String {
       var count = 0
       for ds in dataSections {
@@ -85,6 +240,31 @@ extension P21Decode {
     }
 
 		//MARK: - constructor
+    /// Initializes a new `ExchangeStructure` instance, providing the core context for interpreting and managing
+    /// a parsed ISO 10303-21 (STEP) exchange file.
+    ///
+    /// This initializer establishes the repositories and reference resolution mechanisms needed to facilitate
+    /// schema registration, entity instantiation, and value or entity reference resolution. It also enables
+    /// optional monitoring of parsing activity and error reporting.
+    ///
+    /// - Parameters:
+    ///   - repository: The `SDAISessionSchema.SdaiRepository` instance that serves as the storage and management
+    ///                 context for all models, entities, and values decoded from the exchange file. This repository
+    ///                 provides the persistent backing for STEP data and is required for all major decoding and
+    ///                 modeling operations.
+    ///   - foreignReferenceResolver: The `ForeignReferenceResolver` responsible for resolving references to entities
+    ///                 or values that may exist outside the current exchange structure—such as those imported from
+    ///                 other files or external sources. This resolver is invoked whenever a foreign reference is
+    ///                 encountered during parsing or resolution.
+    ///   - monitor: An optional `ActivityMonitor` instance that receives notifications about significant parsing
+    ///                 events, particularly errors. This allows the caller to observe progress and respond to
+    ///                 issues dynamically, which can aid in debugging or provide user feedback during long-running
+    ///                 decode operations.
+    ///
+    /// - Note: This constructor is designed for internal use during parsing of STEP Part 21 files and assumes
+    ///         that the caller will supply all required dependencies. The resulting `ExchangeStructure` is ready
+    ///         for registration of schemas, entities, and values, and for resolution of references during
+    ///         subsequent decoding or interpretation stages.
 		public init(
 			repository: SDAISessionSchema.SdaiRepository,
 			foreignReferenceResolver: ForeignReferenceResolver,
@@ -98,6 +278,23 @@ extension P21Decode {
 		
 		
 		//MARK: - error handling
+    /// Represents the current error state of the `ExchangeStructure` during parsing, registration, or resolution.
+    ///
+    /// This property is set when a significant error or diagnostic condition arises in the course of decoding a STEP Part 21 file.
+    /// It typically contains a description of the most recent or critical error encountered, such as duplicate entity instance
+    /// names, unresolved references, schema registration conflicts, or invalid structure in the input data.
+    ///
+    /// - Reading this property allows consumers to check whether the exchange structure is in an error state and to obtain
+    ///   diagnostic information for debugging or user feedback.
+    /// - Writing to this property updates the error state and, if an `ActivityMonitor` is attached, notifies it of the error.
+    /// - The error string may be appended with additional context as operations progress, providing a chained history of
+    ///   relevant parsing or resolution steps for easier troubleshooting.
+    ///
+    /// - Note: Once set, this property is only overwritten or appended to by subsequent errors or context.
+    ///   Consumers should treat its presence as an indication that processing should be stopped or that results are incomplete.
+    ///
+    /// - SeeAlso: `add(errorContext:)` for appending additional context to the error message,
+    ///            and `ActivityMonitor.exchangeStructureDidSet(error:)` for error notifications.
 		nonisolated(unsafe)
 		public var error: String? {
 			didSet {
@@ -106,6 +303,20 @@ extension P21Decode {
 				}
 			}
 		}
+    /// Appends additional error context to the existing error state.
+    ///
+    /// This method updates the `error` property by appending the specified `errorContext` string to the current error message.
+    /// If no error message currently exists, it initializes the `error` property with a default value ("p21 parser error"),
+    /// followed by the appended context. Each appended context is separated by a comma and newline for improved readability.
+    ///
+    /// - Parameter errorContext: A `String` providing additional information about the parsing or resolution error encountered.
+    ///
+    /// - Side Effects:
+    ///   - Updates the `error` property by appending the provided context to any existing error message.
+    ///   - Triggers the activity monitor (if present) when setting a new error state.
+    ///
+    /// - Note: Used internally for error diagnostics, particularly to track and chain nested error contexts during recursive
+    ///   parsing and resolution operations.
 		public func add(errorContext: String) {
       error = (error ?? "p21 parser error") + ",\n " + errorContext
 		}
@@ -157,6 +368,18 @@ extension P21Decode {
 			return true
 		}
 
+    /// A set containing the schema definitions of all application schemas registered within the exchange structure.
+    ///
+    /// This property aggregates the schema definitions (`SDAIDictionarySchema.SchemaDefinition`) for all schemas
+    /// that have been registered via the `schemaRegistry`. Each entry corresponds to a unique, canonicalized schema
+    /// name encountered in the STEP exchange file.
+    ///
+    /// - Returns: A `Set` of `SDAIDictionarySchema.SchemaDefinition` objects, each representing the metadata and
+    ///   structure of a registered application schema.
+    /// - Note: This property is useful for analyzing which application schemas are present in the exchange
+    ///   structure, facilitating schema-aware parsing, validation, and model extraction.
+    /// - Warning: The set contains only those schemas that have been successfully registered—typically those
+    ///   referenced by the input file header and discovered during parsing.
 		public var targetSchemas: Set<SDAIDictionarySchema.SchemaDefinition> {
 			Set( schemaRegistry.values.map{ $0.schemaDefinition } )
 		}
@@ -261,6 +484,25 @@ extension P21Decode {
 			return schemaRegistry[canon]
 		}
 
+    /// Resolves a constant entity reference by its name within the schema context.
+    ///
+    /// This function attempts to retrieve an entity reference for a constant entity defined in the primary schema
+    /// (referenced by the first entry in the `headerSection.fileSchema.SCHEMA_IDENTIFIERS` array).
+    /// It canonicalizes the lookup using the schema's constants dictionary.
+    ///
+    /// During the resolution process, this method pushes a context onto the internal resolution context stack for
+    /// improved diagnostics and error reporting and ensures the context is popped when resolution is complete or if an error occurs.
+    ///
+    /// - Parameter constantEntityName: The name of the constant entity to resolve.
+    /// - Returns: An `SDAI.EntityReference` if the constant entity can be found and resolved in the current schema, or `nil` if resolution fails.
+    ///
+    /// - Side Effects:
+    ///   - Sets the `error` property if the schema or constant entity cannot be found, including the diagnostic context.
+    ///   - Appends error context strings to the error property for chained errors and easier debugging.
+    ///   - Pushes and pops the resolution context for improved error diagnostics.
+    ///
+    /// - Note: This method is intended for use during parsing and instantiation of exchange structures,
+    ///   and is not thread-safe. Typically, only constants in the primary schema (first entry in `headerSection.fileSchema.SCHEMA_IDENTIFIERS`) can be resolved.
 		public func resolve(
 			constantEntityName: ConstantName
 		) -> SDAI.EntityReference?

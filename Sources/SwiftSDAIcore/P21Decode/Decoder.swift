@@ -57,8 +57,28 @@ extension P21Decode {
 		}
 		
 		
+    /// The most recently parsed `ExchangeStructure`, representing the top-level result of the STEP (ISO 10303-21) character stream decoding.
+    /// 
+    /// This property is updated each time the `decode(input:transaction:)` method is called, and holds
+    /// the entire parsed structure of the STEP file, including header, schema registrations, data sections, and
+    /// entity instance registry. If decoding fails, this property may be `nil`.
+    ///
+    /// Clients can inspect this property after decoding to access detailed information about
+    /// the exchange structure, including any errors or metadata encountered during parsing.
+    ///
+    /// - Note: This property is read-only outside the decoder. Its value is cleared or replaced on each decode operation.
 		public private(set) var exchangeStructure: ExchangeStructure?
 		
+    /// The most recent error encountered during decoding, if any.
+    ///
+    /// This property is set whenever an error occurs during the decoding process, such as a failure in parsing,
+    /// schema registration, or instance resolution. It is updated each time decoding is attempted and remains `nil`
+    /// if the most recent operation was successful.
+    ///
+    /// - Note: The error value is also reported to the activity monitor, if one is provided, the first time it is set
+    ///         after a successful operation. Clients can inspect this property to determine the cause of decoding failure.
+    ///
+    /// - SeeAlso: `ExchangeStructure`, `decode(input:transaction:)`
 		public private(set) var error: Error? {
 			didSet {
 				if let monitor = activityMonitor, oldValue == nil, let error = error {
@@ -68,6 +88,18 @@ extension P21Decode {
 		}
 		
 
+    /// The SDAI repository to which the decoded entities are stored.
+    ///
+    /// This repository serves as the output destination for all entities, models,
+    /// and related data structures decoded from the STEP (ISO 10303-21) character stream.
+    /// It represents the persistent storage for the resulting SDAI models and ensures
+    /// that all decoded data is organized according to the repository's schema and structure.
+    ///
+    /// - Note: The repository must be provided at initialization and is referenced throughout
+    ///         the decoding process for entity creation, model assignment, and data population.
+    ///         Its lifetime should encompass all decoding and subsequent data access operations.
+    ///
+    /// - SeeAlso: `SDAISessionSchema.SdaiRepository`
 		public let repository: SDAISessionSchema.SdaiRepository
 		private let schemaList: SchemaList
 		private let activityMonitor: ActivityMonitor?

@@ -51,23 +51,93 @@ extension P21Decode.ExchangeStructure {
   ///
   /// - SeeAlso: `P21Decode.ExchangeStructure.Keyword`, `P21Decode.ExchangeStructure.Parameter`
 	public final class SimpleRecord: CustomStringConvertible {
+    /// The `keyword` property identifies the type or role of a record or parameter in the ISO 10303-21 exchange structure (STEP file).
+    ///
+    /// - In the context of a `SimpleRecord`, `keyword` represents the symbolic name of the record, which can be either a standard keyword (defined by the standard)
+    ///   or a user-defined keyword (typically prefixed with an exclamation mark).
+    ///
+    /// - In the context of a `TypedParameter`, `keyword` is the explicit type annotation associated with the parameter value.
+    ///
+    /// The value of `keyword` is an instance of the `Keyword` enumeration, distinguishing between standard and user-defined forms to
+    /// support flexible and standards-compliant encoding and decoding of STEP exchange structure records and typed parameters.
+    ///
+    /// ## Reference
+    /// - ISO 10303-21, Section 5.4 "Definition of tokens"
+    /// - ISO 10303-21, Section 5.5 "WSN of the exchange structure"
+    ///
+    /// - SeeAlso: `P21Decode.ExchangeStructure.Keyword`, `P21Decode.ExchangeStructure.SimpleRecord`, `P21Decode.ExchangeStructure.TypedParameter`
 		public let keyword: Keyword
+    /// The list of parameters associated with this record or construct.
+    /// 
+    /// Each parameter in the list corresponds to a value or reference as defined by the ISO 10303-21 (STEP file) 
+    /// exchange structure. The `parameterList` can contain both typed and untyped parameters, as well as omitted or generic values, 
+    /// depending on the context (such as in a `SimpleRecord` or similar structure).
+    ///
+    /// - In the context of a `SimpleRecord`, this array contains the parameters enclosed in parentheses following the record's keyword.
+    /// - The order of parameters in the list reflects the order of appearance in the exchange structure, enabling accurate parsing and reconstruction.
+    ///
+    /// - SeeAlso: `P21Decode.ExchangeStructure.Parameter`
 		public private(set) var parameterList: [Parameter] = []
 		
 		public var description: String {
 			return "SimpleRecord(keyword:\(keyword), parameters:\(parameterList))"
 		}
 		
+    /// Initializes a new `SimpleRecord` instance using a user-defined keyword and a parameter list.
+    ///
+    /// Use this initializer to construct a `SimpleRecord` where the `keyword` is not defined by the standard,
+    /// but is instead a user-defined symbol (typically prefixed with an exclamation mark, e.g., `!MY_RECORD`).
+    ///
+    /// - Parameters:
+    ///   - keyword: The user-defined keyword to identify the record type. This should be a string, and will be wrapped as a `.userDefinedKeyword`.
+    ///   - parameters: The list of parameters associated with this record. Each parameter represents a value, reference, or construct as defined by the ISO 10303-21 exchange structure.
+    ///
+    /// ## Example
+    /// ```
+    /// let record = SimpleRecord(userDefined: "MY_CUSTOM", parameters: [.untypedParameter(.integer(42))])
+    /// ```
+    ///
+    /// - SeeAlso: `P21Decode.ExchangeStructure.SimpleRecord`, `P21Decode.ExchangeStructure.Keyword`, `P21Decode.ExchangeStructure.Parameter`
 		public init(userDefined keyword: String, parameters: [Parameter] ) {
 			self.keyword = .userDefinedKeyword(keyword)
 			self.parameterList = parameters
 		}
 		
+    /// Initializes a new `SimpleRecord` instance using a standard keyword and a parameter list.
+    ///
+    /// Use this initializer to construct a `SimpleRecord` where the `keyword` is defined by the ISO 10303-21 standard,
+    /// and is not user-defined.
+    ///
+    /// - Parameters:
+    ///   - keyword: The standard keyword identifying the type of the record. This should be a string, and will be wrapped as a `.standardKeyword`.
+    ///   - parameters: The list of parameters associated with this record. Each parameter represents a value, reference, or construct as defined by the ISO 10303-21 exchange structure.
+    ///
+    /// ## Example
+    /// ```
+    /// let record = SimpleRecord(standard: "RECORD_NAME", parameters: [.untypedParameter(.integer(42))])
+    /// ```
+    ///
+    /// - SeeAlso: `P21Decode.ExchangeStructure.SimpleRecord`, `P21Decode.ExchangeStructure.Keyword`, `P21Decode.ExchangeStructure.Parameter`
 		public init(standard keyword: String, parameters: [Parameter] ) {
 			self.keyword = .standardKeyword(keyword)
 			self.parameterList = parameters
 		}
 		
+    /// Appends a parameter to the `parameterList` of the `SimpleRecord`.
+    ///
+    /// Use this method to add a new parameter to the list of parameters associated with this record.
+    /// The order of parameters in the list reflects the order of appearance in the exchange structure,
+    /// which is important when constructing or reconstructing records from STEP files.
+    ///
+    /// - Parameter parameter: The `Parameter` instance to append to the record's parameter list.
+    ///
+    /// ## Example
+    /// ```
+    /// let record = SimpleRecord(standard: "RECORD_NAME", parameters: [])
+    /// record.append(parameter: .untypedParameter(.integer(123)))
+    /// ```
+    ///
+    /// - SeeAlso: `P21Decode.ExchangeStructure.Parameter`
 		public func append(parameter: Parameter) {
 			self.parameterList.append(parameter)
 		}

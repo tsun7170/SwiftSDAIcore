@@ -257,7 +257,7 @@ extension SDAIPopulationSchema {
 	/// ISO-10303-22 (8.4.3)
 	/** - An SdaiModelContents contains the entity instances making up an SdaiModel. The entity instances are available in a single collection regardless of entity data type and grouped by entity data type into multiple collections.
 	*/
-	/** # Informal propositions: 
+	/**  Informal propositions:  
 	IP1: The set SdaiModelContents.instances contains the same entity instances as the union of the set of extents SdaiModelContents.populatedFolders contains.
 	*/
 	public final class SdaiModelContents: SDAI.Object, /*SDAI.CacheHolder,*/ Sendable

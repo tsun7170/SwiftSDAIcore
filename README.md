@@ -48,15 +48,18 @@ no support for the scope operations, since the released ISO 10303-21 standard do
 **Levels of Domain Equivalence Support (13.1.5): Level 1 (No Domain Equivalence)**
 no support for the declaration of domain equivalent entity types and their use by application instances based upon different schema definitions.
 
-
+### References
+- [ISO 10303-11:1994](https://www.iso.org/standard/18348.html) Part 11: Description methods: The EXPRESS language reference manual
+- [ISO 10303-21:2016](https://www.iso.org/standard/63141.html) Part 21: Implementation methods: Clear text encoding of the exchange structure
+- [ISO 10303-22:1998](https://www.iso.org/standard/25097.html) Part 22: Implementation methods: Standard data access interface
 
 ## swift STEP code suite
-* [SwiftSDAIcore](https://github.com/tsun7170/SwiftSDAIcore)
-* [SwiftSDAIap242](https://github.com/tsun7170/SwiftSDAIap242)
-* [SwiftAP242PDMkit](https://github.com/tsun7170/SwiftAP242PDMkit)
-* [simpleP21ReadSample](https://github.com/tsun7170/simpleP21ReadSample)
-* [multipleP21ReadsSample](https://github.com/tsun7170/multipleP21ReadsSample)
-* [STEPswiftcode/exp2swift](https://github.com/tsun7170/STEPswiftcode)
+* **[SwiftSDAIcore](https://github.com/tsun7170/SwiftSDAIcore) Swift SDAI runtime environment**
+* [SwiftSDAIap242](https://github.com/tsun7170/SwiftSDAIap242) Swift translated AP242 schema definition (ed2)
+* [SwiftAP242PDMkit](https://github.com/tsun7170/SwiftAP242PDMkit) Swift implementation of PDM schema usage guide
+* [simpleP21ReadSample](https://github.com/tsun7170/simpleP21ReadSample) Single P21 file reading and validation sample code
+* [multipleP21ReadsSample](https://github.com/tsun7170/multipleP21ReadsSample) Tree of P21 files reading and validation sample code
+* [STEPswiftcode/exp2swift](https://github.com/tsun7170/STEPswiftcode) EXPRESS to Swift translator
 
 
 ## Development environment
