@@ -136,6 +136,17 @@ extension SDAI {
 		CustomStringConvertible, @unchecked Sendable
 	{
 		//MARK: SDAI.EntityReferenceType
+    /// The underlying `ComplexEntity` instance referenced by this entity reference.
+    ///
+    /// `complexEntity` provides direct access to the associated EXPRESS entity instance,
+    /// enabling inspection, attribute access, and participation in SDAI operations.
+    /// It is guaranteed to be non-optional for valid entity references, and is used as
+    /// the canonical source of entity data, identity, and model association in the
+    /// population.
+    ///
+    /// - Returns: The `SDAI.ComplexEntity` instance to which this reference points.
+    ///
+    /// - SeeAlso: `SDAI.ComplexEntity`, `SDAI.EntityReferenceType`
 		public var complexEntity: ComplexEntity {self.object}
 
     internal var complexReference: ComplexEntityReference {
@@ -152,6 +163,16 @@ extension SDAI {
 			}
 		}
 
+    /// Indicates whether the referenced entity instance is temporary and not persistently stored.
+    ///
+    /// `isTemporary` returns `true` if the underlying `ComplexEntity` instance associated with this entity reference
+    /// exists only in memory and has not been assigned a persistent identity within a model. Temporary entities
+    /// are typically created during in-memory operations or before being committed to a persistent model, and may
+    /// be subject to different caching or validation rules compared to persistent entities.
+    ///
+    /// - Returns: `true` if the referenced entity is temporary; otherwise, `false`.
+    ///
+    /// - SeeAlso: `SDAI.ComplexEntity.isTemporary`
     public var isTemporary: Bool {
       self.complexEntity.isTemporary
     }
@@ -193,6 +214,21 @@ extension SDAI {
     ///
 		public var definition: SDAIDictionarySchema.EntityDefinition { return type(of: self).entityDefinition }
 		
+    /// The EXPRESS entity definition corresponding to this entity reference's type.
+    ///
+    /// `entityDefinition` provides access to the schema-level metadata for the EXPRESS entity
+    /// represented by this reference. This includes information such as the entity's name,
+    /// attributes, supertypes, subtypes, WHERE rules, and other schema characteristics, as
+    /// specified in the EXPRESS data model (ISO 10303-11 and ISO 10303-22).
+    ///
+    /// - Returns: The `SDAIDictionarySchema.EntityDefinition` describing the entity type of this reference.
+    /// - Note: This property is typically implemented as a type property, returning the static
+    ///   definition associated with the concrete subtype of `EntityReference`.
+    /// - SeeAlso: `SDAIDictionarySchema.EntityDefinition`, ``SDAI/EntityReference/entityDefinition``
+    ///
+    /// # Standard References
+    /// - ISO 10303-11: EXPRESS language -- entity definitions
+    /// - ISO 10303-22: SDAI interface (see 10.10.4)
 		open class var entityDefinition: SDAIDictionarySchema.EntityDefinition {
 			abstract()
 		}
@@ -210,6 +246,14 @@ extension SDAI {
 		}
 
 		//MARK: SdaiCachableSource
+    /// Indicates whether the entity reference is eligible for caching of derived attribute values.
+    ///
+    /// The `isCacheable` property returns `true` if the underlying complex entity is not temporary (i.e., it has a persistent identity within its owning model)
+    /// and if the owning model is in read-only mode. Caching of derived attribute values is only permitted for persistent entities in models that are not subject
+    /// to modification, ensuring consistency between the cached values and the underlying model state.
+    ///
+    /// - Returns: `true` if the referenced entity is persistent and its owning model is in read-only mode; otherwise, `false`.
+    /// - SeeAlso: ``SDAI/EntityReference/updateCache(derivedAttributeName:value:)``, ``SDAI/EntityReference/cachedValue(derivedAttributeName:)``
 		public var isCacheable: Bool {
 			let complex = self.complexEntity
 			if complex.isTemporary { return false }
@@ -447,12 +491,36 @@ extension SDAI {
       AnySequence( CollectionOfOne(GenericPersistentEntityReference(self)) )
     }
 
+    /// Determines whether this entity reference is holding the specified entity reference.
+    ///
+    /// This method checks if the current entity reference instance is the same as the provided `entityReference`.
+    /// It is typically used in contexts where you need to confirm if a particular reference object is the one
+    /// managed or encapsulated by this instance, such as when traversing reference graphs or performing identity checks.
+    ///
+    /// - Parameter entityReference: The `SDAI.EntityReference` instance to test for identity with this entity reference.
+    /// - Returns: `true` if this instance is the same as `entityReference`; otherwise, `false`.
+    ///
+    /// - Note: This function performs a reference equality check, not a value-based comparison.
 		public final func isHolding( entityReference: SDAI.EntityReference ) -> Bool
 		{
 			return self == entityReference
 		}
 
 		//MARK: EntityReference specific
+    /// The concrete type of the schema-generated `PartialEntity` associated with this entity reference's EXPRESS entity type.
+    ///
+    /// `partialEntityType` provides the metatype for the schema-generated partial entity
+    /// corresponding to the concrete subtype of `EntityReference`. Partial entities are used to
+    /// represent a single component of a complex entity instance, as defined by an EXPRESS entity
+    /// without consideration of supertypes or subtypes.
+    ///
+    /// This static property is typically implemented by concrete subclasses of `EntityReference`
+    /// to return the schema-specific partial entity type, enabling type-safe construction and
+    /// conversion between references and their partial representations.
+    ///
+    /// - Returns: The type object for the associated `PartialEntity` type.
+    /// - SeeAlso: `SDAI.PartialEntity`, schema-specific partial entity types.
+    /// - Note: This property is abstract in the base class and must be overridden by subclasses.
 		open class var partialEntityType: PartialEntity.Type { abstract() }	// abstract
 
 		nonisolated(unsafe)
@@ -464,6 +532,16 @@ extension SDAI {
 		}
 
 		//MARK: group reference
+    /// Returns a persistent reference of a specified supertype entity group for the referenced entity.
+    ///
+    /// `GROUP_REF(_:)` is used to obtain a persistent reference (`PRef`) to a supertype entity group defined in the EXPRESS schema, given a reference type for the supertype. If the referenced complex entity is a member of the given supertype group, the operation returns a persistent reference of that group; otherwise, it returns `nil`.
+    ///
+    /// This is typically used when navigating entity inheritance hierarchies, such as when working with supertypes or entity select types within EXPRESS models.
+    ///
+    /// - Parameter super_ref: The metatype of the supertype entity reference to retrieve (`SUPER.Type`), which must conform to both `EntityReference` and `SDAI.DualModeReference`.
+    /// - Returns: An optional persistent reference (`SUPER.PRef?`) to the supertype entity group, or `nil` if the referenced entity does not conform to the specified supertype.
+    ///
+    /// - SeeAlso: `EntityReference`, `SDAI.DualModeReference`, EXPRESS supertypes and entity select types.
 		public func GROUP_REF<SUPER:EntityReference & SDAI.DualModeReference>(
 			_ super_ref: SUPER.Type
 		) -> SUPER.PRef?
@@ -473,6 +551,20 @@ extension SDAI {
 		}
 
 		//MARK: inverse attribute support
+    /// Returns a collection of persistent references to entity instances of the specified source entity type that reference this entity through the given attribute.
+    ///
+    /// This method facilitates navigation of inverse relationships in SDAI entity models, enabling discovery of all referencing entities that have this entity in a specified attribute (typically an inverse or referencing attribute).
+    ///
+    /// The search is restricted to schema instances associated with the `owningModel` of this entity, and further filtered to only those that are active in the current SDAI session.
+    ///
+    /// - Parameters:
+    ///   - attribute: A `KeyPath` to the attribute in the source entity type that (potentially) references this entity.
+    ///
+    /// - Returns: A collection of persistent references (`SourceEntity.PRef`) to source entity instances that reference this entity through the given attribute. Returns an empty collection if there is no active SDAI session or no referencing entities are found.
+    ///
+    /// - Note: This function is particularly useful for traversing inverse attributes in EXPRESS schemas, as well as for general reference tracing in SDAI-based population models.
+    ///
+    /// - SeeAlso: ``SDAI/EntityReference/referencingEntity(for:)``, ``SDAI/EntityReferenceYielding/persistentEntityReferences``
 		public func referencingEntities<SourceEntity,AttributeValue>(
 			for attribute: KeyPath<SourceEntity,AttributeValue>
 		) -> some Collection<SourceEntity.PRef>
@@ -510,6 +602,18 @@ extension SDAI {
 		}
 
 
+    /// Returns a collection of persistent references to entity instances of the specified source entity type that reference this entity through the given attribute.
+    ///
+    /// This method enables traversal of inverse relationships in SDAI entity models, allowing you to discover all referencing entities that include this entity in a specified attribute (typically an inverse or referencing attribute).
+    ///
+    /// The search is restricted to schema instances associated with the `owningModel` of this entity, and further filtered to only those schema instances that are currently active in the SDAI session.
+    ///
+    /// - Parameter attribute: A `KeyPath` to the attribute in the source entity type that (potentially) references this entity.
+    /// - Returns: A collection of persistent references (`SourceEntity.PRef`) to source entity instances that reference this entity through the given attribute. Returns an empty collection if there is no active session or no referencing entities are found.
+    ///
+    /// - Note: This function is particularly useful for traversing inverse attributes in EXPRESS schemas, as well as general reference tracing in SDAI-based population models.
+    ///
+    /// - SeeAlso: ``SDAI/EntityReference/referencingEntity(for:)``, ``SDAI/EntityReferenceYielding/persistentEntityReferences``
 		public func referencingEntities<SourceEntity,AttributeValue>(
 			for attribute: KeyPath<SourceEntity,AttributeValue?>
 		) -> some Collection<SourceEntity.PRef>
@@ -547,6 +651,18 @@ extension SDAI {
 			return []
 		}
 
+    /// Returns a persistent reference to the first entity instance of the specified source entity type that references this entity through the given attribute.
+    ///
+    /// This method performs an inverse lookup, searching for a referencing entity (of type `SourceEntity`) that contains this entity in the specified attribute (typically an inverse or referencing attribute). It is particularly useful for resolving inverse relationships defined in EXPRESS schemas by following references back to their sources.
+    ///
+    /// The search is limited to schema instances associated with the `owningModel` of this entity, and is constrained to only those schema instances that are currently active within the SDAI session. If no active session exists or if no such referencing entity is found, the method returns `nil`.
+    ///
+    /// - Parameter attribute: A `KeyPath` to the attribute in the source entity type that (potentially) references this entity. The attribute may be optional or non-optional.
+    /// - Returns: An optional persistent reference (`SourceEntity.PRef?`) to a source entity instance that references this entity through the given attribute, or `nil` if none is found.
+    ///
+    /// - Note: This method is most commonly used for traversing inverse attributes or for tracing entity relationships in SDAI-based models.
+    ///
+    /// - SeeAlso: ``SDAI/EntityReference/referencingEntities(for:)``, ``SDAI/EntityReferenceYielding/persistentEntityReferences``
 		public func referencingEntity<SourceEntity,AttributeValue>(
 			for attribute: KeyPath<SourceEntity,AttributeValue>
 		) -> SourceEntity.PRef?
@@ -583,6 +699,18 @@ extension SDAI {
 			return nil
 		}
 
+    /// Returns a persistent reference to the first entity instance of the specified source entity type that references this entity through the given attribute.
+    ///
+    /// This method performs an inverse lookup, searching for a referencing entity (of type `SourceEntity`) that contains this entity in the specified attribute (typically an inverse or referencing attribute). It is particularly useful for resolving inverse relationships defined in EXPRESS schemas by following references back to their sources.
+    ///
+    /// The search is limited to schema instances associated with the `owningModel` of this entity, and is constrained to only those schema instances that are currently active within the SDAI session. If no active session exists or if no such referencing entity is found, the method returns `nil`.
+    ///
+    /// - Parameter attribute: A `KeyPath` to the attribute in the source entity type that (potentially) references this entity. The attribute may be optional or non-optional.
+    /// - Returns: An optional persistent reference (`SourceEntity.PRef?`) to a source entity instance that references this entity through the given attribute, or `nil` if none is found.
+    ///
+    /// - Note: This method is most commonly used for traversing inverse attributes or for tracing entity relationships in SDAI-based models.
+    ///
+    /// - SeeAlso: ``SDAI/EntityReference/referencingEntities(for:)``, ``SDAI/EntityReferenceYielding/persistentEntityReferences``
 		public func referencingEntity<SourceEntity,AttributeValue>(
 			for attribute: KeyPath<SourceEntity,AttributeValue?>
 		) -> SourceEntity.PRef?
@@ -635,6 +763,15 @@ extension SDAI {
 			//NOOP
 		}
 
+    /// Terminates all ongoing cache update tasks associated with derived attribute caching for this entity reference.
+    ///
+    /// This method cancels any background tasks that are currently updating the cache of derived attributes. It is typically called before major changes to the application domain, model state, or when invalidating cached derived attribute values is required. Once called, all in-progress cache update operations are signaled to terminate as soon as possible, ensuring that no outdated or partially computed cache entries remain.
+    ///
+    /// - Important: This function only cancels the ongoing cache update tasks and does not remove cached values. To fully reset the derived attribute cache—including clearing cached values and waiting for all tasks to complete—use ``resetCache()`` instead.
+    ///
+    /// - Concurrency: Safe to call from any concurrency domain; task cancellation is managed internally.
+    ///
+    /// - SeeAlso: ``resetCache()``, ``updateCache(derivedAttributeName:value:)``
     public func terminateCachingTask()
     {
       Task(name: "SDAI.DerivedAttributeCache_updateCanceller") {
@@ -642,6 +779,21 @@ extension SDAI {
       }
     }
 
+    /// Awaits completion of all ongoing cache update tasks for derived attributes in this entity reference.
+    ///
+    /// This asynchronous method suspends execution until every background task responsible for updating
+    /// the cache of derived attribute values has finished. It is useful for ensuring that all cache
+    /// updates have been fully performed before proceeding with dependent operations that require
+    /// up-to-date cached data.
+    ///
+    /// - Important: Use this method when you need to guarantee that all updates to derived attribute
+    ///   caches are complete, such as prior to reading cached values after an update or before invalidating
+    ///   caches in response to application domain changes.
+    ///
+    /// - Concurrency: This function is safe to call from any concurrency domain; it manages cache task
+    ///   coordination internally.
+    ///
+    /// - SeeAlso: ``terminateCachingTask()``, ``resetCache()``
     public func toCompleteCachingTask() async
     {
       await cacheUpdater.toCompleteCachingTasks()
@@ -785,6 +937,20 @@ extension SDAI {
 			Self.entityDefinition.parentSchema
 		}
 
+    /// Retrieves the cached value for a derived attribute of the entity reference, if available and valid for the current model approximation level.
+    ///
+    /// This method returns the cached value of a derived attribute, identified by its attribute name, if such a cached value exists and its computed approximation level is compatible with the current approximation level of the entity's schema definition. Caching is used to optimize repeated access to derived attributes whose computation may be expensive.
+    ///
+    /// - Parameter derivedAttributeName: The name (as an `AttributeName`) of the derived attribute whose cached value is being requested.
+    /// - Returns: An optional `CachedValue` containing the cached, type-erased result of the derived attribute, or `nil` if there is no valid cached value or if the cached value's level exceeds the current approximation level.
+    ///
+    /// The value is returned only if both of the following are true:
+    ///   - There is a cached value present for the given attribute name.
+    ///   - The cache's approximation level is less than or equal to the schema's current approximation level.
+    ///
+    /// - Important: To ensure cache consistency, this method should be used in conjunction with proper cache management routines, such as `updateCache(derivedAttributeName:value:)` and `resetCache()`.
+    ///
+    /// - SeeAlso: ``updateCache(derivedAttributeName:value:)``, ``resetCache()``, ``SDAI/EntityReference/CachedValue``
 		public func cachedValue(
 			derivedAttributeName: AttributeName
 		) -> CachedValue?
@@ -796,6 +962,23 @@ extension SDAI {
       return cached.value
     }
 		
+    /// Updates the cached value for a specified derived attribute of the entity reference.
+    ///
+    /// This method stores the given value, wrapped as a type-erased, `Sendable` container, in the internal derived attribute cache for the provided attribute name.
+    /// The cache update is performed only if the entity reference is eligible for caching (i.e., the associated schema definition is cacheable and the owning model is in read-only mode).
+    /// The cached value is associated with the current approximation level of the schema definition, ensuring that cache consistency is maintained with respect to the model's approximation state.
+    ///
+    /// If a cache entry for the given attribute already exists and has a cache level less than or equal to the current approximation level, the cache entry will not be updated to avoid unnecessary overwrites.
+    /// Otherwise, the new value is stored in the cache and will be available for subsequent retrieval via ``cachedValue(derivedAttributeName:)`` as long as the cache level remains compatible.
+    ///
+    /// This function is typically used in conjunction with derived attribute evaluation to store computed results for later reuse, optimizing repeated access and avoiding redundant computation.
+    ///
+    /// - Parameters:
+    ///   - derivedAttributeName: The name (as an `AttributeName`) of the derived attribute whose cached value is to be updated.
+    ///   - value: The new value for the derived attribute, as a type-erased instance conforming to `Sendable`. May be `nil` if the attribute value is not computed or is being invalidated.
+    ///
+    /// - Important: Caching occurs only if both the schema definition is cacheable and the entity's owning model is in read-only mode. No update occurs otherwise.
+    /// - SeeAlso: ``cachedValue(derivedAttributeName:)``, ``resetCache()``, ``SDAI/EntityReference/CachedValue``
 		public func updateCache(
 			derivedAttributeName: AttributeName,
 			value: (some Sendable)?
@@ -812,6 +995,20 @@ extension SDAI {
         currentLevel: cacheController.approximationLevel)
 		}
 		
+    /// Resets the derived attribute cache for this entity reference, clearing any stored cached values and canceling any pending cache update tasks.
+    ///
+    /// This asynchronous method ensures that all cached results of derived attribute computations are invalidated for the current entity reference.
+    /// It also terminates any ongoing background cache update operations and waits for their completion before fully clearing the cache state.
+    ///
+    /// - Important: This function is typically called when the application domain has changed, or when updates to the model require recomputation
+    ///   of derived attributes to maintain consistency. After calling this method, subsequent accesses to derived attributes will recompute and cache
+    ///   new values as needed.
+    ///
+    /// - Note: The operation affects only the current entity reference's cache and does not impact caches for other entities or references.
+    ///
+    /// - Concurrency: Safe to call from any concurrency domain; internal cache management is performed within an actor context.
+    ///
+    /// - SeeAlso: ``updateCache(derivedAttributeName:value:)``, ``cachedValue(derivedAttributeName:)``
 		public func resetCache() async
 		{
       await cacheUpdater.resetCaches()
@@ -858,12 +1055,30 @@ extension SDAI {
 		public static var bareTypeName: String { self.entityDefinition.name }
 		
 		//MARK: SDAI entity instance operations
+    /// Returns a list of all attributes for the referenced entity instance.
+    ///
+    /// The `allAttributes` property constructs and returns an `AttributeList` containing all attribute definitions
+    /// (including inherited and redefined attributes) for the entity instance referenced by this object. This enables
+    /// introspection and traversal of all EXPRESS attributes—both explicit and derived—declared in the entity's definition,
+    /// as well as those inherited from supertypes.
+    ///
+    /// - Returns: An `AttributeList` representing all attribute-value pairs for this entity instance, with values sourced from
+    ///   the current instance and attribute definitions sourced from the entity's schema metadata.
+    ///
+    /// - SeeAlso: ``SDAI/EntityReference/definition``, ``SDAI/EntityReference/AttributeList``
 		public var allAttributes: AttributeList {
       return AttributeList(
         entity: self,
         attributeDefs: self.definition.attributes.values)
 		}
 
+    /// Returns a list of all essential attributes for the referenced entity instance that yield entity references.
+    ///
+    /// The `allEntityYieldingEssentialAttributes` property constructs and returns an `AttributeList` containing only the entity attributes of the referenced entity that are classified as "essential" (i.e., non-derived, non-inverse, and not optional) and whose values yield entity references (conforming to `EntityReferenceYielding`). This allows for concise introspection and traversal of all EXPRESS attributes that are critical for entity relationships and graph traversal in the schema, while omitting non-essential or computed attributes.
+    ///
+    /// - Returns: An `AttributeList` representing all essential attributes (inheritable and direct) of this entity instance that yield entity references, with values obtained from the current instance and definitions sourced from the entity's schema metadata.
+    ///
+    /// - SeeAlso: ``SDAI/EntityReference/allAttributes``, ``SDAI/EntityReference/definition``, ``SDAIDictionarySchema.EntityDefinition/entityYieldingEssentialAttributes``
     public var allEntityYieldingEssentialAttributes: AttributeList {
       return AttributeList(
         entity: self,

@@ -13,7 +13,8 @@ import Synchronization
 extension SDAIPopulationSchema {
 	
 	//MARK: - SchemaInstance
-	/// ISO 10303-22 (8.4.1)
+	/// ISO 10303-22 (8.4.1) schema_instance
+  /// 
 	/// A SchemaInstance is a logical collection of SdaiModels.
 	///  
 	/// It is used as the domain for global rule validation, as domain over which references between entity instances in different SdaiModels are supported and as the domain for uniqueness validation.
@@ -23,7 +24,8 @@ extension SDAIPopulationSchema {
 	///  Associating SdaiModels with the SchemaInstance when the SdaiModel is based upon another schema shall also be supported provided the schema upon which the SdaiModel is based contains constructs declared as domain equivalent with constructs in the schema upon which the SchemaInstance is based.
 	///
 	/// Although a SchemaInstance exists in one repository, associating SdaiModels from any repository with the SchemaInstance shall be supported.
-	/// # Formal propositions:
+  ///
+	/// **Formal propositions:**  
 	/// UR1: The name shall be unique within the repository containing the schema instance.
 	///
 	public final class SchemaInstance: SDAI.Object, Sendable
@@ -120,6 +122,10 @@ extension SDAIPopulationSchema {
 		//MARK: swift language binding
 		public typealias SchemaInstanceID = UUID
 
+    /// A universally unique identifier (UUID) that distinguishes this `SchemaInstance` from all others.
+    /// 
+    /// The `schemaInstanceID` is generated when the `SchemaInstance` is created and remains constant for the lifetime of the instance.
+    /// This identifier can be used to reliably reference, compare, or track schema instances across different repositories or sessions.
 		public let schemaInstanceID: SchemaInstanceID
 
 		public var globalRuleValidationRecord: [GlobalRuleValidationResult]? {
@@ -235,6 +241,18 @@ extension SDAIPopulationSchema {
 			self.associatedModelIDs.withLock{ $0.remove(model.modelID); return }
 		}
 
+    /// All complex entity instances contained within all models associated with this schema instance.
+    ///
+    /// This property aggregates all `SDAI.ComplexEntity` objects from the contents of each associated `SdaiModel`
+    /// and presents them as a single collection. The value is dynamically computed and reflects the current set of
+    /// models associated with the schema instance.
+    ///
+    /// - Returns: A collection of all complex entity instances in all associated models of the schema instance.
+    ///
+    /// - Note: The returned collection is a view; changes to the underlying models will be reflected in the collection.
+    ///         Individual complex entities are not copied; references are returned.
+    ///
+    /// - SeeAlso: `associatedModels`
 		public var allComplexEntities: some Collection<SDAI.ComplexEntity> {
 			get {
 				return associatedModels.lazy
@@ -243,6 +261,17 @@ extension SDAIPopulationSchema {
 			}
 		}
 		
+    /// All application instances (entity instances) contained within all models associated with this schema instance.
+    ///
+    /// This property lazily aggregates all `SDAIParameterDataSchema.ApplicationInstance` objects from the contents of each associated `SdaiModel`,
+    /// and presents them as a single collection. The value is dynamically computed and reflects the current set of models associated with the schema instance.
+    ///
+    /// - Returns: A collection of all application (entity) instances in all associated models of the schema instance.
+    ///
+    /// - Note: The returned collection is a view, and changes in the underlying models are reflected in the collection. 
+    ///         However, individual application instances are not copied; references are returned.
+    ///
+    /// - SeeAlso: `associatedModels`
 		public var applicationInstances: some Collection<SDAIParameterDataSchema.ApplicationInstance> {
 			get {
 				return associatedModels.lazy
@@ -251,6 +280,17 @@ extension SDAIPopulationSchema {
 			}
 		}
 
+    /// Returns a sequence of application instances of a specified type across all associated models in the schema instance.
+    ///
+    /// This method searches through all models associated with the schema instance and collects all instances of the specified `ENT` type,
+    /// where `ENT` conforms to `SDAIParameterDataSchema.ApplicationInstance`. The returned sequence is lazy and dynamically reflects the current
+    /// set of associated models and their contents.
+    ///
+    /// - Parameter type: The specific application instance type to search for (typically an entity type).
+    /// - Returns: A sequence containing all instances of the specified type found in all associated models. The sequence reflects changes in the underlying models,
+    ///   and instances are not copied; references are returned.
+    /// - Note: This is a dynamic view over the associated models; adding or removing models, or instances within them, will affect the contents of the returned sequence.
+    /// - SeeAlso: `associatedModels`, `applicationInstances`
 		public func entityExtent<ENT>(
 			type: ENT.Type
 		) -> some Sequence<ENT>
@@ -265,12 +305,33 @@ extension SDAIPopulationSchema {
 
     //MARK: USEDIN cache related
 
+    /// Terminates all ongoing caching tasks across associated models.
+    ///
+    /// This method iterates through all models currently associated with the schema instance and instructs each one to terminate its caching task. 
+    /// It is typically used to halt background or long-running tasks related to entity reference caching, freeing up resources or handling 
+    /// cancellation scenarios (for example, when a validation session is interrupted or the schema instance is being torn down).
+    ///
+    /// - Note: This operation is synchronous and will call the termination logic on each associated `SdaiModel`. 
+    ///         The specific behavior depends on the implementation of `SdaiModel.terminateCachingTask()`.
+    ///
+    /// - SeeAlso: `toCompleteCachingTasks()`
     public func terminateCachingTasks() {
       for model in associatedModels {
         model.terminateCachingTask()
       }
     }
 
+    /// Suspends the current task until all caching tasks in associated models are completed.
+    ///
+    /// This asynchronous method iterates through all models associated with the schema instance and awaits the completion of their
+    /// caching tasks. It is designed to ensure that all background or long-running caching operations, typically related to entity
+    /// reference caching, are finished before proceeding. This can be useful when preparing for validation, teardown, or other operations
+    /// that require caching to be up to date or fully resolved.
+    ///
+    /// - Note: This method is asynchronous and should be called using `await`. The specific behavior and duration depend on the
+    ///   implementation of `SdaiModel.toCompleteCachingTask()`.
+    ///
+    /// - SeeAlso: `terminateCachingTasks()`
     public func toCompleteCachingTasks() async {
       for model in associatedModels {
         await model.toCompleteCachingTask()

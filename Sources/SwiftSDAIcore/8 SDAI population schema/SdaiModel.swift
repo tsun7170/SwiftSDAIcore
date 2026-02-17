@@ -12,9 +12,11 @@ import Synchronization
 extension SDAIPopulationSchema {
 	
 	//MARK: - SdaiModel
-	/// ISO 10303-22 (8.4.2)
+	/// ISO 10303-22 (8.4.2) sdai_model
+  /// 
 	/// An SdaiModel is a grouping mechanism consisting of a set of related entity instances based upon a SchemaDefinition.
-	/// # Formal propositions:
+  ///
+	/// **Formal propositions:**
   /// UR1: The name shall be unique within the repository containing the SdaiModel.
 	/// 
 	public actor SdaiModel: SDAI.Object, SDAI.CacheHolder, Sendable
@@ -133,6 +135,8 @@ extension SDAIPopulationSchema {
 		public typealias ComplexEntityID = P21Decode.EntityInstanceName
 		public typealias SDAIModelID = UUID
 
+    /// A unique identifier (UUID) for this SdaiModel instance.
+    /// This identifier is used to distinguish between different models within the system.
     nonisolated
 		public let modelID: SDAIModelID	// for this SdaiModel
 
@@ -182,6 +186,18 @@ extension SDAIPopulationSchema {
 		}
 		private let _uniqueName = Mutex<P21Decode.EntityInstanceName>(0)
 
+    /// The fallback model associated with the current `SdaiModel`, if available.
+    ///
+    /// This property attempts to retrieve a fallback model from the active session,
+    /// based on the underlying schema of the current model. A fallback model is used
+    /// as an alternative source of schema data if the current model does not provide
+    /// certain information. If there is no active session or no fallback model is found,
+    /// this property returns `nil`.
+    ///
+    /// - Returns: An optional `SdaiModel` that serves as a fallback, or `nil` if not available.
+    ///
+    /// - Note: Accessing this property when there is no active session will trigger
+    ///   an error message and return `nil`.
     nonisolated
 		public var fallBackModel: SdaiModel? {
 			guard let session = SDAISessionSchema.activeSession
@@ -239,6 +255,14 @@ extension SDAIPopulationSchema {
       cacheFillingTask = nil
     }
 
+    /// Cancels the current cache filling task, if one is running.
+    ///
+    /// This method initiates a cancellation of the ongoing cache filling task associated with the model.
+    /// The cancellation occurs asynchronously. If no cache filling task exists, this method has no effect.
+    ///
+    /// - Note: The cancellation process is performed using a detached `Task`, ensuring non-blocking behavior.
+    ///         This is typically used to stop background cache updates (such as those related to the USEDIN cache)
+    ///         when the application domain or access mode changes.
     nonisolated
     public func terminateCachingTask() {
       Task(name:"SDAI.USEDIN_cache_update_canceller") {
@@ -246,6 +270,16 @@ extension SDAIPopulationSchema {
       }
     }
 
+    /// Awaits the completion of the current cache filling task, if one is running.
+    ///
+    /// This asynchronous method suspends execution until the ongoing cache filling task associated
+    /// with the model has finished. If there is no cache filling task in progress, this method returns immediately.
+    ///
+    /// Use this to ensure that background cache update operations (such as those for the USEDIN cache)
+    /// have completed before proceeding with subsequent actions that may depend on a consistent or fully-updated model state.
+    ///
+    /// - Note: This method is intended for internal synchronization purposes and should be awaited when you need to
+    ///   guarantee that any in-progress cache population completes before further operations.
     public func toCompleteCachingTask() async {
       await cacheFillingTask?.value
     }
@@ -254,12 +288,14 @@ extension SDAIPopulationSchema {
 
 
 	//MARK: - SdaiModelContents
-	/// ISO-10303-22 (8.4.3)
-	/** - An SdaiModelContents contains the entity instances making up an SdaiModel. The entity instances are available in a single collection regardless of entity data type and grouped by entity data type into multiple collections.
-	*/
-	/**  Informal propositions:  
-	IP1: The set SdaiModelContents.instances contains the same entity instances as the union of the set of extents SdaiModelContents.populatedFolders contains.
-	*/
+	/// ISO-10303-22 (8.4.3) sdai_model_contents
+  ///
+  /// An SdaiModelContents contains the entity instances making up an SdaiModel. The entity instances are available in a single collection regardless of entity data type and grouped by entity data type into multiple collections.
+  ///
+  /// **Informal propositions:**
+  /// IP1: The set SdaiModelContents.instances contains the same entity instances as the union of the set of extents SdaiModelContents.populatedFolders contains.
+  ///
+  ///
 	public final class SdaiModelContents: SDAI.Object, /*SDAI.CacheHolder,*/ Sendable
 	{
 
@@ -313,6 +349,20 @@ extension SDAIPopulationSchema {
 			}
 		}
 
+    /// Returns an array of entity instances of the specified type contained within the `SdaiModelContents`.
+    ///
+    /// This method filters and converts the complex entities stored in the model contents to instances of the given
+    /// `ApplicationInstance` type. It returns all instances that correspond to the specified entity type.
+    ///
+    /// - Parameter type: The metatype of the `ApplicationInstance` subclass to retrieve.
+    /// - Returns: An array of instances of the specified type that are present in the model contents.
+    ///
+    /// Example usage:
+    /// ```
+    /// let instances: [MyEntityType] = model.contents.entityExtent(type: MyEntityType.self)
+    /// ```
+    ///
+    /// - Note: This method only includes instances that can be successfully converted to the specified type.
 		public func entityExtent<ENT:SDAIParameterDataSchema.ApplicationInstance>(
 			type: ENT.Type
 		) -> Array<ENT>
@@ -361,6 +411,16 @@ extension SDAIPopulationSchema {
       complexEntities3.withLock{ $0 = [:] }
     }
 
+    /// Returns a collection containing all `ComplexEntity` instances stored within the `SdaiModelContents`.
+    ///
+    /// This property aggregates complex entities from multiple internal storage "lanes" to provide a unified view
+    /// of all entities currently managed by the model contents. Each complex entity represents a group of related
+    /// entity instances as defined by the model's schema.
+    ///
+    /// - Returns: A collection of all `SDAI.ComplexEntity` objects present in the `SdaiModelContents`.
+    ///
+    /// - Note: The returned collection is a lazily joined sequence, reflecting the current state of the model contents.
+    ///         The order of entities in this collection is not guaranteed.
 		public var allComplexEntities: some Collection<SDAI.ComplexEntity> {
       let complex0 = complexEntities0.withLock{ $0.values }
       let complex1 = complexEntities1.withLock{ $0.values }
@@ -376,6 +436,16 @@ extension SDAIPopulationSchema {
 			Array(allComplexEntities).shuffled()
 		}
 
+    /// Retrieves a `ComplexEntity` from the model contents by its P21 instance name.
+    ///
+    /// This method looks up and returns the `SDAI.ComplexEntity` associated with the provided P21 instance name (`p21name`).
+    /// Internally, the entities are distributed across separate "lanes" based on a hash of the instance name for concurrent access.
+    ///
+    /// - Parameter p21name: The P21 instance name (`EntityInstanceName`) of the complex entity to retrieve.
+    /// - Returns: The `SDAI.ComplexEntity` matching the specified name, or `nil` if no such entity exists.
+    ///
+    /// - Note: If a session with an active transaction is present, the method also updates the transaction's internal complex cache
+    ///   to reflect the retrieval of the entity. This ensures that subsequent operations within the same transaction are consistent.
 		public func complexEntity(
 			named p21name: P21Decode.EntityInstanceName
 		) -> SDAI.ComplexEntity?
@@ -427,6 +497,18 @@ extension SDAIPopulationSchema {
 			return true
 		}
 
+    /// Removes the specified `ComplexEntity` from the model contents.
+    ///
+    /// This method attempts to remove the given complex entity instance from the internal storage of the `SdaiModelContents`.
+    /// Removal is only permitted if the owning model is in read-write mode and the complex entity's `owningModel` matches the
+    /// model that owns this contents object. If either of these conditions are not met, the removal fails and an appropriate
+    /// error is raised.
+    ///
+    /// - Parameter complex: The `SDAI.ComplexEntity` instance to remove from the model contents.
+    /// - Returns: `true` if the entity was successfully removed; `false` if removal was not permitted or preconditions were not met.
+    ///
+    /// - Note: Removal is prohibited if the model is not in read-write mode or if the `ComplexEntity` does not belong to this model.
+    ///   These checks help ensure model consistency and prevent invalid operations during read-only transactions.
 		public func remove(
 			complex: SDAI.ComplexEntity
 		) -> Bool
@@ -448,6 +530,18 @@ extension SDAIPopulationSchema {
 			return true
 		}
 
+    /// Removes all `ComplexEntity` instances from the model contents.
+    ///
+    /// This method clears all complex entities stored within the `SdaiModelContents`, effectively resetting the internal
+    /// storage and removing every entity group present in the model. It does not modify the entity extent definitions or folders,
+    /// but all entity instance associations are erased.
+    ///
+    /// - Note: This operation is typically used when resetting or reinitializing the model contents. It does not require
+    ///   the model to be in a particular access mode, but use with caution as all entity data within this contents object
+    ///   will be lost and cannot be recovered.
+    ///
+    /// - Important: Removing all entities may impact other caches or references dependent on the current model contents.
+    ///   Ensure that any required synchronization or invalidation is handled before or after this operation as needed.
 		public func removeAll()
 		{
       self.clearComplexEntities()
@@ -489,7 +583,8 @@ extension SDAIPopulationSchema {
 
 //MARK: - Entity Extent
 extension SDAIPopulationSchema {
-	/// ISO 10303-22 (8.4.4)
+	/// ISO 10303-22 (8.4.4) entity_extent
+  ///
 	/// An EntityExtent groups all instances of an entity data type that exist in an SdaiModel.
 	/// - This grouping includes instances of the specified EntityDefinition, instances of all subtypes of the EntityDefinition and instances of other EntityDefinitions resulting from the mapping of the EXPRESS AND and ANDOR constraints as described in annex A which contains the entity data type as a constituent.
 	///

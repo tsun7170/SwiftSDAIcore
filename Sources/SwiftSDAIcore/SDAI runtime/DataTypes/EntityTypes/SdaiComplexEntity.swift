@@ -803,6 +803,27 @@ extension SDAI {
 		@TaskLocal
 		internal static var excluding1:Array<ComplexEntity> = []
 
+    /// Computes the set of persistent entity references that refer to this complex entity instance within the specified application domain.
+    ///
+    /// This method identifies all complex entities in the provided collection of SDAI models (`domain`) that reference this complex entity
+    /// through essential schema-defined attributes. It traverses each model's complex entities, inspects their entity references, and
+    /// collects those whose essential attributes yield a persistent reference to this complex entity. The result is returned as an array
+    /// of ``GenericPersistentEntityReference`` instances, each representing a unique referring entity.
+    ///
+    /// - Parameter domain: A collection of ``SDAIPopulationSchema.SdaiModel`` instances that define the application domain to search for usage relationships.
+    ///                    The collection must conform to both `Collection` and `Sendable` for thread and concurrency safety.
+    /// - Returns: An array of ``GenericPersistentEntityReference`` objects, each representing an entity in the domain that refers to this complex entity.
+    ///            The result excludes reference cycles and avoids duplication.
+    ///
+    /// - Note: This function is suitable for use in query evaluation, schema analysis, and reporting scenarios that require tracing all entities
+    ///         that use or reference this complex entity within the given domain. The operation is concurrency-safe and respects task cancellation.
+    ///
+    /// - Important: To avoid infinite recursion or redundant computation, the implementation uses a thread-local exclusion stack to track visitation.
+    ///   Caching mechanisms are employed to improve performance for repeated queries, and cache warming may be triggered automatically during execution.
+    ///
+    /// - SeeAlso: ``SDAI/ComplexEntity/roles(domain:)`` for discovering associated attribute roles.
+    /// - SeeAlso: ``SDAI/ComplexEntity/usedIn(as:domain:)`` for querying usage by a specific role or attribute.
+    /// - SeeAlso: SDAI specification for "used-in" queries and application domain analysis.
 		public func usedIn(
       domain: some Collection<SDAIPopulationSchema.SdaiModel> & Sendable
     ) -> Array<GenericPersistentEntityReference>
@@ -912,6 +933,21 @@ extension SDAI {
       return Array(extent)
     }
 
+    /// Returns the set of persistent references to entities of the specified type (`ENT`) that refer to this complex entity instance via a given role (attribute), within the provided application domain.
+    ///
+    /// This method locates all entities of type `ENT` in the supplied `domain` (a collection of SDAI models), where the value of the specified attribute (`role`, given as a `KeyPath`) yields a persistent reference to this complex entity. The search respects the EXPRESS schema's attribute relationships and supports both single-valued and multi-valued attributes that can yield entity references.
+    ///
+    /// - Parameters:
+    ///   - role: A `KeyPath` specifying the attribute on type `ENT` that is expected to yield references to other entities. Must resolve to a property conforming to `SDAI.GenericType`.
+    ///   - domain: A collection of ``SDAIPopulationSchema.SdaiModel`` instances representing the application domain to search, conforming to both `Collection` and `Sendable` for concurrency safety.
+    /// - Returns: An array of persistent references (`ENT.PRef`) to entities of type `ENT` in the domain that reference this complex entity through the given role.
+    ///
+    /// - Note: This function is particularly useful for schema navigation, query evaluation, or reporting tasks where the relationships established by specific attributes (roles) are of interest.
+    ///
+    /// - Important: Only entities for which the given attribute yields a persistent reference equal to this complex entity are included in the result. The comparison is based on persistent identity, not in-memory instance equality.
+    ///
+    /// - SeeAlso: ``SDAI/ComplexEntity/usedIn(domain:)`` for a broader query not limited to a specific role or entity type.
+    /// - SeeAlso: EXPRESS "USEDIN" queries for details on role-based reference analysis.
 		public func usedIn<ENT, R>(
       as role: KeyPath<ENT,R>,
       domain: some Collection<SDAIPopulationSchema.SdaiModel> & Sendable
@@ -951,6 +987,21 @@ extension SDAI {
     }
 
 
+    /// Returns the set of persistent references to entities of the specified type (`ENT`) that refer to this complex entity instance via a given role (attribute), within the provided application domain.
+    ///
+    /// This method locates all entities of type `ENT` in the supplied `domain` (a collection of SDAI models), where the value of the specified attribute (`role`, given as a `KeyPath`) yields a persistent reference to this complex entity. The search respects the EXPRESS schema's attribute relationships and supports both single-valued and multi-valued attributes that can yield entity references.
+    ///
+    /// - Parameters:
+    ///   - role: A `KeyPath` specifying the attribute on type `ENT` that is expected to yield references to other entities. Must resolve to a property conforming to `SDAI.GenericType`.
+    ///   - domain: A collection of ``SDAIPopulationSchema.SdaiModel`` instances representing the application domain to search, conforming to both `Collection` and `Sendable` for concurrency safety.
+    /// - Returns: An array of persistent references (`ENT.PRef`) to entities of type `ENT` in the domain that reference this complex entity through the given role.
+    ///
+    /// - Note: This function is particularly useful for schema navigation, query evaluation, or reporting tasks where the relationships established by specific attributes (roles) are of interest.
+    ///
+    /// - Important: Only entities for which the given attribute yields a persistent reference equal to this complex entity are included in the result. The comparison is based on persistent identity, not in-memory instance equality.
+    ///
+    /// - SeeAlso: ``SDAI/ComplexEntity/usedIn(domain:)`` for a broader query not limited to a specific role or entity type.
+    /// - SeeAlso: EXPRESS "USEDIN" queries for details on role-based reference analysis.
 		public func usedIn<ENT, R>(
       as role: KeyPath<ENT,R?>,
       domain: some Collection<SDAIPopulationSchema.SdaiModel> & Sendable
@@ -990,6 +1041,21 @@ extension SDAI {
     }
 
 
+    /// Returns the set of persistent references to entities of the specified type (`ENT`) that refer to this complex entity instance via a given role (attribute), within the provided application domain.
+    ///
+    /// This method locates all entities of type `ENT` in the supplied `domain` (a collection of SDAI models), where the value of the specified attribute (`role`, given as a `KeyPath`) yields a persistent reference to this complex entity. The search respects the EXPRESS schema's attribute relationships and supports both single-valued and multi-valued attributes that can yield entity references.
+    ///
+    /// - Parameters:
+    ///   - role: A `KeyPath` specifying the attribute on type `ENT` that is expected to yield references to other entities. Must resolve to a property conforming to `SDAI.GenericType`.
+    ///   - domain: A collection of ``SDAIPopulationSchema.SdaiModel`` instances representing the application domain to search, conforming to both `Collection` and `Sendable` for concurrency safety.
+    /// - Returns: An array of persistent references (`ENT.PRef`) to entities of type `ENT` in the domain that reference this complex entity through the given role.
+    ///
+    /// - Note: This function is particularly useful for schema navigation, query evaluation, or reporting tasks where the relationships established by specific attributes (roles) are of interest.
+    ///
+    /// - Important: Only entities for which the given attribute yields a persistent reference equal to this complex entity are included in the result. The comparison is based on persistent identity, not in-memory instance equality.
+    ///
+    /// - SeeAlso: ``SDAI/ComplexEntity/usedIn(domain:)`` for a broader query not limited to a specific role or entity type.
+    /// - SeeAlso: EXPRESS "USEDIN" queries for details on role-based reference analysis.
 		public func usedIn(
       as role:String,
       domain: some Collection<SDAIPopulationSchema.SdaiModel> & Sendable
@@ -1039,6 +1105,17 @@ extension SDAI {
 
 
 		//MARK: typeMembers
+    /// A set containing the EXPRESS type member names for all constituent partial entities of this complex entity.
+    ///
+    /// This property aggregates the `typeMembers` from each participating `PartialEntity` instance within the complex entity,
+    /// producing a unified set of unique EXPRESS type member names (`SDAI.STRING`). The resulting set reflects all types
+    /// that make up the complex entity's structure as defined by its constituent partial entities, including inherited
+    /// and composed types according to the EXPRESS schema.
+    ///
+    /// - Returns: A `Set<SDAI.STRING>` with the EXPRESS type member names for all partial entities in this complex entity.
+    /// - Note: Type members are used for schema navigation, type checking, and reporting of supported types in the entity composition.
+    /// - SeeAlso: ``SDAI/PartialEntity/typeMembers`` for the type members associated with a single partial entity.
+    /// - SeeAlso: SDAI specification for entity type membership and type conformance.
 		public var typeMembers: Set<SDAI.STRING> {
 			Set( _partialEntities.values
 						.lazy
@@ -1048,6 +1125,19 @@ extension SDAI {
 
 		//MARK: value related
 		public typealias Value = _ComplexEntityValue
+    /// A computed property that returns the value representation of this complex entity as a ``SDAI/_ComplexEntityValue``.
+    ///
+    /// This property encapsulates the current state of the complex entity, including all of its constituent partial entities,
+    /// in a value type suitable for use in value-based comparisons, hashing, or as part of value-based collections.
+    /// The returned value mirrors the structure and attribute values of the complex entity instance at the time of access.
+    ///
+    /// - Returns: An instance of ``SDAI/_ComplexEntityValue`` representing the value semantics of this complex entity.
+    ///
+    /// - Note: The `value` property is commonly used for equality checks, hash generation, or for transferring the entity's
+    ///   state in scenarios where value semantics are required, such as testing or serialization.
+    ///
+    /// - SeeAlso: ``SDAI/ComplexEntity/Value`` for the value type definition.
+    /// - SeeAlso: ``SDAI/ComplexEntity/isValueEqual(to:visited:)`` for value-based comparison logic.
 		public var value: Value { _ComplexEntityValue(self) }
 
 		func hashAsValue(into hasher: inout Hasher, visited complexEntities: inout Set<ComplexEntity>) {
@@ -1098,6 +1188,32 @@ extension SDAI {
 		}
 		
 		//MARK: where rule validation support
+    /// Validates all entity-level WHERE rules for this complex entity instance and its constituent partial entities.
+    ///
+    /// This method traverses each partial entity contained within the complex entity, constructs the appropriate entity reference,
+    /// and invokes its schema-defined WHERE rule validation logic. Validation results are aggregated into a dictionary keyed by
+    /// composed WHERE rule labels. The method supports configurable recording options to control whether all results or only failures
+    /// are included.
+    ///
+    /// - Parameters:
+    ///   - prefix: A `SDAIPopulationSchema.WhereLabel` used as the base prefix for composing hierarchical WHERE rule labels. This is
+    ///             prepended to each individual rule’s label to create a unique, context-aware label string.
+    ///   - recording: Controls the validation recording mode. If `.recordFailureOnly`, only failing WHERE rules are included in the result;
+    ///                if `.recordAll`, both successes and failures are recorded. Use this to reduce result size or focus on errors.
+    ///
+    /// - Returns: A dictionary mapping composed WHERE rule labels (as `SDAIPopulationSchema.WhereLabel`) to their validation results
+    ///            (as `SDAI.LOGICAL`). Each entry represents the outcome of a single WHERE rule for a specific participating entity reference.
+    ///            Only entries matching the selected recording mode are included.
+    ///
+    /// - Note: WHERE rules are invariants specified in EXPRESS schemas to enforce constraints and relationships on entity data. This
+    ///         method evaluates all such rules for the current entity composition, recursively aggregating their results.
+    ///
+    /// - Important: This function is primarily intended for use by the SDAI framework and for advanced validation workflows. Ordinary SDAI API
+    ///              users typically rely on higher-level validation utilities rather than calling this method directly.
+    ///
+    /// - SeeAlso: ``SDAI/ComplexEntity/partialEntities`` for access to constituent partial entities.
+    /// - SeeAlso: ``SDAI/EntityReference/validateWhereRules(instance:prefix:)`` for per-entity WHERE rule validation.
+    /// - SeeAlso: EXPRESS specification for WHERE rule semantics and error handling.
     public func validateEntityWhereRules(
       prefix: SDAIPopulationSchema.WhereLabel,
       recording: SDAIPopulationSchema.ValidationRecordingOption
