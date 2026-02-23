@@ -480,11 +480,36 @@ extension SDAI {
 	/// - Returns: The contents of the returned set of string values are the names (in upper case) of all types that the value V is a member of. Such names are qualified by the name of the schema that contains the definition of the type (’SCHEMA.TYPE’) if it is neither a simple data type nor an aggregation data type.
 	/// 	- If V evaluates to indeterminate (?), typeof returns an empty set.
   ///
-	public static func TYPEOF<Generic: SDAI.GenericType>(_ V: Generic?) -> SET<STRING> {
+	public static func TYPEOF<Generic: SDAI.GenericType>(_ V: Generic?) -> SET<STRING>
+  {
 		guard let v = V else { return SET<STRING>() }
     let typeMembers = v.typeMembers
 		return SET<STRING>(from: typeMembers )
 	}
+
+  /// ISO 10303-11 (15.25) TypeOf - general function
+  ///
+  /// The TYPEOF function returns a set of strings that contains the names of all the data types that the parameter is a member of. 
+  /// For simple data types (BINARY, BOOLEAN, INTEGER, LOGICAL, NUMBER, REAL, and STRING) and aggregation data types (ARRAY, BAG, LIST, and SET), the type names are unqualified. 
+  /// For all other types, the names are qualified by the schema name (as 'SCHEMA.TYPE').
+  ///
+  /// - Parameter complex: `complex` is a complex entity value (or nil).
+  ///
+  /// - Returns: 
+  ///     A set of string values (in upper case) containing the names of all types that the value is a member of.  
+  ///     If `complex` is nil (indeterminate), an empty set is returned.
+  ///
+  /// - Note: 
+  ///     This function is primarily used to check type membership for purposes such as assignment compatibility or when handling subtypes/specializations differently.
+  ///
+  /// - SeeAlso: ISO 10303-11: 15.25 TYPEOF
+  public static func TYPEOF(_ complex: SDAI.ComplexEntity?) -> SET<STRING>
+  {
+    guard let complex else { return SET<STRING>() }
+    let typeMembers = complex.typeMembers
+    return SET<STRING>(from: typeMembers )
+  }
+
 	/// swift language binding - TypeOf function combined with the subsequent query expression checking for one type matching
 	/// - Parameters:
 	///   - V: V is a value of any type.

@@ -86,8 +86,9 @@ extension SDAI {
   /// - Note: This protocol bridges EXPRESS `STRING` and Swift's native `String` functionality,
   ///   preserving EXPRESS semantics where appropriate.
   ///
-  public protocol StringType: SDAI.SimpleType, SDAI.SwiftStringConvertible,
-                                  ExpressibleByStringLiteral, SDAI.Initializable.ByVoid
+  public protocol StringType:
+    SDAI.StringTypeBehavior, SDAI.SimpleType, SDAI.SwiftStringConvertible,
+    ExpressibleByStringLiteral, SDAI.Initializable.ByVoid
   where StringLiteralType == String
   {
     /// The number of characters contained in the string value.
@@ -119,6 +120,10 @@ extension SDAI {
     /// - Note: The range is 1-based (not 0-based like typical Swift strings). If the specified range is out of bounds or `nil`, this subscript returns `nil`.
     subscript(range: ClosedRange<Int>?) -> SDAI.STRING? {get}
 
+    var asSwiftString: String {get}
+  }
+
+  public protocol StringTypeBehavior {
     /// Evaluates whether the receiver matches the given pattern string, using the EXPRESS 'LIKE' operator semantics (ISO 10303-11:12.2.5).
     ///
     /// - Parameter substring: The pattern string to match against, or `nil`.
@@ -141,7 +146,9 @@ extension SDAI {
     ///   If the receiver does not match, the result is `SDAI.FALSE`.
     ///
     ///   The pattern is applied from left to right. Matching is case-sensitive unless pattern symbols dictate otherwise.
-    func ISLIKE<T:SDAI.StringType>(PATTERN substring: T? ) -> SDAI.LOGICAL	// Express 'LIKE' operator translation
+    func ISLIKE<T:SDAI.StringType>(PATTERN substring: T? ) -> SDAI.LOGICAL  // Express 'LIKE' operator translation
+
+    func ISLIKE<S:SDAI.SelectType>(PATTERN substring: S? ) -> SDAI.LOGICAL  // Express 'LIKE' operator translation
 
     /// Evaluates whether the receiver matches the given pattern string, using the EXPRESS 'LIKE' operator semantics (ISO 10303-11:12.2.5).
     ///
@@ -165,19 +172,14 @@ extension SDAI {
     ///   If the receiver does not match, the result is `SDAI.FALSE`.
     ///
     ///   The pattern is applied from left to right. Matching is case-sensitive unless pattern symbols dictate otherwise.
-    func ISLIKE(PATTERN substring: String? ) -> SDAI.LOGICAL	// Express 'LIKE' operator translation
-    var asSwiftString: String {get}
+    func ISLIKE(PATTERN substring: String? ) -> SDAI.LOGICAL  // Express 'LIKE' operator translation
   }
-}
+}//SDAI
 
 public extension SDAI.StringType
 {
 	subscript<I: SDAI.TypeHierarchy.INTEGER__TypeBehavior>(index: I?) -> SDAI.STRING? {
 		return self[index?.asSwiftType]
-	}
-
-	func ISLIKE<T:SDAI.StringType>(PATTERN substring: T? ) -> SDAI.LOGICAL{
-		return self.ISLIKE(PATTERN: substring?.asSwiftString)
 	}
 }
 public extension SDAI.StringType where SwiftType == String
@@ -186,6 +188,18 @@ public extension SDAI.StringType where SwiftType == String
 	var possiblyAsSwiftString: String? { return self.asSwiftType }
 }
 
+public extension SDAI.StringTypeBehavior
+{
+  func ISLIKE<T:SDAI.StringType>(PATTERN substring: T? ) -> SDAI.LOGICAL
+  {
+    return self.ISLIKE(PATTERN: substring?.asSwiftString)
+  }
+
+  func ISLIKE<S:SDAI.SelectType>(PATTERN substring: S? ) -> SDAI.LOGICAL
+  {
+    return self.ISLIKE(PATTERN: substring?.asSwiftString)
+  }
+}
 
 extension SDAI.TypeHierarchy {
   /**

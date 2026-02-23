@@ -43,7 +43,8 @@ extension SDAI {
     SDAI.Initializable.ByDefinedType, SDAI.Initializable.ByComplexEntity,
     SDAI.SwiftDoubleConvertible, SDAI.SwiftIntConvertible, SDAI.SwiftStringConvertible, SDAI.SwiftBoolConvertible,
     SDAI.EntityReferenceYielding,
-    SDAI.AggregationBehavior
+    SDAI.AggregationBehavior,
+    SDAI.StringTypeBehavior
   where Value == FundamentalType,
         FundamentalType: SDAI.SelectType
   {}
@@ -98,7 +99,12 @@ public extension SDAI.SelectType
 		guard let complex = self.entityReference?.complexEntity else { return nil }
 		return complex.partialComplexEntity(entity_ref)?.pRef
 	}
-	
+
+  //MARK: SDAI.StringTypeBehavior
+  func ISLIKE(PATTERN substring: String?) -> SDAI.LOGICAL {
+    guard let stringValue = self.stringValue else { return SDAI.UNKNOWN }
+    return stringValue.ISLIKE(PATTERN: substring)
+  }
 }
 
 public extension SDAI.DefinedType where Self: SDAI.SelectType {

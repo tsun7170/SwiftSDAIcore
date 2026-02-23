@@ -61,12 +61,16 @@ extension SDAI {
     
     /// initialize persistent entity reference from a optional entity reference
     /// - Parameter entityRef: optional entity reference
-		public init(_ entityRef: EREF?) {
+		public init(
+      _ entityRef: EREF?)
+    {
       let complexRef = ComplexEntityReference(entityRef)
       super.init(complexRef)
 		}
 
-    public override init(_ complexReference: ComplexEntityReference) {
+    public override init(
+      _ complexReference: ComplexEntityReference)
+    {
       super.init(complexReference)
     }
 
@@ -94,7 +98,8 @@ extension SDAI {
       self.init(complex)
     }
 
-    public convenience init?(possiblyFrom entityRef: SDAI.EntityReference?)
+    public convenience init?(
+      possiblyFrom entityRef: SDAI.EntityReference?)
     {
       self.init(entityRef?.complexEntity)
     }

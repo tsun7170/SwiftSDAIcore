@@ -159,28 +159,29 @@ where ELEMENT: SDAI.Initializable.ByComplexEntity {
 		return self.prependWith(lhs: lhs)
 	}
 }
-public extension SDAI.TypeHierarchy.LIST__TypeBehavior 
-where ELEMENT: SDAI.EntityReference {
-	func appendWith<U: SDAI.SelectType>(rhs: U) -> SDAI.LIST<ELEMENT>? {
-		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
-		return self.appendWith(rhs: rhs)
-	}
-	func prependWith<T: SDAI.SelectType>(lhs: T) -> SDAI.LIST<ELEMENT>? {
-		guard let lhs = ELEMENT(possiblyFrom: lhs) else { return nil }
-		return self.prependWith(lhs: lhs)
-	}
-}
-public extension SDAI.TypeHierarchy.LIST__TypeBehavior 
-where ELEMENT: SDAI.PersistentReference {
-	func appendWith<U: SDAI.SelectType>(rhs: U) -> SDAI.LIST<ELEMENT>? {
-		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
-		return self.appendWith(rhs: rhs)
-	}
-	func prependWith<T: SDAI.SelectType>(lhs: T) -> SDAI.LIST<ELEMENT>? {
-		guard let lhs = ELEMENT(possiblyFrom: lhs) else { return nil }
-		return self.prependWith(lhs: lhs)
-	}
-}
+
+//public extension SDAI.TypeHierarchy.LIST__TypeBehavior
+//where ELEMENT: SDAI.EntityReference {
+//	func appendWith<U: SDAI.SelectType>(rhs: U) -> SDAI.LIST<ELEMENT>? {
+//		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
+//		return self.appendWith(rhs: rhs)
+//	}
+//	func prependWith<T: SDAI.SelectType>(lhs: T) -> SDAI.LIST<ELEMENT>? {
+//		guard let lhs = ELEMENT(possiblyFrom: lhs) else { return nil }
+//		return self.prependWith(lhs: lhs)
+//	}
+//}
+//public extension SDAI.TypeHierarchy.LIST__TypeBehavior 
+//where ELEMENT: SDAI.PersistentReference {
+//	func appendWith<U: SDAI.SelectType>(rhs: U) -> SDAI.LIST<ELEMENT>? {
+//		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
+//		return self.appendWith(rhs: rhs)
+//	}
+//	func prependWith<T: SDAI.SelectType>(lhs: T) -> SDAI.LIST<ELEMENT>? {
+//		guard let lhs = ELEMENT(possiblyFrom: lhs) else { return nil }
+//		return self.prependWith(lhs: lhs)
+//	}
+//}
 
 
 //MARK: - SDAI.LIST

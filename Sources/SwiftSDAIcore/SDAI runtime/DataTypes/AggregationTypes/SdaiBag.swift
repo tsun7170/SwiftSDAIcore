@@ -192,28 +192,29 @@ where ELEMENT: SDAI.Initializable.ByComplexEntity {
 		return self.differenceWith(rhs: rhs)
 	}
 }
-public extension SDAI.TypeHierarchy.BAG__TypeBehavior
-where ELEMENT: SDAI.EntityReference {
-	func unionWith<U: SDAI.SelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
-		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
-		return self.unionWith(rhs: rhs)
-	}
-	func differenceWith<U: SDAI.SelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
-		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
-		return self.differenceWith(rhs: rhs)
-	}
-}
-public extension SDAI.TypeHierarchy.BAG__TypeBehavior
-where ELEMENT: SDAI.PersistentReference {
-	func unionWith<U: SDAI.SelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
-		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
-		return self.unionWith(rhs: rhs)
-	}
-	func differenceWith<U: SDAI.SelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
-		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
-		return self.differenceWith(rhs: rhs)
-	}
-}
+
+//public extension SDAI.TypeHierarchy.BAG__TypeBehavior
+//where ELEMENT: SDAI.EntityReference {
+//	func unionWith<U: SDAI.SelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
+//		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
+//		return self.unionWith(rhs: rhs)
+//	}
+//	func differenceWith<U: SDAI.SelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
+//		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
+//		return self.differenceWith(rhs: rhs)
+//	}
+//}
+//public extension SDAI.TypeHierarchy.BAG__TypeBehavior
+//where ELEMENT: SDAI.PersistentReference {
+//	func unionWith<U: SDAI.SelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
+//		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
+//		return self.unionWith(rhs: rhs)
+//	}
+//	func differenceWith<U: SDAI.SelectType>(rhs: U) -> SDAI.BAG<ELEMENT>? {
+//		guard let rhs = ELEMENT(possiblyFrom: rhs) else { return nil }
+//		return self.differenceWith(rhs: rhs)
+//	}
+//}
 
 
 //MARK: - SDAI.BAG

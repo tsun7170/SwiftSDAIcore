@@ -153,7 +153,42 @@ where T7.ELEMENT.FundamentalType == U7.ELEMENT.FundamentalType
 	return rhs.intersectionWith(rhs: lhs)
 }
 
+//MARK: Bag * Select = Bag
+public func * <T1: SDAI.TypeHierarchy.BAG__TypeBehavior, US: SDAI.SelectType>(
+  lhs: T1?, rhs: US?) -> SDAI.BAG<T1.ELEMENT>?
+{
+  if let rhs = rhs?.bagValue(elementType: T1.ELEMENT.self) {
+    return lhs * rhs
+  }
+  return nil
+}
 
+//MARK: Select * Bag = Bag
+public func * <TS: SDAI.SelectType, U1: SDAI.TypeHierarchy.BAG__TypeBehavior>(
+  lhs: TS?, rhs: U1?) -> SDAI.BAG<U1.ELEMENT>?
+{
+  return rhs * lhs
+}
+
+//MARK: Set * Select = Set
+public func * <T3: SDAI.TypeHierarchy.SET__TypeBehavior, US: SDAI.SelectType>(
+  lhs: T3?, rhs: US?) -> SDAI.SET<T3.ELEMENT>?
+{
+  if let rhs = rhs?.setValue(elementType: T3.ELEMENT.self) {
+    return lhs * rhs
+  }
+  if let rhs = rhs?.bagValue(elementType: T3.ELEMENT.self) {
+    return lhs * rhs
+  }
+  return nil
+}
+
+//MARK: Select * Set = Set
+public func * <TS: SDAI.SelectType, U2: SDAI.TypeHierarchy.SET__TypeBehavior>(
+  lhs: TS?, rhs: U2?) -> SDAI.SET<U2.ELEMENT>?
+{
+  rhs * lhs
+}
 
 //MARK: - Union operator (12.6.3)
 
@@ -180,14 +215,28 @@ where T2.ELEMENT.FundamentalType == U2.ELEMENT.FundamentalType
 }
 
 //MARK: Bag + Element = Bag
-/// Aggregate Union: BAG\<Fundamental\> + Fundamental = BAG
+/// Aggregate Union: BAG + SDAI.GenericType = BAG
 ///
 public func + <T3: SDAI.TypeHierarchy.BAG__TypeBehavior, U3: SDAI.GenericType>(
 	lhs: T3?, rhs: U3?) -> SDAI.BAG<T3.ELEMENT>?
-where T3.ELEMENT.FundamentalType == U3.FundamentalType
+//where T3.ELEMENT.FundamentalType == U3.FundamentalType
 {
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.unionWith(rhs: rhs)
+  if let rhs = rhs?.bagValue(elementType: T3.ELEMENT.self) {
+    return lhs + rhs
+  }
+  if let rhs = rhs?.setValue(elementType: T3.ELEMENT.self) {
+    return lhs + rhs
+  }
+  if let rhs = rhs?.listValue(elementType: T3.ELEMENT.self) {
+    return lhs + rhs
+  }
+  if let rhs = T3.ELEMENT(fromGeneric: rhs) {
+    return lhs?.unionWith(rhs: rhs)
+  }
+  return nil
+
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return lhs.unionWith(rhs: rhs)
 }
 
 /// Aggregate Union: BAG\<Generic\> + GENERIC = Bag
@@ -242,25 +291,39 @@ where T8.ELEMENT: SDAI.Initializable.ByComplexEntity
 	return lhs.unionWith(rhs: rhs)
 }
 
-/// Aggregate Union: BAG\<Entity\> + Select = BAG
-///
-public func + <T9: SDAI.TypeHierarchy.BAG__TypeBehavior, U9: SDAI.SelectType>(
-	lhs: T9?, rhs: U9?) -> SDAI.BAG<T9.ELEMENT>?
-where T9.ELEMENT: SDAI.EntityReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.unionWith(rhs: rhs)
-}
+///// Aggregate Union: BAG + Select = BAG
+/////
+//public func + <T9: SDAI.TypeHierarchy.BAG__TypeBehavior, U9: SDAI.SelectType>(
+//	lhs: T9?, rhs: U9?) -> SDAI.BAG<T9.ELEMENT>?
+////where T9.ELEMENT: SDAI.EntityReference
+//{
+//  if let rhs = rhs?.bagValue(elementType: T9.ELEMENT.self) {
+//    return lhs + rhs
+//  }
+//  if let rhs = rhs?.setValue(elementType: T9.ELEMENT.self) {
+//    return lhs + rhs
+//  }
+//  if let rhs = rhs?.listValue(elementType: T9.ELEMENT.self) {
+//    return lhs + rhs
+//  }
+//  if let rhs = T9.ELEMENT(rhs) {
+//    return lhs + rhs
+//  }
+//  return nil
+//
+////	guard let lhs = lhs, let rhs = rhs else { return nil }
+////	return lhs.unionWith(rhs: rhs)
+//}
 
-/// Aggregate Union: BAG\<PRef\> + Select = BAG
-///
-public func + <T10: SDAI.TypeHierarchy.BAG__TypeBehavior, U10: SDAI.SelectType>(
-	lhs: T10?, rhs: U10?) -> SDAI.BAG<T10.ELEMENT>?
-where T10.ELEMENT: SDAI.PersistentReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.unionWith(rhs: rhs)
-}
+///// Aggregate Union: BAG\<PRef\> + Select = BAG
+/////
+//public func + <T10: SDAI.TypeHierarchy.BAG__TypeBehavior, U10: SDAI.SelectType>(
+//	lhs: T10?, rhs: U10?) -> SDAI.BAG<T10.ELEMENT>?
+//where T10.ELEMENT: SDAI.PersistentReference
+//{
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return lhs.unionWith(rhs: rhs)
+//}
 
 //MARK: Element + Bag = Bag
 /// Aggregate Union: Fundamental + BAG\<Fundamental\> = BAG
@@ -325,25 +388,25 @@ where U16.ELEMENT: SDAI.Initializable.ByComplexEntity
 	return rhs.unionWith(rhs: lhs)
 }
 
-/// Aggregate Union: Select + BAG\<Entity\> = BAG
-///
-public func + <T17: SDAI.SelectType, U17: SDAI.TypeHierarchy.BAG__TypeBehavior>(
-	lhs: T17?, rhs: U17?) -> SDAI.BAG<U17.ELEMENT>?
-where U17.ELEMENT: SDAI.EntityReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return rhs.unionWith(rhs: lhs)
-}
-
-/// Aggregate Union: Select + BAG\<PRef\> = BAG
-///
-public func + <T18: SDAI.SelectType, U18: SDAI.TypeHierarchy.BAG__TypeBehavior>(
-	lhs: T18?, rhs: U18?) -> SDAI.BAG<U18.ELEMENT>?
-where U18.ELEMENT: SDAI.PersistentReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return rhs.unionWith(rhs: lhs)
-}
+///// Aggregate Union: Select + BAG\<Entity\> = BAG
+/////
+//public func + <T17: SDAI.SelectType, U17: SDAI.TypeHierarchy.BAG__TypeBehavior>(
+//	lhs: T17?, rhs: U17?) -> SDAI.BAG<U17.ELEMENT>?
+//where U17.ELEMENT: SDAI.EntityReference
+//{
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return rhs.unionWith(rhs: lhs)
+//}
+//
+///// Aggregate Union: Select + BAG\<PRef\> = BAG
+/////
+//public func + <T18: SDAI.SelectType, U18: SDAI.TypeHierarchy.BAG__TypeBehavior>(
+//	lhs: T18?, rhs: U18?) -> SDAI.BAG<U18.ELEMENT>?
+//where U18.ELEMENT: SDAI.PersistentReference
+//{
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return rhs.unionWith(rhs: lhs)
+//}
 
 //MARK:  Set + Set/Bag = Set
 /// Aggregate Union: Set + Set/Bag = SET
@@ -371,14 +434,28 @@ where T20.ELEMENT.FundamentalType == U20.ELEMENT.FundamentalType
 
 //MARK: Set + Element = Set
 
-/// Aggregate Union: SET\<Fundamental\> + Fundamental = SET
+/// Aggregate Union: SET + SDAI.GenericType = SET
 ///
 public func + <T21: SDAI.TypeHierarchy.SET__TypeBehavior, U21: SDAI.GenericType>(
 	lhs: T21?, rhs: U21?) -> SDAI.SET<T21.ELEMENT>?
-where T21.ELEMENT.FundamentalType == U21.FundamentalType
+//where T21.ELEMENT.FundamentalType == U21.FundamentalType
 {
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.unionWith(rhs: rhs)
+  if let rhs = rhs?.bagValue(elementType: T21.ELEMENT.self) {
+    return lhs + rhs
+  }
+  if let rhs = rhs?.setValue(elementType: T21.ELEMENT.self) {
+    return lhs + rhs
+  }
+  if let rhs = rhs?.listValue(elementType: T21.ELEMENT.self) {
+    return lhs + rhs
+  }
+  if let rhs = T21.ELEMENT(fromGeneric: rhs) {
+    return lhs?.unionWith(rhs: rhs)
+  }
+  return nil
+
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return lhs.unionWith(rhs: rhs)
 }
 
 /// Aggregate Union: SET\<Generic\> + GENERIC = SET
@@ -433,25 +510,39 @@ where T26.ELEMENT: SDAI.Initializable.ByComplexEntity
 	return lhs.unionWith(rhs: rhs)
 }
 
-/// Aggregate Union: SET\<Entity\> + Select = SET
-///
-public func + <T27: SDAI.TypeHierarchy.SET__TypeBehavior, U27: SDAI.SelectType>(
-	lhs: T27?, rhs: U27?) -> SDAI.SET<T27.ELEMENT>?
-where T27.ELEMENT: SDAI.EntityReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.unionWith(rhs: rhs)
-}
+///// Aggregate Union: SET + Select = SET
+/////
+//public func + <T27: SDAI.TypeHierarchy.SET__TypeBehavior, U27: SDAI.SelectType>(
+//	lhs: T27?, rhs: U27?) -> SDAI.SET<T27.ELEMENT>?
+////where T27.ELEMENT: SDAI.EntityReference
+//{
+//  if let rhs = rhs?.bagValue(elementType: T27.ELEMENT.self) {
+//    return lhs + rhs
+//  }
+//  if let rhs = rhs?.setValue(elementType: T27.ELEMENT.self) {
+//    return lhs + rhs
+//  }
+//  if let rhs = rhs?.listValue(elementType: T27.ELEMENT.self) {
+//    return lhs + rhs
+//  }
+//  if let rhs = T27.ELEMENT(rhs) {
+//    return lhs + rhs
+//  }
+//  return nil
+//
+////	guard let lhs = lhs, let rhs = rhs else { return nil }
+////	return lhs.unionWith(rhs: rhs)
+//}
 
-/// Aggregate Union: SET\<PRef\> + Select = SET
-///
-public func + <T28: SDAI.TypeHierarchy.SET__TypeBehavior, U28: SDAI.SelectType>(
-	lhs: T28?, rhs: U28?) -> SDAI.SET<T28.ELEMENT>?
-where T28.ELEMENT: SDAI.PersistentReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.unionWith(rhs: rhs)
-}
+///// Aggregate Union: SET\<PRef\> + Select = SET
+/////
+//public func + <T28: SDAI.TypeHierarchy.SET__TypeBehavior, U28: SDAI.SelectType>(
+//	lhs: T28?, rhs: U28?) -> SDAI.SET<T28.ELEMENT>?
+//where T28.ELEMENT: SDAI.PersistentReference
+//{
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return lhs.unionWith(rhs: rhs)
+//}
 
 //MARK: Element + Set = Set
 /// Aggregate Union: Fundamental + SET\<Fundamental\> = SET
@@ -516,25 +607,27 @@ where U34.ELEMENT: SDAI.Initializable.ByComplexEntity
 	return rhs.unionWith(rhs: lhs)
 }
 
-/// Aggregate Union: Select + SET\<Entity\> = SET
-///
-public func + <T35: SDAI.SelectType, U35: SDAI.TypeHierarchy.SET__TypeBehavior>(
-	lhs: T35?, rhs: U35?) -> SDAI.SET<U35.ELEMENT>?
-where U35.ELEMENT: SDAI.EntityReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return rhs.unionWith(rhs: lhs)
-}
+///// Aggregate Union: Select + SET = SET
+/////
+//public func + <T35: SDAI.SelectType, U35: SDAI.TypeHierarchy.SET__TypeBehavior>(
+//	lhs: T35?, rhs: U35?) -> SDAI.SET<U35.ELEMENT>?
+////where U35.ELEMENT: SDAI.EntityReference
+//{
+//  return rhs + lhs
+//
+////	guard let lhs = lhs, let rhs = rhs else { return nil }
+////	return rhs.unionWith(rhs: lhs)
+//}
 
-/// Aggregate Union: Select + SET\<PRef\> = SET
-///
-public func + <T36: SDAI.SelectType, U36: SDAI.TypeHierarchy.SET__TypeBehavior>(
-	lhs: T36?, rhs: U36?) -> SDAI.SET<U36.ELEMENT>?
-where U36.ELEMENT: SDAI.PersistentReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return rhs.unionWith(rhs: lhs)
-}
+///// Aggregate Union: Select + SET\<PRef\> = SET
+/////
+//public func + <T36: SDAI.SelectType, U36: SDAI.TypeHierarchy.SET__TypeBehavior>(
+//	lhs: T36?, rhs: U36?) -> SDAI.SET<U36.ELEMENT>?
+//where U36.ELEMENT: SDAI.PersistentReference
+//{
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return rhs.unionWith(rhs: lhs)
+//}
 
 //MARK: List + List = List
 /// Aggregate Union: List + List = List
@@ -548,14 +641,28 @@ where T37.ELEMENT.FundamentalType == U37.ELEMENT.FundamentalType
 }
 
 //MARK: List + Element = List
-/// Aggregate Union: LIST\<Fundamental\> + Fundamental = List
+/// Aggregate Union: LIST + SDAI.GenericType = List
 ///
 public func + <T38: SDAI.TypeHierarchy.LIST__TypeBehavior, U38: SDAI.GenericType>(
 	lhs: T38?, rhs: U38?) -> SDAI.LIST<T38.ELEMENT>?
-where T38.ELEMENT.FundamentalType == U38.FundamentalType
+//where T38.ELEMENT.FundamentalType == U38.FundamentalType
 {
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.appendWith(rhs: rhs)
+  if let rhs = rhs?.bagValue(elementType: T38.ELEMENT.self) {
+    return lhs + rhs
+  }
+  if let rhs = rhs?.setValue(elementType: T38.ELEMENT.self) {
+    return lhs + rhs
+  }
+  if let rhs = rhs?.listValue(elementType: T38.ELEMENT.self) {
+    return lhs + rhs
+  }
+  if let rhs = T38.ELEMENT(fromGeneric: rhs) {
+    return lhs?.appendWith(rhs: rhs)
+  }
+  return nil
+
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return lhs.appendWith(rhs: rhs)
 }
 
 /// Aggregate Union: LIST\<Generic\> + GENERIC = List
@@ -610,25 +717,33 @@ where T43.ELEMENT: SDAI.Initializable.ByComplexEntity
 	return lhs.appendWith(rhs: rhs)
 }
 
-/// Aggregate Union: LIST\<Entity\> + Select = List
+/// Aggregate Union: LIST + Select = List
 ///
 public func + <T44: SDAI.TypeHierarchy.LIST__TypeBehavior, U44: SDAI.SelectType>(
 	lhs: T44?, rhs: U44?) -> SDAI.LIST<T44.ELEMENT>?
-where T44.ELEMENT: SDAI.EntityReference
+//where T44.ELEMENT: SDAI.EntityReference
 {
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.appendWith(rhs: rhs)
+  if let rhs = rhs?.listValue(elementType: T44.ELEMENT.self) {
+    return lhs + rhs
+  }
+  if let rhs = T44.ELEMENT(rhs) {
+    return lhs + rhs
+  }
+  return nil
+
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return lhs.appendWith(rhs: rhs)
 }
 
-/// Aggregate Union: LIST\<PRef\> + Select = List
-///
-public func + <T45: SDAI.TypeHierarchy.LIST__TypeBehavior, U45: SDAI.SelectType>(
-	lhs: T45?, rhs: U45?) -> SDAI.LIST<T45.ELEMENT>?
-where T45.ELEMENT: SDAI.PersistentReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.appendWith(rhs: rhs)
-}
+///// Aggregate Union: LIST\<PRef\> + Select = List
+/////
+//public func + <T45: SDAI.TypeHierarchy.LIST__TypeBehavior, U45: SDAI.SelectType>(
+//	lhs: T45?, rhs: U45?) -> SDAI.LIST<T45.ELEMENT>?
+//where T45.ELEMENT: SDAI.PersistentReference
+//{
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return lhs.appendWith(rhs: rhs)
+//}
 
 //MARK: Element + List = List
 /// Aggregate Union: Fundamental + LIST\<Fundamental\> = List
@@ -693,25 +808,25 @@ where U51.ELEMENT: SDAI.Initializable.ByComplexEntity
 	return rhs.prependWith(lhs: lhs)
 }
 
-/// Aggregate Union: Select + LIST\<Entity\> = List
-///
-public func + <T52: SDAI.SelectType, U52: SDAI.TypeHierarchy.LIST__TypeBehavior>(
-	lhs: T52?, rhs: U52?) -> SDAI.LIST<U52.ELEMENT>?
-where U52.ELEMENT: SDAI.EntityReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return rhs.prependWith(lhs: lhs)
-}
-
-/// Aggregate Union: Select + LIST\<PRef\> = List
-///
-public func + <T53: SDAI.SelectType, U53: SDAI.TypeHierarchy.LIST__TypeBehavior>(
-	lhs: T53?, rhs: U53?) -> SDAI.LIST<U53.ELEMENT>?
-where U53.ELEMENT: SDAI.PersistentReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return rhs.prependWith(lhs: lhs)
-}
+///// Aggregate Union: Select + LIST\<Entity\> = List
+/////
+//public func + <T52: SDAI.SelectType, U52: SDAI.TypeHierarchy.LIST__TypeBehavior>(
+//	lhs: T52?, rhs: U52?) -> SDAI.LIST<U52.ELEMENT>?
+//where U52.ELEMENT: SDAI.EntityReference
+//{
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return rhs.prependWith(lhs: lhs)
+//}
+//
+///// Aggregate Union: Select + LIST\<PRef\> = List
+/////
+//public func + <T53: SDAI.SelectType, U53: SDAI.TypeHierarchy.LIST__TypeBehavior>(
+//	lhs: T53?, rhs: U53?) -> SDAI.LIST<U53.ELEMENT>?
+//where U53.ELEMENT: SDAI.PersistentReference
+//{
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return rhs.prependWith(lhs: lhs)
+//}
 
 //MARK: Bag + Aggregate = Bag
 /// Aggregate Union: Bag + Aggregate = BAG
@@ -798,14 +913,25 @@ where T1.ELEMENT.FundamentalType == U1.ELEMENT.FundamentalType
 }
 
 //MARK: Bag - Element = Bag
-/// Aggregate Difference: BAG\<Fundamental\> - Fundamental = BAG
+/// Aggregate Difference: BAG - SDAI.GenericType = BAG
 ///
 public func - <T2: SDAI.TypeHierarchy.BAG__TypeBehavior, U2: SDAI.GenericType>(
 	lhs: T2?, rhs: U2?) -> SDAI.BAG<T2.ELEMENT>?
-where T2.ELEMENT.FundamentalType == U2.FundamentalType
+//where T2.ELEMENT.FundamentalType == U2.FundamentalType
 {
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.differenceWith(rhs: rhs)
+  if let rhs = rhs?.bagValue(elementType: T2.ELEMENT.self) {
+    return lhs - rhs
+  }
+  if let rhs = rhs?.setValue(elementType: T2.ELEMENT.self) {
+    return lhs - rhs
+  }
+  if let rhs = T2.ELEMENT(fromGeneric: rhs) {
+    return lhs?.differenceWith(rhs: rhs)
+  }
+  return nil
+
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return lhs.differenceWith(rhs: rhs)
 }
 
 /// Aggregate Difference: BAG\<Generic\> - GENERIC = BAG
@@ -860,25 +986,36 @@ where T7.ELEMENT: SDAI.Initializable.ByComplexEntity
 	return lhs.differenceWith(rhs: rhs)
 }
 
-/// Aggregate Difference: BAG\<Entity\> - Select = BAG
-///
-public func - <T8: SDAI.TypeHierarchy.BAG__TypeBehavior, U8: SDAI.SelectType>(
-	lhs: T8?, rhs: U8?) -> SDAI.BAG<T8.ELEMENT>?
-where T8.ELEMENT: SDAI.EntityReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.differenceWith(rhs: rhs)
-}
+///// Aggregate Difference: BAG - Select = BAG
+/////
+//public func - <T8: SDAI.TypeHierarchy.BAG__TypeBehavior, U8: SDAI.SelectType>(
+//	lhs: T8?, rhs: U8?) -> SDAI.BAG<T8.ELEMENT>?
+////where T8.ELEMENT: SDAI.EntityReference
+//{
+//  if let rhs = rhs?.bagValue(elementType: T8.ELEMENT.self) {
+//    return lhs - rhs
+//  }
+//  if let rhs = rhs?.setValue(elementType: T8.ELEMENT.self) {
+//    return lhs - rhs
+//  }
+//  if let rhs = T8.ELEMENT(rhs) {
+//    return lhs - rhs
+//  }
+//  return nil
+//
+////	guard let lhs = lhs, let rhs = rhs else { return nil }
+////	return lhs.differenceWith(rhs: rhs)
+//}
 
-/// Aggregate Difference: BAG\<PRef\> - Select = BAG
-///
-public func - <T9: SDAI.TypeHierarchy.BAG__TypeBehavior, U9: SDAI.SelectType>(
-	lhs: T9?, rhs: U9?) -> SDAI.BAG<T9.ELEMENT>?
-where T9.ELEMENT: SDAI.PersistentReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.differenceWith(rhs: rhs)
-}
+///// Aggregate Difference: BAG\<PRef\> - Select = BAG
+/////
+//public func - <T9: SDAI.TypeHierarchy.BAG__TypeBehavior, U9: SDAI.SelectType>(
+//	lhs: T9?, rhs: U9?) -> SDAI.BAG<T9.ELEMENT>?
+//where T9.ELEMENT: SDAI.PersistentReference
+//{
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return lhs.differenceWith(rhs: rhs)
+//}
 
 
 //MARK: Set - Set/Bag = Set
@@ -893,14 +1030,25 @@ where T10.ELEMENT.FundamentalType == U10.ELEMENT.FundamentalType
 }
 
 //MARK: Set - Element = Set
-/// Aggregate Difference: SET\<Fundamental\> - Fundamental = SET
+/// Aggregate Difference: SET - SDAI.GenericType = SET
 ///
 public func - <T11: SDAI.TypeHierarchy.SET__TypeBehavior, U11: SDAI.GenericType>(
 	lhs: T11?, rhs: U11?) -> SDAI.SET<T11.ELEMENT>?
-where T11.ELEMENT.FundamentalType == U11.FundamentalType
+//where T11.ELEMENT.FundamentalType == U11.FundamentalType
 {
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.differenceWith(rhs: rhs)
+  if let rhs = rhs?.bagValue(elementType: T11.ELEMENT.self) {
+    return lhs - rhs
+  }
+  if let rhs = rhs?.setValue(elementType: T11.ELEMENT.self) {
+    return lhs - rhs
+  }
+  if let rhs = T11.ELEMENT(fromGeneric: rhs) {
+    return lhs?.differenceWith(rhs: rhs)
+  }
+  return nil
+
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return lhs.differenceWith(rhs: rhs)
 }
 
 /// Aggregate Difference: SET\<Generic\> - GENERIC = SET
@@ -955,25 +1103,36 @@ where T16.ELEMENT: SDAI.Initializable.ByComplexEntity
 	return lhs.differenceWith(rhs: rhs)
 }
 
-/// Aggregate Difference: SET\<Entity\> - Select = SET
-///
-public func - <T17: SDAI.TypeHierarchy.SET__TypeBehavior, U17: SDAI.SelectType>(
-	lhs: T17?, rhs: U17?) -> SDAI.SET<T17.ELEMENT>?
-where T17.ELEMENT: SDAI.EntityReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.differenceWith(rhs: rhs)
-}
+///// Aggregate Difference: SET - Select = SET
+/////
+//public func - <T17: SDAI.TypeHierarchy.SET__TypeBehavior, U17: SDAI.SelectType>(
+//	lhs: T17?, rhs: U17?) -> SDAI.SET<T17.ELEMENT>?
+////where T17.ELEMENT: SDAI.EntityReference
+//{
+//  if let rhs = rhs?.bagValue(elementType: T17.ELEMENT.self) {
+//    return lhs - rhs
+//  }
+//  if let rhs = rhs?.setValue(elementType: T17.ELEMENT.self) {
+//    return lhs - rhs
+//  }
+//  if let rhs = T17.ELEMENT(rhs) {
+//    return lhs - rhs
+//  }
+//  return nil
+//
+////	guard let lhs = lhs, let rhs = rhs else { return nil }
+////	return lhs.differenceWith(rhs: rhs)
+//}
 
-/// Aggregate Difference: SET\<PRef\> - Select = SET
-///
-public func - <T18: SDAI.TypeHierarchy.SET__TypeBehavior, U18: SDAI.SelectType>(
-	lhs: T18?, rhs: U18?) -> SDAI.SET<T18.ELEMENT>?
-where T18.ELEMENT: SDAI.PersistentReference
-{
-	guard let lhs = lhs, let rhs = rhs else { return nil }
-	return lhs.differenceWith(rhs: rhs)
-}
+///// Aggregate Difference: SET\<PRef\> - Select = SET
+/////
+//public func - <T18: SDAI.TypeHierarchy.SET__TypeBehavior, U18: SDAI.SelectType>(
+//	lhs: T18?, rhs: U18?) -> SDAI.SET<T18.ELEMENT>?
+//where T18.ELEMENT: SDAI.PersistentReference
+//{
+//	guard let lhs = lhs, let rhs = rhs else { return nil }
+//	return lhs.differenceWith(rhs: rhs)
+//}
 
 
 //MARK: Bag - Aggregate = Bag
@@ -1005,7 +1164,20 @@ where T20.ELEMENT.FundamentalType == U20.ELEMENT.FundamentalType
 ///
 public func <= <TB: SDAI.BagType, UB: SDAI.BagType>(
   lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
-where TB.ELEMENT.FundamentalType == UB.ELEMENT.FundamentalType {
+where TB.ELEMENT.FundamentalType == UB.ELEMENT.FundamentalType
+{
+  return rhs >= lhs
+}
+
+public func <= <TB: SDAI.BagType, UB: SDAI.SelectType>(
+  lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
+{
+  return rhs >= lhs
+}
+
+public func <= <TB: SDAI.SelectType, UB: SDAI.BagType>(
+  lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
+{
 	return rhs >= lhs
 }
 
@@ -1014,7 +1186,32 @@ where TB.ELEMENT.FundamentalType == UB.ELEMENT.FundamentalType {
 ///
 public func >= <TB: SDAI.BagType, UB: SDAI.BagType>(
   lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
-where TB.ELEMENT.FundamentalType == UB.ELEMENT.FundamentalType {
+where TB.ELEMENT.FundamentalType == UB.ELEMENT.FundamentalType
+{
 	guard let lhs = lhs, let rhs = rhs else { return SDAI.UNKNOWN }
 	return SDAI.LOGICAL(lhs.isSuperset(of: rhs))
+}
+
+public func >= <TB: SDAI.BagType, UB: SDAI.SelectType>(
+  lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
+{
+  if let rhs = rhs?.bagValue(elementType: TB.ELEMENT.self) {
+    return lhs >= rhs
+  }
+  if let rhs = rhs?.setValue(elementType: TB.ELEMENT.self) {
+    return lhs >= rhs
+  }
+  return SDAI.UNKNOWN
+}
+
+public func >= <TB: SDAI.SelectType, UB: SDAI.BagType>(
+  lhs: TB?, rhs: UB?) -> SDAI.LOGICAL
+{
+  if let lhs = lhs?.bagValue(elementType: UB.ELEMENT.self) {
+    return lhs >= rhs
+  }
+  if let lhs = lhs?.setValue(elementType: UB.ELEMENT.self) {
+    return lhs >= rhs
+  }
+  return SDAI.UNKNOWN
 }

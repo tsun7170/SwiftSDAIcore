@@ -64,7 +64,8 @@ extension SDAI {
     }
 
     //MARK: Initializers
-    public init(_ complexRef: ComplexEntityReference)
+    public init(
+      _ complexRef: ComplexEntityReference)
     {
       var hasher = Hasher()
       hasher.combine(complexRef)
@@ -72,13 +73,15 @@ extension SDAI {
       self.complexReference = complexRef
     }
 
-    public convenience init(_ entityRef: EntityReference?)
+    public convenience init(
+      _ entityRef: EntityReference?)
     {
       let complexRef = ComplexEntityReference(entityRef)
       self.init(complexRef)
     }
 
-    public convenience init?(_ complex: SDAI.ComplexEntity?)
+    public convenience init?(
+      _ complex: SDAI.ComplexEntity?)
     {
       let eref = complex?.entityReference(EntityReference.self)
       self.init(eref)
@@ -222,7 +225,9 @@ extension SDAI {
     }
 
     //MARK: InitializableByGenericType
-    public required convenience init?<G: SDAI.GenericType>(fromGeneric generic: G?) {
+    public required convenience init?<G: SDAI.GenericType>(
+      fromGeneric generic: G?)
+    {
       if let pref = generic as? Self {
         self.init(pref.complexReference)
       }
