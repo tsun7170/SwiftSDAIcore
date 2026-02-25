@@ -122,12 +122,11 @@ extension SDAI.TypeHierarchy {
 
     //MARK: init from GenericType
     init?<I: SDAI.SwiftIntConvertible, G: SDAI.GenericType>(
-      width:I?, fixed:Bool, generic:G?)
+      width:I?, fixed:Bool, fromGeneric:G?)
 
     //MARK: init from SwiftType
     init<I: SDAI.SwiftIntConvertible>(
-      from swiftValue: SwiftType,
-      width:I?, fixed:Bool)
+      from swiftValue: SwiftType, width:I?, fixed:Bool)
 
 
     //MARK: init from String
@@ -179,7 +178,7 @@ public extension SDAI.TypeHierarchy.BINARY__TypeBehavior
     self.init(fundamental: binaryValue)
   }
   init?<I: SDAI.SwiftIntConvertible, G: SDAI.GenericType>(
-    width:I?, fixed:Bool, generic:G?)
+    width:I?, fixed:Bool, fromGeneric generic:G?)
   {
     guard let binaryValue = generic?.binaryValue else { return nil }
     self.init(width: width, fixed: fixed, fundamental: binaryValue)

@@ -240,7 +240,7 @@ extension SDAI.TypeHierarchy {
 
     //MARK: init from GenericType
     init?<I: SDAI.SwiftIntConvertible, G: SDAI.GenericType>(
-      width:I?, fixed:Bool, generic:G?)
+      width:I?, fixed:Bool, fromGeneric:G?)
 
 
     //MARK: init from String
@@ -288,7 +288,7 @@ public extension SDAI.TypeHierarchy.STRING__TypeBehavior
     self.init(fundamental:stringValue)
   }
   init?<I: SDAI.SwiftIntConvertible, G: SDAI.GenericType>(
-    width:I?, fixed:Bool, generic:G?)
+    width:I?, fixed:Bool, fromGeneric generic:G?)
   {
     guard let stringValue = generic?.stringValue else { return nil }
     self.init(width: width, fixed: fixed, fundamental: stringValue)
@@ -297,6 +297,12 @@ public extension SDAI.TypeHierarchy.STRING__TypeBehavior
   init(from swiftValue: SwiftType) {
     self.init(swiftValue)
   }
+  init<I: SDAI.SwiftIntConvertible>(
+    from swiftValue: SwiftType, width:I?, fixed:Bool)
+  {
+      self.init(width: width, fixed: fixed, swiftValue)
+    }
+
   init(stringLiteral value: String) {
     self.init( SwiftType(value) )
   }

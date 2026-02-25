@@ -19,13 +19,17 @@ as defined in section 12.6.1 of ISO 10303-21
 ### Intersection Operators 
 as defined in section 12.6.2 of ISO 10303-21
 
-- ``*(_:_:)->SDAI.BAG<T1.ELEMENT>?``
+- ``*(_:_:)-(T1?,U1?)->SDAI.BAG<T1.ELEMENT>?``
 - ``*(_:_:)->SDAI.SET<T2.ELEMENT>?``
-- ``*(_:_:)->SDAI.SET<T3.ELEMENT>?``
+- ``*(_:_:)-(T3?,U3?)->SDAI.SET<T3.ELEMENT>?``
 - ``*(_:_:)->SDAI.BAG<T4.ELEMENT>?``
 - ``*(_:_:)->SDAI.BAG<U5.ELEMENT>?``
 - ``*(_:_:)->SDAI.SET<T6.ELEMENT>?``
 - ``*(_:_:)->SDAI.SET<U7.ELEMENT>?``
+- ``*(_:_:)->SDAI.BAG<T8.ELEMENT>?``
+- ``*(_:_:)->SDAI.BAG<U9.ELEMENT>?``
+- ``*(_:_:)->SDAI.SET<T10.ELEMENT>?``
+- ``*(_:_:)->SDAI.SET<U11.ELEMENT>?``
 
 ### Union Operators
 as defined in section 12.6.3 of ISO 10303-21
@@ -39,8 +43,6 @@ as defined in section 12.6.3 of ISO 10303-21
 - ``+(_:_:)->SDAI.BAG<T6.ELEMENT>?``
 - ``+(_:_:)->SDAI.BAG<T7.ELEMENT>?``
 - ``+(_:_:)->SDAI.BAG<T8.ELEMENT>?``
-- ``+(_:_:)->SDAI.BAG<T9.ELEMENT>?``
-- ``+(_:_:)->SDAI.BAG<T10.ELEMENT>?``
 
 - ``+(_:_:)->SDAI.BAG<U11.ELEMENT>?``
 - ``+(_:_:)->SDAI.BAG<U12.ELEMENT>?``
@@ -48,8 +50,6 @@ as defined in section 12.6.3 of ISO 10303-21
 - ``+(_:_:)->SDAI.BAG<U14.ELEMENT>?``
 - ``+(_:_:)->SDAI.BAG<U15.ELEMENT>?``
 - ``+(_:_:)->SDAI.BAG<U16.ELEMENT>?``
-- ``+(_:_:)->SDAI.BAG<U17.ELEMENT>?``
-- ``+(_:_:)->SDAI.BAG<U18.ELEMENT>?``
 
 - ``+(_:_:)->SDAI.SET<T19.ELEMENT>?``
 - ``+(_:_:)->SDAI.SET<T20.ELEMENT>?``
@@ -60,8 +60,6 @@ as defined in section 12.6.3 of ISO 10303-21
 - ``+(_:_:)->SDAI.SET<T24.ELEMENT>?``
 - ``+(_:_:)->SDAI.SET<T25.ELEMENT>?``
 - ``+(_:_:)->SDAI.SET<T26.ELEMENT>?``
-- ``+(_:_:)->SDAI.SET<T27.ELEMENT>?``
-- ``+(_:_:)->SDAI.SET<T28.ELEMENT>?``
 
 - ``+(_:_:)->SDAI.SET<U29.ELEMENT>?``
 - ``+(_:_:)->SDAI.SET<U30.ELEMENT>?``
@@ -69,8 +67,6 @@ as defined in section 12.6.3 of ISO 10303-21
 - ``+(_:_:)->SDAI.SET<U32.ELEMENT>?``
 - ``+(_:_:)->SDAI.SET<U33.ELEMENT>?``
 - ``+(_:_:)->SDAI.SET<U34.ELEMENT>?``
-- ``+(_:_:)->SDAI.SET<U35.ELEMENT>?``
-- ``+(_:_:)->SDAI.SET<U36.ELEMENT>?``
 
 - ``+(_:_:)->SDAI.LIST<T37.ELEMENT>?``
 
@@ -81,7 +77,6 @@ as defined in section 12.6.3 of ISO 10303-21
 - ``+(_:_:)->SDAI.LIST<T42.ELEMENT>?``
 - ``+(_:_:)->SDAI.LIST<T43.ELEMENT>?``
 - ``+(_:_:)->SDAI.LIST<T44.ELEMENT>?``
-- ``+(_:_:)->SDAI.LIST<T45.ELEMENT>?``
 
 - ``+(_:_:)->SDAI.LIST<U46.ELEMENT>?``
 - ``+(_:_:)->SDAI.LIST<U47.ELEMENT>?``
@@ -89,8 +84,6 @@ as defined in section 12.6.3 of ISO 10303-21
 - ``+(_:_:)->SDAI.LIST<U49.ELEMENT>?``
 - ``+(_:_:)->SDAI.LIST<U50.ELEMENT>?``
 - ``+(_:_:)->SDAI.LIST<U51.ELEMENT>?``
-- ``+(_:_:)->SDAI.LIST<U52.ELEMENT>?``
-- ``+(_:_:)->SDAI.LIST<U53.ELEMENT>?``
 
 - ``+(_:_:)->SDAI.BAG<T54.ELEMENT>?``
 
@@ -108,17 +101,14 @@ as defined in section 12.6.3 of ISO 10303-21
 ### Difference Operators
 as defined in section 12.6.4 of ISO 10303-21
 
-- ``-(_:_:)-5nhcc``
+- ``-(_:_:)->SDAI.BAG<T1.ELEMENT>?``
 
-- ``-(_:_:)-6rdr9``
-- ``-(_:_:)-30jmc``
-- ``-(_:_:)-3q8op``
-- ``-(_:_:)-55so7``
-- ``-(_:_:)-7f311``
+- ``-(_:_:)->SDAI.BAG<T2.ELEMENT>?``
+- ``-(_:_:)->SDAI.BAG<T3.ELEMENT>?``
+- ``-(_:_:)->SDAI.BAG<T4.ELEMENT>?``
+- ``-(_:_:)->SDAI.BAG<T5.ELEMENT>?``
+- ``-(_:_:)->SDAI.BAG<T6.ELEMENT>?``
 - ``-(_:_:)->SDAI.BAG<T7.ELEMENT>?``
-- ``-(_:_:)-(T7?,_)``
-- ``-(_:_:)-6gagl``
-- ``-(_:_:)-42tzp``
 
 - ``-(_:_:)->SDAI.SET<T10.ELEMENT>?``
 
@@ -128,8 +118,6 @@ as defined in section 12.6.4 of ISO 10303-21
 - ``-(_:_:)->SDAI.SET<T14.ELEMENT>?``
 - ``-(_:_:)->SDAI.SET<T15.ELEMENT>?``
 - ``-(_:_:)->SDAI.SET<T16.ELEMENT>?``
-- ``-(_:_:)->SDAI.SET<T17.ELEMENT>?``
-- ``-(_:_:)->SDAI.SET<T18.ELEMENT>?``
 
 - ``-(_:_:)->SDAI.BAG<T19.ELEMENT>?``
 - ``-(_:_:)->SDAI.SET<T20.ELEMENT>?``
@@ -138,11 +126,15 @@ as defined in section 12.6.4 of ISO 10303-21
 as defined in section 12.6.5 of ISO 10303-21
 
 - ``<=(_:_:)-(TB?,UB?)``
+- ``<=(_:_:)-(TB?,US?)``
+- ``<=(_:_:)-(TS?,UB?)``
 
 ### Superset Operator
 as defined in section 12.6.6 of ISO 10303-21
 
 - ``>=(_:_:)-(TB?,UB?)``
+- ``>=(_:_:)-(TB?,US?)``
+- ``>=(_:_:)-(TS?,UB?)``
 
 ### Query Expression
 as defined in section 12.6.7 of ISO 10303-21
