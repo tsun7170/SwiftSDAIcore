@@ -138,6 +138,12 @@ extension SDAI {
         self = .temporary(nil)
       }
     }
+
+    internal init(
+      complexID: ComplexEntityID, modelID: SDAIModelID) {
+      self = .persistent(complexID: complexID, modelID: modelID)
+    }
+
   }//enum
 }//extension
 

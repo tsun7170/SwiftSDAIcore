@@ -309,10 +309,18 @@ extension P21Decode {
 					tag = anchorTag
 					
 				case .spSEMICOLON:
-					guard case .RESOURCE(let anchorName) = name else { setError(unexpectedToken: name, context: "while parsing anchor name"); return false }
-					exchangeStructure.anchorSection.register(name: anchorName, item: item, tag: tag)
-					return true
-					
+            guard case .RESOURCE(let anchorName) = name
+            else {
+              setError(unexpectedToken: name, context: "while parsing anchor name")
+              return false }
+
+            guard exchangeStructure.anchorSection.register(name: anchorName, item: item, tag: tag)
+            else {
+              setError(message: "invalid anchor item detected" + "while parsing anchor name")
+              return false }
+
+            return true
+
 				default:
 					setError(unexpectedToken: token, context: "while parsing tail of anchor")
 					return false

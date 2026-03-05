@@ -17,19 +17,42 @@ extension P21Decode {
 		public var error: String?
 		
 		public init() {}
-		
+
+    open func validate(
+      valueReference: ExchangeStructure.Resource,
+      for valueInstanceName: ValueInstanceName
+    ) -> Bool
+    { return true }
+
+   open func validate(
+    anchorRecord: ExchangeStructure.AnchorSection.AnchorRecord
+    ) -> Bool
+    { return true }
+
 		/// resolve the resource as a value reference
 		/// - Parameter valueReference: resource specification
 		/// - Returns: resolved value reference
-		open func resolve(valueReference: ExchangeStructure.Resource) -> ExchangeStructure.Parameter? {
+		open func resolve(
+      valueReference: ExchangeStructure.Resource
+    ) -> ExchangeStructure.Parameter?
+    {
 			self.error = "foreign value reference(\(valueReference)) can not be resolved"
 			return nil
 		}		
-		
+
+    open func validate(
+      entityReference: ExchangeStructure.Resource,
+      for entityInstanceName: EntityInstanceName
+    ) -> Bool
+    { return true }
+
 		/// resolve the resource as an entity reference
 		/// - Parameter entityReference: resource specification
 		/// - Returns: resolved complex entity
-		open func resolve(entityReference: ExchangeStructure.Resource) -> ParameterRecoveryResult<SDAI.ComplexEntity?> {
+		open func resolve(
+      entityReference: ExchangeStructure.Resource
+    ) -> ParameterRecoveryResult<SDAI.ComplexEntity?>
+    {
 			self.error = "foreign entity reference(\(entityReference)) can not be resolved"
 			return .failure
 		}
@@ -37,7 +60,10 @@ extension P21Decode {
 		/// resolve the simple record as a user defined entity
 		/// - Parameter simpleRec: simple record specification
 		/// - Returns: resolved user defined partial entity
-		open func recover(userDefinedEntity simpleRec:ExchangeStructure.SimpleRecord) -> SDAI.PartialEntity? {
+		open func recover(
+      userDefinedEntity simpleRec:ExchangeStructure.SimpleRecord
+    ) -> SDAI.PartialEntity?
+    {
 			self.error = "foreign user defined entity(\(simpleRec)) can not be resolved"
 			return nil
 		}
@@ -47,7 +73,11 @@ extension P21Decode {
 		///   - internalMapping: internal mapping specification
 		///   - dataSection: the data section containing the user defined entity specification
 		/// - Returns: converted external mapping specification
-		open func convertToExternalMapping(from internalMapping:ExchangeStructure.SimpleRecord, dataSection: ExchangeStructure.DataSection) -> ExchangeStructure.SubsuperRecord? {
+		open func convertToExternalMapping(
+      from internalMapping:ExchangeStructure.SimpleRecord,
+      dataSection: ExchangeStructure.DataSection
+    ) -> ExchangeStructure.SubsuperRecord?
+    {
 			self.error = "foreign user defined entity(\(internalMapping)) can not be resolved"
 			return nil
 		}

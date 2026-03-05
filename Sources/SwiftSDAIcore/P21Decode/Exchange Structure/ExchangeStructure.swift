@@ -147,6 +147,7 @@ extension P21Decode {
     /// - SeeAlso: `ValueInstanceName`, `ValueInstanceRecord`
 		nonisolated(unsafe)
 		public internal(set) var valueInstanceRegistry: [ValueInstanceName:ValueInstanceRecord] = [:]
+
     /// The `entityInstanceRegistry` property maintains a mapping from `EntityInstanceName` to `EntityInstanceRecord`,
     /// serving as an internal registry for all named entity instances parsed from the exchange structure.
     ///
@@ -274,6 +275,7 @@ extension P21Decode {
 			self.repository = repository
 			self.foreignReferenceResolver = foreignReferenceResolver
 			self.activityMonitor = monitor
+      self.anchorSection.exchangeStructure = self
 		}
 		
 		
@@ -323,7 +325,39 @@ extension P21Decode {
 
 
 		//MARK: - registration related
-		internal func register(entityInstanceName: EntityInstanceName, record: EntityInstanceRecord) -> Bool {
+		internal func register(
+      entityInstanceName: EntityInstanceName,
+      record: EntityInstanceRecord ) -> Bool
+    {
+      switch record.source {
+        case .reference(let resource):
+          guard foreignReferenceResolver.validate(entityReference: resource, for: entityInstanceName) else {
+            self.error = "invalid entity instance record detected for name(\(entityInstanceName)) with resource reference(\(resource))"
+            return false
+          }
+
+        case .simpleRecord(let simpleRecord, let dataSection):
+          for (i,param) in simpleRecord.parameterList.enumerated() {
+            if let entityRef = param.asEntityInstanceName {
+              guard entityRef != entityInstanceName else {
+                self.error = "invalid entity internal mapping record detected for name(\(entityInstanceName)) with parameters(\(simpleRecord.parameterList)); circular reference to the defining entity at parameter[\(i)]; data section:\(dataSection)"
+                return false
+              }
+            }
+          }
+        case .subsuperRecord(let subsuperRecord, let dataSection):
+          for (s,simple) in subsuperRecord.enumerated() {
+            for (i,param) in simple.parameterList.enumerated() {
+              if let entityRef = param.asEntityInstanceName {
+                guard entityRef != entityInstanceName else {
+                  self.error = "invalid entity external mapping record[\(s)] detected for name(\(entityInstanceName)) with parameters(\(simple.parameterList)); circular reference to the defining entity at parameter[\(i)]; data section:\(dataSection)"
+                  return false
+                }
+              }
+            }
+          }
+      }
+
 			if let old = entityInstanceRegistry.updateValue(record, forKey: entityInstanceName) {
 				self.error = "duplicated entity instance name(\(entityInstanceName)) detected with resource reference(\(record)), old reference = (\(old))"
 				return false

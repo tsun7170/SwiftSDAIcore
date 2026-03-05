@@ -101,7 +101,8 @@ extension P21Decode.ExchangeStructure {
             self.add(errorContext: "while recovering required parameter of type(\(T.self))")
             return .failure
 
-          default:
+          case .integer(_), .real(_), .string(_), .rhsOccurrenceName(_), .enumeration(_), .binary(_), .list(_):
+//          default:
             guard let recovered = T(p21untypedParam: untypedParam, from: self)
             else { self.add(errorContext: "while recovering required parameter of type(\(T.self))"); return .failure }
             return .success(recovered)

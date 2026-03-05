@@ -252,16 +252,61 @@ extension SDAI {
       ERefType.bareTypeName
     }
 
+    internal static func complexEntityReference(
+      p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter,
+      from exchangeStructure: P21Decode.ExchangeStructure
+    ) -> ComplexEntityReference?
+    {
+      switch p21untypedParam {
+        case .rhsOccurrenceName(let rhsname):
+          switch rhsname {
+            case .constantEntityName(_):
+              return nil
+
+            case .entityInstanceName(let name):
+              guard let eirec = exchangeStructure.entityInstanceRegistry[name]
+              else { exchangeStructure.error = "entity instance name #\(name) not found in data section or reference section"; return nil }
+
+              switch eirec.source {
+                case .reference(_):
+                  return nil
+
+                case .simpleRecord(_, let datasec), .subsuperRecord(_, let datasec):
+                  let complexRef = ComplexEntityReference(complexID: name, modelID: datasec.model!.modelID)
+                  return complexRef
+              }
+
+            default:
+              exchangeStructure.error = "unexpected p21parameter(\(p21untypedParam)) while resolving \(Self.bareTypeName) instance persistent reference"
+              return nil
+          }
+
+        case .noValue:
+          return nil
+
+        default:
+          exchangeStructure.error = "unexpected p21parameter(\(p21untypedParam)) while resolving \(Self.bareTypeName) persistent reference"
+          return nil
+      }
+    }
+
     public required convenience init?(
       p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter,
       from exchangeStructure: P21Decode.ExchangeStructure)
     {
-      guard let eref = Self.ERefType.init(
-        p21untypedParam: p21untypedParam,
-        from: exchangeStructure)
-      else { return nil }
+      if let complexRef = Self.complexEntityReference(
+        p21untypedParam: p21untypedParam, from: exchangeStructure)
+      {
+        self.init(complexRef)
+      }
+      else {
+        guard let eref = Self.ERefType.init(
+          p21untypedParam: p21untypedParam,
+          from: exchangeStructure)
+        else { return nil }
 
-      self.init(eref)
+        self.init(eref)
+      }
     }
 
     public required convenience init?(

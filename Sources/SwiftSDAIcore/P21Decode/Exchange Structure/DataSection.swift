@@ -258,6 +258,7 @@ extension P21Decode.ExchangeStructure {
   /// 
   /// - SeeAlso: `P21Decode.ExchangeStructure.DataSection`, `SimpleRecord`, `SubsuperRecord`, `Resource`, `SDAI.ComplexEntity`
 	public final class EntityInstanceRecord {
+
     /// The source of the entity instance, representing its origin within the STEP exchange data section.
     ///
     /// This property indicates how the entity instance was declared or referenced in the data section. It can be:
@@ -269,6 +270,7 @@ extension P21Decode.ExchangeStructure {
     ///
     /// - SeeAlso: `EntityInstanceRecord.Source`, `Resource`, `SimpleRecord`, `SubsuperRecord`, `P21Decode.ExchangeStructure.DataSection`
 		public var source: Source
+
     /// The resolved complex entity corresponding to this entity instance record, if available.
     ///
     /// - Discussion:

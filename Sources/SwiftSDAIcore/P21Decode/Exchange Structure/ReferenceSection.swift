@@ -22,6 +22,11 @@ extension P21Decode.ExchangeStructure {
 	/// 10.1 Reference section structure;
 	/// ISO 10303-21
 	public func register(valueInstanceName: ValueInstanceName, reference: Resource) -> Bool {
+    guard foreignReferenceResolver.validate(valueReference: reference, for: valueInstanceName) else {
+      self.error = "invalid value reference for name(\(valueInstanceName)) detected with resource reference(\(reference))"
+      return false
+    }
+
 		let rec = ValueInstanceRecord(name: valueInstanceName, reference: reference)
 		if let old = valueInstanceRegistry.updateValue(rec, forKey: valueInstanceName) {
 			self.error = "duplicated value instance name(\(valueInstanceName)) detected with resource reference(\(reference)), old reference = (\(old))"

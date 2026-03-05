@@ -22,12 +22,42 @@ extension P21Decode.ExchangeStructure {
   /// - Note: Conforms to `Sendable` for safe use with Swift concurrency.
   /// - SeeAlso: ISO 10303-21, section 9 (Anchor section).
 	public struct AnchorSection: Sendable {
+    nonisolated(unsafe)
+    internal weak var exchangeStructure: P21Decode.ExchangeStructure?
+
 		nonisolated(unsafe)
 		public private(set) var externalItems: [URIFragmentIdentifier:AnchorRecord] = [:]
 		
-		public mutating func register(name: URIFragmentIdentifier, item: AnchorItem, tag: AnchorTag?) {
+    /// Registers an anchor record in the Anchor section, associating a unique fragment identifier (anchor name)
+    /// with an anchor item and an optional tag. This method validates the anchor record using the foreign
+    /// reference resolver before registering it. If the record is valid, it is added to the external items
+    /// dictionary and can be used for external linking and referencing in the exchange structure.
+    ///
+    /// - Parameters:
+    ///   - name: The unique URI fragment identifier (anchor name) to register.
+    ///   - item: The anchor item (named entity or reference) to associate with the anchor name.
+    ///   - tag: An optional tag providing additional metadata or context for the anchor.
+    ///
+    /// - Returns: `true` if the anchor record was successfully validated and registered; `false` if validation failed.
+    ///
+    /// - Note: The anchor record will only be registered if it passes validation by the foreign reference resolver.
+    ///         Duplicate anchor names will result in the previous record being replaced if validation succeeds.
+    /// - SeeAlso: ISO 10303-21, section 9 (Anchor section); `AnchorRecord`.
+		public mutating func register(
+      name: URIFragmentIdentifier,
+      item: AnchorItem,
+      tag: AnchorTag?) -> Bool
+    {
 			let record = AnchorRecord(name: name, item: item, tag: tag)
+
+      guard let exchangeStructure,
+            exchangeStructure.foreignReferenceResolver.validate(anchorRecord: record)
+      else {
+        return false
+      }
+
 			externalItems[name] = record
+      return true
 		}
 	}
 	

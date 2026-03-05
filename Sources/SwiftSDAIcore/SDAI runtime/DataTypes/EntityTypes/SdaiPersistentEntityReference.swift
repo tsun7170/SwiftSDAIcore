@@ -237,12 +237,19 @@ extension SDAI {
 			p21untypedParam: P21Decode.ExchangeStructure.UntypedParameter,
 			from exchangeStructure: P21Decode.ExchangeStructure)
 		{
-			guard let eref = EREF.init(
-				p21untypedParam: p21untypedParam,
-				from: exchangeStructure)
-			else { return nil }
-
-			self.init(eref)
+      if let complexRef = Self.complexEntityReference(
+        p21untypedParam: p21untypedParam, from: exchangeStructure)
+      {
+        self.init(complexRef)
+      }
+      else {
+        guard let eref = EREF.init(
+          p21untypedParam: p21untypedParam,
+          from: exchangeStructure)
+        else { return nil }
+        
+        self.init(eref)
+      }
 		}
 
 		public required convenience init?(
