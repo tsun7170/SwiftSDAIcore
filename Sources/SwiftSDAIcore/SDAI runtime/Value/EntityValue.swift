@@ -22,7 +22,8 @@ extension SDAI {
 		public let l: ComplexEntity
 		public let r: ComplexEntity
 	}
-	
+
+  @_documentation(visibility:public)
 	public struct _ComplexEntityValue: SDAI.Value
 	{
 		

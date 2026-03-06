@@ -14,6 +14,6 @@ When any of the special pattern matching characters is itself to be matched, the
 
 ## Topics
 
-- ``SDAI/StringType/ISLIKE(PATTERN:)-(T?)``
-- ``SDAI/StringType/ISLIKE(PATTERN:)-(String?)``
+- ``SDAI/StringTypeBehavior/ISLIKE(PATTERN:)-(T?)``
+- ``SDAI/StringTypeBehavior/ISLIKE(PATTERN:)-(String?)``
 

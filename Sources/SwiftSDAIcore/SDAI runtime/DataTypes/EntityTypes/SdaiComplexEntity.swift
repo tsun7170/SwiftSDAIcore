@@ -540,13 +540,13 @@ extension SDAI {
 		//MARK: - express built-in function support
     /// A collection representing the application domain models associated with this complex entity instance.
     ///
-    /// This property computes the set of ``SDAIPopulationSchema.SdaiModel`` instances that constitute the "used-in" domain
-    /// for this complex entity. The domain is determined by aggregating all models that are directly or indirectly associated 
+    /// This property computes the set of ``SDAIPopulationSchema/SdaiModel`` instances that constitute the "used-in" domain
+    /// for this complex entity. The domain is determined by aggregating all models that are directly or indirectly associated
     /// with the owning model of this complex entity, as well as including the owning model itself. This is commonly used 
     /// for evaluating used-in queries, determining the scope of reference traversal, and supporting EXPRESS schema navigation.
     ///
-    /// - Returns: A collection of ``SDAIPopulationSchema.SdaiModel`` instances associated with this entity, including the owning model.
-    /// - Note: The resulting collection may contain models from multiple associated domains, ensuring comprehensive coverage for 
+    /// - Returns: A collection of ``SDAIPopulationSchema/SdaiModel`` instances associated with this entity, including the owning model.
+    /// - Note: The resulting collection may contain models from multiple associated domains, ensuring comprehensive coverage for
     ///         reference and relationship analysis.
     /// - Concurrency: The collection is `Sendable`, making it suitable for concurrent and asynchronous query operations.
     /// - SeeAlso: ``SDAI/ComplexEntity/usedIn(domain:)`` for performing used-in lookups within this domain.
@@ -588,7 +588,7 @@ extension SDAI {
     /// to discover essential attribute roles (attributes that yield or reference this complex entity). It aggregates and returns the unique
     /// set of qualified role (attribute) names, as defined by the EXPRESS schema, that are relevant in the scope of the provided models.
     ///
-    /// - Parameter domain: A collection of ``SDAIPopulationSchema.SdaiModel`` instances representing the application domain to search for attribute roles.
+    /// - Parameter domain: A collection of ``SDAIPopulationSchema/SdaiModel`` instances representing the application domain to search for attribute roles.
     ///                    The collection must conform to both `Collection` and `Sendable` for concurrency support.
     /// - Returns: A `Set<STRING>` containing the unique qualified names of all essential roles (attributes) that are associated with this complex entity
     ///            in the given domain.
@@ -810,7 +810,7 @@ extension SDAI {
     /// collects those whose essential attributes yield a persistent reference to this complex entity. The result is returned as an array
     /// of ``GenericPersistentEntityReference`` instances, each representing a unique referring entity.
     ///
-    /// - Parameter domain: A collection of ``SDAIPopulationSchema.SdaiModel`` instances that define the application domain to search for usage relationships.
+    /// - Parameter domain: A collection of ``SDAIPopulationSchema/SdaiModel`` instances that define the application domain to search for usage relationships.
     ///                    The collection must conform to both `Collection` and `Sendable` for thread and concurrency safety.
     /// - Returns: An array of ``GenericPersistentEntityReference`` objects, each representing an entity in the domain that refers to this complex entity.
     ///            The result excludes reference cycles and avoids duplication.
@@ -822,7 +822,7 @@ extension SDAI {
     ///   Caching mechanisms are employed to improve performance for repeated queries, and cache warming may be triggered automatically during execution.
     ///
     /// - SeeAlso: ``SDAI/ComplexEntity/roles(domain:)`` for discovering associated attribute roles.
-    /// - SeeAlso: ``SDAI/ComplexEntity/usedIn(as:domain:)`` for querying usage by a specific role or attribute.
+    /// - SeeAlso: ``SDAI/ComplexEntity/usedIn(as:domain:)-(KeyPath<ENT,R?>,_)`` for querying usage by a specific role or attribute.
     /// - SeeAlso: SDAI specification for "used-in" queries and application domain analysis.
 		public func usedIn(
       domain: some Collection<SDAIPopulationSchema.SdaiModel> & Sendable
@@ -939,7 +939,7 @@ extension SDAI {
     ///
     /// - Parameters:
     ///   - role: A `KeyPath` specifying the attribute on type `ENT` that is expected to yield references to other entities. Must resolve to a property conforming to `SDAI.GenericType`.
-    ///   - domain: A collection of ``SDAIPopulationSchema.SdaiModel`` instances representing the application domain to search, conforming to both `Collection` and `Sendable` for concurrency safety.
+    ///   - domain: A collection of ``SDAIPopulationSchema/SdaiModel`` instances representing the application domain to search, conforming to both `Collection` and `Sendable` for concurrency safety.
     /// - Returns: An array of persistent references (`ENT.PRef`) to entities of type `ENT` in the domain that reference this complex entity through the given role.
     ///
     /// - Note: This function is particularly useful for schema navigation, query evaluation, or reporting tasks where the relationships established by specific attributes (roles) are of interest.
@@ -993,7 +993,7 @@ extension SDAI {
     ///
     /// - Parameters:
     ///   - role: A `KeyPath` specifying the attribute on type `ENT` that is expected to yield references to other entities. Must resolve to a property conforming to `SDAI.GenericType`.
-    ///   - domain: A collection of ``SDAIPopulationSchema.SdaiModel`` instances representing the application domain to search, conforming to both `Collection` and `Sendable` for concurrency safety.
+    ///   - domain: A collection of ``SDAIPopulationSchema/SdaiModel`` instances representing the application domain to search, conforming to both `Collection` and `Sendable` for concurrency safety.
     /// - Returns: An array of persistent references (`ENT.PRef`) to entities of type `ENT` in the domain that reference this complex entity through the given role.
     ///
     /// - Note: This function is particularly useful for schema navigation, query evaluation, or reporting tasks where the relationships established by specific attributes (roles) are of interest.
@@ -1047,7 +1047,7 @@ extension SDAI {
     ///
     /// - Parameters:
     ///   - role: A `KeyPath` specifying the attribute on type `ENT` that is expected to yield references to other entities. Must resolve to a property conforming to `SDAI.GenericType`.
-    ///   - domain: A collection of ``SDAIPopulationSchema.SdaiModel`` instances representing the application domain to search, conforming to both `Collection` and `Sendable` for concurrency safety.
+    ///   - domain: A collection of ``SDAIPopulationSchema/SdaiModel`` instances representing the application domain to search, conforming to both `Collection` and `Sendable` for concurrency safety.
     /// - Returns: An array of persistent references (`ENT.PRef`) to entities of type `ENT` in the domain that reference this complex entity through the given role.
     ///
     /// - Note: This function is particularly useful for schema navigation, query evaluation, or reporting tasks where the relationships established by specific attributes (roles) are of interest.

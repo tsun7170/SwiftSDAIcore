@@ -564,7 +564,7 @@ extension SDAI {
     ///
     /// - Note: This function is particularly useful for traversing inverse attributes in EXPRESS schemas, as well as for general reference tracing in SDAI-based population models.
     ///
-    /// - SeeAlso: ``SDAI/EntityReference/referencingEntity(for:)``, ``SDAI/EntityReferenceYielding/persistentEntityReferences``
+    /// - SeeAlso: ``SDAI/EntityReference/referencingEntity(for:)-(KeyPath<SourceEntity,AttributeValue?>)``, ``SDAI/EntityReferenceYielding/persistentEntityReferences``
 		public func referencingEntities<SourceEntity,AttributeValue>(
 			for attribute: KeyPath<SourceEntity,AttributeValue>
 		) -> some Collection<SourceEntity.PRef>
@@ -613,7 +613,7 @@ extension SDAI {
     ///
     /// - Note: This function is particularly useful for traversing inverse attributes in EXPRESS schemas, as well as general reference tracing in SDAI-based population models.
     ///
-    /// - SeeAlso: ``SDAI/EntityReference/referencingEntity(for:)``, ``SDAI/EntityReferenceYielding/persistentEntityReferences``
+    /// - SeeAlso: ``SDAI/EntityReference/referencingEntity(for:)-(KeyPath<SourceEntity,AttributeValue>)``, ``SDAI/EntityReferenceYielding/persistentEntityReferences``
 		public func referencingEntities<SourceEntity,AttributeValue>(
 			for attribute: KeyPath<SourceEntity,AttributeValue?>
 		) -> some Collection<SourceEntity.PRef>
@@ -662,7 +662,7 @@ extension SDAI {
     ///
     /// - Note: This method is most commonly used for traversing inverse attributes or for tracing entity relationships in SDAI-based models.
     ///
-    /// - SeeAlso: ``SDAI/EntityReference/referencingEntities(for:)``, ``SDAI/EntityReferenceYielding/persistentEntityReferences``
+    /// - SeeAlso: ``SDAI/EntityReference/referencingEntities(for:)-(KeyPath<SourceEntity,AttributeValue?>)``, ``SDAI/EntityReferenceYielding/persistentEntityReferences``
 		public func referencingEntity<SourceEntity,AttributeValue>(
 			for attribute: KeyPath<SourceEntity,AttributeValue>
 		) -> SourceEntity.PRef?
@@ -710,7 +710,7 @@ extension SDAI {
     ///
     /// - Note: This method is most commonly used for traversing inverse attributes or for tracing entity relationships in SDAI-based models.
     ///
-    /// - SeeAlso: ``SDAI/EntityReference/referencingEntities(for:)``, ``SDAI/EntityReferenceYielding/persistentEntityReferences``
+    /// - SeeAlso: ``SDAI/EntityReference/referencingEntities(for:)-(KeyPath<SourceEntity,AttributeValue>)``, ``SDAI/EntityReferenceYielding/persistentEntityReferences``
 		public func referencingEntity<SourceEntity,AttributeValue>(
 			for attribute: KeyPath<SourceEntity,AttributeValue?>
 		) -> SourceEntity.PRef?
@@ -1078,7 +1078,7 @@ extension SDAI {
     ///
     /// - Returns: An `AttributeList` representing all essential attributes (inheritable and direct) of this entity instance that yield entity references, with values obtained from the current instance and definitions sourced from the entity's schema metadata.
     ///
-    /// - SeeAlso: ``SDAI/EntityReference/allAttributes``, ``SDAI/EntityReference/definition``, ``SDAIDictionarySchema.EntityDefinition/entityYieldingEssentialAttributes``
+    /// - SeeAlso: ``SDAI/EntityReference/allAttributes``, ``SDAI/EntityReference/definition``, ``SDAIDictionarySchema/EntityDefinition/entityYieldingEssentialAttributes``
     public var allEntityYieldingEssentialAttributes: AttributeList {
       return AttributeList(
         entity: self,

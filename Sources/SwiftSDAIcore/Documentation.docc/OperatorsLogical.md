@@ -12,7 +12,6 @@ The logical operators consist of not, and, or and xor. Each produces a logical r
 as defined in section 12.4.1 of ISO 10303-21
 
 - ``!(_:)-(T1?)``
-- ``!(_:)-(T2)``
 - ``!(_:)-(T3?)``
 
 
@@ -20,9 +19,6 @@ as defined in section 12.4.1 of ISO 10303-21
 as defined in section 12.4.2 of ISO 10303-21
 
 - ``&&(_:_:)-(T1?,_)``
-- ``&&(_:_:)-(T2,_)``
-- ``&&(_:_:)-(T3?,_)``
-- ``&&(_:_:)-(T4,_)``
 - ``&&(_:_:)-(T5?,_)``
 - ``&&(_:_:)-(T6?,_)``
 - ``&&(_:_:)-(T7?,_)``
@@ -31,9 +27,6 @@ as defined in section 12.4.2 of ISO 10303-21
 as defined in section 12.4.3 of ISO 10303-21
 
 - ``||(_:_:)-(T1?,_)``
-- ``||(_:_:)-(T2,_)``
-- ``||(_:_:)-(T3?,_)``
-- ``||(_:_:)-(T4,_)``
 - ``||(_:_:)-(T5?,_)``
 - ``||(_:_:)-(T6?,_)``
 - ``||(_:_:)-(T7?,_)``

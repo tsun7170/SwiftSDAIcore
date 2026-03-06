@@ -49,21 +49,6 @@ public func && <T1: SDAI.LogicalType, U1: SDAI.LogicalType>(
 
 /// Logical AND: Logical && Logical? = LOGICAL
 ///
-//public func && <T2: SDAI.LogicalType, U2: SDAI.LogicalType>(
-//  lhs: T2 , rhs: U2?) -> SDAI.LOGICAL
-//{
-//	return lhs && SDAI.LOGICAL(rhs)
-//}
-
-/// Logical AND: Logical? && Logical = LOGICAL
-///
-//public func && <T3: SDAI.LogicalType, U3: SDAI.LogicalType>(
-//  lhs: T3?, rhs: U3 ) -> SDAI.LOGICAL {
-//	return SDAI.LOGICAL(lhs) && rhs
-//}
-
-/// Logical AND: Logical && Logical? = LOGICAL
-///
 /// designated _logical and_ operator for the SDAI.LogicalType
 /// - TRUE && TRUE -> TRUE
 /// - TRUE && UNKNOWN -> UNKNOWN
@@ -120,21 +105,6 @@ public func || <T1: SDAI.LogicalType, U1: SDAI.LogicalType>(
 	return SDAI.LOGICAL(lhs) || SDAI.LOGICAL(rhs)
 }
 
-/// Logical OR: Logical || Logical? = LOGICAL
-///
-//public func || <T2: SDAI.LogicalType, U2: SDAI.LogicalType>(
-//  lhs: T2 , rhs: U2?) -> SDAI.LOGICAL
-//{
-//	return lhs || SDAI.LOGICAL(rhs)
-//}
-
-/// Logical OR: Logical? || Logical = LOGICAL
-///
-//public func || <T3: SDAI.LogicalType, U3: SDAI.LogicalType>(
-//  lhs: T3?, rhs: U3 ) -> SDAI.LOGICAL
-//{
-//	return SDAI.LOGICAL(lhs) || rhs
-//}
 
 /// Logical OR: Logical || Logical = LOGICAL
 ///
