@@ -229,17 +229,19 @@ public func + <T3: SDAI.TypeHierarchy.BAG__TypeBehavior, U3: SDAI.GenericType>(
 	lhs: T3?, rhs: U3?) -> SDAI.BAG<T3.ELEMENT>?
 //where T3.ELEMENT.FundamentalType == U3.FundamentalType
 {
+  guard let lhs = lhs else { return nil }
+
   if let rhs = rhs?.bagValue(elementType: T3.ELEMENT.self) {
-    return lhs + rhs
+    return lhs.unionWith(rhs: rhs)
   }
   if let rhs = rhs?.setValue(elementType: T3.ELEMENT.self) {
-    return lhs + rhs
+    return lhs.unionWith(rhs: rhs)
   }
   if let rhs = rhs?.listValue(elementType: T3.ELEMENT.self) {
-    return lhs + rhs
+    return lhs.unionWith(rhs: rhs)
   }
   if let rhs = T3.ELEMENT(fromGeneric: rhs) {
-    return lhs?.unionWith(rhs: rhs)
+    return lhs.unionWith(rhs: rhs)
   }
   return nil
 
@@ -396,17 +398,19 @@ public func + <T21: SDAI.TypeHierarchy.SET__TypeBehavior, U21: SDAI.GenericType>
 	lhs: T21?, rhs: U21?) -> SDAI.SET<T21.ELEMENT>?
 //where T21.ELEMENT.FundamentalType == U21.FundamentalType
 {
+  guard let lhs = lhs else { return nil }
+
   if let rhs = rhs?.bagValue(elementType: T21.ELEMENT.self) {
-    return lhs + rhs
+    return lhs.unionWith(rhs: rhs)
   }
   if let rhs = rhs?.setValue(elementType: T21.ELEMENT.self) {
-    return lhs + rhs
+    return lhs.unionWith(rhs: rhs)
   }
   if let rhs = rhs?.listValue(elementType: T21.ELEMENT.self) {
-    return lhs + rhs
+    return lhs.unionWith(rhs: rhs)
   }
   if let rhs = T21.ELEMENT(fromGeneric: rhs) {
-    return lhs?.unionWith(rhs: rhs)
+    return lhs.unionWith(rhs: rhs)
   }
   return nil
 
@@ -549,17 +553,19 @@ public func + <T38: SDAI.TypeHierarchy.LIST__TypeBehavior, U38: SDAI.GenericType
 	lhs: T38?, rhs: U38?) -> SDAI.LIST<T38.ELEMENT>?
 //where T38.ELEMENT.FundamentalType == U38.FundamentalType
 {
-  if let rhs = rhs?.bagValue(elementType: T38.ELEMENT.self) {
-    return lhs + rhs
-  }
-  if let rhs = rhs?.setValue(elementType: T38.ELEMENT.self) {
-    return lhs + rhs
-  }
+  guard let lhs = lhs else { return nil }
+
+//  if let rhs = rhs?.bagValue(elementType: T38.ELEMENT.self) {
+//    return lhs + rhs
+//  }
+//  if let rhs = rhs?.setValue(elementType: T38.ELEMENT.self) {
+//    return lhs + rhs
+//  }
   if let rhs = rhs?.listValue(elementType: T38.ELEMENT.self) {
-    return lhs + rhs
+    return lhs.appendWith(rhs: rhs)
   }
   if let rhs = T38.ELEMENT(fromGeneric: rhs) {
-    return lhs?.appendWith(rhs: rhs)
+    return lhs.appendWith(rhs: rhs)
   }
   return nil
 
@@ -793,14 +799,16 @@ public func - <T2: SDAI.TypeHierarchy.BAG__TypeBehavior, U2: SDAI.GenericType>(
 	lhs: T2?, rhs: U2?) -> SDAI.BAG<T2.ELEMENT>?
 //where T2.ELEMENT.FundamentalType == U2.FundamentalType
 {
+  guard let lhs = lhs else { return nil }
+  
   if let rhs = rhs?.bagValue(elementType: T2.ELEMENT.self) {
-    return lhs - rhs
+    return lhs.differenceWith(rhs: rhs)
   }
   if let rhs = rhs?.setValue(elementType: T2.ELEMENT.self) {
     return lhs - rhs
   }
   if let rhs = T2.ELEMENT(fromGeneric: rhs) {
-    return lhs?.differenceWith(rhs: rhs)
+    return lhs.differenceWith(rhs: rhs)
   }
   return nil
 
@@ -880,14 +888,16 @@ public func - <T11: SDAI.TypeHierarchy.SET__TypeBehavior, U11: SDAI.GenericType>
 	lhs: T11?, rhs: U11?) -> SDAI.SET<T11.ELEMENT>?
 //where T11.ELEMENT.FundamentalType == U11.FundamentalType
 {
+  guard let lhs = lhs else { return nil }
+
   if let rhs = rhs?.bagValue(elementType: T11.ELEMENT.self) {
-    return lhs - rhs
+    return lhs.differenceWith(rhs: rhs)
   }
   if let rhs = rhs?.setValue(elementType: T11.ELEMENT.self) {
-    return lhs - rhs
+    return lhs.differenceWith(rhs: rhs)
   }
   if let rhs = T11.ELEMENT(fromGeneric: rhs) {
-    return lhs?.differenceWith(rhs: rhs)
+    return lhs.differenceWith(rhs: rhs)
   }
   return nil
 

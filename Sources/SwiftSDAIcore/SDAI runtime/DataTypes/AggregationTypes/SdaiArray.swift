@@ -397,8 +397,8 @@ extension SDAI {
 			}
 		}
 
-		public init?(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
-			guard let elem = ELEMENT(p21omittedParamfrom: exchangeStructure) else { return nil }
+		public init?(p21omittedParamFrom exchangeStructure: P21Decode.ExchangeStructure) {
+			guard let elem = ELEMENT(p21omittedParamFrom: exchangeStructure) else { return nil }
 			self.init(from: [elem], bound1: 1, bound2: 1)
 		}
 		

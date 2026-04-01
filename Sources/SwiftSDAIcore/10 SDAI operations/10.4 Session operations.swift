@@ -119,8 +119,8 @@ extension SDAISessionSchema.SdaiSession {
   ///
 	@discardableResult
 	public func performTransactionRW<Output: Sendable>(
-		output: Output.Type = Void.self,
-		action:@Sendable @escaping (_ transaction: SDAISessionSchema.SdaiTransactionRW) async -> Disposition<Output> ) async -> Disposition<Output>
+//		output: Output.Type = Void.self,
+    action:@Sendable @escaping (_ transaction: SDAISessionSchema.SdaiTransactionRW) async -> SDAI.Disposition<Output> ) async -> SDAI.Disposition<Output>
 	 {
 		 if let activeTransaction = self.activeTransaction {
 			 SDAI.raiseErrorAndContinue(.TR_EXS(activeTransaction), detail: "A transaction has already been started.")
@@ -146,8 +146,8 @@ extension SDAISessionSchema.SdaiSession {
   ///
 	@discardableResult
 	public func performTransactionRO<Output: Sendable>(
-		output: Output.Type = Void.self,
-		action:@Sendable @escaping (_ transaction: SDAISessionSchema.SdaiTransactionRO) async -> Disposition<Output> ) async -> Disposition<Output>
+//		output: Output.Type = Void.self,
+    action:@Sendable @escaping (_ transaction: SDAISessionSchema.SdaiTransactionRO) async -> SDAI.Disposition<Output> ) async -> SDAI.Disposition<Output>
 	 {
 		 if let activeTransaction = self.activeTransaction {
 			 SDAI.raiseErrorAndContinue(.TR_EXS(activeTransaction), detail: "A transaction has already been started.")
@@ -172,8 +172,8 @@ extension SDAISessionSchema.SdaiSession {
   ///
   @discardableResult
   public func performTransactionVA<Output: Sendable>(
-    output: Output.Type = Void.self,
-    action:@Sendable @escaping (_ transaction: SDAISessionSchema.SdaiTransactionVA) async -> Disposition<Output> ) async -> Disposition<Output>
+//    output: Output.Type = Void.self,
+    action:@Sendable @escaping (_ transaction: SDAISessionSchema.SdaiTransactionVA) async -> SDAI.Disposition<Output> ) async -> SDAI.Disposition<Output>
   {
     if let activeTransaction = self.activeTransaction {
       SDAI.raiseErrorAndContinue(.TR_EXS(activeTransaction), detail: "A transaction has already been started.")

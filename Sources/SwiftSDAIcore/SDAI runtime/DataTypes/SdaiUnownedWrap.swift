@@ -92,8 +92,8 @@ extension SDAI.UnownedWrap: SDAI.Initializable.ByP21Parameter where REF: SDAI.In
 		self.init(obj)
 	}
 	
-	public init?(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
-		guard let obj = REF.init(p21omittedParamfrom: exchangeStructure) else { return nil }
+	public init?(p21omittedParamFrom exchangeStructure: P21Decode.ExchangeStructure) {
+		guard let obj = REF.init(p21omittedParamFrom: exchangeStructure) else { return nil }
 		self.init(obj)
 	}
 }

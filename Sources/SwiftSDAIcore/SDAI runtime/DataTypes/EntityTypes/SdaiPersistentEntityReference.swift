@@ -253,9 +253,9 @@ extension SDAI {
 		}
 
 		public required convenience init?(
-			p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure)
+			p21omittedParamFrom exchangeStructure: P21Decode.ExchangeStructure)
 		{
-			guard let eref = EREF.init(p21omittedParamfrom: exchangeStructure)
+			guard let eref = EREF.init(p21omittedParamFrom: exchangeStructure)
 			else { return nil }
 
 			self.init(eref)

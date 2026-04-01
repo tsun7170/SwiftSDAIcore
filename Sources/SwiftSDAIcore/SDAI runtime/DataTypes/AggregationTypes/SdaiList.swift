@@ -520,7 +520,7 @@ extension SDAI {
 		}
 
 
-		public init(p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure) {
+		public init(p21omittedParamFrom exchangeStructure: P21Decode.ExchangeStructure) {
 			self.init()
 		}
 		

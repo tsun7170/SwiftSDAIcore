@@ -49,7 +49,7 @@ extension SDAI.Initializable {
     /// init from p21omittedParam
     /// - Parameter exchangeStructure: <#exchangeStructure description#>
     init?(
-      p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure)
+      p21omittedParamFrom exchangeStructure: P21Decode.ExchangeStructure)
 
   }
 }
@@ -83,7 +83,7 @@ public extension SDAI.Initializable.ByP21Parameter
 			}
 			
 		case .omittedParameter:
-			self.init(p21omittedParamfrom: exchangeStructure)
+			self.init(p21omittedParamFrom: exchangeStructure)
 			
 		case .sdaiGeneric(let generic):
 			self.init(fromGeneric: generic)
@@ -156,9 +156,9 @@ public extension SDAI.Initializable.ByP21Parameter
 where Self: SDAI.DefinedType
 {
 	init?(
-		p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure)
+		p21omittedParamFrom exchangeStructure: P21Decode.ExchangeStructure)
 	{
-		guard let supertype = Supertype(p21omittedParamfrom: exchangeStructure) else { return nil }
+		guard let supertype = Supertype(p21omittedParamFrom: exchangeStructure) else { return nil }
 		self.init(fundamental: supertype.asFundamentalType)
 	}
 
@@ -168,7 +168,7 @@ public extension SDAI.Initializable.ByP21Parameter
 where Self: SDAI.EntityReference
 {
 	init?(
-		p21omittedParamfrom exchangeStructure: P21Decode.ExchangeStructure)
+		p21omittedParamFrom exchangeStructure: P21Decode.ExchangeStructure)
 	{
 		return nil
 	}

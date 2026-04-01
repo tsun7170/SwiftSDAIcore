@@ -8,6 +8,11 @@
 
 import Foundation
 
+extension SDAI {
+  public typealias Transaction = SDAISessionSchema.SdaiTransaction
+  public typealias Disposition = SDAISessionSchema.SdaiTransaction.Disposition
+}
+
 extension SDAISessionSchema {
 
 	/// ISO 10303-22 (7.4.5) sdai_transaction (read-only)
@@ -22,10 +27,24 @@ extension SDAISessionSchema {
 			case commit(Output)
 			case abort
 
-			public static var commit: Disposition<Void> {
-				.commit(Void())
-			}
-		}
+//			public static var commit: Disposition<Void> {
+//				.commit(Void())
+//			}
+
+      public var output: Output? {
+        switch self {
+          case .commit(let result): return result
+          case .abort: return nil
+        }
+      }
+
+      public var isCommitted: Bool {
+        switch self {
+          case .commit(_): return true
+          case .abort: return false
+        }
+      }
+		}//enum
 
 		//MARK: Attribute definitions:
 
@@ -379,13 +398,13 @@ public final class SdaiTransactionVA: SdaiTransactionRO, @unchecked Sendable
 //MARK: - SdaiSession transaction supports
 
 extension SDAISessionSchema.SdaiSession {
-	public typealias SdaiTransaction = SDAISessionSchema.SdaiTransaction
-	public typealias Disposition = SDAISessionSchema.SdaiTransaction.Disposition
+//	public typealias SdaiTransaction = SDAISessionSchema.SdaiTransaction
+//	public typealias Disposition = SDAISessionSchema.SdaiTransaction.Disposition
 
-	internal func perform<T: SdaiTransaction, Output: Sendable>(
+  internal func perform<T: SDAI.Transaction, Output: Sendable>(
 		transaction: T,
-		async action: @Sendable @escaping (_ transaction: T) async -> Disposition<Output>
-	) async -> Disposition<Output>
+    async action: @Sendable @escaping (_ transaction: T) async -> SDAI.Disposition<Output>
+  ) async -> SDAI.Disposition<Output>
 	{
 		self.activeTransaction = transaction
 
