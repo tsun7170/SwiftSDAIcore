@@ -221,13 +221,9 @@ extension SDAI {
       else if let eref = generic as? EREF {
         self.init(eref)
       }
-      else if let entity = generic as? SDAI.EntityReference {
-        let complex = entity.complexEntity
-        let eref = complex.entityReference(EREF.self)
-        self.init(eref)
-			}
       else {
-        return nil
+        let entity = generic?.entityReference
+        self.init(possiblyFrom: entity)
       }
 		}
 

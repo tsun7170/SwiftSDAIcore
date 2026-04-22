@@ -110,6 +110,7 @@ extension P21Decode {
     ///
     /// - SeeAlso: `ForeignReferenceResolver`
 		public let foreignReferenceResolver: ForeignReferenceResolver
+    
     /// The `repository` property provides the persistent storage and management context for all models, entities, and values decoded from the STEP exchange file.
     ///
     /// This repository acts as a centralized backing store for the decoded data, enabling consistent access to the parsed models and their contents.
