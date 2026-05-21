@@ -936,7 +936,7 @@ where T14.ELEMENT: SDAI.TypeHierarchy.REAL__TypeBehavior,
 	return lhs.differenceWith(rhs: SDAI.REAL(rhs))
 }
 
-/// Aggregate Difference: SET\<LOGICL\> - Boolean = SET
+/// Aggregate Difference: SET\<LOGICAL\> - Boolean = SET
 ///
 public func - <T15: SDAI.TypeHierarchy.SET__TypeBehavior, U15>(
 	lhs: T15?, rhs: U15?) -> SDAI.SET<T15.ELEMENT>?
