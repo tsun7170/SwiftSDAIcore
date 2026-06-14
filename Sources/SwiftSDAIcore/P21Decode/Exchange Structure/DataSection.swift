@@ -159,13 +159,13 @@ extension P21Decode.ExchangeStructure {
     ///   - `P21Decode.ExchangeStructure.headerSection`
     ///   - `P21Decode.ExchangeStructure.DataSection`
     ///   - `P21Decode.SchemaName`
-		public init?(exchange: P21Decode.ExchangeStructure)
+    public init?(exchange: P21Decode.ExchangeStructure, dataSectionName: String = "PRIMARY")
 		{
 			guard exchange.headerSection.fileSchema.SCHEMA_IDENTIFIERS.count == 1
 			else { exchange.error = "header section file_schema entry shall specify only one schema (while \(exchange.headerSection.fileSchema.SCHEMA_IDENTIFIERS.count) schema found) since data section header does not have PARAMETER_LIST"; return nil }
 			
 			self.exchangeStructure = exchange
-			self.name = "PRIMARY"
+			self.name = dataSectionName
 			self.governingSchema = exchange.headerSection.fileSchema.SCHEMA_IDENTIFIERS[0]
 		}
 		

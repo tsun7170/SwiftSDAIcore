@@ -590,7 +590,8 @@ extension P21Decode {
 						return ds
 					}
 					else {
-						guard let ds = ExchangeStructure.DataSection(exchange: exchangeStructure) else { setError(from: exchangeStructure, context: "while parsing data section header parameters"); return nil }
+						guard let ds = ExchangeStructure.DataSection(exchange: exchangeStructure, dataSectionName: "")
+            else { setError(from: exchangeStructure, context: "while parsing data section header parameters"); return nil }
 						return ds
 					}
 					
