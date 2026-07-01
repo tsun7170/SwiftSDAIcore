@@ -142,7 +142,9 @@ extension SDAISessionSchema {
         return cache
       }
 
-      let cache = ThreadLocalCache(transactionID: transactionID)
+      let cache = ThreadLocalCache(
+        transactionID: transactionID,
+        needStatistics: self.owningSession?.threadLocalCacheStatistics ?? false)
       threadDict[CACHE_KEY] = cache
       return cache
     }
@@ -191,20 +193,20 @@ extension SDAISessionSchema {
       let transactionID: SdaiTransaction.ID
       let label: String
 
-      init(transactionID: SdaiTransaction.ID) {
+      init(transactionID: SdaiTransaction.ID, needStatistics: Bool) {
         self.transactionID = transactionID
         self.label = Task.name ?? "<unnamed>"
       }
 
       //MARK: sdai-model cache related
       private var modelCache: [SDAIModelID:SdaiModel] = [:]
-      private var modelCacheStatistics = CacheStatistics()
+      private var modelCacheStatistics: CacheStatistics?
 
       func lookup(
         modelID: SDAIModelID) -> SdaiModel?
       {
         let result = modelCache[modelID]
-        modelCacheStatistics.update(with: result)
+        modelCacheStatistics?.update(with: result)
         return result
       }
 
@@ -215,7 +217,7 @@ extension SDAISessionSchema {
 
       //MARK: complex entity cache related
       private var complexCache: [PersistentComplexKey:SDAI.ComplexEntity] = [:]
-      private var complexCacheStatistics = CacheStatistics()
+      private var complexCacheStatistics: CacheStatistics?
 
       func lookup(
         complexID: ComplexEntityID,
@@ -225,7 +227,7 @@ extension SDAISessionSchema {
           complexID: complexID, modelID: modelID)
 
         let result = complexCache[complexKey]
-        complexCacheStatistics.update(with: result)
+        complexCacheStatistics?.update(with: result)
         return result
       }
 
@@ -246,13 +248,15 @@ extension SDAISessionSchema {
       var statisticsDescription: String {
         """
         SDAI Thread Local Cache Statistics [\(self.label)]
-         complex cache[\(self.complexCache.count)]:\t \(self.complexCacheStatistics)
-         model   cache[\(self.modelCache.count  )]:\t \(self.modelCacheStatistics)
+         complex cache[\(self.complexCache.count)]:\t \(self.complexCacheStatistics, default: "")
+         model   cache[\(self.modelCache.count  )]:\t \(self.modelCacheStatistics, default: "")
         """
       }
 
       deinit {
-        loggerSDAI.info("\n\(self.statisticsDescription)\n")
+        if self.complexCacheStatistics != nil {
+          loggerSDAI.info("\n\(self.statisticsDescription)\n")
+        }
       }
 
 

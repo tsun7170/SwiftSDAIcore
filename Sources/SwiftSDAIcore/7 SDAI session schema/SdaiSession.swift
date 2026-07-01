@@ -117,6 +117,7 @@ extension SDAISessionSchema {
       maxCacheUpdateAttempts: Int /*= 1000*/,
       maxUsedinNesting: Int /*= 2*/,
       runUsedinCacheWarming: Bool /*= true*/,
+      threadLocalCacheStatistics: Bool /*= false*/,
       maxValidationTaskSegmentation: Int /*= 400*/,
       minValidationTaskChunkSize: Int /*= 8*/,
       validateTemporaryEntities: Bool,
@@ -131,6 +132,7 @@ extension SDAISessionSchema {
 
       self.maxUsedinNesting = maxUsedinNesting
       self.runUsedinCacheWarming = runUsedinCacheWarming
+      self.threadLocalCacheStatistics = threadLocalCacheStatistics
 
       self.maxValidationTaskSegmentation = maxValidationTaskSegmentation
       self.minValidationTaskChunkSize = minValidationTaskChunkSize
@@ -155,6 +157,7 @@ extension SDAISessionSchema {
 
     public let validateTemporaryEntities: Bool
 
+    public let threadLocalCacheStatistics: Bool
 
     public func terminateCachingTasks() {
       for model in activeModels {
