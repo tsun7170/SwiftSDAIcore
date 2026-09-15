@@ -18,7 +18,11 @@ let package = Package(
 	targets: [
 		.target(
 			name: "SwiftSDAIcore",
-			dependencies: []),
+			dependencies: [],
+      swiftSettings: [
+        .swiftLanguageMode(.v6)
+      ]
+    ),
 		.testTarget(
 			name: "SwiftSDAIcoreTests",
 			dependencies: ["SwiftSDAIcore"]),
